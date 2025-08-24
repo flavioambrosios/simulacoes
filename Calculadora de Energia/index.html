@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Energia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* === ESTILOS GERAIS === */
+        body { padding: 20px; }
+        .hidden { display: none !important; }
+        
+        /* === CARDS === */
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #ddd;
+        }
+        .card-body canvas {
+            border-radius: 8px;
+        }
+        
+        /* === LISTAS === */
+        .list-group-item {
+            border-left: 4px solid #007bff;
+            margin-bottom: 8px;
+        }
+        
+        /* === CORES === */
+        .text-success { color: #28a745 !important; }
+        .text-danger { color: #dc3545 !important; }
+        .text-primary { color: #007bff !important; }
+        
+        /* === TEXTO === */
+        .fw-bold { font-weight: bold !important; }
+        .small { font-size: 0.875em !important; }
+        .border-bottom { border-bottom: 1px solid #dee2e6 !important; }
+        
+        /* === GRÁFICO === */
+        #graficoConsumo {
+            max-height: 300px;
+        }
+        /* Responsividade para mobile */
+@media (max-width: 768px) {
+    #graficoConsumo {
+        max-height: 250px;
+    }
+    
+    .card-body canvas {
+        border-radius: 6px;
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Tela 1: Cadastro do Usuário -->
+    <div id="userForm">
+        <h2>Cadastro</h2>
+        <input type="text" id="nome" placeholder="Nome Completo" class="form-control mb-2">
+        <input type="email" id="email" placeholder="E-mail" class="form-control mb-2">
+        <input type="number" id="qtdFamiliares" placeholder="Quantidade de Familiares" class="form-control mb-2">
+        <div id="familiaresContainer"></div>
+        <button id="btnProximo" class="btn btn-primary">Próximo</button>
+    </div>
+
+    <!-- Tela 2: Seleção de Eletrodomésticos -->
+    <div id="eletroForm" class="hidden">
+        <h2>Seus Eletrodomésticos</h2>
+        <select id="eletroSelect" class="form-select mb-2">
+            <option value="">Selecione um eletrodoméstico</option>
+            
+            <optgroup label="🏠 Cozinha">
+                <option value="geladeira">Geladeira</option>
+                <option value="fogaoeletrico">Fogão Elétrico</option>
+                <option value="fornoeletrico">Forno Elétrico</option>
+                <option value="microondas">Micro-ondas</option>
+                <option value="lavaloucas">Máquina de Lavar Louça</option>
+                <option value="cafeteira">Cafeteira</option>
+                <option value="liquidificador">Liquidificador</option>
+                <option value="batedeira">Batedeira</option>
+            </optgroup>
+            
+            <optgroup label="🚿 Banheiro">
+                <option value="torneiraeletrica">Torneira Elétrica</option>
+                <option value="chuveiroeletrico">Chuveiro Elétrico</option>
+            </optgroup>
+            
+            <optgroup label="🧺 Lavanderia">
+                <option value="maquinalavar">Máquina de Lavar</option>
+                <option value="secadora">Secadora de Roupas</option>
+                <option value="ferro">Ferro Elétrico</option>
+            </optgroup>
+            
+            <optgroup label="📺 Sala/Quarto">
+                <option value="tv">TV</option>
+                <option value="arcondicionado">Ar-Condicionado</option>
+                <option value="ventilador">Ventilador</option>
+                <option value="aspirador">Aspirador de Pó</option>
+                <option value="lampada">Lâmpada LED</option>
+            </optgroup>
+            
+            <optgroup label="🔧 Outros">
+                <option value="outro1">Outro (10W-100W)</option>
+                <option value="outro2">Outro (100W-1000W)</option>
+                <option value="outro3">Outro (1000W-6000W)</option>
+            </optgroup>
+        </select>
+        <select id="potenciaSelect" class="form-select mb-2">
+            <option value="">Selecione a potência (W)</option>
+        </select>
+        <button id="btnAddEletro" class="btn btn-secondary">Adicionar</button>
+        <div id="eletroList" class="mt-3"></div>
+        <button id="btnIniciarMonitoramento" class="btn btn-primary mt-3">Iniciar Monitoramento</button>
+    </div>
+
+    <!-- Tela 3: Monitoramento em Tempo Real -->
+    <div id="monitoramento" class="hidden">
+        <h2>Monitoramento (24h)</h2>
+        
+        <!-- Contador de tempo e consumo -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 id="tempoDecorrido">Tempo: 00:00:00</h5>
+                <h5 id="consumoAtual">Consumo: 0.00 kWh</h5>
+            </div>
+        </div>
+        
+        <!-- Eletrodomésticos ativos -->
+        <h4>Controles dos Eletrodomésticos:</h4>
+        <div id="controlesEletro" class="mb-3"></div>
+        
+        <!-- Eletrodomésticos ativos no momento -->
+        <h4>Aparelhos Ativos:</h4>
+        <div id="eletroAtivos"></div>
+        
+        <button id="btnFinalizar" class="btn btn-danger mt-3">Finalizar Dia</button>
+    </div>
+
+    <!-- Tela 4: Resultado e Sugestões (ATUALIZADA) -->
+    <div id="resultado" class="hidden">
+    <h2>Resultado do Consumo</h2>
+    
+    <!-- Gráfico de Pizza -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4>📊 Distribuição do Consumo por Aparelho</h4>
+            <div style="position: relative; height: 300px;">
+                <canvas id="graficoConsumo"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Consumo Total -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="text-primary">Consumo Total: <span id="totalKWh">0.00</span> kWh</h4>
+        </div>
+    </div>
+        
+        <!-- Consumo por Aparelho -->
+        <h4>Consumo por Eletrodoméstico:</h4>
+        <div id="consumoPorAparelho" class="mb-3"></div>
+        
+        <!-- Sugestão de Economia -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>💡 Sugestão para Economizar 10%:</h5>
+                <p id="sugestaoEconomia" class="fw-bold"></p>
+                <p class="small">Economia potencial: <span id="economiaPotencial">0.00</span> kWh</p>
+            </div>
+        </div>
+        
+        <!-- Formulário para Enviar por Email -->
+        <div class="card">
+            <div class="card-body">
+                <h5>📧 Enviar Resultado</h5>
+                
+                <!-- Email do professor (fixo) -->
+                <div class="mb-2">
+                    <label class="form-label">Envio para o professor:</label>
+                    <div class="alert alert-primary">
+                        <strong>📧 Pro. Flávio Ambrósio</strong><br>
+                        flavio.ambrosio@edu.se.df.gov.br
+                    </div>
+                    <input type="hidden" id="emailDestino" value="flavio.ambrosio@edu.se.df.gov.br">
+                </div>
+                
+                <!-- Nome do aluno -->
+                <div class="mb-2">
+                    <label for="nomeAluno" class="form-label">Seu Nome:</label>
+                    <input type="text" id="nomeAluno" class="form-control" placeholder="Seu nome completo">
+                </div>
+                
+                <!-- Email do aluno (opcional) -->
+                <div class="mb-2">
+                    <label for="emailAluno" class="form-label">Seu Email (para receber uma cópia):</label>
+                    <input type="email" id="emailAluno" class="form-control" 
+                        placeholder="seu.email@estudante.com">
+                    <small class="form-text text-muted">Opcional - receba uma cópia do resultado</small>
+                </div>
+                
+                <!-- Mensagem do aluno -->
+                <div class="mb-2">
+                    <label for="mensagemAluno" class="form-label">Sua Estratégia de Economia:</label>
+                    <textarea id="mensagemAluno" class="form-control" rows="3" 
+                            placeholder="Como você pretende economizar energia em casa?"></textarea>
+                </div>
+                
+                <button id="btnEnviarEmail" class="btn btn-success">Enviar Resultado</button>
+                <div id="emailStatus" class="mt-2"></div>
+            </div>
+        </div>
+        
+        <button id="btnReiniciar" class="btn btn-primary mt-3">Fazer Nova Simulação</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
