@@ -38,12 +38,16 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwVQ3-wTtaU8TO8rwDd7
 // ==================== EVENT LISTENERS ====================
 
 // Botão PRÓXIMO
+// Botão PRÓXIMO - atualizado com novos campos
 document.getElementById('btnProximo').addEventListener('click', () => {
     usuario.nome = document.getElementById('nome').value;
     usuario.email = document.getElementById('email').value;
+    usuario.serie = document.getElementById('serie').value; // NOVO
+    usuario.turma = document.getElementById('turma').value; // NOVO
     usuario.qtdFamiliares = parseInt(document.getElementById('qtdFamiliares').value);
     
-    if (!usuario.nome || !usuario.email || isNaN(usuario.qtdFamiliares)) {
+    // Validação atualizada
+    if (!usuario.nome || !usuario.email || !usuario.serie || !usuario.turma || isNaN(usuario.qtdFamiliares)) {
         alert('Preencha todos os campos!');
         return;
     }
