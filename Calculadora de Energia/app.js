@@ -392,19 +392,18 @@ async function enviarEmailResultado() {
     }
 
     // Prepara dados para o professor
-    / Atualize os dados do email para incluir série e turma
-const dadosProfessor = {
-    to_email: emailProfessor,
-    nome_aluno: nomeAluno,
-    email_aluno: emailAluno || 'Não informado',
-    serie_aluno: usuario.serie, // NOVO
-    turma_aluno: usuario.turma, // NOVO
-    consumo_total: consumoTotal.toFixed(3),
-    sugestao: document.getElementById('sugestaoEconomia').textContent,
-    mensagem_aluno: mensagemAluno,
-    data: new Date().toLocaleDateString('pt-BR'),
-    tipo: 'RELATORIO_PROFESSOR'
-};
+    const dadosProfessor = {
+        to_email: emailProfessor,
+        nome_aluno: nomeAluno,
+        email_aluno: emailAluno || 'Não informado',
+        serie_aluno: usuario.serie, // NOVO
+        turma_aluno: usuario.turma, // NOVO
+        consumo_total: consumoTotal.toFixed(3),
+        sugestao: document.getElementById('sugestaoEconomia').textContent,
+        mensagem_aluno: mensagemAluno,
+        data: new Date().toLocaleDateString('pt-BR'),
+        tipo: 'RELATORIO_PROFESSOR'
+    };
 
     // Prepara dados para o aluno (cópia)
     const dadosAluno = {
