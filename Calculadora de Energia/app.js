@@ -232,9 +232,26 @@ function finalizarMonitoramento() {
 
 function mostrarConsumoPorAparelho() {
     const consumoDiv = document.getElementById('consumoPorAparelho');
-    consumoDiv.innerHTML = eletrosSelecionados.map(eletro => `
+    
+    // Agrupa consumo por tipo de eletrodoméstico
+    const consumoAgrupado = {};
+    eletrosSelecionados.forEach(eletro => {
+        if (eletro.consumo > 0) {
+            if (!consumoAgrupado[eletro.nome]) {
+                consumoAgrupado[eletro.nome] = 0;
+            }
+            consumoAgrupado[eletro.nome] += eletro.consumo;
+        }
+    });
+    
+    // Converte para array e ordena
+    const aparelhosAgrupados = Object.entries(consumoAgrupado)
+        .map(([nome, consumo]) => ({ nome, consumo }))
+        .sort((a, b) => b.consumo - a.consumo);
+    
+    consumoDiv.innerHTML = aparelhosAgrupados.map(eletro => `
         <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-            <span>${eletro.nome} (${eletro.potencia}W)</span>
+            <span>${eletro.nome}</span>
             <span class="fw-bold">${eletro.consumo.toFixed(3)} kWh</span>
         </div>
     `).join('');
@@ -251,14 +268,15 @@ function gerarSugestaoEconomia() {
         💰 Economia potencial: ${economiaPotencial} kWh
         
         ⚡ **AÇÕES RECOMENDADAS:**
-        • Reduza tempo no chuveiro elétrico
-        • Use lâmpadas led
-        • Lave roupas com água fria
-        • Dê preferência ao fogão a gás
-        • Use luz natural durante o dia
-        • Mantenha geladeira regulada
-        • Junte roupas para lavar/passar
-        
+        Observe o gráfico de pizza acima e identifique os eletromésticos 
+        que mais consomem eenergia e analise o que poderia ser feiro  
+        para diminuir este consumo, como por exemplo:
+        • Reduzir tempo de uso de tederminados eletordomésticos 
+        • Dae preferência a lâmpadas que consomem menos.
+        • Concentrar o uso de alguns eletromésticos e um ou dos dias na semana.
+        • Avalie se o gás não é fonte energia mais barata.
+        • Faça o possível para usar luz natural durante o dia.
+               
         💡 **BENEFÍCIO:** Economia de R$ ${(economiaPotencial * 0.85).toFixed(2)} por mês!
     `;
     
@@ -272,28 +290,46 @@ function gerarSugestaoEconomia() {
 function criarGraficoPizza() {
     const ctx = document.getElementById('graficoConsumo').getContext('2d');
     
-    const aparelhosComConsumo = eletrosSelecionados.filter(eletro => eletro.consumo > 0);
-    aparelhosComConsumo.sort((a, b) => b.consumo - a.consumo);
+    // Agrupa e soma consumo por tipo de eletrodoméstico
+    const consumoAgrupado = {};
+    eletrosSelecionados.forEach(eletro => {
+        if (eletro.consumo > 0) {
+            if (!consumoAgrupado[eletro.nome]) {
+                consumoAgrupado[eletro.nome] = 0;
+            }
+            consumoAgrupado[eletro.nome] += eletro.consumo;
+        }
+    });
     
-    // Limita a 8 aparelhos para não ficar poluído
-    const aparelhosExibidos = aparelhosComConsumo.slice(0, 8);
+    // Converte para array e ordena por consumo (maior primeiro)
+    const aparelhosAgrupados = Object.entries(consumoAgrupado)
+        .map(([nome, consumo]) => ({ nome, consumo }))
+        .sort((a, b) => b.consumo - a.consumo);
     
-    const labels = aparelhosExibidos.map(eletro => 
-        `${eletro.nome} (${eletro.consumo.toFixed(1)} kWh)`
+    // Prepara dados para o gráfico
+    const labels = aparelhosAgrupados.map(eletro => 
+        `${eletro.nome}`
     );
     
-    const dados = aparelhosExibidos.map(eletro => eletro.consumo);
+    const dados = aparelhosAgrupados.map(eletro => eletro.consumo);
     
+    // Cores para o gráfico
+    const cores = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+        '#8AC926', '#1982C4', '#6A4C93', '#F25C54', '#2A9D8F', '#E76F51',
+        '#588157', '#3A86FF', '#FB5607', '#8338EC'
+    ];
+    
+    // Cria o gráfico
     new Chart(ctx, {
         type: 'pie',
         data: {
             labels: labels,
             datasets: [{
                 data: dados,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
-                    '#9966FF', '#FF9F40', '#8AC926', '#1982C4'
-                ]
+                backgroundColor: cores,
+                borderWidth: 2,
+                borderColor: '#ffffff'
             }]
         },
         options: {
@@ -301,10 +337,40 @@ function criarGraficoPizza() {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: window.innerWidth < 768 ? 'bottom' : 'right',
+                    position: 'right',
                     labels: {
                         font: {
-                            size: window.innerWidth < 768 ? 10 : 12
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        padding: 15,
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            return data.labels.map((label, i) => {
+                                const value = data.datasets[0].data[i];
+                                const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                
+                                return {
+                                    text: `${i + 1}. ${label} - ${value.toFixed(2)} kWh (${percentage}%)`,
+                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                    strokeStyle: data.datasets[0].borderColor[i],
+                                    lineWidth: data.datasets[0].borderWidth[i],
+                                    hidden: false,
+                                    index: i
+                                };
+                            });
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value.toFixed(2)} kWh (${percentage}%)`;
                         }
                     }
                 }
