@@ -307,10 +307,7 @@ function criarGraficoPizza() {
         .sort((a, b) => b.consumo - a.consumo);
     
     // Prepara dados para o gráfico
-    const labels = aparelhosAgrupados.map(eletro => 
-        `${eletro.nome}`
-    );
-    
+    const labels = aparelhosAgrupados.map(eletro => eletro.nome);
     const dados = aparelhosAgrupados.map(eletro => eletro.consumo);
     
     // Cores para o gráfico
@@ -340,10 +337,10 @@ function criarGraficoPizza() {
                     position: 'right',
                     labels: {
                         font: {
-                            size: 12,
+                            size: 11,
                             weight: 'bold'
                         },
-                        padding: 15,
+                        padding: 10,
                         generateLabels: function(chart) {
                             const data = chart.data;
                             return data.labels.map((label, i) => {
@@ -352,7 +349,7 @@ function criarGraficoPizza() {
                                 const percentage = ((value / total) * 100).toFixed(1);
                                 
                                 return {
-                                    text: `${i + 1}. ${label} - ${value.toFixed(2)} kWh (${percentage}%)`,
+                                    text: `${label} (${percentage}%)`,
                                     fillStyle: data.datasets[0].backgroundColor[i],
                                     strokeStyle: data.datasets[0].borderColor[i],
                                     lineWidth: data.datasets[0].borderWidth[i],
@@ -368,9 +365,7 @@ function criarGraficoPizza() {
                         label: function(context) {
                             const label = context.label || '';
                             const value = context.raw;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(1);
-                            return `${label}: ${value.toFixed(2)} kWh (${percentage}%)`;
+                            return `${label}: ${value.toFixed(2)} kWh`;
                         }
                     }
                 }

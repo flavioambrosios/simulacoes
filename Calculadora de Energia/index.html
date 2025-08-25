@@ -42,28 +42,44 @@
             max-height: 300px;
         }
         /* Responsividade para mobile */
-@media (max-width: 768px) {
-    #graficoConsumo {
-        max-height: 250px;
+    @media (max-width: 768px) {
+        #graficoConsumo {
+            max-height: 250px;
+        }
+        
+        .card-body canvas {
+            border-radius: 6px;
+        }
     }
-    
-    .card-body canvas {
-        border-radius: 6px;
+    /* Adicione ao seu CSS */
+    .chart-legend {
+        font-weight: bold;
     }
-}
-/* Adicione ao seu CSS */
-.chart-legend {
-    font-weight: bold;
-}
 
-.chart-legend span {
-    margin-right: 8px;
-    border-radius: 4px;
-    padding: 2px 6px;
-    color: white;
-    font-weight: bold;
-    background: #6c757d;
-}
+    .chart-legend span {
+        margin-right: 8px;
+        border-radius: 4px;
+        padding: 2px 6px;
+        color: white;
+        font-weight: bold;
+        background: #6c757d;
+    }
+    /* Adicione ao seu CSS para melhor responsividade */
+    @media (max-width: 768px) {
+        #graficoConsumo {
+            max-height: 250px;
+        }
+        
+        .chartjs-legend {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .chartjs-legend li {
+            font-size: 10px !important;
+            margin-bottom: 5px !important;
+        }
+    }
     </style>
 </head>
 <body>
