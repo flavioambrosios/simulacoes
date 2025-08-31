@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulações Didáticas Interativas</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --text: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+        }
+        
+        nav {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .intro {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .intro h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        /* NOVO ESTILO PARA A ÁREA DE TESTE */
+        .test-area {
+            background-color: #E8F0FE;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .test-area label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .test-area input, .test-area select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .test-btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        
+        .test-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .test-btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .test-btn-secondary:hover {
+            background-color: #27ae60;
+        }
+        
+        #test-message {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid var(--danger);
+        }
+        /* FIM DOS NOVOS ESTILOS */
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .simulations {
+            margin-bottom: 3rem;
+        }
+        
+        .simulation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .simulation-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .simulation-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .simulation-img {
+            height: 160px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+        }
+        
+        .simulation-content {
+            padding: 1.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #27ae60;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .license {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                margin-top: 1rem;
+            }
+            
+            .nav-links li {
+                margin: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🧪 Simulações Didáticas</div>
+        <p class="tagline">Recursos educacionais interativos para aprendizagem ativa</p>
+    </header>
+    
+    <nav>
+        <div class="nav-container">
+            <div class="logo">Simulações Interativas</div>
+            <ul class="nav-links">
+                <li><a href="#">Início</a></li>
+                <li><a href="#">Simulações</a></li>
+                <li><a href="#">Banco de Dados</a></li>
+                <li><a href="#">Sobre</a></li>
+                <li><a href="#">Contato</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <section class="intro">
+            <h2>Bem-vindo ao seu portal de simulações didáticas!</h2>
+            <p>Este site oferece um conjunto de simulações interativas para enriquecer sua experiência de aprendizagem. Todas as simulações são desenvolvidas com critérios Creative Commons, permitindo compartilhamento e adaptação.</p>
+            <a href="#simulations" class="btn">Explorar Simulações</a>
+            
+            <!-- COLE AQUI O FORMULÁRIO DE TESTE -->
+            <div class="test-area">
+                <h3>Testar Conexão com Google Sheets</h3>
+                
+                <div class="form-group">
+                    <label for="script-url">'https://script.google.com/macros/s/AKfycbwv-2L1ncXXpnhHsV1UliiLa5fflkWPCVCsRrA5u4S49wgXh-7cxnHeqz91WGwFQY-f/exec'</label>
+                    <input type="text" id="script-url" placeholder="https://script.google.com/...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="student">Nome do Estudante:</label>
+                    <input type="text" id="student" placeholder="Nome do estudante">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" placeholder="E-mail do estudante">
+                </div>
+                
+                <div class="form-group">
+                    <label for="simulation">Simulação:</label>
+                    <select id="simulation">
+                        <option value="">Selecione uma simulação</option>
+                        <option value="Leis de Newton">Leis de Newton</option>
+                        <option value="Reações Químicas">Reações Químicas</option>
+                        <option value="Ecosystemas">Ecosystemas</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="score">Nota (0-10):</label>
+                    <input type="number" id="score" min="0" max="10" step="0.1" placeholder="Nota">
+                </div>
+                
+                <button class="test-btn" onclick="sendData()">Enviar Dados</button>
+                <button class="test-btn test-btn-secondary" onclick="loadData()">Carregar Dados</button>
+                
+                <div id="test-message"></div>
+            </div>
+            <!-- FIM DO FORMULÁRIO DE TESTE -->
+            
+        </section>
+        
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Banco de Dados Integrado</h3>
+                <p>Armazene informações dos estudantes, respostas de exercícios e notas em um sistema organizado e seguro.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎓</div>
+                <h3>Recursos Educacionais</h3>
+                <p>Acesse diversas simulações didáticas desenvolvidas para facilitar o aprendizado de forma interativa.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🔓</div>
+                <h3>Creative Commons</h3>
+                <p>Todos os materiais estão disponíveis sob licença Creative Commons, permitindo compartilhamento e adaptação.</p>
+            </div>
+        </section>
+        
+        <section id="simulations" class="simulations">
+            <h2>Simulações Disponíveis</h2>
+            <div class="simulation-grid">
+                <div class="simulation-card">
+                    <div class="simulation-img">Simulação de Física</div>
+                    <div class="simulation-content">
+                        <h3>Leis de Newton</h3>
+                        <p>Explore as leis do movimento através de experimentos virtuais interativos.</p>
+                        <a href="#" class="btn">Acessar</a>
+                    </div>
+                </div>
+                
+                <div class="simulation-card">
+                    <div class="simulation-img">Simulação de Química</div>
+                    <div class="simulation-content">
+                        <h3>Reações Químicas</h3>
+                        <p>Visualize e interaja com diferentes tipos de reações químicas em ambiente seguro.</p>
+                        <a href="#" class="btn">Acessar</a>
+                    </div>
+                </div>
+                
+                <div class="simulation-card">
+                    <div class="simulation-img">Simulação de Biologia</div>
+                    <div class="simulation-content">
+                        <h3>Ecosystemas</h3>
+                        <p>Observe como diferentes fatores afetam o equilíbrio de um ecossistema virtual.</p>
+                        <a href="#" class="btn">Acessar</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="intro">
+            <h2>Como utilizar as simulações</h2>
+            <p>Para começar, selecione uma simulação e siga as instruções. Como educador, você pode acessar o painel de administração para acompanhar o progresso dos estudantes.</p>
+            <a href="#" class="btn">Painel do Educador</a>
+            <a href="#" class="btn btn-secondary">Documentação</a>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <p>Simulações Didáticas Interativas - Recursos educacionais abertos para todos</p>
+            <div class="license">
+                <p>Este trabalho está licenciado sob uma <a href="#" style="color: #bbb;">Licença Creative Commons Atribuição 4.0 Internacional</a>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- COLE ESTE CÓDIGO JAVASCRIPT ANTES DO FECHAMENTO DA TAG </body> -->
+    <script>
+    // URL do seu Web App Google Apps Script
+    let SCRIPT_URL = '';
+    
+    // Função para enviar dados para o Google Sheets
+    async function sendData() {
+        // Obter URL do script
+        SCRIPT_URL = document.getElementById('script-url').value;
+        if (!SCRIPT_URL) {
+            showMessage('Por favor, cole o URL do seu script primeiro!', 'error');
+            return;
+        }
+        
+        const student = document.getElementById('student').value;
+        const email = document.getElementById('email').value;
+        const simulation = document.getElementById('simulation').value;
+        const score = document.getElementById('score').value;
+        
+        if (!student || !email || !simulation || !score) {
+            showMessage('Por favor, preencha todos os campos!', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ student, email, simulation, score })
+            });
+            
+            const result = await response.text();
+            showMessage('Dados enviados com sucesso! ' + result, 'success');
+            
+            // Limpar formulário
+            document.getElementById('student').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('simulation').value = '';
+            document.getElementById('score').value = '';
+            
+        } catch (error) {
+            showMessage('Erro ao enviar dados: ' + error, 'error');
+        }
+    }
+    
+    // Função para carregar dados do Google Sheets
+    async function loadData() {
+        // Obter URL do script
+        SCRIPT_URL = document.getElementById('script-url').value;
+        if (!SCRIPT_URL) {
+            showMessage('Por favor, cole o URL do seu script primeiro!', 'error');
+            return;
+        }
+        
+        try {
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            
+            showMessage('Dados carregados com sucesso! ' + data.length + ' registros encontrados.', 'success');
+            console.log(data); // Você pode ver os dados no console
+            
+        } catch (error) {
+            showMessage('Erro ao carregar dados: ' + error, 'error');
+        }
+    }
+    
+    // Função para mostrar mensagens
+    function showMessage(text, type) {
+        const messageDiv = document.getElementById('test-message');
+        messageDiv.textContent = text;
+        messageDiv.className = type;
+        messageDiv.style.display = 'block';
+    }
+    </script>
+    <!-- FIM DO CÓDIGO JAVASCRIPT -->
+</body>
+</html>
