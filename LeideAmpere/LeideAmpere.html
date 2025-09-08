@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação - Lei de Ampere</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #canvas3d {
+            width: 100%;
+            height: 400px;
+            border-radius: 8px;
+            background: #000;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .yellow { background: #ffff00; }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: none;
+                width: 100%;
+            }
+            #canvas3d {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação - Lei de Ampere</h1>
+            <p class="subtitle">Fio no eixo Z, campo no plano XY</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Visualização 3D</h2>
+                <div id="canvas3d"></div>
+                
+                <div class="visualization-toggle">
+                    <button id="linesBtn" class="active">Linhas de Campo</button>
+                    <button id="vectorsBtn">Vetores de Campo</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color red"></div>
+                        <span>Corrente positiva (↑ Z)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <span>Corrente negativa (↓ Z)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>Campo magnético (XY)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color yellow"></div>
+                        <span>Vetores de campo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="currentSlider">Corrente Elétrica (i):</label>
+                    <input type="range" id="currentSlider" min="-10" max="10" value="5" step="0.1">
+                    <div class="value-display"><span id="currentValue">5.0</span> A</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Ampere</h3>
+                    <p>B = (μ₀ · i) / (2πd)</p>
+                    <p>Onde:</p>
+                    <p>B → Campo magnético (T) ⟂ fio</p>
+                    <p>μ₀ → 4π×10⁻⁷ T·m/A</p>
+                    <p>i → Corrente elétrica (A)</p>
+                    <p>d → Distância do fio (m)</p>
+                </div>
+                
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Lei de Ampere</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão do Estudo</h3>
+                <p>Por favor, escreva abaixo suas conclusões sobre a simulação e os exercícios:</p>
+                <textarea id="conclusionText" rows="5" placeholder="Escreva aqui suas observações..."></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let scene, camera, renderer, controls;
+        let wire, fieldLines = [], fieldVectors = [], currentArrow = null;
+        let current = 5.0;
+        let showFieldLines = true;
+        let showFieldVectors = false;
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        const mu0 = 4 * Math.PI * 1e-7; // Permeabilidade do vácuo
+
+        // Inicializar a cena Three.js
+        function init() {
+            // Configurar cena
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+            
+            // Configurar câmera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(4, 4, 4);
+            camera.lookAt(0, 0, 0);
+            
+            // Configurar renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            updateRendererSize();
+            document.getElementById('canvas3d').appendChild(renderer.domElement);
+            
+            // Configurar controles de órbita
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+            
+            // Adicionar luzes
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // Adicionar eixos de referência
+            const axesHelper = new THREE.AxesHelper(2);
+            scene.add(axesHelper);
+            
+            // Criar o fio condutor no eixo Z
+            createWire();
+            
+            // Criar as linhas de campo no plano XY
+            createFieldLines();
+            
+            // Criar vetores de campo
+            createFieldVectors();
+            
+            // Configurar evento de redimensionamento
+            window.addEventListener('resize', onWindowResize);
+            
+            // Iniciar animação
+            animate();
+        }
+        
+        // Atualizar tamanho do renderizador
+        function updateRendererSize() {
+            const width = document.getElementById('canvas3d').offsetWidth;
+            const height = document.getElementById('canvas3d').offsetHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+        
+        // Criar o fio condutor no eixo Z
+        function createWire() {
+            // Remover elementos antigos se existirem
+            if (wire) scene.remove(wire);
+            if (currentArrow) scene.remove(currentArrow);
+            
+            // Criar geometria do fio (cilindro alongado no eixo Z)
+            const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 6, 32);
+            const wireMaterial = new THREE.MeshPhongMaterial({ 
+                color: current >= 0 ? 0xff0000 : 0x0066ff,
+                emissive: current >= 0 ? 0x440000 : 0x000044
+            });
+            
+            wire = new THREE.Mesh(wireGeometry, wireMaterial);
+            // Rotacionar o fio para ficar alinhado com o eixo Z
+            wire.rotation.x = Math.PI / 2;
+            scene.add(wire);
+            
+            // Adicionar seta indicadora de corrente (ao longo do eixo Z)
+            const arrowDirection = current >= 0 ? 1 : -1;
+            const arrowGeometry = new THREE.ConeGeometry(0.1, 0.3, 32);
+            const arrowMaterial = new THREE.MeshBasicMaterial({ 
+                color: current >= 0 ? 0xff0000 : 0x0066ff 
+            });
+            
+            currentArrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+            // Posicionar a seta ao longo do eixo Z
+            currentArrow.position.z = arrowDirection * 3;
+            // Rotacionar a seta para apontar na direção correta
+            currentArrow.rotation.x = Math.PI / 2;
+            
+            // Se a corrente for negativa, inverter a seta
+            if (current < 0) {
+                currentArrow.rotation.x = -Math.PI / 2;
+            }
+            
+            scene.add(currentArrow);
+        }
+        
+        // Criar linhas de campo magnético no plano XY (perpendicular ao fio Z)
+        function createFieldLines() {
+            // Limpar linhas existentes
+            fieldLines.forEach(line => scene.remove(line));
+            fieldLines = [];
+            
+            const segments = 64;
+            const radiusStep = 0.5;
+            const maxRadius = 2.5;
+            const numLevels = 3; // Níveis ao longo do eixo Z
+            
+            // Determinar o sentido do campo (horário ou anti-horário)
+            const fieldDirection = current >= 0 ? 1 : -1;
+            
+            // Criar várias linhas de campo em diferentes raios and alturas Z
+            for (let level = 0; level < numLevels; level++) {
+                const z = (level - (numLevels-1)/2) * 1.5; // Distribuir ao longo do eixo Z
+                
+                for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
+                    for (let i = 0; i < 5; i++) {
+                        const angleOffset = (i / 5) * Math.PI * 2;
+                        
+                        const points = [];
+                        for (let j = 0; j <= segments; j++) {
+                            let angle = (j / segments) * Math.PI * 2 + angleOffset;
+                            
+                            // Inverter o sentido se a corrente for negativa
+                            if (fieldDirection < 0) {
+                                angle = -angle;
+                            }
+                            
+                            const x = Math.cos(angle) * r;
+                            const y = Math.sin(angle) * r;
+                            
+                            points.push(new THREE.Vector3(x, y, z));
+                        }
+                        
+                        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                        const lineMaterial = new THREE.LineBasicMaterial({ 
+                            color: 0x00ff00,
+                            transparent: true,
+                            opacity: 0.7
+                        });
+                        
+                        const line = new THREE.Line(lineGeometry, lineMaterial);
+                        scene.add(line);
+                        fieldLines.push(line);
+                    }
+                }
+            }
+            
+            // Ajustar a visibilidade conforme a configuração
+            setFieldLinesVisibility(showFieldLines);
+        }
+        
+        // Função para criar vetores de campo magnético
+        function createFieldVectors() {
+            // Limpar vetores existentes
+            fieldVectors.forEach(vector => scene.remove(vector));
+            fieldVectors = [];
+            
+            const numVectorsPerCircle = 4; // 4 vetores por círculo
+            const radiusStep = 0.8;
+            const maxRadius = 2.4;
+            const numLevels = 3; // Níveis ao longo do eixo Z
+            
+            // Determinar o sentido do campo (horário ou anti-horário)
+            const fieldDirection = current >= 0 ? 1 : -1;
+            
+            // Criar vetores em diferentes raios e alturas Z
+            for (let level = 0; level < numLevels; level++) {
+                const z = (level - (numLevels-1)/2) * 1.5; // Distribuir ao longo do eixo Z
+                
+                for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
+                    for (let i = 0; i < numVectorsPerCircle; i++) {
+                        let angle = (i / numVectorsPerCircle) * Math.PI * 2;
+                        const x = Math.cos(angle) * r;
+                        const y = Math.sin(angle) * r;
+                        
+                        // Calcular a intensidade do campo (proporcional à corrente e inversamente à distância)
+                        const fieldStrength = 0.3 * Math.abs(current) / r;
+                        
+                        // Criar a seta do vetor
+                        const arrow = createArrow(
+                            angle + Math.PI/2, // Tangente ao círculo
+                            fieldStrength, 
+                            0xffff00,
+                            new THREE.Vector3(x, y, z)
+                        );
+                        
+                        scene.add(arrow);
+                        fieldVectors.push(arrow);
+                    }
+                }
+            }
+            
+            // Ajustar a visibilidade conforme a configuração
+            setFieldVectorsVisibility(showFieldVectors);
+        }
+
+        // Função para criar uma seta
+        function createArrow(direction, length, color, position) {
+            const arrow = new THREE.Group();
+            
+            // Corpo da seta (cilindro)
+            const bodyLength = length * 0.7;
+            const bodyGeometry = new THREE.CylinderGeometry(0.02, 0.02, bodyLength, 8);
+            const bodyMaterial = new THREE.MeshBasicMaterial({ color: color });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = bodyLength / 2;
+            arrow.add(body);
+            
+            // Cabeça da seta (cone)
+            const headLength = length * 0.3;
+            const headGeometry = new THREE.ConeGeometry(0.05, headLength, 16);
+            const headMaterial = new THREE.MeshBasicMaterial({ color: color });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = bodyLength + (headLength / 2);
+            arrow.add(head);
+            
+            // Rotacionar a seta para a direção correta
+            arrow.rotation.z = direction;
+            
+            // Posicionar a seta
+            arrow.position.copy(position);
+            
+            return arrow;
+        }
+
+        // Função para atualizar a simulação
+        function updateSimulation() {
+            // Remover elementos antigos
+            if (wire) scene.remove(wire);
+            if (currentArrow) scene.remove(currentArrow);
+            fieldLines.forEach(line => scene.remove(line));
+            fieldVectors.forEach(vector => scene.remove(vector));
+            
+            // Recriar o fio com a cor correta
+            createWire();
+            
+            // Recriar as linhas de campo
+            createFieldLines();
+            
+            // Recriar os vetores de campo
+            createFieldVectors();
+        }
+        
+        // Definir visibilidade das linhas de campo
+        function setFieldLinesVisibility(visible) {
+            fieldLines.forEach(line => {
+                line.visible = visible;
+            });
+        }
+        
+        // Definir visibilidade dos vetores de campo
+        function setFieldVectorsVisibility(visible) {
+            fieldVectors.forEach(vector => {
+                vector.visible = visible;
+            });
+        }
+        
+        // Animação
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        // Ajustar ao redimensionamento da janela
+        function onWindowResize() {
+            updateRendererSize();
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre Lei de Ampere
+        function generateExercises() {
+            exercises = [];
+            
+            // Gerar 6 exercícios variados
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular campo magnético (B)
+                let iVal = (Math.floor(Math.random() * 18) + 3); // 3-20 A
+                let dVal = (Math.floor(Math.random() * 9) + 1) / 10; // 0.1-1.0 m
+                let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
+                
+                exercises.push({
+                    type: 'campo',
+                    question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
+                    answer: bVal,
+                    options: generateOptions(bVal, 'T')
+                });
+                
+                // Tipo 2: Calcular corrente elétrica (i)
+                bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6; // 1-10 μT
+                dVal = (Math.floor(Math.random() * 9) + 1) / 10; // 0.1-1.0 m
+                iVal = (bVal * 2 * Math.PI * dVal) / mu0;
+                
+                exercises.push({
+                    type: 'corrente',
+                    question: `A uma distância de ${dVal} m de um fio reto, o campo magnético medido é de ${bVal.toExponential(2)} T. Qual a corrente elétrica no fio?`,
+                    answer: iVal,
+                    options: generateOptions(iVal, 'A')
+                });
+                
+                // Tipo 3: Calcular distância (d)
+                iVal = (Math.floor(Math.random() * 18) + 3); // 3-20 A
+                bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6; // 1-10 μT
+                dVal = (mu0 * iVal) / (2 * Math.PI * bVal);
+                
+                exercises.push({
+                    type: 'distancia',
+                    question: `Um fio reto percorrido por uma corrente de ${iVal} A produz um campo magnético de ${bVal.toExponential(2)} T. A que distância do fio foi medida essa intensidade de campo?`,
+                    answer: dVal,
+                    options: generateOptions(dVal, 'm')
+                });
+            }
+            
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+        
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            
+            // Formatar o valor correto
+            let formattedCorrectValue;
+            if (unit === 'T') {
+                formattedCorrectValue = correctValue.toExponential(2);
+            } else if (unit === 'A') {
+                formattedCorrectValue = correctValue.toFixed(1);
+            } else if (unit === 'm') {
+                formattedCorrectValue = correctValue.toFixed(2);
+            }
+            
+            options.push({
+                value: correctValue,
+                display: formattedCorrectValue
+            });
+            
+            // Gerar opções incorretas
+            for (let i = 0; i < 3; i++) {
+                let optionValue;
+                let formattedOption;
+                
+                // Garantir que as opções sejam diferentes
+                do {
+                    const variation = (Math.random() * 0.4 + 0.8);
+                    optionValue = correctValue * variation;
+                    
+                    // Formatar com a mesma precisão
+                    if (unit === 'T') {
+                        formattedOption = optionValue.toExponential(2);
+                    } else if (unit === 'A') {
+                        formattedOption = optionValue.toFixed(1);
+                    } else if (unit === 'm') {
+                        formattedOption = optionValue.toFixed(2);
+                    }
+                    
+                } while (options.some(opt => opt.display === formattedOption));
+                
+                options.push({
+                    value: optionValue,
+                    display: formattedOption
+                });
+            }
+            
+            // Embaralhar opções e retornar apenas os valores formatados
+            return shuffleArray(options).map(opt => opt.display);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                });
+            });
+            
+            container.querySelector('.check-btn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            const selectedValue = parseFloat(selectedOption.dataset.value);
+            const correctValue = parseFloat(exercises[currentExercise].answer);
+            const isCorrect = Math.abs(selectedValue - correctValue) < 0.01;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false });
+                setTimeout(nextExercise, 1500);
+            } else {
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. A resposta correta é: ${exercises[currentExercise].answer}</div>
+                <div class="button-group">
+                    <button class="skip-btn">Pular Exercício</button>
+                    <button class="try-again-btn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
+                resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'campo') {
+                let iVal = (Math.floor(Math.random() * 18) + 3);
+                let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
+                let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
+                
+                exercises[currentExercise] = {
+                    type: 'campo',
+                    question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
+                    answer: bVal,
+                    options: generateOptions(bVal, 'T')
+                };
+            } else if (currentType === 'corrente') {
+                let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+                let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
+                let iVal = (bVal * 2 * Math.PI * dVal) / mu0;
+                
+                exercises[currentExercise] = {
+                    type: 'corrente',
+                    question: `A uma distância de ${dVal} m de um fio reto, o campo magnético medido é de ${bVal.toExponential(2)} T. Qual a corrente elétrica no fio?`,
+                    answer: iVal,
+                    options: generateOptions(iVal, 'A')
+                };
+            } else if (currentType === 'distancia') {
+                let iVal = (Math.floor(Math.random() * 18) + 3);
+                let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+                let dVal = (mu0 * iVal) / (2 * Math.PI * bVal);
+                
+                exercises[currentExercise] = {
+                    type: 'distancia',
+                    question: `Um fio reto percorrido por uma corrente de ${iVal} A produz um campo magnético de ${bVal.toExponential(2)} T. A que distância do fio foi medida essa intensidade de campo?`,
+                    answer: dVal,
+                    options: generateOptions(dVal, 'm')
+                };
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true
+                });
+                
+                skippedQuestions++;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função para enviar dados para a planilha do Google
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            const data = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Lei de Ampere',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || ''
+            };
+            
+            // Usando a mesma URL do script da simulação anterior
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados enviados com sucesso!';
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = 'Erro ao enviar dados. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        // Configurar eventos da UI
+        document.getElementById('currentSlider').addEventListener('input', function() {
+            current = parseFloat(this.value);
+            document.getElementById('currentValue').textContent = current.toFixed(1);
+            updateSimulation();
+        });
+        
+        document.getElementById('linesBtn').addEventListener('click', function() {
+            showFieldLines = !showFieldLines;
+            setFieldLinesVisibility(showFieldLines);
+            this.classList.toggle('active', showFieldLines);
+        });
+        
+        document.getElementById('vectorsBtn').addEventListener('click', function() {
+            showFieldVectors = !showFieldVectors;
+            setFieldVectorsVisibility(showFieldVectors);
+            this.classList.toggle('active', showFieldVectors);
+        });
+        
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            alert("Como usar:\n\n• Arraste para rotacionar a cena\n• Use a roda do mouse para zoom\n• Fio no eixo Z (vertical)\n• Campo magnético no plano XY (horizontal)\n\nRegra da Mão Direita:\n• Polegar aponta no sentido da corrente\n• Dedos curvados indicam o sentido do campo");
+        });
+        
+        document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        
+        document.querySelector('.close').addEventListener('click', closeExercisesModal);
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('exercisesModal')) {
+                closeExercisesModal();
+            }
+        });
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
