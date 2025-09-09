@@ -857,6 +857,7 @@
         }
         
         // Verificar resposta
+        // Verificar resposta
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
@@ -877,6 +878,11 @@
                 resultDiv.className = 'result success';
                 selectedOption.classList.add('correct');
                 
+                // Desativar cliques nas opções
+                container.querySelectorAll('.option').forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
                 // Registrar resultado e avançar após delay
                 exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false });
                 setTimeout(nextExercise, 1500);
@@ -889,9 +895,20 @@
                 </div>
                 `;
                 
+                // Desativar cliques nas opções
+                container.querySelectorAll('.option').forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
                 // Adicionar event listeners aos novos botões
                 resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
                 resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
+                    // Reativar cliques nas opções
+                    container.querySelectorAll('.option').forEach(option => {
+                        option.style.pointerEvents = 'auto';
+                    });
+                    
+                    // Gerar novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
