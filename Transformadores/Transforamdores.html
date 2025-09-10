@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Transformadores</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #transformerCanvas {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .orange { background: #ff7700; }
+        .dark-orange { background: #cc5500; }
+        
+        /* Estilos para o toggle switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 30px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        .toggle-label {
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+        .toggle-off {
+            color: #ff4444;
+        }
+        .toggle-on {
+            color: #22ff22;
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Transformadores</h1>
+            <p class="subtitle">Corrente Alternada - Núcleo de Ferro</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Visualização do Transformador</h2>
+                <canvas id="transformerCanvas"></canvas>
+                
+                <div class="visualization-toggle">
+                    <button id="fluxBtn" class="active">Campo Magnético</button>
+                    <button id="currentBtn" class="active">Corrente Elétrica</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color red"></div>
+                        <span>Bobina Primária</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <span>Bobina Secundária</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>Campo Magnético</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color dark-orange"></div>
+                        <span>Núcleo de Ferro</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color orange"></div>
+                        <span>Corrente Elétrica</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="voltageInput">Tensão de Entrada (V):</label>
+                    <input type="range" id="voltageInput" min="1" max="50" value="12" step="1">
+                    <div class="value-display"><span id="voltageValue">12</span> V</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="primaryTurns">Espiras no Primário:</label>
+                    <input type="range" id="primaryTurns" min="50" max="500" value="200" step="10">
+                    <div class="value-display"><span id="primaryTurnsValue">200</span> espiras</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="secondaryTurns">Espiras no Secundário:</label>
+                    <input type="range" id="secondaryTurns" min="50" max="500" value="100" step="10">
+                    <div class="value-display"><span id="secondaryTurnsValue">100</span> espiras</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="coreToggle">Núcleo de Ferro:</label>
+                    <div class="toggle-container">
+                        <span class="toggle-label toggle-off" id="toggleOff">Sem Núcleo</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="coreToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label toggle-on" id="toggleOn">Com Núcleo</span>
+                    </div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Princípio do Transformador</h3>
+                    <p>V<sub>s</sub> / V<sub>p</sub> = N<sub>s</sub> / N<sub>p</sub></p>
+                    <p>P<sub>p</sub> ≈ P<sub>s</sub> (considerando eficiência)</p>
+                    <p>V<sub>p</sub> × I<sub>p</sub> ≈ V<sub>s</sub> × I<sub>s</sub></p>
+                </div>
+                
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tensão de Entrada (V<sub>p</sub>)</div>
+                        <div class="measurement-value" id="inputVoltageDisplay">12 V</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Corrente de Entrada (I<sub>p</sub>)</div>
+                        <div class="measurement-value" id="inputCurrentDisplay">0.12 A</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tensão de Saída (V<sub>s</sub>)</div>
+                        <div class="measurement-value" id="outputVoltageDisplay">6 V</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Corrente de Saída (I<sub>s</sub>)</div>
+                        <div class="measurement-value" id="outputCurrentDisplay">0.24 A</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Potência de Entrada</div>
+                        <div class="measurement-value" id="inputPowerDisplay">1.44 W</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Potência de Saída</div>
+                        <div class="measurement-value" id="outputPowerDisplay">1.44 W</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Eficiência</div>
+                        <div class="measurement-value" id="efficiencyDisplay">95%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios de Transformadores</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+            <h3>Conclusão de Estudo</h3>
+            <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let canvas, ctx;
+        let voltageInput = 12;
+        let primaryTurns = 200;
+        let secondaryTurns = 100;
+        let hasIronCore = true;
+        let showFlux = true;
+        let showCurrent = true;
+        let animationTime = 0;
+        let coreThickness = 50;       // ← Altere para 50  
+        let coreHoleRatio = 0.5;      // ← Altere para 0.5
+        let coreOpacity = 0.7;
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAnswered = false; // Nova variável para controlar se a pergunta atual foi respondida
+
+        // Dimensina núcleo
+        function updateCoreDimensions(thickness, holeRatio, opacity) {
+            coreThickness = thickness;
+            coreHoleRatio = Math.max(0.1, Math.min(0.9, holeRatio));
+            coreOpacity = Math.max(0.3, Math.min(1, opacity));
+            drawTransformer();
+        }
+
+
+        // Inicializar a simulação
+        function init() {
+            canvas = document.getElementById('transformerCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Configurar tamanho do canvas
+            updateCanvasSize();
+            
+            // Iniciar animação
+            animate();
+            
+            // Atualizar medições iniciais
+            updateMeasurements();
+            
+            // Atualizar visualização do toggle
+            updateToggleDisplay();
+            
+            // Configurar evento de redimensionamento
+            window.addEventListener('resize', updateCanvasSize);
+        }
+        
+        // Atualizar tamanho do canvas
+        function updateCanvasSize() {
+            const container = document.querySelector('.simulation-panel');
+            canvas.width = container.clientWidth - 40;
+            canvas.height = 400;
+            drawTransformer();
+        }
+        
+        // Atualizar display do toggle
+        function updateToggleDisplay() {
+            const toggleOn = document.getElementById('toggleOn');
+            const toggleOff = document.getElementById('toggleOff');
+            
+            if (hasIronCore) {
+                toggleOn.style.color = '#22ff22';
+                toggleOn.style.fontWeight = 'bold';
+                toggleOff.style.color = '#ccc';
+                toggleOff.style.fontWeight = 'normal';
+            } else {
+                toggleOn.style.color = '#ccc';
+                toggleOn.style.fontWeight = 'normal';
+                toggleOff.style.color = '#ff4444';
+                toggleOff.style.fontWeight = 'bold';
+            }
+        }
+        
+        // Desenhar o transformador
+        function drawTransformer() {
+            // Limpar o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dimensões e posições base
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const frameWidth = canvas.width * 0.7;
+            const frameHeight = canvas.height * 0.5;
+            const frameX = centerX - frameWidth / 2;
+            const frameY = centerY - frameHeight / 2;
+            const cornerRadius = 10;
+            
+            
+            // Desenhar núcleo de ferro em forma de "O" oco (apenas as bordas)
+            if (hasIronCore) {
+                ctx.fillStyle = '#9d4d00';
+                ctx.strokeStyle = '#9d4d10';
+                ctx.lineWidth = 4;
+                
+               // Desenhar núcleo oco (apenas as bordas) - buraco menor
+                ctx.beginPath();
+                // Parte superior
+                ctx.rect(frameX, frameY, frameWidth, coreThickness);  // ← frameThickness → coreThickness
+                // Parte inferior
+                ctx.rect(frameX, frameY + frameHeight - coreThickness, frameWidth, coreThickness);  // ← frameThickness → coreThickness
+                // Lado esquerdo
+                ctx.rect(frameX, frameY + coreThickness, coreThickness, frameHeight - 2 * coreThickness);  // ← frameThickness → coreThickness
+                // Lado direito
+                ctx.rect(frameX + frameWidth - coreThickness, frameY + coreThickness, coreThickness, frameHeight - 2 * coreThickness);  // ← frameThickness → coreThickness
+                
+                ctx.fill();
+                ctx.stroke();
+            }
+                        
+            // Desenhar bobina primária (esquerda) - SOBRE o núcleo
+            const coilWidth = frameWidth * 0.21;
+            const primaryX = frameX;
+            drawCoil(primaryX, centerY, coilWidth, frameHeight * 0.8, primaryTurns, '#ff0000', 'Primária');
+            
+            // Desenhar bobina secundária (direita) - SOBRE o núcleo
+            const secondaryX = frameX + frameWidth - coilWidth;
+            drawCoil(secondaryX, centerY, coilWidth, frameHeight * 0.8, secondaryTurns, '#0066ff', 'Secundária');
+            
+            // Desenhar campo magnético (se ativado) - SOBRE o núcleo mas SOB as bobinas
+            if (showFlux && hasIronCore) {
+                 drawMagneticFlux(frameX, frameY, frameWidth, frameHeight, cornerRadius, coreThickness);  // ← frameThickness → coreThickness
+}
+            
+            // Desenhar corrente elétrica (se ativado) - SOBRE tudo
+            if (showCurrent) {
+                // Calcular intensidades relativas para a visualização
+                const outputVoltage = voltageInput * (secondaryTurns / primaryTurns);
+                const efficiency = hasIronCore ? 0.95 : 0.6;
+                
+                // Cálculo CORRETO das correntes
+                const outputCurrent = outputVoltage > 0 ? outputVoltage / 50 : 0; // Assumindo resistência fixa de 50Ω
+                const inputPower = outputVoltage * outputCurrent / efficiency;
+                const inputCurrent = voltageInput > 0 ? inputPower / voltageInput : 0;
+                
+                const primaryIntensity = Math.min(1, inputCurrent / 0.5);
+                const secondaryIntensity = Math.min(1, outputCurrent / 0.5);
+                
+                drawCurrent(primaryX, centerY, coilWidth, frameHeight * 0.8, primaryIntensity, true);
+                drawCurrent(secondaryX, centerY, coilWidth, frameHeight * 0.8, secondaryIntensity, false);
+            }
+        }
+        
+        // Desenhar uma bobina
+        function drawCoil(x, y, width, height, turns, color, label) {
+            const numLines = Math.min(20, Math.floor(turns / 10));
+            const lineSpacing = height / (numLines + 1);
+            
+            // Desenhar espiras (linhas horizontais mais grossas)
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 5;
+            
+            for (let i = 1; i <= numLines; i++) {
+                const yPos = y - height/2 + i * lineSpacing;
+                ctx.beginPath();
+                ctx.moveTo(x, yPos);
+                ctx.lineTo(x + width, yPos);
+                ctx.stroke();
+            }
+            
+            // Desenhar conexões
+            ctx.beginPath();
+            ctx.moveTo(x, y - height/2);
+            ctx.lineTo(x - 20, y - height/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + width, y - height/2);
+            ctx.lineTo(x + width + 20, y - height/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x, y + height/2);
+            ctx.lineTo(x - 20, y + height/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x + width, y + height/2);
+            ctx.lineTo(x + width + 20, y + height/2);
+            ctx.stroke();
+            
+            // Desenhar label
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${label} (${turns} espiras)`, x + width/2, y + height/2 + 30);
+        }
+        
+        // Desenhar campo magnético com linhas concêntricas e cantos arredondados
+        function drawMagneticFlux(x, y, width, height, cornerRadius, coreThickness) {
+            const fluxIntensity = voltageInput * (hasIronCore ? 1.5 : 0.3) * (primaryTurns / 200);
+            const opacity = Math.min(0.8, 0.3 * fluxIntensity);
+            
+            ctx.strokeStyle = `rgba(0, 255, 0, ${opacity})`;
+            ctx.lineWidth = 2;
+            
+            // Desenhar linhas de fluxo concêntricas com cantos arredondados
+            const numLines = 5;
+            const spacing = 5;
+            
+            for (let i = 0; i < numLines; i++) {
+                const offset = i * spacing;
+                const innerX = x + coreThickness/2 + offset;
+                const innerY = y + coreThickness/2 + offset;
+                const innerWidth = width - coreThickness - 2 * offset;
+                const innerHeight = height - coreThickness - 2 * offset;
+                
+                if (innerWidth > 0 && innerHeight > 0) {
+                    ctx.beginPath();
+                    
+                    // Canto superior esquerdo para superior direito
+                    ctx.moveTo(innerX + cornerRadius, innerY);
+                    ctx.lineTo(innerX + innerWidth - cornerRadius, innerY);
+                    
+                    // Arredondar canto superior direito
+                    ctx.quadraticCurveTo(
+                        innerX + innerWidth, innerY,
+                        innerX + innerWidth, innerY + cornerRadius
+                    );
+                    
+                    // Lado direito (de cima para baixo)
+                    ctx.lineTo(innerX + innerWidth, innerY + innerHeight - cornerRadius);
+                    
+                    // Arredondar canto inferior direito
+                    ctx.quadraticCurveTo(
+                        innerX + innerWidth, innerY + innerHeight,
+                        innerX + innerWidth - cornerRadius, innerY + innerHeight
+                    );
+                    
+                    // Parte inferior (direita para esquerda)
+                    ctx.lineTo(innerX + cornerRadius, innerY + innerHeight);
+                    
+                    // Arredondar canto inferior esquerdo
+                    ctx.quadraticCurveTo(
+                        innerX, innerY + innerHeight,
+                        innerX, innerY + innerHeight - cornerRadius
+                    );
+                    
+                    // Lado esquerdo (de baixo para cima)
+                    ctx.lineTo(innerX, innerY + cornerRadius);
+                    
+                    // Arredondar canto superior esquerdo
+                    ctx.quadraticCurveTo(
+                        innerX, innerY,
+                        innerX + cornerRadius, innerY
+                    );
+                    
+                    ctx.stroke();
+                    
+                    // Adicionar setas para indicar direção (apenas na linha do meio)
+                    if (i === Math.floor(numLines / 2)) {
+                        const arrowSize = 8;
+                        const arrowX = innerX + innerWidth * 0.7;
+                        const arrowY = innerY;
+                        
+                        ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
+                        ctx.beginPath();
+                        ctx.moveTo(arrowX, arrowY);
+                        ctx.lineTo(arrowX - arrowSize, arrowY - arrowSize/2);
+                        ctx.lineTo(arrowX - arrowSize, arrowY + arrowSize/2);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+        
+        // Desenhar corrente elétrica
+        function drawCurrent(x, y, width, height, intensity, isPrimary) {
+            if (intensity > 0) {
+                const numLines = Math.min(20, Math.floor(primaryTurns / 10));
+                const lineSpacing = height / (numLines + 1);
+                const opacity = Math.min(1, 0.5 + intensity * 2);
+                
+                ctx.strokeStyle = `rgba(255, 119, 0, ${opacity})`;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([3, 5]);
+                
+                for (let i = 1; i <= numLines; i++) {
+                    const yPos = y - height/2 + i * lineSpacing;
+                    
+                    // Desenhar linha pontilhada para corrente
+                    ctx.beginPath();
+                    if (isPrimary) {
+                        ctx.moveTo(x + width, yPos);
+                        ctx.lineTo(x, yPos);
+                    } else {
+                        ctx.moveTo(x, yPos);
+                        ctx.lineTo(x + width, yPos);
+                    }
+                    ctx.stroke();
+                    
+                    // Adicionar setas para indicar direção
+                    const arrowSize = 5;
+                    const arrowX = isPrimary ? x + width * 0.3 : x + width * 0.7;
+                    
+                    ctx.fillStyle = `rgba(255, 119, 0, ${opacity})`;
+                    ctx.beginPath();
+                    
+                    if (isPrimary) {
+                        ctx.moveTo(arrowX, yPos);
+                        ctx.lineTo(arrowX + arrowSize, yPos - arrowSize/2);
+                        ctx.lineTo(arrowX + arrowSize, yPos + arrowSize/2);
+                    } else {
+                        ctx.moveTo(arrowX, yPos);
+                        ctx.lineTo(arrowX - arrowSize, yPos - arrowSize/2);
+                        ctx.lineTo(arrowX - arrowSize, yPos + arrowSize/2);
+                    }
+                    
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                ctx.setLineDash([]);
+            }
+        }
+        
+        // Atualizar a simulação
+        function updateSimulation() {
+            drawTransformer();
+            updateMeasurements();
+            updateToggleDisplay();
+        }
+        
+        // Atualizar medições exibidas - CÁLCULOS CORRIGIDOS
+        function updateMeasurements() {
+            // Calcular relação de transformação
+            const transformationRatio = secondaryTurns / primaryTurns;
+            
+            // Calcular tensão de saída
+            const outputVoltage = voltageInput * transformationRatio;
+            
+            // Calcular eficiência (95% com núcleo, 60% sem núcleo)
+            const efficiency = hasIronCore ? 0.95 : 0.6;
+            
+            // Calcular corrente de saída (Lei de Ohm - assumindo resistência fixa de 50Ω)
+            const outputCurrent = outputVoltage / 50;
+            
+            // Calcular potência de saída
+            const outputPower = outputVoltage * outputCurrent;
+            
+            // Calcular potência de entrada (considerando eficiência)
+            const inputPower = outputPower / efficiency;
+            
+            // Calcular corrente de entrada
+            const inputCurrent = inputPower / voltageInput;
+            
+            // Atualizar displays
+            document.getElementById('inputVoltageDisplay').textContent = voltageInput.toFixed(1) + ' V';
+            document.getElementById('inputCurrentDisplay').textContent = inputCurrent.toFixed(2) + ' A';
+            document.getElementById('outputVoltageDisplay').textContent = outputVoltage.toFixed(1) + ' V';
+            document.getElementById('outputCurrentDisplay').textContent = outputCurrent.toFixed(2) + ' A';
+            document.getElementById('inputPowerDisplay').textContent = inputPower.toFixed(2) + ' W';
+            document.getElementById('outputPowerDisplay').textContent = outputPower.toFixed(2) + ' W';
+            document.getElementById('efficiencyDisplay').textContent = Math.round(efficiency * 100) + '%';
+        }
+        
+        // Animação
+        function animate() {
+            animationTime += 0.05;
+            drawTransformer();
+            requestAnimationFrame(animate);
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre transformadores
+        function generateExercises() {
+            exercises = [
+                {
+                    question: "Um transformador possui 200 espiras no primário e 100 espiras no secundário. Se a tensão de entrada é 12V, qual será a tensão de saída?",
+                    options: ["6V", "12V", "24V", "18V"],
+                    answer: "6V"
+                },
+                {
+                    question: "Qual a corrente de saída se a tensão de saída é 6V e a resistência de carga é 50Ω?",
+                    options: ["0.12A", "0.5A", "1.2A", "0.3A"],
+                    answer: "0.12A"
+                },
+                {
+                    question: "Se a potência de entrada é 10W e a eficiência é 95%, qual será a potência de saída?",
+                    options: ["9W", "9.5W", "10W", "10.5W"],
+                    answer: "9.5W"
+                },
+                {
+                    question: "Qual a relação entre as correntes no primário e secundário de um transformador?",
+                    options: ["Ip/Is = Ns/Np", "Ip/Is = Np/Ns", "Ip/Is = Vp/Vs", "Ip/Is = Vs/Vp"],
+                    answer: "Ip/Is = Ns/Np"
+                },
+                {
+                    question: "Como a eficiência do transformador é afetada pela presença do núcleo de ferro?",
+                    options: ["Aumenta significativamente", "Diminui significativamente", "Permanece a mesma", "Não há relação"],
+                    answer: "Aumenta significativamente"
+                },
+                {
+                    question: "Se um transformador abaixa a tensão, o que acontece com a corrente?",
+                    options: ["Aumenta na mesma proporção", "Diminui na mesma proporção", "Permanece a mesma", "Aumenta, mas não na mesma proporção"],
+                    answer: "Aumenta na mesma proporção"
+                }
+            ];
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            // Resetar flag de resposta
+            currentExerciseAnswered = false;
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    if (!currentExerciseAnswered) {
+                        container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            container.querySelector('.check-btn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            if (currentExerciseAnswered) return;
+            
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            const selectedValue = selectedOption.dataset.value;
+            const correctValue = exercises[currentExercise].answer;
+            const isCorrect = selectedValue === correctValue;
+            
+            // Marcar exercício como respondido
+            currentExerciseAnswered = true;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false 
+                });
+                
+                setTimeout(nextExercise, 1500);
+            } else {
+                resultDiv.innerHTML = `
+                <div class="error">Resposta incorreta. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn">Pular Exercício</button>
+                    <button class="try-again-btn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
+                resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
+                    // Limpar seleção e resultado
+                    container.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected', 'correct', 'incorrect');
+                    });
+                    resultDiv.innerHTML = '';
+                    currentExerciseAnswered = false;
+                });
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                // Registrar exercício como pulado com erro
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true
+                });
+                
+                skippedQuestions++;
+                
+                // Avançar para o próximo exercício
+                currentExercise++;
+                
+                // Verificar se ainda há exercícios
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    // Só mostrar conclusão quando todos os exercícios forem completados
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função para enviar dados para a planilha do Google
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            const data = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Transformadores',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || ''
+            };
+            
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            
+            fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados enviados com sucesso!';
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = 'Erro ao enviar dados. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAnswered = false;
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        // Configurar eventos da UI
+        document.getElementById('voltageInput').addEventListener('input', function() {
+            voltageInput = parseFloat(this.value);
+            document.getElementById('voltageValue').textContent = voltageInput;
+            updateSimulation();
+        });
+        
+        document.getElementById('primaryTurns').addEventListener('input', function() {
+            primaryTurns = parseFloat(this.value);
+            document.getElementById('primaryTurnsValue').textContent = primaryTurns;
+            updateSimulation();
+        });
+        
+        document.getElementById('secondaryTurns').addEventListener('input', function() {
+            secondaryTurns = parseFloat(this.value);
+            document.getElementById('secondaryTurnsValue').textContent = secondaryTurns;
+            updateSimulation();
+        });
+        
+        document.getElementById('coreToggle').addEventListener('change', function() {
+            hasIronCore = this.checked;
+            updateSimulation();
+        });
+        
+        document.getElementById('fluxBtn').addEventListener('click', function() {
+            showFlux = !showFlux;
+            this.classList.toggle('active', showFlux);
+            updateSimulation();
+        });
+        
+        document.getElementById('currentBtn').addEventListener('click', function() {
+            showCurrent = !showCurrent;
+            this.classList.toggle('active', showCurrent);
+            updateSimulation();
+        });
+        
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            alert("Como usar:\n\n• Ajuste a tensão de entrada com o primeiro controle\n• Defina o número de espiras em cada bobina\n• Ative/desative o núcleo de ferro para ver a diferença de eficiência\n• Observe as medições de tensão, corrente e potência\n• Use os botões para mostrar/ocultar o fluxo magnético e a corrente");
+        });
+        
+        document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        
+        document.querySelector('.close').addEventListener('click', closeExercisesModal);
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('exercisesModal')) {
+                closeExercisesModal();
+            }
+        });
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
