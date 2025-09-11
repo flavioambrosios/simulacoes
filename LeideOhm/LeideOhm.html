@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação da Lei de Ohm</title>
+    <title>Simulação da Lei de Ohm - Corrigido</title>
     <style>
         * {
             box-sizing: border-box;
@@ -168,64 +168,6 @@
         .orange { background: #ff7700; }
         .dark-orange { background: #cc5500; }
         
-        /* Estilos para o toggle switch */
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 30px;
-        }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 30px;
-        }
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .toggle-slider {
-            background-color: #2196F3;
-        }
-        input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-        .toggle-label {
-            font-weight: bold;
-            min-width: 80px;
-            text-align: center;
-        }
-        .toggle-off {
-            color: #ff4444;
-        }
-        .toggle-on {
-            color: #22ff22;
-        }
-        
         /* Estilos para o modal de exercícios */
         .modal {
             display: none;
@@ -272,9 +214,11 @@
         .exercise h3 {
             color: #ffcc00;
             margin-bottom: 10px;
+            text-align: center;
         }
         .exercise p {
             margin-bottom: 10px;
+            text-align: center;
         }
         .options {
             display: grid;
@@ -306,6 +250,10 @@
             background: rgba(255, 0, 0, 0.2);
             border: 1px solid #ff0000;
         }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
         .check-btn {
             width: 100%;
             margin-top: 10px;
@@ -316,6 +264,10 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
         }
         .skip-btn {
             width: 100%;
@@ -569,11 +521,11 @@
             </div>
             
             <div id="conclusionContainer" style="display: none;">
-            <h3>Conclusão de Estudo</h3>
-            <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
-                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
             
             <div id="resultsContainer" style="display: none;">
@@ -665,6 +617,7 @@
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
 
         // Inicializar a simulação
         function init() {
@@ -730,24 +683,24 @@
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Calcular tensão (V = R × i)
                 let r = (Math.floor(Math.random() * 9) + 2) * 10;
-                let i = (Math.floor(Math.random() * 9) + 1) / 10;
-                let v = (r * i).toFixed(1);
+                let i_val = (Math.floor(Math.random() * 9) + 1) / 10;
+                let v = (r * i_val).toFixed(1);
                 
                 exercises.push({
                     type: 'calcular_tensao',
-                    question: `Se uma resistência de ${r} Ω é percorrida por uma corrente de ${i} A, qual é a tensão aplicada?`,
+                    question: `Se uma resistência de ${r} Ω é percorrida por uma corrente de ${i_val} A, qual é a tensão aplicada?`,
                     answer: v,
                     options: generateOptions(parseFloat(v), 'V')
                 });
                 
                 // Tipo 2: Calcular resistência (R = V / i)
                 v = (Math.floor(Math.random() * 9) + 6);
-                i = (Math.floor(Math.random() * 9) + 1) / 10;
-                r = (v / i).toFixed(1);
+                i_val = (Math.floor(Math.random() * 9) + 1) / 10;
+                r = (v / i_val).toFixed(1);
                 
                 exercises.push({
                     type: 'calcular_resistencia',
-                    question: `Se uma tensão de ${v} V produz uma corrente de ${i} A, qual é o valor da resistência?`,
+                    question: `Se uma tensão de ${v} V produz uma corrente de ${i_val} A, qual é o valor da resistência?`,
                     answer: r,
                     options: generateOptions(parseFloat(r), 'Ω')
                 });
@@ -755,13 +708,13 @@
                 // Tipo 3: Calcular corrente (i = V / R)
                 v = (Math.floor(Math.random() * 9) + 6);
                 r = (Math.floor(Math.random() * 9) + 2) * 10;
-                i = (v / r).toFixed(2);
+                i_val = (v / r).toFixed(2);
                 
                 exercises.push({
                     type: 'calcular_corrente',
                     question: `Se uma tensão de ${v} V é aplicada a uma resistência de ${r} Ω, qual é a corrente elétrica resultante?`,
-                    answer: i,
-                    options: generateOptions(parseFloat(i), 'A')
+                    answer: i_val,
+                    options: generateOptions(parseFloat(i_val), 'A')
                 });
             }
             
@@ -862,12 +815,20 @@
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
             const resultDiv = container.querySelector('.result');
+            const checkButton = container.querySelector('.check-btn');
+            const options = container.querySelectorAll('.option');
             
             if (!selectedOption) {
                 resultDiv.textContent = 'Por favor, selecione uma opção.';
                 resultDiv.className = 'result error';
                 return;
             }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
             
             const selectedValue = parseFloat(selectedOption.dataset.value);
             const correctValue = parseFloat(exercises[currentExercise].answer);
@@ -879,11 +840,18 @@
                 selectedOption.classList.add('correct');
                 
                 // Registrar resultado e avançar após delay
-                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false });
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
                 setTimeout(nextExercise, 1500);
             } else {
+                currentExerciseAttempts++;
                 resultDiv.innerHTML = `
-                <div class="error">Incorreto. A resposta correta é: ${exercises[currentExercise].answer}</div>
+                <div class="error">Incorreto. Tente novamente.</div>
                 <div class="button-group">
                     <button class="skip-btn">Pular Exercício</button>
                     <button class="try-again-btn">Tentar Novamente</button>
@@ -893,6 +861,7 @@
                 // Adicionar event listeners aos novos botões
                 resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
                 resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
+                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
@@ -905,36 +874,36 @@
             
             if (currentType === 'calcular_tensao') {
                 let r = (Math.floor(Math.random() * 9) + 2) * 10;
-                let i = (Math.floor(Math.random() * 9) + 1) / 10;
-                let v = (r * i).toFixed(1);
+                let i_val = (Math.floor(Math.random() * 9) + 1) / 10;
+                let v = (r * i_val).toFixed(1);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_tensao',
-                    question: `Se uma resistência de ${r} Ω é percorrida por uma corrente de ${i} A, qual é a tensão aplicada?`,
+                    question: `Se uma resistência de ${r} Ω é percorrida por uma corrente de ${i_val} A, qual é a tensão aplicada?`,
                     answer: v,
                     options: generateOptions(parseFloat(v), 'V')
                 };
             } else if (currentType === 'calcular_resistencia') {
                 let v = (Math.floor(Math.random() * 9) + 6);
-                let i = (Math.floor(Math.random() * 9) + 1) / 10;
-                let r = (v / i).toFixed(1);
+                let i_val = (Math.floor(Math.random() * 9) + 1) / 10;
+                let r = (v / i_val).toFixed(1);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_resistencia',
-                    question: `Se uma tensão de ${v} V produz uma corrente de ${i} A, qual é o valor da resistência?`,
+                    question: `Se uma tensão de ${v} V produz uma corrente de ${i_val} A, qual é o valor da resistência?`,
                     answer: r,
                     options: generateOptions(parseFloat(r), 'Ω')
                 };
             } else if (currentType === 'calcular_corrente') {
                 let v = (Math.floor(Math.random() * 9) + 6);
                 let r = (Math.floor(Math.random() * 9) + 2) * 10;
-                let i = (v / r).toFixed(2);
+                let i_val = (v / r).toFixed(2);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_corrente',
                     question: `Se uma tensão de ${v} V é aplicada a uma resistência de ${r} Ω, qual é a corrente elétrica resultante?`,
-                    answer: i,
-                    options: generateOptions(parseFloat(i), 'A')
+                    answer: i_val,
+                    options: generateOptions(parseFloat(i_val), 'A')
                 };
             }
         }
@@ -945,10 +914,12 @@
                 exerciseResults.push({
                     exercise: currentExercise,
                     correct: false,
-                    skipped: true
+                    skipped: true,
+                    attempts: currentExerciseAttempts
                 });
                 
                 skippedQuestions++;
+                currentExerciseAttempts = 0;
                 currentExercise++;
                 
                 if (currentExercise < exercises.length) {
@@ -1091,6 +1062,7 @@
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
+            currentExerciseAttempts = 0;
         }
         
         // Abrir modal de exercícios
