@@ -72,19 +72,29 @@
         }
 
         .controls {
-            width: 50%;
-            min-width: 0;
-            max-width: 50vw;
+            width: 320px;
+            min-width: 220px;
+            max-width: 100vw;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            transition: max-height 0.3s;
+            z-index: 20;
             box-sizing: border-box;
         }
 
         .view-container {
-            width: 50%;
+            flex: 1;
+            position: relative;
             min-width: 0;
-            max-width: 50vw;
-            box-sizing: border-box;
-            margin-left: 0;
-            align-items: center;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Move para a esquerda */
+            justify-content: center;
+            width: 100%;
+            margin-left: 10px; /* Ajuste fino, pode testar outros valores */
         }
         
         .controls {
