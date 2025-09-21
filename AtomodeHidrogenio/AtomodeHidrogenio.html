@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Átomo de Hidrogênio - Visualização com Nuvem Quântica</title>
-    <!-- Adicionando MathJax para renderizar equações -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
@@ -176,7 +176,6 @@
             max-width: 300px;
         }
         
-        /* Novos estilos para o modal teórico */
         .theory-btn {
             position: absolute;
             right: 15px;
@@ -281,19 +280,24 @@
             text-decoration: underline;
         }
         
-        /* Estilos para as equações com MathJax */
         .MathJax {
             color: #fff !important;
             font-size: 1.1em !important;
         }
         
-        /* Responsividade */
         @media (max-width: 900px) {
             .content {
-                flex-direction: column;
+                flex-direction: column !important;
+            }
+            .view-container {
+                order: 1;
+                width: 100vw;
+                min-width: 0;
+                min-height: 220px;
             }
             .controls {
-                width: 100%;
+                order: 2;
+                width: 100vw;
                 max-width: 100vw;
                 min-width: 0;
                 max-height: 60vh;
@@ -301,14 +305,9 @@
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 padding: 12px 6vw 12px 6vw;
                 font-size: 1.05em;
-                order: 2;
-            }
-            .view-container {
-                min-height: 300px;
-                order: 1;
             }
             #renderer3D {
-                min-height: 250px;
+                min-height: 200px;
             }
             .comparison-panel {
                 position: relative;
@@ -340,6 +339,14 @@
                 max-width: 96vw;
             }
         }
+
+        .correction-note {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -351,7 +358,6 @@
         <div class="content">
             <div class="controls" id="controlsPanel">
                 <button class="theory-btn" id="theoryBtn" style="margin-bottom: 18px; position: static; width: 100%;">Aspectos Teóricos</button>
-                <button id="toggleControls" style="display:none; margin-bottom:10px;">Mostrar/Ocultar Controles</button>
                 <div class="control-group">
                     <div class="control-title">Números Quânticos</div>
                     <label for="stateSelect">Número quântico principal (n):</label>
@@ -418,7 +424,23 @@
             <div class="theory-content">
                 <h2>Equação de Schrödinger para o Átomo de Hidrogênio</h2>
                 
+                <div class="correction-note">
+                    <strong>Nota de Correção:</strong> O átomo de hidrogênio possui apenas 1 elétron. 
+                    A informação anterior que sugeria múltiplos elétrons estava incorreta e foi ajustada.
+                </div>
+                
                 <p>A equação de Schrödinger é a base da mecânica quântica não-relativística e descreve o comportamento de partículas em escala atômica. Para o átomo de hidrogênio, que consiste em um próton e um elétron, a equação pode ser resolvida analiticamente, fornecendo insights fundamentais sobre a estrutura atômica.</p>
+                
+                <h3>O Átomo de Hidrogênio</h3>
+                
+                <p>O átomo de hidrogênio é composto por:</p>
+                <ul>
+                    <li>1 próton no núcleo (+1e)</li>
+                    <li>1 elétron orbitando (-1e)</li>
+                    <li>Nenhum nêutron</li>
+                </ul>
+                
+                <p>Por possuir apenas um elétron, o hidrogênio é o único átomo para o qual a equação de Schrödinger pode ser resolvida exatamente. Em átomos com múltiplos elétrons, surgem repulsões elétron-elétron que complicam considerably a solução.</p>
                 
                 <h3>A Equação de Schrödinger Independente do Tempo</h3>
                 
@@ -438,46 +460,6 @@
                     <li>E é a energia total do sistema</li>
                 </ul>
                 
-                <h3>Separação em Coordenadas Esféricas</h3>
-                
-                <p>Devido à simetria esférica do potencial Coulombiano, a equação é mais facilmente resolvida usando coordenadas esféricas (r, θ, φ). Assumimos uma solução por separação de variáveis:</p>
-                
-                <div class="equation">
-                    \[ \psi(r, \theta, \phi) = R(r)Y(\theta, \phi) \]
-                </div>
-                
-                <p>Esta separação leva a duas equações diferenciais independentes: uma radial e uma angular.</p>
-                
-                <h3>A Parte Angular e os Harmônicos Esféricos</h3>
-                
-                <p>A equação angular resulta em funções conhecidas como harmônicos esféricos:</p>
-                
-                <div class="equation">
-                    \[ Y_{\ell m}(\theta, \phi) = (-1)^m \sqrt{\frac{(2\ell+1)(\ell-|m|)!}{4\pi(\ell+|m|)!}} P_{\ell}^{|m|}(\cos\theta) e^{im\phi} \]
-                </div>
-                
-                <p>onde:</p>
-                <ul>
-                    <li>ℓ é o número quântico de momento angular (ℓ = 0, 1, 2, ..., n-1)</li>
-                    <li>m é o número quântico magnético (m = -ℓ, -ℓ+1, ..., ℓ-1, ℓ)</li>
-                    <li>Pℓᵐ são os polinômios associados de Legendre</li>
-                </ul>
-                
-                <h3>A Parte Radial e os Polinômios de Laguerre</h3>
-                
-                <p>A equação radial resulta em soluções que envolvem polinômios de Laguerre associados:</p>
-                
-                <div class="equation">
-                    \[ R_{n\ell}(r) = \sqrt{\left(\frac{2}{na_0}\right)^3 \frac{(n-\ell-1)!}{2n[(n+\ell)!]^3}} e^{-r/na_0} \left(\frac{2r}{na_0}\right)^\ell L_{n-\ell-1}^{2\ell+1}\left(\frac{2r}{na_0}\right) \]
-                </div>
-                
-                <p>onde:</p>
-                <ul>
-                    <li>n é o número quântico principal (n = 1, 2, 3, ...)</li>
-                    <li>a₀ é o raio de Bohr (≈ 0.529 Å)</li>
-                    <li>L são os polinômios de Laguerre associados</li>
-                </ul>
-                
                 <h3>Números Quânticos e Sua Interpretação</h3>
                 
                 <p>A solução da equação de Schrödinger para o átomo de hidrogênio introduz três números quânticos:</p>
@@ -487,6 +469,11 @@
                     <li><strong>Número quântico de momento angular (ℓ)</strong>: Determina a forma do orbital. ℓ = 0, 1, 2, ..., n-1</li>
                     <li><strong>Número quântico magnético (m)</strong>: Determina a orientação espacial do orbital. m = -ℓ, -ℓ+1, ..., ℓ-1, ℓ</li>
                 </ol>
+                
+                <div class="correction-note">
+                    <strong>Importante:</strong> Embora orbitais como os orbitais d e f possam acomodar mais elétrons em átomos multi-eletrônicos, 
+                    no átomo de hidrogênio cada orbital contém no máximo 1 elétron, que é o único elétron do átomo.
+                </div>
                 
                 <h3>Autofunções e Autovalores de Energia</h3>
                 
@@ -510,24 +497,6 @@
                     <li>Liboff, R. L. (2002). Introductory Quantum Mechanics. Addison-Wesley.</li>
                     <li>Bransden, B. H., & Joachain, C. J. (2000). Quantum Mechanics. Pearson Education.</li>
                 </ul>
-                
-                <h3>Recursos Adicionais</h3>
-                
-                <div class="reference">
-                    <p><strong>Vídeo-aulas recomendadas:</strong></p>
-                    <ul>
-                        <li><a href="https://www.youtube.com/watch?v=qYY2fHIFJ7g" target="_blank">MIT Quantum Physics III - Átomo de Hidrogênio</a></li>
-                        <li><a href="https://www.youtube.com/watch?v=PEp2nI0U_lc" target="_blank">Professor Dave Explains - Orbitais Atômicos</a></li>
-                        <li><a href="https://www.youtube.com/watch?v=Uyln2mcqomU" target="_blank">3Blue1Brown - Visualizando Orbitais Quânticos</a></li>
-                    </ul>
-                    
-                    <p><strong>Simulações interativas:</strong></p>
-                    <ul>
-                        <li><a href="https://phet.colorado.edu/sims/html/hydrogen-atom/latest/hydrogen-atom_pt_BR.html" target="_blank">PhET Simulação do Átomo de Hidrogênio</a></li>
-                        <li><a href="https://www.falstad.com/qmatom/" target="_blank">Falstad - Simulador de Átomo de Hidrogênio</a></li>
-                        <li><a href="https://quantum-machine.org/demos/hydrogen-orbitals/" target="_blank">Visualizador de Orbitais de Hidrogênio</a></li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
@@ -551,16 +520,15 @@
         let blurIntensity = 3;
         let glowIntensity = 0.8;
         
-    // Inicialização dos selects
-    const stateSelect = document.getElementById('stateSelect');
-    const lSelect = document.getElementById('lSelect');
-    const mSelect = document.getElementById('mSelect');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const blurEffectSlider = document.getElementById('blurEffect');
-    const glowEffectSlider = document.getElementById('glowEffect');
-    const animationSpeedSlider = document.getElementById('animationSpeed');
-    const controlsPanel = document.getElementById('controlsPanel');
-    const toggleControlsBtn = document.getElementById('toggleControls');
+        // Inicialização dos selects
+        const stateSelect = document.getElementById('stateSelect');
+        const lSelect = document.getElementById('lSelect');
+        const mSelect = document.getElementById('mSelect');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const blurEffectSlider = document.getElementById('blurEffect');
+        const glowEffectSlider = document.getElementById('glowEffect');
+        const animationSpeedSlider = document.getElementById('animationSpeed');
+        const controlsPanel = document.getElementById('controlsPanel');
         
         // Preencher o select de estados
         for (let n = 1; n <= nMax; n++) {
@@ -604,24 +572,14 @@
             animate();
             window.addEventListener('resize', resizeRenderer);
         }
+        
         function resizeRenderer() {
             const container = document.getElementById('renderer3D');
-            let width = container.offsetWidth;
-            let height = container.offsetHeight;
-            if (window.innerWidth < 900) {
-                height = Math.max(220, window.innerHeight * 0.35);
-            }
-            renderer.setSize(width, height, false);
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            renderer.setSize(width, height);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
-        }
-        
-        function onWindowResize() {
-            camera.aspect = document.getElementById('renderer3D').offsetWidth / 
-                            document.getElementById('renderer3D').offsetHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(document.getElementById('renderer3D').offsetWidth, 
-                             document.getElementById('renderer3D').offsetHeight);
         }
         
         function animate() {
@@ -646,15 +604,27 @@
             const lAntigo = lAtual;
             lSelect.innerHTML = '';
             
-            for (let l = 0; l < nAtual; l++) {
+            // CORREÇÃO: Para o átomo de hidrogênio, l só pode ir até 3 (orbital f)
+            // Mesmo que n seja maior, l máximo é 3
+            const lMax = Math.min(nAtual - 1, 3);
+            
+            for (let l = 0; l <= lMax; l++) {
                 const opt = document.createElement('option');
                 opt.value = l;
-                opt.textContent = l;
+                
+                // Nomear os orbitais corretamente
+                let orbitalName = '';
+                if (l === 0) orbitalName = 's';
+                else if (l === 1) orbitalName = 'p';
+                else if (l === 2) orbitalName = 'd';
+                else if (l === 3) orbitalName = 'f';
+                
+                opt.textContent = l + ' (' + orbitalName + ')';
                 lSelect.appendChild(opt);
             }
             
             // Manter l se possível
-            if (lAntigo < nAtual) {
+            if (lAntigo <= lMax) {
                 lAtual = lAntigo;
             } else {
                 lAtual = 0;
@@ -800,7 +770,7 @@
                 orbitalPoints.material.dispose();
             }
             
-            // Usar setTimeout para permitir que la UI atualize antes do cálculo pesado
+            // Usar setTimeout para permitir que a UI atualize antes do cálculo pesado
             setTimeout(() => {
                 const positions = [];
                 const colors = [];
@@ -893,7 +863,7 @@
             // Ajustar o tamanho dos pontos baseado na intensidade do desfoque
             orbitalPoints.material.size = 0.03 * blurIntensity;
             
-            // Ajustar la opacidade baseado na intensidade do brilho
+            // Ajustar a opacidade baseado na intensidade do brilho
             orbitalPoints.material.opacity = 0.5 + (glowIntensity * 0.3);
         }
         
@@ -915,10 +885,10 @@
                 const theta = Math.acos(z / r);
                 const phi = Math.atan2(y, x);
                 
-                // Calcular la fase temporal
+                // Calcular a fase temporal
                 const density = probabilityDensity(nAtual, lAtual, mAtual, r, theta, phi, time);
                 
-                // Atualizar la opacidade baseado na fase temporal
+                // Atualizar a opacidade baseado na fase temporal
                 const alpha = 0.5 + 0.4 * Math.sin(density * 10 + time * 3);
                 colors[i * 3 + 3] = alpha; // Componente alpha
             }
@@ -959,16 +929,17 @@
             else if (l === 1) nomeOrbital = 'p';
             else if (l === 2) nomeOrbital = 'd';
             else if (l === 3) nomeOrbital = 'f';
-            else nomeOrbital = `l=${l}`;
+            else nomeOrbital = 'g (não existe no hidrogênio)'; // CORREÇÃO: orbital g não existe no hidrogênio
             
             const energia = (-13.6 / (n * n)).toFixed(4);
             
+            // CORREÇÃO: O átomo de hidrogênio tem apenas 1 elétron
             document.getElementById('orbitalDetails').innerHTML = `
                 <strong>Orbital:</strong> ${n}${nomeOrbital}<br>
                 <strong>Energia:</strong> ${energia} eV<br>
                 <strong>Números quânticos:</strong> n=${n}, l=${l}, m=${m}<br>
                 <strong>Forma:</strong> ${obterDescricaoForma(l, m)}<br>
-                <strong>Elétrons:</strong> ${2 * (2*l + 1)}
+                <strong>Elétrons no orbital:</strong> 1 (átomo de hidrogênio)
             `;
             
             // Atualizar informações de comparação
@@ -984,12 +955,17 @@
                 comparacao = "Orbital em forma de haltere. Três orientações possíveis (px, py, pz).";
             } else if (l === 2) {
                 comparacao = "Orbital complexo com múltiplos lobos. Formas mais diversificadas.";
+            } else if (l === 3) {
+                comparacao = "Orbital com estrutura complexa de múltiplos lobos e anéis.";
             } else {
-                comparacao = "Orbital de alta complexidade com múltiplos nodos e lobos.";
+                comparacao = "Orbital não existente no átomo de hidrogênio.";
             }
             
+            // CORREÇÃO: Informação sobre o único elétron do hidrogênio
             document.getElementById('comparisonDetails').innerHTML = `
-                <strong>Características:</strong><br>${comparacao}
+                <strong>Características:</strong><br>${comparacao}<br><br>
+                <strong>Nota:</strong> O átomo de hidrogênio possui apenas 1 elétron, 
+                que ocupa um orbital de cada vez.
             `;
         }
         
@@ -997,15 +973,17 @@
             if (l === 0) return "Esférica";
             if (l === 1) {
                 if (m === 0) return "Duplo lobo ao longo do eixo Z";
-                if (m === 1) return "Duplo lobo ao longo do eixo X";
-                if (m === -1) return "Duplo lobo ao longo do eixo Y";
+                if (m === 1 || m === -1) return "Duplo lobo ao longo do eixo X/Y";
             }
             if (l === 2) {
                 if (m === 0) return "Forma de disco com anel equatorial";
                 if (m === 1 || m === -1) return "Quatro lobos em forma de roseta";
                 if (m === 2 || m === -2) return "Quatro lobos no plano XY";
             }
-            return "Forma complexa";
+            if (l === 3) {
+                return "Forma complexa com múltiplos lobos";
+            }
+            return "Orbital não existente no hidrogênio";
         }
         
         function updateOrbital() {
@@ -1047,7 +1025,8 @@
         
         document.getElementById('btnRandom').addEventListener('click', () => {
             const n = Math.floor(Math.random() * nMax) + 1;
-            const l = Math.floor(Math.random() * n);
+            const lMax = Math.min(n - 1, 3); // CORREÇÃO: l máximo é 3
+            const l = Math.floor(Math.random() * (lMax + 1));
             const m = Math.floor(Math.random() * (2*l + 1)) - l;
             setEstado(n, l, m);
         });
@@ -1096,34 +1075,12 @@
         });
         
         // Inicialização
-        // Responsividade: controles colapsáveis em telas pequenas
-        function checkResponsiveControls() {
-            if (window.innerWidth < 900) {
-                toggleControlsBtn.style.display = 'block';
-                controlsPanel.style.maxHeight = controlsPanel.classList.contains('collapsed') ? '60px' : '60vh';
-            } else {
-                toggleControlsBtn.style.display = 'none';
-                controlsPanel.classList.remove('collapsed');
-                controlsPanel.style.maxHeight = '';
-            }
-        }
-        toggleControlsBtn.addEventListener('click', () => {
-            controlsPanel.classList.toggle('collapsed');
-            if (controlsPanel.classList.contains('collapsed')) {
-                controlsPanel.style.maxHeight = '60px';
-            } else {
-                controlsPanel.style.maxHeight = '60vh';
-            }
-        });
-        window.addEventListener('resize', checkResponsiveControls);
-        window.addEventListener('orientationchange', checkResponsiveControls);
         window.addEventListener('load', () => {
             atualizarLSelect();
             initThreeJS();
             blurIntensity = parseFloat(blurEffectSlider.value);
             glowIntensity = parseFloat(glowEffectSlider.value);
             applyCloudEffects();
-            checkResponsiveControls();
         });
     </script>
 </body>
