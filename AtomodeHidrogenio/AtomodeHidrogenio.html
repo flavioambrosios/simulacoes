@@ -244,6 +244,8 @@
                 width: 100%;
                 max-width: 100vw;
                 align-items: center;
+                justify-content: center;
+                margin: 0 auto;
             }
         }
         
@@ -821,10 +823,10 @@
         function onWindowResize() {
             // Atualizar flag mobile
             isMobile = window.innerWidth < 900;
-            
+
             // Redimensionar renderizador
             resizeRenderer();
-            
+
             // Ajustar controles para mobile
             if (isMobile) {
                 controls.enablePan = false;
@@ -832,6 +834,12 @@
             } else {
                 controls.enablePan = true;
                 controls.maxDistance = 100;
+            }
+
+            // Corrigir centro e zoom após resize
+            if (controls) {
+                controls.target.set(0, 0, 0);
+                controls.update();
             }
         }
         
