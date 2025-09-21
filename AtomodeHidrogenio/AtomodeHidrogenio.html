@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Átomo de Hidrogênio - Visualização com Nuvem Quântica</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -25,6 +25,8 @@
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             color: #fff;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .container {
@@ -102,6 +104,7 @@
             border: 1px solid #4db8ff;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 16px;
         }
         
         button {
@@ -143,12 +146,32 @@
             border-radius: 8px;
             border: 1px solid rgba(77, 184, 255, 0.3);
             max-width: 400px;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .orbital-info.collapsed {
+            height: 40px;
+            overflow: hidden;
         }
         
         .info-title {
             color: #4db8ff;
             margin-bottom: 10px;
             font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #4db8ff;
+            cursor: pointer;
+            font-size: 18px;
+            width: auto;
+            padding: 0 5px;
         }
         
         .info-content {
@@ -163,6 +186,7 @@
             font-size: 20px;
             color: #4db8ff;
             display: none;
+            z-index: 100;
         }
         
         .comparison-panel {
@@ -174,6 +198,13 @@
             border-radius: 8px;
             border: 1px solid rgba(77, 184, 255, 0.3);
             max-width: 300px;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .comparison-panel.collapsed {
+            height: 40px;
+            overflow: hidden;
         }
         
         .theory-btn {
@@ -203,6 +234,7 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.8);
+            touch-action: manipulation;
         }
         
         .modal-content {
@@ -287,27 +319,29 @@
         
         @media (max-width: 900px) {
             .content {
-                flex-direction: column !important;
+                flex-direction: column;
             }
             .view-container {
                 order: 1;
                 width: 100vw;
                 min-width: 0;
-                min-height: 220px;
+                min-height: 50vh;
+                height: 50vh;
             }
             .controls {
                 order: 2;
-                width: 100vw;
+                width: 100%;
                 max-width: 100vw;
                 min-width: 0;
-                max-height: 60vh;
+                max-height: 40vh;
                 border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-                padding: 12px 6vw 12px 6vw;
+                padding: 12px 6vw;
                 font-size: 1.05em;
             }
             #renderer3D {
                 min-height: 200px;
+                height: 100%;
             }
             .comparison-panel {
                 position: relative;
@@ -316,36 +350,90 @@
                 margin: 20px 0 0 0;
                 max-width: none;
             }
-            .modal-content {
-                width: 98vw;
-                padding: 10px;
+            .orbital-info {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: calc(100% - 20px);
             }
-        }
-        @media (max-width: 600px) {
-            .controls {
-                padding: 8px 2vw 8px 2vw;
-                font-size: 0.98em;
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
             }
             .header h1 {
-                font-size: 1.1em;
-            }
-            .modal-content {
-                width: 99vw;
-                padding: 2vw;
-            }
-            .orbital-info, .comparison-panel {
-                left: 2vw;
-                right: 2vw;
-                max-width: 96vw;
+                font-size: 24px;
             }
         }
-
-        .correction-note {
-            background: rgba(255, 193, 7, 0.2);
-            border-left: 4px solid #ffc107;
+        
+        @media (max-width: 600px) {
+            .controls {
+                padding: 8px 4vw;
+                font-size: 0.98em;
+                max-height: 45vh;
+            }
+            .view-container {
+                min-height: 40vh;
+                height: 40vh;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .subtitle {
+                font-size: 14px;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+                margin: 5% auto;
+            }
+            .orbital-info, .comparison-panel {
+                left: 5px;
+                right: 5px;
+                max-width: calc(100% - 10px);
+                padding: 10px;
+            }
+            .control-group {
+                padding: 10px;
+            }
+            select, button, input {
+                padding: 8px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 18px;
+            }
+            .controls {
+                max-height: 50vh;
+            }
+            .view-container {
+                min-height: 35vh;
+                height: 35vh;
+            }
+        }
+        
+        .mobile-controls-handle {
+            display: none;
+            width: 100%;
             padding: 10px;
-            margin: 15px 0;
-            border-radius: 4px;
+            background: rgba(77, 184, 255, 0.2);
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+        }
+        
+        @media (max-width: 900px) {
+            .mobile-controls-handle {
+                display: block;
+            }
+        }
+        
+        @media screen and (max-width: 900px) {
+            select, input, button {
+                font-size: 16px !important;
+            }
         }
     </style>
 </head>
@@ -357,6 +445,7 @@
         </div>
         <div class="content">
             <div class="controls" id="controlsPanel">
+                <div class="mobile-controls-handle" id="mobileControlsHandle">≡ Controles</div>
                 <button class="theory-btn" id="theoryBtn" style="margin-bottom: 18px; position: static; width: 100%;">Aspectos Teóricos</button>
                 <div class="control-group">
                     <div class="control-title">Números Quânticos</div>
@@ -400,7 +489,10 @@
             <div class="view-container">
                 <div id="renderer3D"></div>
                 <div class="orbital-info">
-                    <div class="info-title">Informações do Orbital</div>
+                    <div class="info-title">
+                        <span>Informações do Orbital</span>
+                        <button class="toggle-btn" id="toggleOrbitalInfo">−</button>
+                    </div>
                     <div class="info-content" id="orbitalDetails">
                         Carregando...
                     </div>
@@ -408,7 +500,10 @@
                 <div class="loading" id="loadingIndicator">Calculando orbital...</div>
                 
                 <div class="comparison-panel">
-                    <div class="info-title">Comparação de Orbitais</div>
+                    <div class="info-title">
+                        <span>Comparação de Orbitais</span>
+                        <button class="toggle-btn" id="toggleComparison">−</button>
+                    </div>
                     <div class="info-content" id="comparisonDetails">
                         Selecione um orbital para ver comparações.
                     </div>
@@ -429,11 +524,11 @@
                     A informação anterior que sugeria múltiplos elétrons estava incorreta e foi ajustada.
                 </div>
                 
-                <p>A equação de Schrödinger é a base da mecânica quântica não-relativística e descreve o comportamento de partículas em escala atômica. Para o átomo de hidrogênio, que consiste em um próton e um elétron, a equação pode ser resolvida analiticamente, fornecendo insights fundamentais sobre a estrutura atômica.</p>
+                <p>A equação de Schrödinger é a base da mecânica quântica não-relativística e descreve o comportamento de partículas em escala atômica. Para o átomo de hidrogênio, que consiste em um próton e um elétron, a equação pode essere resolvida analiticamente, fornecendo insights fundamentais sobre a estrutura atômica.</p>
                 
                 <h3>O Átomo de Hidrogênio</h3>
                 
-                <p>O átomo de hidrogênio é composto por:</p>
+                <p>O átomo de hidrogênio is composed of:</p>
                 <ul>
                     <li>1 próton no núcleo (+1e)</li>
                     <li>1 elétron orbitando (-1e)</li>
@@ -519,6 +614,7 @@
         let animationSpeed = 0.5;
         let blurIntensity = 3;
         let glowIntensity = 0.8;
+        let isMobile = window.innerWidth < 900;
         
         // Inicialização dos selects
         const stateSelect = document.getElementById('stateSelect');
@@ -529,6 +625,11 @@
         const glowEffectSlider = document.getElementById('glowEffect');
         const animationSpeedSlider = document.getElementById('animationSpeed');
         const controlsPanel = document.getElementById('controlsPanel');
+        const mobileControlsHandle = document.getElementById('mobileControlsHandle');
+        const toggleOrbitalInfoBtn = document.getElementById('toggleOrbitalInfo');
+        const toggleComparisonBtn = document.getElementById('toggleComparison');
+        const orbitalInfoPanel = document.querySelector('.orbital-info');
+        const comparisonPanel = document.querySelector('.comparison-panel');
         
         // Preencher o select de estados
         for (let n = 1; n <= nMax; n++) {
@@ -543,43 +644,89 @@
         function initThreeJS() {
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x070b1e);
+            
             // Câmera
-            camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            const container = document.getElementById('renderer3D');
+            const aspectRatio = container.clientWidth / container.clientHeight;
+            camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
             camera.position.z = 5;
+            
             // Renderizador
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true,
-                alpha: true
+                alpha: true,
+                powerPreference: "high-performance"
             });
-            document.getElementById('renderer3D').appendChild(renderer.domElement);
+            
+            // Otimizações para mobile
+            if (isMobile) {
+                renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1);
+            } else {
+                renderer.setPixelRatio(window.devicePixelRatio);
+            }
+            
+            container.appendChild(renderer.domElement);
             resizeRenderer();
+            
             // Controles de órbita
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
+            
+            // Ajustes para dispositivos móveis
+            if (isMobile) {
+                controls.enablePan = false;
+                controls.maxDistance = 15;
+            }
+            
             // Iluminação
             const ambientLight = new THREE.AmbientLight(0x404040);
             scene.add(ambientLight);
+            
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
             directionalLight.position.set(1, 1, 1);
             scene.add(directionalLight);
+            
             const pointLight = new THREE.PointLight(0x4db8ff, 0.5);
             pointLight.position.set(5, 5, 5);
             scene.add(pointLight);
+            
             const axesHelper = new THREE.AxesHelper(2);
             scene.add(axesHelper);
+            
             updateOrbital();
             animate();
-            window.addEventListener('resize', resizeRenderer);
+            
+            // Event listeners para redimensionamento
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('orientationchange', onWindowResize);
         }
         
         function resizeRenderer() {
             const container = document.getElementById('renderer3D');
             const width = container.clientWidth;
             const height = container.clientHeight;
-            renderer.setSize(width, height);
+            
+            renderer.setSize(width, height, false);
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
+        }
+        
+        function onWindowResize() {
+            // Atualizar flag mobile
+            isMobile = window.innerWidth < 900;
+            
+            // Redimensionar renderizador
+            resizeRenderer();
+            
+            // Ajustar controles para mobile
+            if (isMobile) {
+                controls.enablePan = false;
+                controls.maxDistance = 15;
+            } else {
+                controls.enablePan = true;
+                controls.maxDistance = 100;
+            }
         }
         
         function animate() {
@@ -778,7 +925,9 @@
                 
                 // Escala baseada no número quântico principal
                 const scale = n * 2.5;
-                const numPoints = 8000; // Número de pontos para criar efeito de nuvem
+                
+                // Reduzir número de pontos em dispositivos móveis para melhor performance
+                const numPoints = isMobile ? 4000 : 8000;
                 
                 // Cor base para o orbital
                 let baseHue;
@@ -1074,13 +1223,49 @@
             }
         });
         
+        // Controles para dispositivos móveis
+        mobileControlsHandle.addEventListener('click', () => {
+            controlsPanel.classList.toggle('collapsed');
+            if (controlsPanel.classList.contains('collapsed')) {
+                controlsPanel.style.maxHeight = '60px';
+                mobileControlsHandle.textContent = '≡ Mostrar Controles';
+            } else {
+                controlsPanel.style.maxHeight = '40vh';
+                mobileControlsHandle.textContent = '≡ Ocultar Controles';
+            }
+        });
+        
+        // Botões para recolher/expandir painéis de informação
+        toggleOrbitalInfoBtn.addEventListener('click', () => {
+            orbitalInfoPanel.classList.toggle('collapsed');
+            toggleOrbitalInfoBtn.textContent = orbitalInfoPanel.classList.contains('collapsed') ? '+' : '−';
+        });
+        
+        toggleComparisonBtn.addEventListener('click', () => {
+            comparisonPanel.classList.toggle('collapsed');
+            toggleComparisonBtn.textContent = comparisonPanel.classList.contains('collapsed') ? '+' : '−';
+        });
+        
         // Inicialização
         window.addEventListener('load', () => {
+            // Verificar se é um dispositivo móvel
+            isMobile = window.innerWidth < 900;
+            
+            // Inicializar selects e Three.js
             atualizarLSelect();
             initThreeJS();
+            
+            // Aplicar efeitos iniciais
             blurIntensity = parseFloat(blurEffectSlider.value);
             glowIntensity = parseFloat(glowEffectSlider.value);
             applyCloudEffects();
+            
+            // Configurar controles para mobile se necessário
+            if (isMobile) {
+                controlsPanel.classList.add('collapsed');
+                controlsPanel.style.maxHeight = '60px';
+                mobileControlsHandle.textContent = '≡ Mostrar Controles';
+            }
         });
     </script>
 </body>
