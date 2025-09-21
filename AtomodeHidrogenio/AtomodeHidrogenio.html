@@ -18,6 +18,10 @@
         };
     </script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body { 
             margin: 0;
             padding: 0;
@@ -27,12 +31,14 @@
             color: #fff;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
         
         .container {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            width: 100%;
         }
         
         .header {
@@ -41,6 +47,7 @@
             background: rgba(0, 0, 0, 0.5);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
+            width: 100%;
         }
         
         h1 {
@@ -60,6 +67,8 @@
             flex: 1;
             overflow: hidden;
             min-height: 0;
+            width: 100%;
+            position: relative;
         }
         
         .controls {
@@ -71,6 +80,7 @@
             border-right: 1px solid rgba(255, 255, 255, 0.1);
             overflow-y: auto;
             transition: max-height 0.3s;
+            z-index: 20;
         }
         
         .control-group {
@@ -127,6 +137,9 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
         
         #renderer3D {
@@ -137,22 +150,52 @@
             flex: 1 1 0;
         }
         
-        .orbital-info {
+        .combined-info-panel {
             position: absolute;
             bottom: 20px;
             left: 20px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
             border-radius: 8px;
             border: 1px solid rgba(77, 184, 255, 0.3);
-            max-width: 400px;
             z-index: 10;
-            transition: all 0.3s ease;
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
         }
         
-        .orbital-info.collapsed {
-            height: 40px;
-            overflow: hidden;
+        .info-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+        }
+        
+        .info-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: rgba(0, 30, 60, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .info-tab.active {
+            background: rgba(77, 184, 255, 0.3);
+            color: #4db8ff;
+        }
+        
+        .info-content {
+            padding: 15px;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .info-section {
+            display: none;
+        }
+        
+        .info-section.active {
+            display: block;
         }
         
         .info-title {
@@ -174,10 +217,6 @@
             padding: 0 5px;
         }
         
-        .info-content {
-            line-height: 1.5;
-        }
-        
         .loading {
             position: absolute;
             top: 50%;
@@ -187,24 +226,6 @@
             color: #4db8ff;
             display: none;
             z-index: 100;
-        }
-        
-        .comparison-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(77, 184, 255, 0.3);
-            max-width: 300px;
-            z-index: 10;
-            transition: all 0.3s ease;
-        }
-        
-        .comparison-panel.collapsed {
-            height: 40px;
-            overflow: hidden;
         }
         
         .theory-btn {
@@ -218,6 +239,7 @@
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
+            z-index: 25;
         }
         
         .theory-btn:hover {
@@ -317,17 +339,32 @@
             font-size: 1.1em !important;
         }
         
+        .mobile-controls-handle {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background: rgba(77, 184, 255, 0.2);
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+            cursor: pointer;
+        }
+        
         @media (max-width: 900px) {
             .content {
                 flex-direction: column;
             }
+            
             .view-container {
                 order: 1;
                 width: 100vw;
                 min-width: 0;
                 min-height: 50vh;
                 height: 50vh;
+                justify-content: center;
+                padding: 0;
             }
+            
             .controls {
                 order: 2;
                 width: 100%;
@@ -338,31 +375,42 @@
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                 padding: 12px 6vw;
                 font-size: 1.05em;
+                overflow-y: auto;
             }
+            
             #renderer3D {
                 min-height: 200px;
                 height: 100%;
+                width: 100%;
             }
-            .comparison-panel {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin: 20px 0 0 0;
-                max-width: none;
-            }
-            .orbital-info {
+            
+            .combined-info-panel {
                 left: 10px;
                 right: 10px;
                 bottom: 10px;
-                max-width: calc(100% - 20px);
+                max-width: none;
             }
+            
             .modal-content {
                 width: 95%;
                 margin: 10% auto;
                 padding: 20px;
             }
+            
             .header h1 {
                 font-size: 24px;
+            }
+            
+            .mobile-controls-handle {
+                display: block;
+            }
+            
+            .theory-btn {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 15px;
+                width: 100%;
             }
         }
         
@@ -372,32 +420,44 @@
                 font-size: 0.98em;
                 max-height: 45vh;
             }
+            
             .view-container {
                 min-height: 40vh;
                 height: 40vh;
             }
+            
             .header h1 {
                 font-size: 20px;
             }
+            
             .subtitle {
                 font-size: 14px;
             }
+            
             .modal-content {
                 width: 95%;
                 padding: 15px;
                 margin: 5% auto;
             }
-            .orbital-info, .comparison-panel {
+            
+            .combined-info-panel {
                 left: 5px;
                 right: 5px;
-                max-width: calc(100% - 10px);
-                padding: 10px;
+                max-width: none;
+                padding: 0;
             }
+            
             .control-group {
                 padding: 10px;
             }
+            
             select, button, input {
                 padding: 8px;
+            }
+            
+            .info-content {
+                max-height: 150px;
+                padding: 10px;
             }
         }
         
@@ -405,28 +465,19 @@
             .header h1 {
                 font-size: 18px;
             }
+            
             .controls {
                 max-height: 50vh;
             }
+            
             .view-container {
                 min-height: 35vh;
                 height: 35vh;
             }
-        }
-        
-        .mobile-controls-handle {
-            display: none;
-            width: 100%;
-            padding: 10px;
-            background: rgba(77, 184, 255, 0.2);
-            text-align: center;
-            color: white;
-            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
-        }
-        
-        @media (max-width: 900px) {
-            .mobile-controls-handle {
-                display: block;
+            
+            .info-tab {
+                padding: 8px 5px;
+                font-size: 14px;
             }
         }
         
@@ -434,6 +485,14 @@
             select, input, button {
                 font-size: 16px !important;
             }
+        }
+        
+        .correction-note {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -446,7 +505,7 @@
         <div class="content">
             <div class="controls" id="controlsPanel">
                 <div class="mobile-controls-handle" id="mobileControlsHandle">≡ Controles</div>
-                <button class="theory-btn" id="theoryBtn" style="margin-bottom: 18px; position: static; width: 100%;">Aspectos Teóricos</button>
+                <button class="theory-btn" id="theoryBtn">Aspectos Teóricos</button>
                 <div class="control-group">
                     <div class="control-title">Números Quânticos</div>
                     <label for="stateSelect">Número quântico principal (n):</label>
@@ -486,28 +545,26 @@
                 </div>
             </div>
             
-           <div class="view-container">
-
-                
-
+            <div class="view-container">
                 <div id="renderer3D"></div>
-                <div class="orbital-info">
-                    <div class="info-title">
-                        <span>Informações do Orbital</span>
-                        <button class="toggle-btn" id="toggleOrbitalInfo">−</button>
-                    </div>                  
-                    <div class="info-content" id="orbitalDetails">
-                        Carregando...
+                <div class="loading" id="loadingIndicator">Calculando orbital...</div>
+                
+                <div class="combined-info-panel">
+                    <div class="info-tabs">
+                        <div class="info-tab active" data-tab="orbital">Informações do Orbital</div>
+                        <div class="info-tab" data-tab="comparison">Comparação de Orbitais</div>
                     </div>
-                </div>
-                <div class="loading" id="loadingIndicator">Calculando orbital...</div>              
-                <div class="comparison-panel">
-                    <div class="info-title">
-                        <span>Comparação de Orbitais</span>
-                        <button class="toggle-btn" id="toggleComparison">−</button>
-                    </div>
-                    <div class="info-content" id="comparisonDetails">
-                        Selecione um orbital para ver comparações.
+                    <div class="info-content">
+                        <div class="info-section active" id="orbitalSection">
+                            <div id="orbitalDetails">
+                                Carregando...
+                            </div>
+                        </div>
+                        <div class="info-section" id="comparisonSection">
+                            <div id="comparisonDetails">
+                                Selecione um orbital para ver comparações.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -530,7 +587,7 @@
                 
                 <h3>O Átomo de Hidrogênio</h3>
                 
-                <p>O átomo de hidrogênio is composed of:</p>
+                <p>O átomo de hidrogênio é composto por:</p>
                 <ul>
                     <li>1 próton no núcleo (+1e)</li>
                     <li>1 elétron orbitando (-1e)</li>
@@ -541,7 +598,7 @@
                 
                 <h3>A Equação de Schrödinger Independente do Tempo</h3>
                 
-                <p>Para um sistema de duas partículas como o átomo de hidrogênio, a equação de Schrödinger independente do tempo é:</p>
+                <p>Para um sistema de duas partículas como o átomo de hidrogênio, a equação de Schrödinger independente do tempo is:</p>
                 
                 <div class="equation">
                     \[ -\frac{\hbar^2}{2\mu} \nabla^2 \psi(\vec{r}) - \frac{e^2}{4\pi\epsilon_0 r} \psi(\vec{r}) = E \psi(\vec{r}) \]
@@ -568,7 +625,7 @@
                 </ol>
                 
                 <div class="correction-note">
-                    <strong>Importante:</strong> Embora orbitais como os orbitais d e f possam acomodar mais elétrons em átomos multi-eletrônicos, 
+                    <strong>Importante:</strong> Embora orbitais como os orbitals d e f possam acomodar mais elétrons em átomos multi-eletrônicos, 
                     no átomo de hidrogênio cada orbital contém no máximo 1 elétron, que é o único elétron do átomo.
                 </div>
                 
@@ -628,10 +685,8 @@
         const animationSpeedSlider = document.getElementById('animationSpeed');
         const controlsPanel = document.getElementById('controlsPanel');
         const mobileControlsHandle = document.getElementById('mobileControlsHandle');
-        const toggleOrbitalInfoBtn = document.getElementById('toggleOrbitalInfo');
-        const toggleComparisonBtn = document.getElementById('toggleComparison');
-        const orbitalInfoPanel = document.querySelector('.orbital-info');
-        const comparisonPanel = document.querySelector('.comparison-panel');
+        const infoTabs = document.querySelectorAll('.info-tab');
+        const infoSections = document.querySelectorAll('.info-section');
         
         // Preencher o select de estados
         for (let n = 1; n <= nMax; n++) {
@@ -1107,7 +1162,7 @@
             } else if (l === 2) {
                 comparacao = "Orbital complexo com múltiplos lobos. Formas mais diversificadas.";
             } else if (l === 3) {
-                comparacao = "Orbital com estrutura complexa de múltiplos lobos e anéis.";
+                comparacao = "Orbital com estrutura complexa de múltiplos lobos and anéis.";
             } else {
                 comparacao = "Orbital não existente no átomo de hidrogênio.";
             }
@@ -1237,15 +1292,21 @@
             }
         });
         
-        // Botões para recolher/expandir painéis de informação
-        toggleOrbitalInfoBtn.addEventListener('click', () => {
-            orbitalInfoPanel.classList.toggle('collapsed');
-            toggleOrbitalInfoBtn.textContent = orbitalInfoPanel.classList.contains('collapsed') ? '+' : '−';
-        });
-        
-        toggleComparisonBtn.addEventListener('click', () => {
-            comparisonPanel.classList.toggle('collapsed');
-            toggleComparisonBtn.textContent = comparisonPanel.classList.contains('collapsed') ? '+' : '−';
+        // Tabs para o painel de informações combinado
+        infoTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Remover classe active de todas as tabs
+                infoTabs.forEach(t => t.classList.remove('active'));
+                // Adicionar classe active à tab clicada
+                tab.classList.add('active');
+                
+                // Ocultar todas as seções
+                infoSections.forEach(section => section.classList.remove('active'));
+                // Mostrar a seção correspondente
+                document.getElementById(`${tabId}Section`).classList.add('active');
+            });
         });
         
         // Inicialização
