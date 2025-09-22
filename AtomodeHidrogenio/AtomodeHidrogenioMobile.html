@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Átomo de Hidrogênio - Visualização com Nuvem Quântica</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body { 
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        .header {
+            padding: 15px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            width: 100%;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #4db8ff;
+            text-shadow: 0 0 10px rgba(77, 184, 255, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.8;
+        }
+        
+        .content {
+            display: flex;
+            flex: 1;
+            /* Removido overflow: hidden para permitir rolagem no celular */
+            min-height: 0;
+            width: 100%;
+            position: relative;
+        }
+
+        .controls {
+            width: 320px;
+            min-width: 220px;
+            max-width: 100vw;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            transition: max-height 0.3s;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .view-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Move para a esquerda */
+            justify-content: center;
+            width: 100%;
+            margin-left: 10px; /* Ajuste fino, pode testar outros valores */
+        }
+        
+        .controls {
+            width: 320px;
+            min-width: 220px;
+            max-width: 100vw;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-y: auto;
+            transition: max-height 0.3s;
+            z-index: 20;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 30, 60, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+        
+        .control-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #4db8ff;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+            padding-bottom: 5px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        select, button, input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 20, 40, 0.7);
+            color: white;
+            border: 1px solid #4db8ff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #4db8ff, #1a8cff);
+            border: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #1a8cff, #0066cc);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 204, 0.4);
+        }
+        
+        .view-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Move para a esquerda */
+            justify-content: center;
+            width: 100%;
+            margin-left: 10px; /* Ajuste fino, pode testar outros valores */
+        }
+        
+        #renderer3D {
+            width: 100%;
+            height: 100%;
+            min-height: 220px; /* Diminua aqui para testar a altura */
+            min-width: 200px;
+            flex: 1 1 0;
+        }
+        
+        .combined-info-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            border: 1px solid rgba(77, 184, 255, 0.3);
+            z-index: 10;
+            max-width: 600px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        
+        .info-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+        }
+        
+        .info-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: rgba(0, 30, 60, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .info-tab.active {
+            background: rgba(77, 184, 255, 0.3);
+            color: #4db8ff;
+        }
+        
+        .info-content {
+            padding: 15px;
+            line-height: 1.5;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .info-section {
+            display: none;
+        }
+        
+        .info-section.active {
+            display: block;
+        }
+
+        /* Responsividade: controles abaixo da simulação em telas pequenas */
+        @media (max-width: 800px) {
+            .content {
+                flex-direction: column;
+            }
+            .controls {
+                width: 150%;
+                min-width: 0;
+                max-width: 150vw;
+                border-right: none;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                border-radius: 0 0 8px 8px;
+                box-sizing: border-box;
+            }
+            .view-container {
+                margin-left: 0;
+                width: 100%;
+                max-width: 100vw;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto;
+            }
+        }
+        
+        .info-title {
+            color: #4db8ff;
+            margin-bottom: 10px;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #4db8ff;
+            cursor: pointer;
+            font-size: 18px;
+            width: auto;
+            padding: 0 5px;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #4db8ff;
+            display: none;
+            z-index: 100;
+        }
+        
+        .theory-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: rgba(77, 184, 255, 0.2);
+            border: 1px solid #4db8ff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 25;
+        }
+        
+        .theory-btn:hover {
+            background: rgba(77, 184, 255, 0.4);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            touch-action: manipulation;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #0f2027, #203a43);
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #4db8ff;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 1000px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 20px rgba(77, 184, 255, 0.5);
+            position: relative;
+            color: #fff;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #4db8ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content h2 {
+            color: #4db8ff;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .theory-content h3 {
+            color: #4db8ff;
+            margin-top: 25px;
+        }
+        
+        .equation {
+            background-color: rgba(0, 20, 40, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            overflow-x: auto;
+        }
+        
+        .reference {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 15px;
+        }
+        
+        .reference a {
+            color: #4db8ff;
+            text-decoration: none;
+        }
+        
+        .reference a:hover {
+            text-decoration: underline;
+        }
+        
+        .MathJax {
+            color: #fff !important;
+            font-size: 1.1em !important;
+        }
+        
+        .mobile-controls-handle {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background: rgba(77, 184, 255, 0.2);
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(77, 184, 255, 0.3);
+            cursor: pointer;
+        }
+        
+        @media (max-width: 900px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .view-container {
+                order: 1;
+                width: 100vw;
+                min-width: 0;
+                min-height: 50vh;
+                height: 50vh;
+                justify-content: center;
+                padding: 0;
+            }
+            
+            .controls {
+                order: 2;
+                width: 100%;
+                max-width: 100vw;
+                min-width: 0;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 12px 6vw;
+                font-size: 1.05em;
+                overflow-y: auto;
+            }
+            
+            #renderer3D {
+                min-height: 200px;
+                height: 100%;
+                width: 100%;
+            }
+            
+            .combined-info-panel {
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-width: none;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .mobile-controls-handle {
+                display: block;
+            }
+            
+            .theory-btn {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                padding: 8px 4vw;
+                font-size: 0.98em;
+                max-height: 45vh;
+            }
+            
+            .view-container {
+                min-height: 40vh;
+                height: 40vh;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+                margin: 5% auto;
+            }
+            
+            .combined-info-panel {
+                left: 5px;
+                right: 5px;
+                max-width: none;
+                padding: 0;
+            }
+            
+            .control-group {
+                padding: 10px;
+            }
+            
+            select, button, input {
+                padding: 8px;
+            }
+            
+            .info-content {
+                max-height: 150px;
+                padding: 10px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .controls {
+                max-height: 50vh;
+            }
+            
+            .view-container {
+                min-height: 35vh;
+                height: 35vh;
+            }
+            
+            .info-tab {
+                padding: 8px 5px;
+                font-size: 14px;
+            }
+        }
+        
+        @media screen and (max-width: 900px) {
+            select, input, button {
+                font-size: 16px !important;
+            }
+        }
+        
+        .correction-note {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Átomo de Hidrogênio - Nuvem Quântica</h1>
+            <div class="subtitle">Visualização 3D com efeito de nuvem e evolução temporal</div>            
+        </div>
+        <div class="content">
+            <div class="controls" id="controlsPanel">
+                <div class="mobile-controls-handle" id="mobileControlsHandle">≡ Controles</div>
+                <button class="theory-btn" id="theoryBtn">Aspectos Teóricos</button>
+                <div class="control-group">
+                    <div class="control-title">Números Quânticos</div>
+                    <label for="stateSelect">Número quântico principal (n):</label>
+                    <select id="stateSelect"></select>
+                    
+                    <label for="lSelect">Número quântico de momento angular (l):</label>
+                    <select id="lSelect"></select>
+                    
+                    <label for="mSelect">Número quântico magnético (m):</label>
+                    <select id="mSelect"></select>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-title">Efeito de Nuvem</div>
+                    <label for="blurEffect">Intensidade do Desfoque:</label>
+                    <input type="range" id="blurEffect" min="0" max="10" step="0.5" value="0.5">
+                    
+                    <label for="glowEffect">Intensidade do Brilho:</label>
+                    <input type="range" id="glowEffect" min="0" max="2" step="0.1" value="0.8">
+                    
+                    <button id="applyEffects">Aplicar Efeitos</button>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-title">Evolução Temporal</div>
+                    <button id="toggleAnimation">Iniciar Animação</button>
+                    <label for="animationSpeed">Velocidade da Animação:</label>
+                    <input type="range" id="animationSpeed" min="0.1" max="2" step="0.1" value="0.5">
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-title">Controles</div>
+                    <button id="resetView" class="desktop-only">Resetar Câmera</button>
+                    <button id="toggleRotation" class="desktop-only">Pausar/Rotacionar</button>
+                    <button id="btnGround" class="desktop-only">Estado Fundamental</button>
+                    <button id="btnRandom">Orbital Aleatório</button>
+        /* Oculta todos os botões exceto 'Orbital Aleatório' e 'Aspectos Teóricos' no mobile */
+        @media (max-width: 900px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+                </div>
+            </div>
+            
+            <div class="view-container">
+                <div id="renderer3D"></div>
+                <div class="loading" id="loadingIndicator">Calculando orbital...</div>
+                
+                <div class="combined-info-panel">
+                    <div class="info-tabs">
+                        <div class="info-tab active" data-tab="orbital">Informações do Orbital</div>
+                        <div class="info-tab" data-tab="comparison">Comparação de Orbitais</div>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-section active" id="orbitalSection">
+                            <div id="orbitalDetails">
+                                Carregando...
+                            </div>
+                        </div>
+                        <div class="info-section" id="comparisonSection">
+                            <div id="comparisonDetails">
+                                Selecione um orbital para ver comparações.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria Quântica -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="theory-content">
+                <h2>Equação de Schrödinger para o Átomo de Hidrogênio</h2>
+                
+                <div class="correction-note">
+                    <strong>Nota de Correção:</strong> O átomo de hidrogênio possui apenas 1 elétron. 
+                    A informação anterior que sugeria múltiplos elétrons estava incorreta e foi ajustada.
+                </div>
+                
+                <p>A equação de Schrödinger é a base da mecânica quântica não-relativística e descreve o comportamento de partículas em escala atômica. Para o átomo de hidrogênio, que consiste em um próton e um elétron, a equação pode essere resolvida analiticamente, fornecendo insights fundamentais sobre a estrutura atômica.</p>
+                
+                <h3>O Átomo de Hidrogênio</h3>
+                
+                <p>O átomo de hidrogênio é composto por:</p>
+                <ul>
+                    <li>1 próton no núcleo (+1e)</li>
+                    <li>1 elétron orbitando (-1e)</li>
+                    <li>Nenhum nêutron</li>
+                </ul>
+                
+                <p>Por possuir apenas um elétron, o hidrogênio é o único átomo para o qual a equação de Schrödinger pode ser resolvida exatamente. Em átomos com múltiplos elétrons, surgem repulsões elétron-elétron que complicam considerably a solução.</p>
+                
+                <h3>A Equação de Schrödinger Independente do Tempo</h3>
+                
+                <p>Para um sistema de duas partículas como o átomo de hidrogênio, a equação de Schrödinger independente do tempo is:</p>
+                
+                <div class="equation">
+                    \[ -\frac{\hbar^2}{2\mu} \nabla^2 \psi(\vec{r}) - \frac{e^2}{4\pi\epsilon_0 r} \psi(\vec{r}) = E \psi(\vec{r}) \]
+                </div>
+                
+                <p>onde:</p>
+                <ul>
+                    <li>μ é a massa reduzida do sistema (próton e elétron)</li>
+                    <li>ħ é a constante de Planck reduzida</li>
+                    <li>e é a carga do elétron</li>
+                    <li>ε₀ é a permissividade do vácuo</li>
+                    <li>ψ(r) é a função de onda do elétron</li>
+                    <li>E é a energia total do sistema</li>
+                </ul>
+                
+                <h3>Números Quânticos e Sua Interpretação</h3>
+                
+                <p>A solução da equação de Schrödinger para o átomo de hidrogênio introduz três números quânticos:</p>
+                
+                <ol>
+                    <li><strong>Número quântico principal (n)</strong>: Determina a energia do orbital e o tamanho geral. n = 1, 2, 3, ...</li>
+                    <li><strong>Número quântico de momento angular (ℓ)</strong>: Determina a forma do orbital. ℓ = 0, 1, 2, ..., n-1</li>
+                    <li><strong>Número quântico magnético (m)</strong>: Determina a orientação espacial do orbital. m = -ℓ, -ℓ+1, ..., ℓ-1, ℓ</li>
+                </ol>
+                
+                <div class="correction-note">
+                    <strong>Importante:</strong> Embora orbitais como os orbitals d e f possam acomodar mais elétrons em átomos multi-eletrônicos, 
+                    no átomo de hidrogênio cada orbital contém no máximo 1 elétron, que é o único elétron do átomo.
+                </div>
+                
+                <h3>Autofunções e Autovalores de Energia</h3>
+                
+                <p>As autofunções (orbitais) são caracterizadas pelos três números quânticos: ψₙℓₘ(r, θ, φ). Os autovalores de energia correspondentes são:</p>
+                
+                <div class="equation">
+                    \[ E_n = - \frac{\mu e^4}{2(4\pi\epsilon_0)^2 \hbar^2} \frac{1}{n^2} = - \frac{13.6}{n^2} \text{ eV} \]
+                </div>
+                
+                <p>Este resultado reproduz com sucesso a fórmula de Rydberg para as linhas espectrais do hidrogênio, validando a mecânica quântica.</p>
+                
+                <h3>Interpretação Probabilística</h3>
+                
+                <p>De acordo com a interpretação de Copenhagen, |ψ(r, θ, φ)|² representa a densidade de probabilidade de encontrar o elétron em um ponto específico do espaço. Esta é a base para a visualização de "nuvem de elétrons" mostrada nesta simulação.</p>
+                
+                <h3>Referências Bibliográficas</h3>
+                
+                <ul>
+                    <li>Griffiths, D. J. (2005). Introduction to Quantum Mechanics. Pearson Education.</li>
+                    <li>Shankar, R. (1994). Principles of Quantum Mechanics. Springer.</li>
+                    <li>Liboff, R. L. (2002). Introductory Quantum Mechanics. Addison-Wesley.</li>
+                    <li>Bransden, B. H., & Joachain, C. J. (2000). Quantum Mechanics. Pearson Education.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carregando Three.js e controles de órbita -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <script>
+        // Configuração principal
+        const nMax = 5; // Número máximo de estados principais
+        let nAtual = 1;
+        let lAtual = 0;
+        let mAtual = 0;
+        let scene, camera, renderer, controls;
+        let orbitalPoints = null;
+        let isRotating = true;
+        let isAnimating = false;
+        let time = 0;
+        let animationSpeed = 0.5;
+        let blurIntensity = 3;
+        let glowIntensity = 0.8;
+        let isMobile = window.innerWidth < 900;
+        
+        // Inicialização dos selects
+        const stateSelect = document.getElementById('stateSelect');
+        const lSelect = document.getElementById('lSelect');
+        const mSelect = document.getElementById('mSelect');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const blurEffectSlider = document.getElementById('blurEffect');
+        const glowEffectSlider = document.getElementById('glowEffect');
+        const animationSpeedSlider = document.getElementById('animationSpeed');
+        const controlsPanel = document.getElementById('controlsPanel');
+        const mobileControlsHandle = document.getElementById('mobileControlsHandle');
+        const infoTabs = document.querySelectorAll('.info-tab');
+        const infoSections = document.querySelectorAll('.info-section');
+        
+        // Preencher o select de estados
+        for (let n = 1; n <= nMax; n++) {
+            const opt = document.createElement('option');
+            opt.value = n;
+            opt.textContent = n;
+            stateSelect.appendChild(opt);
+        }
+        stateSelect.value = nAtual;
+        
+        // Inicializar Three.js
+        function initThreeJS() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x070b1e);
+            
+            // Câmera
+            const container = document.getElementById('renderer3D');
+            const aspectRatio = container.clientWidth / container.clientHeight;
+            camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Renderizador
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            
+            // Otimizações para mobile
+            if (isMobile) {
+                renderer.setPixelRatio(window.devicePixelRatio > 1 ? 1.5 : 1);
+            } else {
+                renderer.setPixelRatio(window.devicePixelRatio);
+            }
+            
+            container.appendChild(renderer.domElement);
+            resizeRenderer();
+            
+            // Controles de órbita
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Ajustes para dispositivos móveis
+            if (isMobile) {
+                controls.enablePan = false;
+                controls.maxDistance = 15;
+            }
+            
+            // Iluminação
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0x4db8ff, 0.5);
+            pointLight.position.set(5, 5, 5);
+            scene.add(pointLight);
+            
+            const axesHelper = new THREE.AxesHelper(2);
+            scene.add(axesHelper);
+            
+            updateOrbital();
+            animate();
+            
+            // Event listeners para redimensionamento
+            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('orientationchange', onWindowResize);
+        }
+        
+        function resizeRenderer() {
+            const container = document.getElementById('renderer3D');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            renderer.setSize(width, height, false);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+        
+        function onWindowResize() {
+            // Atualizar flag mobile
+            isMobile = window.innerWidth < 900;
+
+            // Redimensionar renderizador
+            resizeRenderer();
+
+            // Ajustar controles para mobile
+            if (isMobile) {
+                controls.enablePan = false;
+                controls.maxDistance = 15;
+            } else {
+                controls.enablePan = true;
+                controls.maxDistance = 100;
+            }
+
+            // Corrigir centro e zoom após resize
+            if (controls) {
+                controls.target.set(0, 0, 0);
+                controls.update();
+            }
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isRotating && orbitalPoints) {
+                orbitalPoints.rotation.y += 0.005;
+            }
+            
+            // Atualizar animação temporal se estiver ativa
+            if (isAnimating && orbitalPoints) {
+                time += 0.01 * animationSpeed;
+                updateTemporalEvolution();
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        // Atualizar selects de números quânticos
+        function atualizarLSelect() {
+            const lAntigo = lAtual;
+            lSelect.innerHTML = '';
+            
+            // CORREÇÃO: Para o átomo de hidrogênio, l só pode ir até 3 (orbital f)
+            // Mesmo que n seja maior, l máximo é 3
+            const lMax = Math.min(nAtual - 1, 3);
+            
+            for (let l = 0; l <= lMax; l++) {
+                const opt = document.createElement('option');
+                opt.value = l;
+                
+                // Nomear os orbitais corretamente
+                let orbitalName = '';
+                if (l === 0) orbitalName = 's';
+                else if (l === 1) orbitalName = 'p';
+                else if (l === 2) orbitalName = 'd';
+                else if (l === 3) orbitalName = 'f';
+                
+                opt.textContent = l + ' (' + orbitalName + ')';
+                lSelect.appendChild(opt);
+            }
+            
+            // Manter l se possível
+            if (lAntigo <= lMax) {
+                lAtual = lAntigo;
+            } else {
+                lAtual = 0;
+            }
+            lSelect.value = lAtual;
+            atualizarMSelect();
+        }
+        
+        function atualizarMSelect() {
+            const mAntigo = mAtual;
+            mSelect.innerHTML = '';
+            
+            for (let m = -lAtual; m <= lAtual; m++) {
+                const opt = document.createElement('option');
+                opt.value = m;
+                opt.textContent = m;
+                mSelect.appendChild(opt);
+            }
+            
+            // Manter m se possível
+            if (mAntigo >= -lAtual && mAntigo <= lAtual) {
+                mAtual = mAntigo;
+            } else {
+                mAtual = 0;
+            }
+            mSelect.value = mAtual;
+        }
+        
+        // Função para calcular o fatorial
+        function factorial(n) {
+            if (n <= 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= n; i++) result *= i;
+            return result;
+        }
+        
+        // Função radial R_nl(r) baseada na equação de Schrödinger
+        function radialWaveFunction(n, l, r) {
+            const a0 = 1.0; // Raio de Bohr (unidades atômicas)
+            const Z = 1;    // Número atômico (Hidrogênio)
+            
+            // Normalização constante
+            const norm = Math.sqrt(Math.pow(2*Z/(n*a0), 3) * factorial(n-l-1) / (2*n*factorial(n+l)));
+            
+            // ρ = 2Zr/(na0)
+            const rho = 2*Z*r/(n*a0);
+            
+            // Polinômio de Laguerre associado L^{2l+1}_{n-l-1}(ρ)
+            const L = associatedLaguerre(n-l-1, 2*l+1, rho);
+            
+            return norm * Math.exp(-rho/2) * Math.pow(rho, l) * L;
+        }
+        
+        // Polinômio de Laguerre associado L^{k}_{n}(x)
+        function associatedLaguerre(n, k, x) {
+            if (n === 0) return 1;
+            if (n === 1) return 1 + k - x;
+            
+            // Usar relação de recursão
+            let L0 = 1;
+            let L1 = 1 + k - x;
+            
+            for (let i = 2; i <= n; i++) {
+                const L2 = ((2*i + k - 1 - x) * L1 - (i + k - 1) * L0) / i;
+                L0 = L1;
+                L1 = L2;
+            }
+            
+            return L1;
+        }
+        
+        // Harmônicos esféricos reais Y_lm(θ, φ) - parte angular da função de onda
+        function sphericalHarmonic(l, m, theta, phi) {
+            // Normalização
+            const norm = Math.sqrt((2 * l + 1) / (4 * Math.PI) * factorial(l - Math.abs(m)) / factorial(l + Math.abs(m)));
+            const P = associatedLegendre(l, Math.abs(m), Math.cos(theta));
+            if (m > 0) {
+                // sqrt(2) * N * P_l^m * cos(m*phi)
+                return Math.sqrt(2) * norm * P * Math.cos(m * phi);
+            } else if (m < 0) {
+                // sqrt(2) * N * P_l^|m| * sin(|m|*phi)
+                return Math.sqrt(2) * norm * P * Math.sin(-m * phi);
+            } else {
+                // m == 0
+                return norm * P;
+            }
+        }
+        
+        // Polinômio de Legendre associado P_l^m(x) usando recursão
+        function associatedLegendre(l, m, x) {
+            // m >= 0
+            let pmm = 1.0;
+            if (m > 0) {
+                let somx2 = Math.sqrt((1.0 - x) * (1.0 + x));
+                let fact = 1.0;
+                for (let i = 1; i <= m; i++) {
+                    pmm *= -fact * somx2;
+                    fact += 2.0;
+                }
+            }
+            if (l === m) {
+                return pmm;
+            }
+            let pmmp1 = x * (2 * m + 1) * pmm;
+            if (l === m + 1) {
+                return pmmp1;
+            }
+            let pll = 0.0;
+            for (let ll = m + 2; ll <= l; ll++) {
+                pll = ((2 * ll - 1) * x * pmmp1 - (ll + m - 1) * pmm) / (ll - m);
+                pmm = pmmp1;
+                pmmp1 = pll;
+            }
+            return pll;
+        }
+        
+        // Função de onda completa ψ_nlm(r, θ, φ)
+        function waveFunction(n, l, m, r, theta, phi, t = 0) {
+            const R = radialWaveFunction(n, l, r);
+            const Y = sphericalHarmonic(l, m, theta, phi);
+            
+            // Adicionar evolução temporal: e^(-iEt/ħ)
+            const E = -13.6 / (n * n); // Energia em eV
+            const timePhase = Math.cos(E * t); // Parte real da fase temporal
+            
+            return R * Y * timePhase;
+        }
+        
+        // Densidade de probabilidade |ψ_nlm(r, θ, φ)|²
+        function probabilityDensity(n, l, m, r, theta, phi, t = 0) {
+            const psi = waveFunction(n, l, m, r, theta, phi, t);
+            return Math.pow(psi, 2);
+        }
+        
+        // Criar orbital como nuvem de pontos baseada na equação de Schrödinger
+        function criarOrbital(n, l, m) {
+            loadingIndicator.style.display = 'block';
+            
+            // Remover orbital anterior se existir
+            if (orbitalPoints) {
+                scene.remove(orbitalPoints);
+                orbitalPoints.geometry.dispose();
+                orbitalPoints.material.dispose();
+            }
+            
+            // Usar setTimeout para permitir que a UI atualize antes do cálculo pesado
+            setTimeout(() => {
+                const positions = [];
+                const colors = [];
+                const sizes = [];
+                
+                // Escala baseada no número quântico principal
+                const scale = n * 2.5;
+                
+                // Reduzir número de pontos em dispositivos móveis para melhor performance
+                const numPoints = isMobile ? 4000 : 8000;
+                
+                // Cor base para o orbital
+                let baseHue;
+                if (l === 0) baseHue = 0.6;    // Azul para orbitais s
+                else if (l === 1) baseHue = 0.2; // Verde para orbitais p
+                else if (l === 2) baseHue = 0.8; // Roxo para orbitais d
+                else if (l === 3) baseHue = 0.0; // Vermelho para orbitais f
+                else baseHue = 0.5;             // Outros
+                
+                // Gerar pontos aleatórios com distribuição proporcional à densidade de probabilidade
+                let pointsGenerated = 0;
+                
+                while (pointsGenerated < numPoints) {
+                    // Gerar coordenadas esféricas aleatórias
+                    const r = Math.cbrt(Math.random()) * scale;
+                    const theta = Math.acos(2 * Math.random() - 1);
+                    const phi = 2 * Math.PI * Math.random();
+                    
+                    // Calcular densidade de probabilidade
+                    const density = probabilityDensity(n, l, m, r, theta, phi);
+                    
+                    // Rejeição por amostragem - manter ponto apenas com probabilidade proporcional à densidade
+                    if (Math.random() < density * 1000) {
+                        // Converter para coordenadas cartesianas
+                        const x = r * Math.sin(theta) * Math.cos(phi);
+                        const y = r * Math.sin(theta) * Math.sin(phi);
+                        const z = r * Math.cos(theta);
+                        
+                        // Adicionar posição
+                        positions.push(x, y, z);
+                        
+                        // Adicionar cor baseada na densidade e no tipo de orbital
+                        const saturation = 0.8;
+                        const lightness = 0.5 + 0.3 * (1 - density);
+                        const [rColor, gColor, bColor] = hslToRgb(baseHue, saturation, lightness);
+                        
+                        colors.push(rColor, gColor, bColor);
+                        
+                        // Tamanho do ponto baseado na densidade (para efeito de nuvem)
+                        const size = 0.05 + (density * 0.2);
+                        sizes.push(size);
+                        
+                        pointsGenerated++;
+                    }
+                }
+                
+                // Criar geometria
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+                
+                // Criar material com efeito de nuvem
+                const material = new THREE.PointsMaterial({
+                    size: 0.1,
+                    sizeAttenuation: true,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.7,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
+                });
+                
+                // Criar pontos
+                orbitalPoints = new THREE.Points(geometry, material);
+                scene.add(orbitalPoints);
+                
+                // Aplicar efeitos de nuvem
+                applyCloudEffects();
+                
+                // Atualizar informações do orbital
+                atualizarInformacoesOrbital(n, l, m);
+                
+                loadingIndicator.style.display = 'none';
+            }, 100);
+        }
+        
+        // Aplicar efeitos de nuvem
+        function applyCloudEffects() {
+            if (!orbitalPoints) return;
+            
+            // Ajustar o tamanho dos pontos baseado na intensidade do desfoque
+            orbitalPoints.material.size = 0.03 * blurIntensity;
+            
+            // Ajustar a opacidade baseado na intensidade do brilho
+            orbitalPoints.material.opacity = 0.5 + (glowIntensity * 0.3);
+        }
+        
+        // Atualizar evolução temporal
+        function updateTemporalEvolution() {
+            if (!orbitalPoints || !orbitalPoints.geometry.attributes.color) return;
+            
+            const colors = orbitalPoints.geometry.attributes.color.array;
+            const positions = orbitalPoints.geometry.attributes.position.array;
+            const count = positions.length / 3;
+            
+            for (let i = 0; i < count; i++) {
+                const x = positions[i * 3];
+                const y = positions[i * 3 + 1];
+                const z = positions[i * 3 + 2];
+                
+                // Converter para coordenadas esféricas
+                const r = Math.sqrt(x*x + y*y + z*z);
+                const theta = Math.acos(z / r);
+                const phi = Math.atan2(y, x);
+                
+                // Calcular a fase temporal
+                const density = probabilityDensity(nAtual, lAtual, mAtual, r, theta, phi, time);
+                
+                // Atualizar a opacidade baseado na fase temporal
+                const alpha = 0.5 + 0.4 * Math.sin(density * 10 + time * 3);
+                colors[i * 3 + 3] = alpha; // Componente alpha
+            }
+            
+            orbitalPoints.geometry.attributes.color.needsUpdate = true;
+        }
+        
+        // Converter HSL para RGB
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            
+            if (s === 0) {
+                r = g = b = l; // Achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            
+            return [r, g, b];
+        }
+        
+        function atualizarInformacoesOrbital(n, l, m) {
+            let nomeOrbital = '';
+            if (l === 0) nomeOrbital = 's';
+            else if (l === 1) nomeOrbital = 'p';
+            else if (l === 2) nomeOrbital = 'd';
+            else if (l === 3) nomeOrbital = 'f';
+            else nomeOrbital = 'g (não existe no hidrogênio)'; // CORREÇÃO: orbital g não existe no hidrogênio
+            
+            const energia = (-13.6 / (n * n)).toFixed(4);
+            
+            // CORREÇÃO: O átomo de hidrogênio tem apenas 1 elétron
+            document.getElementById('orbitalDetails').innerHTML = `
+                <strong>Orbital:</strong> ${n}${nomeOrbital}<br>
+                <strong>Energia:</strong> ${energia} eV<br>
+                <strong>Números quânticos:</strong> n=${n}, l=${l}, m=${m}<br>
+                <strong>Forma:</strong> ${obterDescricaoForma(l, m)}<br>
+                <strong>Elétrons no orbital:</strong> 1 (átomo de hidrogênio)
+            `;
+            
+            // Atualizar informações de comparação
+            atualizarComparacaoOrbitais(n, l, m);
+        }
+        
+        function atualizarComparacaoOrbitais(n, l, m) {
+            let comparacao = "";
+            
+            if (l === 0) {
+                comparacao = "Orbital esférico simétrico. Maior probabilidade próximo ao núcleo.";
+            } else if (l === 1) {
+                comparacao = "Orbital em forma de haltere. Três orientações possíveis (px, py, pz).";
+            } else if (l === 2) {
+                comparacao = "Orbital complexo com múltiplos lobos. Formas mais diversificadas.";
+            } else if (l === 3) {
+                comparacao = "Orbital com estrutura complexa de múltiplos lobos and anéis.";
+            } else {
+                comparacao = "Orbital não existente no átomo de hidrogênio.";
+            }
+            
+            // CORREÇÃO: Informação sobre o único elétron do hidrogênio
+            document.getElementById('comparisonDetails').innerHTML = `
+                <strong>Características:</strong><br>${comparacao}<br><br>
+                <strong>Nota:</strong> O átomo de hidrogênio possui apenas 1 elétron, 
+                que ocupa um orbital de cada vez.
+            `;
+        }
+        
+        function obterDescricaoForma(l, m) {
+            if (l === 0) return "Esférica";
+            if (l === 1) {
+                if (m === 0) return "Duplo lobo ao longo do eixo Z";
+                if (m === 1 || m === -1) return "Duplo lobo ao longo do eixo X/Y";
+            }
+            if (l === 2) {
+                if (m === 0) return "Forma de disco com anel equatorial";
+                if (m === 1 || m === -1) return "Quatro lobos em forma de roseta";
+                if (m === 2 || m === -2) return "Quatro lobos no plano XY";
+            }
+            if (l === 3) {
+                return "Forma complexa com múltiplos lobos";
+            }
+            return "Orbital não existente no hidrogênio";
+        }
+        
+        function updateOrbital() {
+            criarOrbital(nAtual, lAtual, mAtual);
+            // Garante que os efeitos sejam aplicados imediatamente após criar o orbital
+            setTimeout(() => { applyCloudEffects(); }, 150);
+        }
+        
+        function setEstado(n, l, m) {
+            nAtual = n;
+            stateSelect.value = n;
+            atualizarLSelect();
+            if (l !== undefined) lAtual = l;
+            if (m !== undefined) mAtual = m;
+            updateOrbital();
+        }
+        
+        // Event listeners para controles existentes
+        stateSelect.addEventListener('change', (e) => {
+            nAtual = parseInt(e.target.value);
+            atualizarLSelect();
+            updateOrbital();
+        });
+        
+        lSelect.addEventListener('change', (e) => {
+            lAtual = parseInt(e.target.value);
+            atualizarMSelect();
+            updateOrbital();
+        });
+        
+        mSelect.addEventListener('change', (e) => {
+            mAtual = parseInt(e.target.value);
+            updateOrbital();
+        });
+        
+        document.getElementById('btnGround').addEventListener('click', () => {
+            setEstado(1, 0, 0);
+        });
+        
+        document.getElementById('btnRandom').addEventListener('click', () => {
+            const n = Math.floor(Math.random() * nMax) + 1;
+            const lMax = Math.min(n - 1, 3); // CORREÇÃO: l máximo é 3
+            const l = Math.floor(Math.random() * (lMax + 1));
+            const m = Math.floor(Math.random() * (2*l + 1)) - l;
+            setEstado(n, l, m);
+        });
+        
+        document.getElementById('resetView').addEventListener('click', () => {
+            controls.reset();
+        });
+        
+        document.getElementById('toggleRotation').addEventListener('click', () => {
+            isRotating = !isRotating;
+        });
+        
+        document.getElementById('toggleAnimation').addEventListener('click', () => {
+            isAnimating = !isAnimating;
+            document.getElementById('toggleAnimation').textContent = 
+                isAnimating ? 'Parar Animação' : 'Iniciar Animação';
+        });
+        
+        document.getElementById('applyEffects').addEventListener('click', () => {
+            blurIntensity = parseFloat(blurEffectSlider.value);
+            glowIntensity = parseFloat(glowEffectSlider.value);
+            applyCloudEffects();
+        });
+        
+        animationSpeedSlider.addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+        });
+        
+        // Event listeners para o modal teórico
+        const theoryBtn = document.getElementById("theoryBtn");
+        const theoryModal = document.getElementById("theoryModal");
+        const closeBtn = document.getElementsByClassName("close")[0];
+        
+        theoryBtn.addEventListener('click', () => {
+            theoryModal.style.display = "block";
+        });
+        
+        closeBtn.addEventListener('click', () => {
+            theoryModal.style.display = "none";
+        });
+        
+        window.addEventListener('click', (event) => {
+            if (event.target == theoryModal) {
+                theoryModal.style.display = "none";
+            }
+        });
+        
+        // Controles para dispositivos móveis
+        mobileControlsHandle.addEventListener('click', () => {
+            controlsPanel.classList.toggle('collapsed');
+            if (controlsPanel.classList.contains('collapsed')) {
+                controlsPanel.style.maxHeight = '60px';
+                mobileControlsHandle.textContent = '≡ Mostrar Controles';
+            } else {
+                controlsPanel.style.maxHeight = '40vh';
+                mobileControlsHandle.textContent = '≡ Ocultar Controles';
+            }
+        });
+        
+        // Tabs para o painel de informações combinado
+        infoTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Remover classe active de todas as tabs
+                infoTabs.forEach(t => t.classList.remove('active'));
+                // Adicionar classe active à tab clicada
+                tab.classList.add('active');
+                
+                // Ocultar todas as seções
+                infoSections.forEach(section => section.classList.remove('active'));
+                // Mostrar a seção correspondente
+                document.getElementById(`${tabId}Section`).classList.add('active');
+            });
+        });
+        
+        // Inicialização
+        window.addEventListener('load', () => {
+            // Verificar se é um dispositivo móvel
+            isMobile = window.innerWidth < 900;
+            
+            // Inicializar selects e Three.js
+            atualizarLSelect();
+            initThreeJS();
+            
+            // Aplicar efeitos iniciais
+            blurIntensity = parseFloat(blurEffectSlider.value);
+            glowIntensity = parseFloat(glowEffectSlider.value);
+            applyCloudEffects();
+            
+            // Configurar controles para mobile se necessário
+            if (isMobile) {
+                controlsPanel.classList.add('collapsed');
+                controlsPanel.style.maxHeight = '60px';
+                mobileControlsHandle.textContent = '≡ Mostrar Controles';
+            }
+        });
+    </script>
+</body>
+</html>
