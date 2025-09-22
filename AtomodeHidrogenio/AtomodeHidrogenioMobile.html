@@ -593,9 +593,12 @@
                     <button id="toggleRotation" class="desktop-only">Pausar/Rotacionar</button>
                     <button id="btnGround" class="desktop-only">Estado Fundamental</button>
                     <button id="btnRandom">Orbital Aleatório</button>
-        /* Oculta todos os botões exceto 'Orbital Aleatório' e 'Aspectos Teóricos' no mobile */
+        /* Oculta botões e abas no mobile */
         @media (max-width: 900px) {
             .desktop-only {
+                display: none !important;
+            }
+            .mobile-hide {
                 display: none !important;
             }
         }
@@ -608,8 +611,17 @@
                 
                 <div class="combined-info-panel">
                     <div class="info-tabs">
-                        <div class="info-tab active" data-tab="orbital">Informações do Orbital</div>
-                        <div class="info-tab" data-tab="comparison">Comparação de Orbitais</div>
+                        <div class="info-tab active mobile-hide" data-tab="orbital">Informações do Orbital</div>
+                        <div class="info-tab mobile-hide" data-tab="comparison">Comparação de Orbitais</div>
+        /* Oculta botões e abas no mobile */
+        @media (max-width: 900px) {
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-hide {
+                display: none !important;
+            }
+        }
                     </div>
                     <div class="info-content">
                         <div class="info-section active" id="orbitalSection">
