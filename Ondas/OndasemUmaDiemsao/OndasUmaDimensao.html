@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Ondas Unidimensionais - 2D</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #waveCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .cyan { background: #00ffff; }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Ondas Unidimensionais - 2D</h1>
+            <p class="subtitle">Onda Harmônica - Visualização Simplificada</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação 2D - Onda Harmônica Unidimensional</h2>
+                <div class="simulation-container">
+                    <canvas id="waveCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color cyan"></div>
+                        <span>Onda y(x,t)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="directionSelect">Direção da Onda:</label>
+                    <select id="directionSelect">
+                        <option value="positive">Sentido Positivo (→)</option>
+                        <option value="negative">Sentido Negativo (←)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="amplitudeInput">Amplitude (A):</label>
+                    <input type="range" id="amplitudeInput" min="0.5" max="5" value="2" step="0.1">
+                    <div class="value-display"><span id="amplitudeValue">2.0</span> m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="wavelengthInput">Comprimento de Onda (λ):</label>
+                    <input type="range" id="wavelengthInput" min="1" max="20" value="8" step="0.5">
+                    <div class="value-display"><span id="wavelengthValue">8.0</span> m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="frequencyInput">Frequência (f):</label>
+                    <input type="range" id="frequencyInput" min="0.1" max="2" value="0.5" step="0.05">
+                    <div class="value-display"><span id="frequencyValue">0.5</span> Hz</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="velocityInput">Velocidade (v):</label>
+                    <input type="range" id="velocityInput" min="-10" max="10" value="4" step="0.1">
+                    <div class="value-display"><span id="velocityValue">4.0</span> m/s</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="phaseInput">Fase Inicial (φ):</label>
+                    <input type="range" id="phaseInput" min="0" max="6.28" value="0" step="0.1">
+                    <div class="value-display"><span id="phaseValue">0.0</span> rad</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Equação da Onda</h3>
+                    <p>y(x,t) = A·cos(kx - ωt + φ)</p>
+                    <p>Onde:</p>
+                    <p>y = Deslocamento (metros)</p>
+                    <p>A = Amplitude (m)</p>
+                    <p>k = Número de onda = ±2π/λ (rad/m)</p>
+                    <p>ω = Frequência angular = 2πf (rad/s)</p>
+                    <p>φ = Fase inicial (rad)</p>
+                    <p>± = Sinal depende da direção</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Direção</div>
+                        <div class="measurement-value" id="directionDisplay">Positiva (→)</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Amplitude (A)</div>
+                        <div class="measurement-value" id="amplitudeDisplay">2.0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento de Onda (λ)</div>
+                        <div class="measurement-value" id="wavelengthDisplay">8.0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Frequência (f)</div>
+                        <div class="measurement-value" id="frequencyDisplay">0.5 Hz</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Período (T)</div>
+                        <div class="measurement-value" id="periodDisplay">2.0 s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Velocidade (v)</div>
+                        <div class="measurement-value" id="velocityDisplay">4.0 m/s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Número de Onda (k)</div>
+                        <div class="measurement-value" id="waveNumberDisplay">0.79 rad/m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Frequência Angular (ω)</div>
+                        <div class="measurement-value" id="angularFrequencyDisplay">3.14 rad/s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo de Parâmetros da Onda</h4>
+                    <p><strong>Problema:</strong> Uma onda harmônica tem amplitude de 0,5 m, comprimento de onda de 2 m e frequência de 4 Hz. Escreva a equação da onda.</p>
+                    <div class="solution-step"><strong>Dados:</strong> A = 0,5 m; λ = 2 m; f = 4 Hz</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular número de onda: k = 2π/λ = 2π/2 = π rad/m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular frequência angular: ω = 2πf = 2π×4 = 8π rad/s</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Escrever equação: y(x,t) = 0,5·cos(πx - 8πt)</div>
+                    <div class="solution-step"><strong>Resposta:</strong> y(x,t) = 0,5·cos(πx - 8πt)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Velocidade da Onda</h4>
+                    <p><strong>Problema:</strong> Uma onda tem comprimento de onda de 3 m e período de 0,5 s. Qual é a velocidade de propagação?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> v = λ/T = λ·f</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular frequência: f = 1/T = 1/0,5 = 2 Hz</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular velocidade: v = λ·f = 3×2 = 6 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v = 6 m/s</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Determinar Deslocamento</h4>
+                    <p><strong>Problema:</strong> Dada a equação y(x,t) = 2·cos(0,5x - 4t), qual é o deslocamento em x=2 m e t=1 s?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Substituir valores: y(2,1) = 2·cos(0,5×2 - 4×1)</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular argumento: 0,5×2 - 4×1 = 1 - 4 = -3 rad</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular cosseno: cos(-3) = cos(3) ≈ -0,99</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Calcular deslocamento: y = 2×(-0,99) = -1,98 m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> y(2,1) ≈ -1,98 m</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Ondas Harmônicas Unidimensionais</h3>
+                    <p>Uma onda harmônica unidimensional é descrita pela função:</p>
+                    
+                    <div class="theory-formula">y(x,t) = A·cos(kx - ωt + φ)</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">y(x,t)</span> = Deslocamento da onda na posição x e tempo t (metros)</li>
+                        <li><span class="highlight">A</span> = Amplitude (m)</li>
+                        <li><span class="highlight">k</span> = Número de onda = ±2π/λ (rad/m) - o sinal define a direção</li>
+                        <li><span class="highlight">ω</span> = Frequência angular = 2πf (rad/s) - sempre positiva</li>
+                        <li><span class="highlight">φ</span> = Fase inicial (rad)</li>
+                    </ul>
+                    
+                    <p>O sinal do número de onda k determina a direção de propagação:</p>
+                    <ul>
+                        <li>k positivo: onda se propaga no sentido positivo do eixo x</li>
+                        <li>k negativo: onda se propaga no sentido negativo do eixo x</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Parâmetros da Onda</h3>
+                    <p>As principais características de uma onda são:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Amplitude (A):</span> Máximo deslocamento da onda em relação à posição de equilíbrio</li>
+                        <li><span class="highlight">Comprimento de onda (λ):</span> Distância entre dois pontos consecutivos em fase</li>
+                        <li><span class="highlight">Período (T):</span> Tempo necessário para completar um ciclo</li>
+                        <li><span class="highlight">Frequência (f):</span> Número de ciclos por unidade de tempo (f = 1/T) - sempre positiva</li>
+                        <li><span class="highlight">Velocidade de propagação (v):</span> v = λ/T = λ·f - pode ser positiva ou negativa</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Relações entre Parâmetros</h3>
+                    <p>Os parâmetros da onda estão relacionados pelas seguintes equações:</p>
+                    
+                    <div class="theory-formula">k = ±2π/λ</div>
+                    <div class="theory-formula">ω = 2πf = 2π/T</div>
+                    <div class="theory-formula">v = ω/k = λ·f</div>
+                    
+                    <p>Estas relações permitem converter entre diferentes representações dos parâmetros da onda.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O estudo de ondas unidimensionais é fundamental para:</p>
+                    
+                    <ul>
+                        <li>Compreensão de ondas sonoras em tubos</li>
+                        <li>Análise de ondas em cordas vibrantes</li>
+                        <li>Estudo de ondas eletromagnéticas em guias de onda</li>
+                        <li>Modelagem de ondas sísmicas</li>
+                        <li>Análise de sinais em telecomunicações</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para a simulação de ondas
+        let canvas, ctx;
+        
+        // Parâmetros da onda
+        let direction = 'positive'; // 'positive' ou 'negative'
+        let amplitude = 2.0;       // metros
+        let wavelength = 8.0;      // metros
+        let frequency = 0.5;       // Hz (sempre positiva)
+        let velocity = 4.0;        // m/s (pode ser positiva ou negativa)
+        let phase = 0.0;           // radianos
+        
+        // Cálculos derivados
+        let waveNumber = 0;        // k = ±2π/λ (rad/m) - o sinal define a direção
+        let angularFrequency = 0;  // ω = 2πf (rad/s) - sempre positiva
+        let period = 0;            // T = 1/f
+        
+        let isRunning = false;
+        let simulationTime = 0;
+        let animationId = null;
+        
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        
+        // Inicializar a simulação
+        function init() {
+            // Configurar o canvas
+            canvas = document.getElementById('waveCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Ajustar tamanho do canvas
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Atualizar parâmetros calculados
+            updateCalculatedParameters();
+            
+            // Desenhar a onda inicial
+            drawWave();
+            
+            // Atualizar medições iniciais
+            updateMeasurements();
+            
+            // Configurar eventos dos controles
+            setupEventListeners();
+            
+            // Configurar eventos dos botões de exercícios
+            setupExerciseEventListeners();
+        }
+        
+        // Ajustar tamanho do canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawWave(); // Redesenhar a onda com o novo tamanho
+        }
+        
+        // Desenhar a onda no canvas
+        function drawWave() {
+            // Limpar o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar eixos
+            drawAxes();
+            
+            // Desenhar a onda
+            ctx.beginPath();
+            
+            const centerY = canvas.height / 2;
+            const xRange = 20; // Intervalo de x a ser exibido
+            const scaleX = canvas.width / xRange;
+            const scaleY = 40; // Escala para visualização da amplitude
+            
+            // Desenhar a onda ponto a ponto
+            for (let i = 0; i <= canvas.width; i++) {
+                const x = (i / canvas.width) * xRange - xRange / 2;
+                const y = amplitude * Math.cos(waveNumber * x - angularFrequency * simulationTime + phase);
+                
+                const pixelX = i;
+                const pixelY = centerY - y * scaleY;
+                
+                if (i === 0) {
+                    ctx.moveTo(pixelX, pixelY);
+                } else {
+                    ctx.lineTo(pixelX, pixelY);
+                }
+            }
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        // Desenhar eixos de coordenadas
+        function drawAxes() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            ctx.beginPath();
+            
+            // Eixo x
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            
+            // Eixo y
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            
+            ctx.strokeStyle = '#666666';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Marcações no eixo x
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#cccccc';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            const xRange = 20;
+            const step = 2;
+            
+            for (let x = -xRange/2; x <= xRange/2; x += step) {
+                const pixelX = centerX + (x / xRange) * canvas.width;
+                ctx.beginPath();
+                ctx.moveTo(pixelX, centerY - 5);
+                ctx.lineTo(pixelX, centerY + 5);
+                ctx.stroke();
+                
+                ctx.fillText(x + ' m', pixelX, centerY + 10);
+            }
+            
+            // Marcações no eixo y
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const yRange = 10;
+            for (let y = -yRange/2; y <= yRange/2; y += 1) {
+                if (y === 0) continue;
+                
+                const pixelY = centerY - y * 40;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 5, pixelY);
+                ctx.lineTo(centerX + 5, pixelY);
+                ctx.stroke();
+                
+                ctx.fillText(y + ' m', centerX - 10, pixelY);
+            }
+            
+            // Rótulos dos eixos
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText('x (m)', canvas.width - 10, centerY + 10);
+            
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('y (m)', centerX, 20);
+        }
+        
+        // Atualizar parâmetros calculados
+        function updateCalculatedParameters() {
+            // Calcular número de onda com sinal baseado na direção
+            waveNumber = (direction === 'positive') ? 
+                (2 * Math.PI / wavelength) : 
+                (-2 * Math.PI / wavelength);
+                
+            // Frequência angular sempre positiva
+            angularFrequency = 2 * Math.PI * frequency;
+            
+            // Período sempre positivo
+            period = 1 / frequency;
+            
+            // Velocidade pode ser positiva ou negativa
+            velocity = wavelength * frequency * (direction === 'positive' ? 1 : -1);
+            
+            // Atualizar o controle de velocidade
+            document.getElementById('velocityInput').value = velocity;
+            document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+        }
+        
+        // Atualizar a animação
+        function animate() {
+            if (isRunning) {
+                // Atualizar o tempo da simulação
+                simulationTime += 0.016; // Aproximadamente 60 FPS
+                
+                // Atualizar a forma da onda
+                drawWave();
+                
+                // Atualizar medições
+                updateMeasurements();
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Atualizar as medições exibidas
+        function updateMeasurements() {
+            document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+            document.getElementById('wavelengthValue').textContent = wavelength.toFixed(1);
+            document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+            document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+            document.getElementById('phaseValue').textContent = phase.toFixed(2);
+            
+            document.getElementById('directionDisplay').textContent = direction === 'positive' ? 'Positiva (→)' : 'Negativa (←)';
+            document.getElementById('amplitudeDisplay').textContent = amplitude.toFixed(1) + ' m';
+            document.getElementById('wavelengthDisplay').textContent = wavelength.toFixed(1) + ' m';
+            document.getElementById('frequencyDisplay').textContent = frequency.toFixed(2) + ' Hz';
+            document.getElementById('periodDisplay').textContent = period.toFixed(2) + ' s';
+            document.getElementById('velocityDisplay').textContent = velocity.toFixed(1) + ' m/s';
+            document.getElementById('waveNumberDisplay').textContent = waveNumber.toFixed(2) + ' rad/m';
+            document.getElementById('angularFrequencyDisplay').textContent = angularFrequency.toFixed(2) + ' rad/s';
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Controle de direção
+            document.getElementById('directionSelect').addEventListener('change', function() {
+                direction = this.value;
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de amplitude
+            document.getElementById('amplitudeInput').addEventListener('input', function() {
+                amplitude = parseFloat(this.value);
+                document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de comprimento de onda
+            document.getElementById('wavelengthInput').addEventListener('input', function() {
+                wavelength = parseFloat(this.value);
+                document.getElementById('wavelengthValue').textContent = wavelength.toFixed(1);
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de frequência
+            document.getElementById('frequencyInput').addEventListener('input', function() {
+                frequency = parseFloat(this.value);
+                document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de velocidade
+            document.getElementById('velocityInput').addEventListener('input', function() {
+                velocity = parseFloat(this.value);
+                document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+                
+                // Atualizar a direção baseada no sinal da velocidade
+                direction = velocity >= 0 ? 'positive' : 'negative';
+                document.getElementById('directionSelect').value = direction;
+                
+                // Atualizar a frequência baseada na velocidade e comprimento de onda
+                frequency = Math.abs(velocity) / wavelength;
+                document.getElementById('frequencyInput').value = frequency;
+                document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+                
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de fase
+            document.getElementById('phaseInput').addEventListener('input', function() {
+                phase = parseFloat(this.value);
+                document.getElementById('phaseValue').textContent = phase.toFixed(2);
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Botões de controle
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                if (!animationId) {
+                    animate();
+                }
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                isRunning = false;
+                simulationTime = 0;
+                
+                // Resetar parâmetros
+                direction = 'positive';
+                amplitude = 2.0;
+                wavelength = 8.0;
+                frequency = 0.5;
+                velocity = 4.0;
+                phase = 0.0;
+                
+                // Atualizar controles
+                document.getElementById('directionSelect').value = direction;
+                document.getElementById('amplitudeInput').value = amplitude;
+                document.getElementById('wavelengthInput').value = wavelength;
+                document.getElementById('frequencyInput').value = frequency;
+                document.getElementById('velocityInput').value = velocity;
+                document.getElementById('phaseInput').value = phase;
+                
+                document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+                document.getElementById('wavelengthValue').textContent = wavelength.toFixed(1);
+                document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+                document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+                document.getElementById('phaseValue').textContent = phase.toFixed(2);
+                
+                // Atualizar visualização
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Botão de ajuda
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar:\n\n• Selecione a direção da onda (positiva ou negativa)\n• Ajuste a amplitude para controlar a altura da onda\n• Ajuste o comprimento de onda para controlar a distância entre cristas\n• Ajuste a frequência para controlar a velocidade de oscilação\n• Ajuste a velocidade para controlar a rapidez de propagação (pode ser negativa)\n• Ajuste a fase inicial para deslocar a onda\n• Use os botões Iniciar, Pausar e Reiniciar para controlar a simulação\n\nNOTA: A frequência é sempre positiva. O sinal da direção é incorporado no número de onda (k).");
+            });
+        }
+        
+        // Configurar eventos dos botões de exercícios
+        function setupExerciseEventListeners() {
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre Ondas Unidimensionais
+        function generateExercises() {
+            exercises = [];
+            
+            // Gerar 6 exercícios variados
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular parâmetros da onda
+                let A = (Math.floor(Math.random() * 5) + 1) * 0.5; // Amplitude entre 0.5 e 3
+                let λ = (Math.floor(Math.random() * 10) + 1) * 0.5; // Comprimento de onda entre 0.5 e 5.5
+                let f = (Math.floor(Math.random() * 10) + 1) * 0.1; // Frequência entre 0.1 e 1.0
+                
+                let k = (2 * Math.PI / λ).toFixed(2);
+                let ω = (2 * Math.PI * f).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_parametros',
+                    question: `Uma onda harmônica tem amplitude de ${A} m, comprimento de onda de ${λ} m e frequência de ${f} Hz. Qual é o número de onda (k) e a frequência angular (ω)?`,
+                    answer: `k = ${k} rad/m, ω = ${ω} rad/s`,
+                    options: generateWaveParameterOptions(k, ω)
+                });
+                
+                // Tipo 2: Calcular velocidade da onda
+                λ = (Math.floor(Math.random() * 8) + 2); // Comprimento de onda entre 2 e 10
+                let T = (Math.floor(Math.random() * 5) + 1) * 0.5; // Período entre 0.5 e 3
+                let v = (λ / T).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_velocidade',
+                    question: `Uma onda tem comprimento de onda de ${λ} m e período de ${T} s. Qual é a velocidade de propagação da onda?`,
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
+                });
+                
+                // Tipo 3: Determinar deslocamento
+                A = (Math.floor(Math.random() * 4) + 1) * 0.5; // Amplitude entre 0.5 e 2.5
+                k = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1); // k entre 0.5 e 3.0
+                ω = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1); // ω entre 0.5 e 3.0
+                let x = Math.floor(Math.random() * 5) + 1; // x entre 1 e 5
+                let t = Math.floor(Math.random() * 5) + 1; // t entre 1 e 5
+                
+                let y = (A * Math.cos(k * x - ω * t)).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_deslocamento',
+                    question: `Dada a equação y(x,t) = ${A}·cos(${k}x - ${ω}t), qual é o deslocamento em x=${x} m e t=${t} s?`,
+                    answer: `${y} m`,
+                    options: generateOptions(parseFloat(y), 'm')
+                });
+            }
+            
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+        
+        // Gerar opções para parâmetros de onda
+        function generateWaveParameterOptions(k, ω) {
+            const options = [];
+            
+            // Opção correta
+            options.push(`k = ${k} rad/m, ω = ${ω} rad/s`);
+            
+            // Gerar opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let kOption, ωOption;
+                
+                // Variações de k
+                if (Math.random() < 0.5) {
+                    kOption = (parseFloat(k) * (Math.random() * 0.4 + 0.8)).toFixed(2);
+                } else {
+                    kOption = (parseFloat(k) / (Math.random() * 0.4 + 0.8)).toFixed(2);
+                }
+                
+                // Variações de ω
+                if (Math.random() < 0.5) {
+                    ωOption = (parseFloat(ω) * (Math.random() * 0.4 + 0.8)).toFixed(2);
+                } else {
+                    ωOption = (parseFloat(ω) / (Math.random() * 0.4 + 0.8)).toFixed(2);
+                }
+                
+                options.push(`k = ${kOption} rad/m, ω = ${ωOption} rad/s`);
+            }
+            
+            // Remover duplicatas
+            const uniqueOptions = [...new Set(options)];
+            
+            // Se não temos 5 opções únicas, gerar mais
+            while (uniqueOptions.length < 5) {
+                let kOption = (parseFloat(k) * (Math.random() * 0.6 + 0.7)).toFixed(2);
+                let ωOption = (parseFloat(ω) * (Math.random() * 0.6 + 0.7)).toFixed(2);
+                uniqueOptions.push(`k = ${kOption} rad/m, ω = ${ωOption} rad/s`);
+            }
+            
+            return shuffleArray(uniqueOptions);
+        }
+        
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 15;
+            
+            // Formatar o valor correto
+            let formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            options.push(formattedCorrectValue);
+            
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    unique = !options.includes(formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
+                    }
+                } while (!unique);
+                
+                options.push(formattedOption);
+            }
+            
+            return shuffleArray(options);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'calcular_parametros') {
+                let A = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                let λ = (Math.floor(Math.random() * 10) + 1) * 0.5;
+                let f = (Math.floor(Math.random() * 10) + 1) * 0.1;
+                
+                let k = (2 * Math.PI / λ).toFixed(2);
+                let ω = (2 * Math.PI * f).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_parametros',
+                    question: `Uma onda harmônica tem amplitude de ${A} m, comprimento de onda de ${λ} m e frequência de ${f} Hz. Qual é o número de onda (k) e a frequência angular (ω)?`,
+                    answer: `k = ${k} rad/m, ω = ${ω} rad/s`,
+                    options: generateWaveParameterOptions(k, ω)
+                };
+            } else if (currentType === 'calcular_velocidade') {
+                let λ = (Math.floor(Math.random() * 8) + 2);
+                let T = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                let v = (λ / T).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_velocidade',
+                    question: `Uma onda tem comprimento de onda de ${λ} m e período de ${T} s. Qual é a velocidade de propagação da onda?`,
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
+                };
+            } else if (currentType === 'calcular_deslocamento') {
+                let A = (Math.floor(Math.random() * 4) + 1) * 0.5;
+                let k = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
+                let ω = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
+                let x = Math.floor(Math.random() * 5) + 1;
+                let t = Math.floor(Math.random() * 5) + 1;
+                
+                let y = (A * Math.cos(k * x - ω * t)).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_deslocamento',
+                    question: `Dada a equação y(x,t) = ${A}·cos(${k}x - ${ω}t), qual é o deslocamento em x=${x} m e t=${t} s?`,
+                    answer: `${y} m`,
+                    options: generateOptions(parseFloat(y), 'm')
+                };
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Ondas Unidimensionais',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Ondas Unidimensionais',
+                        mensagem: `Confirmação de Envio - Simulação de Ondas Unidimensionais'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
