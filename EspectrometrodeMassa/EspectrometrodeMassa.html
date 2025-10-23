@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espectrômetro de Massa - Completo com Exercícios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .simulation-container {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #444;
+        }
+        
+        #spectrometerCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        button {
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #ffdd55;
+        }
+        
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .status-indicator {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .visualization-toggle {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Espectrômetro de Massa - Completo com Exercícios</h1>
+            <p>Feixe de Partículas Carregadas em Campo Magnético</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação do Espectrômetro</h2>
+                <div class="simulation-container">
+                    <canvas id="spectrometerCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar Feixe</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="addParticleBtn">Adicionar Partícula</button>
+                </div>
+                
+                <div class="status-indicator" id="statusIndicator">
+                    Pronto para iniciar
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="voltageInput">Voltagem Aceleradora (V):</label>
+                    <input type="range" id="voltageInput" min="100" max="10000" value="5000" step="100">
+                    <div class="value-display"><span id="voltageValue">5.00×10³</span> V</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fieldInput">Intensidade do Campo Magnético (B):</label>
+                    <input type="range" id="fieldInput" min="0.01" max="2" value="0.5" step="0.01">
+                    <div class="value-display"><span id="fieldValue">5.00×10⁻¹</span> T</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="particleSelect">Tipo de Partícula:</label>
+                    <select id="particleSelect">
+                        <option value="electron">Elétron (negativo)</option>
+                        <option value="proton">Próton (positivo)</option>
+                        <option value="alpha">Partícula Alfa (positivo)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                </div>
+                
+                <div class="control-group" id="customChargeGroup" style="display: none;">
+                    <label for="customCharge">Carga (q):</label>
+                    <input type="range" id="customCharge" min="-100" max="100" value="-10" step="1">
+                    <div class="value-display"><span id="customChargeValue">-1.00×10⁻¹⁸</span> C</div>
+                </div>
+                
+                <div class="control-group" id="customMassGroup" style="display: none;">
+                    <label for="customMass">Massa (m):</label>
+                    <input type="range" id="customMass" min="1" max="100" value="10" step="1">
+                    <div class="value-display"><span id="customMassValue">1.00×10⁻²⁶</span> kg</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="velocityDisplay">Velocidade da Partícula (v):</label>
+                    <div class="value-display"><span id="velocityValue">0.00</span> m/s</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="radiusDisplay">Raio da Trajetória (R):</label>
+                    <div class="value-display"><span id="radiusValue">0.00</span> m</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Equação Principal</h3>
+                    <p>q/m = 2V/(R²B²)</p>
+                    <p>Onde:</p>
+                    <p>q = carga da partícula</p>
+                    <p>m = massa da partícula</p>
+                    <p>V = voltagem aceleradora</p>
+                    <p>B = campo magnético</p>
+                    <p>R = raio da trajetória</p>
+                </div>
+                
+                <!-- Botões para acessar exercícios e teoria -->
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Voltagem (V)</div>
+                        <div class="measurement-value" id="voltageDisplay">5.00×10³ V</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Campo Magnético (B)</div>
+                        <div class="measurement-value" id="fieldDisplay">5.00×10⁻¹ T</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Velocidade (v)</div>
+                        <div class="measurement-value" id="velocityDisplay2">0.00 m/s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Raio Medido (R)</div>
+                        <div class="measurement-value" id="radiusDisplay">0.00 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Carga (q)</div>
+                        <div class="measurement-value" id="chargeDisplay">0.00 C</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Massa (m)</div>
+                        <div class="measurement-value" id="massDisplay">0.00 kg</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Relação q/m</div>
+                        <div class="measurement-value" id="qmDisplay">0.00 C/kg</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Relação q/m (Teórica)</div>
+                        <div class="measurement-value" id="qmTheoreticalDisplay">0.00 C/kg</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Espectrômetro de Massa</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <!-- Barra de progresso será gerada via JavaScript -->
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Espectrômetro de Massa</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <!-- Exercícios resolvidos serão inseridos aqui via JavaScript -->
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Espectrômetro de Massa</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Princípio de Funcionamento</h3>
+                    <p>O espectrômetro de massa é um instrumento utilizado para separar partículas carregadas com base na relação carga/massa (q/m). Ele consiste em três partes principais:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Fonte de íons:</span> Acelera as partículas carregadas através de uma diferença de potencial V.</li>
+                        <li><span class="highlight">Campo magnético:</span> Desvia as partículas em trajetórias circulares.</li>
+                        <li><span class="highlight">Detector:</span> Registra a posição onde as partículas incidem após a curva.</li>
+                    </ul>
+                    
+                    <p>A velocidade das partículas ao saírem da fonte é determinada pela voltagem aceleradora:</p>
+                    <div class="theory-formula">v = √(2|q|V/m)</div>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Movimento no Campo Magnético</h3>
+                    <p>Quando as partículas entram na região com campo magnético, a força magnética atua como força centrípeta:</p>
+                    
+                    <div class="theory-formula">F<sub>magnética</sub> = F<sub>centrípeta</sub></div>
+                    <div class="theory-formula">|q|vB = mv²/R</div>
+                    
+                    <p>Isolando o raio R:</p>
+                    <div class="theory-formula">R = mv/(|q|B)</div>
+                    
+                    <p>Substituindo a velocidade v pela expressão em função da voltagem:</p>
+                    <div class="theory-formula">R = m/(|q|B) × √(2|q|V/m) = √(2mV/(qB²))</div>
+                    
+                    <p>Rearranjando para isolar a relação carga/massa:</p>
+                    <div class="theory-formula">q/m = 2V/(R²B²)</div>
+                    
+                    <p>Esta é a equação fundamental do espectrômetro de massa.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações</h3>
+                    <p>Os espectrômetros de massa são utilizados para:</p>
+                    
+                    <ul>
+                        <li>Identificar partículas elementares</li>
+                        <li>Determinar a composição isotópica de elementos</li>
+                        <li>Análise química de compostos orgânicos</li>
+                        <li>Datação de rochas e fósseis</li>
+                        <li>Análise ambiental e forense</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // VARIÁVEIS GLOBAIS
+        // =============================================
+        
+        const canvas = document.getElementById('spectrometerCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusIndicator = document.getElementById('statusIndicator');
+        
+        // Estado da simulação
+        let isRunning = false;
+        let animationId = null;
+        
+        // Parâmetros físicos
+        let voltage = 5000;
+        let magneticField = 0.5;
+        let particleType = 'electron';
+        
+        // Propriedades da partícula
+        let charge, mass, velocity, radius;
+        let qmValue, qmTheoretical;
+        
+        // Sistema de múltiplas partículas
+        let particles = [];
+        let particleCounter = 0;
+        
+        // Fator de conversão de metros para pixels
+        let metersToPixels = 1000000;
+        
+        // Posição da fonte e limites do campo magnético
+        let sourceX, sourceY;
+        let fieldLeft, fieldTop, fieldWidth, fieldHeight;
+        
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // =============================================
+        // FUNÇÃO DE FORMATAÇÃO PARA NOTAÇÃO CIENTÍFICA
+        // =============================================
+
+        function formatScientific(value, precision = 3) {
+            if (value === 0) return "0.00";
+            
+            // Casos especiais para números muito próximos de zero
+            if (Math.abs(value) < 1e-100) return "0.00";
+            
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const mantissa = value / Math.pow(10, exponent);
+            
+            // Formatar para 3 algarismos significativos
+            let formattedMantissa = mantissa.toFixed(precision - 1);
+            
+            // Se a mantissa ficar como 10.0 após arredondamento, ajustar
+            let finalMantissa = parseFloat(formattedMantissa);
+            let finalExponent = exponent;
+            
+            if (Math.abs(finalMantissa) >= 10.0) {
+                finalMantissa /= 10;
+                finalExponent += 1;
+                formattedMantissa = finalMantissa.toFixed(precision - 1);
+            }
+            
+            // Garantir que números negativos sejam formatados corretamente
+            if (value < 0 && finalMantissa > 0) {
+                formattedMantissa = '-' + formattedMantissa;
+            }
+            
+            return `${formattedMantissa}×10^${finalExponent}`;
+        }
+
+        // =============================================
+        // FUNÇÕES PRINCIPAIS
+        // =============================================
+        
+        function init() {
+            resizeCanvas();
+            setupEventListeners();
+            updateParticleProperties();
+            drawScene();
+            animate();
+        }
+        
+        function resizeCanvas() {
+            const container = document.querySelector('.simulation-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Definir limites do campo magnético
+            fieldLeft = canvas.width * 0.2;
+            fieldTop = canvas.height * 0.1;
+            fieldWidth = canvas.width * 0.6;
+            fieldHeight = canvas.height * 0.8;
+            
+            // Posição da fonte CORRIGIDA: no limite esquerdo do retângulo
+            sourceX = fieldLeft;
+            sourceY = canvas.height / 2;
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('voltageInput').addEventListener('input', function() {
+                voltage = parseInt(this.value);
+                document.getElementById('voltageValue').textContent = formatScientific(voltage);
+                document.getElementById('voltageDisplay').textContent = formatScientific(voltage) + ' V';
+                updateParticleProperties();
+            });
+            
+            document.getElementById('fieldInput').addEventListener('input', function() {
+                magneticField = parseFloat(this.value);
+                document.getElementById('fieldValue').textContent = formatScientific(magneticField);
+                document.getElementById('fieldDisplay').textContent = formatScientific(magneticField) + ' T';
+                updateParticleProperties();
+            });
+            
+            document.getElementById('particleSelect').addEventListener('change', function() {
+                particleType = this.value;
+                updateParticleProperties();
+                resetSimulation();
+                
+                if (particleType === 'custom') {
+                    document.getElementById('customChargeGroup').style.display = 'block';
+                    document.getElementById('customMassGroup').style.display = 'block';
+                } else {
+                    document.getElementById('customChargeGroup').style.display = 'none';
+                    document.getElementById('customMassGroup').style.display = 'none';
+                }
+            });
+            
+            document.getElementById('customCharge').addEventListener('input', function() {
+                const customChargeValue = parseInt(this.value);
+                document.getElementById('customChargeValue').textContent = formatScientific(customChargeValue * 1e-19);
+                if (particleType === 'custom') {
+                    updateParticleProperties();
+                }
+            });
+            
+            document.getElementById('customMass').addEventListener('input', function() {
+                const customMassValue = parseInt(this.value);
+                document.getElementById('customMassValue').textContent = formatScientific(customMassValue * 1e-27);
+                if (particleType === 'custom') {
+                    updateParticleProperties();
+                }
+            });
+            
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                statusIndicator.textContent = 'Feixe ativo';
+                statusIndicator.style.background = 'rgba(255, 165, 0, 0.3)';
+                if (particles.length === 0) {
+                    addParticle();
+                }
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+                statusIndicator.textContent = 'Pausado';
+                statusIndicator.style.background = 'rgba(255, 255, 0, 0.3)';
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                resetSimulation();
+            });
+            
+            document.getElementById('addParticleBtn').addEventListener('click', function() {
+                addParticle();
+            });
+
+            // Configurar eventos dos botões de exercícios
+            setupExerciseEventListeners();
+            
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                drawScene();
+            });
+        }
+
+        // Configurar eventos dos botões de exercícios
+        function setupExerciseEventListeners() {
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        function addParticle() {
+            particleCounter++;
+            
+            particles.push({
+                id: particleCounter,
+                simulationTime: 0,
+                x: sourceX,
+                y: sourceY,
+                active: true,
+                detected: false,
+                detectionSide: null,
+                color: getRandomColor(),
+                angle: 0
+            });
+            
+            if (!isRunning) {
+                isRunning = true;
+                statusIndicator.textContent = 'Feixe ativo';
+                statusIndicator.style.background = 'rgba(255, 165, 0, 0.3)';
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ff8800', '#88ff00'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function updateParticleProperties() {
+            // Definir propriedades baseadas no tipo de partícula
+            switch(particleType) {
+                case 'electron':
+                    charge = -1.602e-19;
+                    mass = 9.109e-31;
+                    qmTheoretical = -1.76e11;
+                    break;
+                case 'proton':
+                    charge = 1.602e-19;
+                    mass = 1.673e-27;
+                    qmTheoretical = 9.58e7;
+                    break;
+                case 'alpha':
+                    charge = 3.204e-19;
+                    mass = 6.645e-27;
+                    qmTheoretical = 4.82e7;
+                    break;
+                case 'custom':
+                    const customChargeValue = parseInt(document.getElementById('customCharge').value);
+                    const customMassValue = parseInt(document.getElementById('customMass').value);
+                    charge = customChargeValue * 1e-19;
+                    mass = customMassValue * 1e-27;
+                    qmTheoretical = charge / mass;
+                    break;
+            }
+            
+            // Calcular velocidade a partir da voltagem: v = √(2|q|V/m)
+            velocity = Math.sqrt(2 * Math.abs(charge) * voltage / mass);
+            
+            // Calcular raio esperado: R = mv/(|q|B)
+            radius = mass * velocity / (Math.abs(charge) * magneticField);
+            
+            // Calcular relação q/m: q/m = 2V/(R²B²)
+            qmValue = 2 * voltage / (radius * radius * magneticField * magneticField);
+            
+            // Ajustar o fator de escala automaticamente para melhor visualização
+            const displayRadius = radius * metersToPixels;
+            const maxRadius = Math.min(canvas.width, canvas.height) * 0.35;
+            
+            if (displayRadius > maxRadius || displayRadius < 20) {
+                metersToPixels = maxRadius / radius;
+            }
+            
+            // Atualizar exibição COM NOTAÇÃO CIENTÍFICA
+            document.getElementById('velocityValue').textContent = formatScientific(velocity);
+            document.getElementById('velocityDisplay2').textContent = formatScientific(velocity) + ' m/s';
+            document.getElementById('radiusValue').textContent = formatScientific(radius);
+            document.getElementById('radiusDisplay').textContent = formatScientific(radius) + ' m';
+            document.getElementById('chargeDisplay').textContent = formatScientific(charge) + ' C';
+            document.getElementById('massDisplay').textContent = formatScientific(mass) + ' kg';
+            
+            // Formatar q/m
+            document.getElementById('qmDisplay').textContent = formatScientific(qmValue) + ' C/kg';
+            document.getElementById('qmTheoreticalDisplay').textContent = formatScientific(qmTheoretical) + ' C/kg';
+        }
+        
+        function resetSimulation() {
+            isRunning = false;
+            particles = [];
+            particleCounter = 0;
+            
+            statusIndicator.textContent = 'Pronto para iniciar';
+            statusIndicator.style.background = 'rgba(255, 255, 255, 0.1)';
+            
+            updateParticleProperties();
+            drawScene();
+        }
+        
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawMagneticField();
+            drawBeamSource();
+            drawAxis();
+            drawParticles();
+        }
+        
+        function drawBeamSource() {
+            const sourceWidth = 15;
+            const sourceHeight = 40;
+            
+            // Desenhar a fonte
+            ctx.fillStyle = '#ff9900';
+            ctx.fillRect(sourceX - sourceWidth/2, sourceY - sourceHeight/2, sourceWidth, sourceHeight);
+            
+            // Ponto de emissão
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(sourceX, sourceY, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Texto
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.fillText('Fonte', sourceX - 15, sourceY - sourceHeight/2 - 10);
+        }
+        
+        function drawMagneticField() {
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.fillRect(fieldLeft, fieldTop, fieldWidth, fieldHeight);
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(fieldLeft, fieldTop, fieldWidth, fieldHeight);
+            
+            // Símbolos do campo magnético
+            ctx.fillStyle = '#00ffff';
+            ctx.font = '16px Arial';
+            const spacing = 30;
+            for (let x = fieldLeft + 20; x < fieldLeft + fieldWidth - 20; x += spacing) {
+                for (let y = fieldTop + 20; y < fieldTop + fieldHeight - 20; y += spacing) {
+                    ctx.fillText('×', x, y);
+                }
+            }
+            
+            ctx.fillText('B', fieldLeft + fieldWidth / 2 - 5, fieldTop - 10);
+        }
+        
+        function drawAxis() {
+            // Desenhar eixos sem números, apenas com marcas
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 1;
+            
+            // Eixo X
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+            
+            // Eixo Y
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            
+            // Marcas nos eixos
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            
+            // Marcas no eixo X
+            for (let x = 0; x <= canvas.width; x += canvas.width / 10) {
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height / 2 - 5);
+                ctx.lineTo(x, canvas.height / 2 + 5);
+                ctx.stroke();
+            }
+            
+            // Marcas no eixo Y
+            for (let y = 0; y <= canvas.height; y += canvas.height / 10) {
+                ctx.beginPath();
+                ctx.moveTo(canvas.width / 2 - 5, y);
+                ctx.lineTo(canvas.width / 2 + 5, y);
+                ctx.stroke();
+            }
+        }
+        
+        function drawParticles() {
+            particles.forEach(particle => {
+                if (particle.active) {
+                    drawParticle(particle.x, particle.y, particle.color);
+                }
+            });
+        }
+        
+        function drawParticle(x, y, color = '#ff0000') {
+            // Partícula com brilho
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Centro branco
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function updateSimulation() {
+            if (!isRunning) return;
+            
+            // Atualizar cada partícula
+            particles.forEach(particle => {
+                if (!particle.active || particle.detected) return;
+                
+                particle.simulationTime += 0.016;
+                
+                // Raio em pixels
+                const displayRadius = radius * metersToPixels;
+                
+                // Calcular o ângulo baseado no tempo
+                // Usando velocidade angular ω = qB/m
+                const angularSpeed = (Math.abs(charge) * magneticField) / mass;
+
+                // CORREÇÃO CRÍTICA PARA ELÉTRONS: Fator de escala temporal específico
+                let timeScaleFactor = 1e-7; // Valor padrão para a maioria das partículas
+
+                if (particleType === 'electron') {
+                    timeScaleFactor = 1e-10; // MUITO mais lento para elétrons
+                }
+
+                particle.angle = particle.simulationTime * angularSpeed * timeScaleFactor;
+                
+                // Calcular posição da partícula - movimento circular CORRIGIDO
+                if (charge > 0) {
+                    // Partícula positiva - movimento anti-horário (curva para cima)
+                    particle.x = sourceX + displayRadius * Math.sin(particle.angle);
+                    particle.y = sourceY - displayRadius * (1 - Math.cos(particle.angle));
+                } else {
+                    // Partícula negativa - movimento horário (curva para baixo)
+                    particle.x = sourceX + displayRadius * Math.sin(particle.angle);
+                    particle.y = sourceY + displayRadius * (1 - Math.cos(particle.angle));
+                }
+                
+                // Verificar se a partícula atingiu as bordas DO RETÂNGULO
+                const hitRight = particle.x >= fieldLeft + fieldWidth;
+                const hitLeft = particle.x <= fieldLeft;
+                const hitTop = particle.y <= fieldTop;
+                const hitBottom = particle.y >= fieldTop + fieldHeight;
+                
+                if (hitRight || hitLeft || hitTop || hitBottom) {
+                    particle.active = false;
+                    particle.detected = true;
+                    
+                    if (hitRight) particle.detectionSide = 'direita';
+                    else if (hitLeft) particle.detectionSide = 'esquerda';
+                    else if (hitTop) particle.detectionSide = 'superior';
+                    else if (hitBottom) particle.detectionSide = 'inferior';
+                    
+                    // Exibir o raio calculado quando a partícula é detectada - AGORA EM NOTAÇÃO CIENTÍFICA
+                    statusIndicator.textContent = `Partícula ${particle.id} detectada no lado ${particle.detectionSide} - Raio: ${formatScientific(radius)} m`;
+                    statusIndicator.style.background = 'rgba(0, 255, 0, 0.3)';
+                }
+            });
+            
+            // Verificar se todas as partículas estão inativas
+            const allInactive = particles.length > 0 && particles.every(p => !p.active);
+            if (allInactive) {
+                isRunning = false;
+                statusIndicator.textContent = 'Todas as partículas foram detectadas';
+                statusIndicator.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+        }
+        
+        function animate() {
+            updateSimulation();
+            drawScene();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+
+        // Gerar 15 exercícios sobre Espectrômetro de Massa
+        function generateExercises() {
+            exercises = [];
+            
+            // Exercício 1: Cálculo básico de q/m
+            exercises.push({
+                type: 'calcular_qm',
+                question: `Um espectrômetro de massa é configurado com V=${formatScientific(5000)} V e B=${formatScientific(0.5)} T. Uma partícula é detectada com R=${formatScientific(0.1)} m. Qual a relação q/m?`,
+                answer: formatScientific(4000000) + ' C/kg',
+                options: [
+                    formatScientific(2000000) + ' C/kg', 
+                    formatScientific(4000000) + ' C/kg', 
+                    formatScientific(8000000) + ' C/kg', 
+                    formatScientific(1000000) + ' C/kg', 
+                    formatScientific(5000000) + ' C/kg'
+                ]
+            });
+            
+            // Exercício 2: Cálculo de raio
+            exercises.push({
+                type: 'calcular_raio',
+                question: `Um próton (q=${formatScientific(1.602e-19)} C, m=${formatScientific(1.673e-27)} kg) é acelerado por ${formatScientific(5000)} V e entra em B=${formatScientific(0.5)} T. Qual o raio?`,
+                answer: formatScientific(0.1448) + ' m',
+                options: [
+                    formatScientific(0.0724) + ' m', 
+                    formatScientific(0.1448) + ' m', 
+                    formatScientific(0.2896) + ' m', 
+                    formatScientific(0.0500) + ' m', 
+                    formatScientific(0.2000) + ' m'
+                ]
+            });
+            
+            // Exercício 3: Identificação de partícula
+            exercises.push({
+                type: 'identificar_particula',
+                question: `No espectrômetro (V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T), uma partícula tem R=${formatScientific(0.05)} m. Qual partícula é? (elétron, próton ou partícula alfa)`,
+                answer: 'partícula alfa',
+                options: ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron']
+            });
+            
+            // Exercício 4: Efeito do campo magnético
+            exercises.push({
+                type: 'efeito_campo',
+                question: `Se dobrarmos o campo magnético B, o que acontece com o raio da trajetória?`,
+                answer: 'O raio diminui pela metade',
+                options: ['O raio dobra', 'O raio diminui pela metade', 'O raio quadruplica', 'O raio não muda', 'O raio fica 4 vezes menor']
+            });
+            
+            // Exercício 5: Cálculo de velocidade
+            exercises.push({
+                type: 'calcular_velocidade',
+                question: `Um elétron (q=${formatScientific(1.602e-19)} C, m=${formatScientific(9.109e-31)} kg) é acelerado por ${formatScientific(5000)} V. Qual sua velocidade?`,
+                answer: formatScientific(4.19e7) + ' m/s',
+                options: [
+                    formatScientific(2.09e7) + ' m/s', 
+                    formatScientific(4.19e7) + ' m/s', 
+                    formatScientific(8.38e7) + ' m/s', 
+                    formatScientific(1.05e7) + ' m/s', 
+                    formatScientific(6.28e7) + ' m/s'
+                ]
+            });
+            
+            // Exercício 6: Relação q/m para elétron
+            exercises.push({
+                type: 'calcular_qm',
+                question: `Qual a relação q/m teórica para o elétron?`,
+                answer: formatScientific(1.76e11) + ' C/kg',
+                options: [
+                    formatScientific(1.76e11) + ' C/kg', 
+                    formatScientific(9.58e7) + ' C/kg', 
+                    formatScientific(4.82e7) + ' C/kg', 
+                    formatScientific(3.52e11) + ' C/kg', 
+                    formatScientific(8.80e10) + ' C/kg'
+                ]
+            });
+            
+            // Exercício 7: Efeito da voltagem
+            exercises.push({
+                type: 'efeito_voltagem',
+                question: `Se quadruplicarmos a voltagem V, o que acontece com o raio?`,
+                answer: 'O raio dobra',
+                options: ['O raio dobra', 'O raio quadruplica', 'O raio não muda', 'O raio diminui pela metade', 'O raio fica 4 vezes maior']
+            });
+            
+            // Exercício 8: Cálculo de massa
+            exercises.push({
+                type: 'calcular_massa',
+                question: `Uma partícula com q=${formatScientific(3.2e-19)} C tem R=${formatScientific(0.08)} m com V=${formatScientific(5000)} V e B=${formatScientific(0.5)} T. Qual sua massa?`,
+                answer: formatScientific(6.68e-27) + ' kg',
+                options: [
+                    formatScientific(3.34e-27) + ' kg', 
+                    formatScientific(6.68e-27) + ' kg', 
+                    formatScientific(1.34e-26) + ' kg', 
+                    formatScientific(1.67e-27) + ' kg', 
+                    formatScientific(9.11e-31) + ' kg'
+                ]
+            });
+            
+            // Exercício 9: Direção da força
+            exercises.push({
+                type: 'direcao_forca',
+                question: `Para uma partícula positiva entrando em um campo magnético saindo da página, qual a direção da força?`,
+                answer: 'Para cima',
+                options: ['Para cima', 'Para baixo', 'Para a esquerda', 'Para a direita', 'Não há força']
+            });
+            
+            // Exercício 10: Partícula alfa
+            exercises.push({
+                type: 'calcular_qm',
+                question: `Qual a relação q/m teórica para a partícula alfa?`,
+                answer: formatScientific(4.82e7) + ' C/kg',
+                options: [
+                    formatScientific(1.76e11) + ' C/kg', 
+                    formatScientific(9.58e7) + ' C/kg', 
+                    formatScientific(4.82e7) + ' C/kg', 
+                    formatScientific(2.41e7) + ' C/kg', 
+                    formatScientific(9.64e7) + ' C/kg'
+                ]
+            });
+            
+            // Exercício 11: Cálculo de campo
+            exercises.push({
+                type: 'calcular_campo',
+                question: `Para uma partícula com q/m=${formatScientific(1e8)} C/kg, V=${formatScientific(5000)} V e R=${formatScientific(0.1)} m, qual o campo B necessário?`,
+                answer: formatScientific(1.00) + ' T',
+                options: [
+                    formatScientific(0.50) + ' T', 
+                    formatScientific(1.00) + ' T', 
+                    formatScientific(2.00) + ' T', 
+                    formatScientific(0.25) + ' T', 
+                    formatScientific(4.00) + ' T'
+                ]
+            });
+            
+            // Exercício 12: Comparação de partículas
+            exercises.push({
+                type: 'comparacao',
+                question: `Qual partícula terá o menor raio no mesmo espectrômetro?`,
+                answer: 'Elétron',
+                options: ['Elétron', 'Próton', 'Partícula alfa', 'Todas terão o mesmo raio', 'Depende da voltagem']
+            });
+            
+            // Exercício 13: Unidades
+            exercises.push({
+                type: 'unidades',
+                question: `Em que unidade é medida a relação carga/massa no SI?`,
+                answer: 'C/kg',
+                options: ['C/kg', 'kg/C', 'T', 'V/m', 'N/C']
+            });
+            
+            // Exercício 14: Fórmula do raio
+            exercises.push({
+                type: 'formula',
+                question: `Qual a fórmula correta para o raio no espectrômetro de massa?`,
+                answer: 'R = mv/(|q|B)',
+                options: ['R = qB/(mv)', 'R = mv/(|q|B)', 'R = m/(qBv)', 'R = qv/(mB)', 'R = B/(mvq)']
+            });
+            
+            // Exercício 15: Aplicação prática
+            exercises.push({
+                type: 'aplicacao',
+                question: `Para que serve um espectrômetro de massa na prática?`,
+                answer: 'Separar partículas por massa',
+                options: ['Medir carga elétrica', 'Separar partículas por massa', 'Acelerar partículas', 'Medir campos magnéticos', 'Gerar eletricidade']
+            });
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício?")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
+            
+            for (let i = 0; i < exercises.length; i++) {
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.textContent = i + 1;
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+                
+                progressBar.appendChild(progressItem);
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Enviar resultados (simulação)
+        function sendResultsToSheet() {
+            const sendButton = document.getElementById('sendResults');
+            const emailStatus = document.getElementById('emailStatus');
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Simulação de envio
+            setTimeout(() => {
+                emailStatus.textContent = '✅ Dados enviados com sucesso!';
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 2000);
+            }, 2000);
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+            
+            // Adicionar exercícios resolvidos
+            const container = document.getElementById('solvedExercisesContainer');
+            container.innerHTML = `
+                <div class="solved-exercise">
+                    <h4>Exercício 1: Cálculo de q/m</h4>
+                    <p><strong>Problema:</strong> Espectrômetro com V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T, partícula detectada em R=${formatScientific(0.1)} m. Calcule q/m.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> q/m = 2V/(R²B²)</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×${formatScientific(5000)}/(${formatScientific(0.1)}²×${formatScientific(0.5)}²) = ${formatScientific(10000)}/(${formatScientific(0.01)}×${formatScientific(0.25)}) = ${formatScientific(10000)}/${formatScientific(0.0025)} = ${formatScientific(4000000)} C/kg</div>
+                    <div class="solution-step"><strong>Resposta:</strong> q/m = ${formatScientific(4e6)} C/kg</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exercício 2: Raio do próton</h4>
+                    <p><strong>Problema:</strong> Próton (q=${formatScientific(1.602e-19)} C, m=${formatScientific(1.673e-27)} kg) com V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T. Calcule R.</p>
+                    <div class="solution-step"><strong>Fórmulas:</strong> v = √(2|q|V/m) e R = mv/(|q|B)</div>
+                    <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×${formatScientific(1.602e-19)}×${formatScientific(5000)}/${formatScientific(1.673e-27)}) = √(${formatScientific(9.58e10)}) ≈ ${formatScientific(3.09e5)} m/s</div>
+                    <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (${formatScientific(1.673e-27)}×${formatScientific(3.09e5)})/(${formatScientific(1.602e-19)}×${formatScientific(0.5)}) = (${formatScientific(5.16e-22)})/(${formatScientific(8e-20)}) ≈ ${formatScientific(0.00645)} m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R ≈ ${formatScientific(6.45e-3)} m</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exercício 3: Efeito do campo magnético</h4>
+                    <p><strong>Problema:</strong> O que acontece com o raio se dobrarmos o campo magnético B?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> R = mv/(|q|B)</div>
+                    <div class="solution-step"><strong>Análise:</strong> R é inversamente proporcional a B</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Se B dobra, R diminui pela metade</div>
+                </div>
+            `;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
