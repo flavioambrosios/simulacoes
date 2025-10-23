@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Relatividade Especial - Dilatação do Tempo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #triangleCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .yellow { background: #ffcc00; }
+        .cyan { background: #00ffff; }
+        .purple { background: #ff00ff; }
+        
+        .gif-section {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .gif-container {
+            text-align: center;
+            flex: 1;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .gif-container img {
+            width: 100%;
+            height: 250px;
+            max-width: 100%;
+            border-radius: 6px;
+            border: 2px solid #ffcc00;
+            object-fit: contain;
+            background-color: #000;
+        }
+
+        .gif-container h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .gif-container p {
+            color: #fff;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .debug-panel {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 5px;
+            display: none;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+            .gif-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Relatividade Especial - Dilatação do Tempo</h1>
+            <p class="subtitle">Demonstração Geométrica da Fórmula de Einstein</p>
+        </header>
+        
+        <div class="gif-section">
+            <div class="gif-container">
+                <h3>Visão de Dentro da Espaçonave</h3>
+                <img src="photon_inside.gif" alt="Fóton subindo e descendo verticalmente">
+                <p>Fóton movendo-se verticalmente entre espelhos</p>
+            </div>
+            <div class="gif-container">
+                <h3>Visão de Fora da Espaçonave</h3>
+                <img src="photon_outside.gif" alt="Trajetória triangular do fóton">
+                <p>Trajetória inclinada do fóton devido ao movimento da espaçonave</p>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Demonstração Geométrica - Triângulo da Relatividade</h2>
+                <div class="simulation-container">
+                    <canvas id="triangleCanvas" width="800" height="500"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="showTriangleBtn" class="active">Mostrar Triângulo</button>
+                    <button id="showFormulaBtn">Mostrar Dedução</button>
+                    <button id="resetViewBtn">Resetar Visualização</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <span>Percurso do fóton (ct)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>Distância percorrida (vt)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color red"></div>
+                        <span>Altura do triângulo (cτ)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color yellow"></div>
+                        <span>Espaçonave</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color purple"></div>
+                        <span>Trajetória do fóton</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="velocitySlider">Velocidade da Espaçonave (v/c):</label>
+                    <input type="range" id="velocitySlider" min="0" max="0.95" step="0.05" value="0.5">
+                    <div class="value-display"><span id="velocityValue">0.50</span> c</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="tauSlider">Tempo Próprio (τ):</label>
+                    <input type="range" id="tauSlider" min="0.5" max="2" step="0.1" value="1">
+                    <div class="value-display"><span id="tauValue">1.0</span> unidade</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="gammaDisplay">Fator de Lorentz (γ):</label>
+                    <div class="value-display"><span id="gammaValue">1.15</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="timeDilationDisplay">Tempo Dilatado (t):</label>
+                    <div class="value-display"><span id="timeDilationValue">1.15</span> unidades</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Fórmula da Dilatação do Tempo</h3>
+                    <p>t = τ / √(1 - v²/c²)</p>
+                    <p>Onde:</p>
+                    <p>t = Tempo medido pelo observador externo</p>
+                    <p>τ = Tempo próprio (dentro da espaçonave)</p>
+                    <p>v = Velocidade da espaçonave</p>
+                    <p>c = Velocidade da luz</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Relação Pitagórica</h3>
+                    <p>(ct)² = (cτ)² + (vt)²</p>
+                    <p>Dividindo por c²:</p>
+                    <p>t² = τ² + (v²/c²)t²</p>
+                    <p>t² - (v²/c²)t² = τ²</p>
+                    <p>t²(1 - v²/c²) = τ²</p>
+                    <p>t = τ / √(1 - v²/c²)</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria da Relatividade</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Velocidade (v/c)</div>
+                        <div class="measurement-value" id="velocityDisplay">0.50</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tempo Próprio (τ)</div>
+                        <div class="measurement-value" id="tauDisplay">1.0</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fator de Lorentz (γ)</div>
+                        <div class="measurement-value" id="gammaDisplay">1.15</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tempo Dilatado (t)</div>
+                        <div class="measurement-value" id="timeDilationDisplay">1.15</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Percurso do Fóton (ct)</div>
+                        <div class="measurement-value" id="pathLengthDisplay">1.15</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Distância Percorrida (vt)</div>
+                        <div class="measurement-value" id="distanceDisplay">0.58</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Relatividade Especial</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Relatividade Especial</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo do Fator de Lorentz</h4>
+                    <p><strong>Problema:</strong> Se uma espaçonave viaja a 0.8c, qual é o fator γ?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> γ = 1 / √(1 - v²/c²)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> v/c = 0.8, então (v/c)² = 0.64</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> 1 - (v/c)² = 1 - 0.64 = 0.36</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> √(0.36) = 0.6</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> γ = 1 / 0.6 = 1.666...</div>
+                    <div class="solution-step"><strong>Resposta:</strong> γ ≈ 1.67</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Dilatação do Tempo</h4>
+                    <p><strong>Problema:</strong> Um astronauta mede 1 hora dentro da espaçonave. Quanto tempo passa para um observador na Terra se v = 0.6c?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> t = τ / √(1 - v²/c²)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> τ = 1 hora, v/c = 0.6</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> (v/c)² = 0.36</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> 1 - (v/c)² = 0.64</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> √(0.64) = 0.8</div>
+                    <div class="solution-step"><strong>Passo 5:</strong> t = 1 / 0.8 = 1.25 horas</div>
+                    <div class="solution-step"><strong>Resposta:</strong> t = 1.25 horas (1 hora e 15 minutos)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Velocidade Relativística</h4>
+                    <p><strong>Problema:</strong> Se γ = 2, qual deve ser a velocidade da espaçonave?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> γ = 1 / √(1 - v²/c²)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> 2 = 1 / √(1 - v²/c²)</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> √(1 - v²/c²) = 1/2 = 0.5</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> 1 - v²/c² = 0.25</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> v²/c² = 0.75</div>
+                    <div class="solution-step"><strong>Passo 5:</strong> v/c = √0.75 ≈ 0.866</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v ≈ 0.866c</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Relatividade Especial</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Postulados da Relatividade Especial</h3>
+                    <p>A teoria da relatividade especial, publicada por Albert Einstein em 1905, é baseada em dois postulados fundamentais:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Princípio da Relatividade:</span> As leis da física são as mesmas em todos os referenciais inerciais</li>
+                        <li><span class="highlight">Constância da Velocidade da Luz:</span> A velocidade da luz no vácuo (c) é a mesma para todos os observadores, independentemente do movimento da fonte de luz</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Dilatação do Tempo</h3>
+                    <p>Um dos efeitos mais surpreendentes da relatividade é a dilatação do tempo: o tempo passa mais devagar para objetos em movimento.</p>
+                    
+                    <div class="theory-formula">t = τ / √(1 - v²/c²)</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">t</span> = Tempo medido pelo observador externo</li>
+                        <li><span class="highlight">τ</span> = Tempo próprio (medido dentro da espaçonave)</li>
+                        <li><span class="highlight">v</span> = Velocidade da espaçonave</li>
+                        <li><span class="highlight">c</span> = Velocidade da luz (299,792,458 m/s)</li>
+                    </ul>
+                    
+                    <p>O fator γ (fator de Lorentz) é definido como:</p>
+                    <div class="theory-formula">γ = 1 / √(1 - v²/c²)</div>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Demonstração Geométrica</h3>
+                    <p>A dilatação do tempo pode ser demonstrada geometricamente usando o "relógio de luz" - um fóton refletindo entre dois espelhos.</p>
+                    
+                    <p>Na visão de dentro da espaçonave, o fóton percorre uma distância vertical cτ. Na visão externa, devido ao movimento da espaçonave, o fóton percorre uma trajetória inclinada de comprimento ct.</p>
+                    
+                    <p>Usando o teorema de Pitágoras:</p>
+                    <div class="theory-formula">(ct)² = (cτ)² + (vt)²</div>
+                    
+                    <p>Resolvendo para t, obtemos a fórmula da dilatação do tempo.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Consequências e Aplicações</h3>
+                    <p>Os efeitos da relatividade especial são verificados experimentalmente e têm aplicações práticas:</p>
+                    
+                    <ul>
+                        <li>Sistemas de GPS devem corrigir os efeitos relativísticos</li>
+                        <li>Aceleradores de partículas dependem dos cálculos relativísticos</li>
+                        <li>O paradoxo dos gêmeos demonstra a dilatação do tempo</li>
+                        <li>Viajantes espaciais envelheceriam mais devagar que pessoas na Terra</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let velocity = 0.5;
+        let tau = 1.0;
+        let c = 1; // c = 1 em unidades naturais
+        let showFormulaSteps = false;
+
+        // Elementos do DOM
+        const canvas = document.getElementById('triangleCanvas');
+        const ctx = canvas.getContext('2d');
+        const velocitySlider = document.getElementById('velocitySlider');
+        const velocityValue = document.getElementById('velocityValue');
+        const tauSlider = document.getElementById('tauSlider');
+        const tauValue = document.getElementById('tauValue');
+        const gammaValue = document.getElementById('gammaValue');
+        const timeDilationValue = document.getElementById('timeDilationValue');
+
+        // Elementos de display
+        const velocityDisplay = document.getElementById('velocityDisplay');
+        const tauDisplay = document.getElementById('tauDisplay');
+        const gammaDisplay = document.getElementById('gammaDisplay');
+        const timeDilationDisplay = document.getElementById('timeDilationDisplay');
+        const pathLengthDisplay = document.getElementById('pathLengthDisplay');
+        const distanceDisplay = document.getElementById('distanceDisplay');
+
+        // Botões de controle
+        const showTriangleBtn = document.getElementById('showTriangleBtn');
+        const showFormulaBtn = document.getElementById('showFormulaBtn');
+        const resetViewBtn = document.getElementById('resetViewBtn');
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // Inicialização
+        function init() {
+            // Configurar event listeners
+            velocitySlider.addEventListener('input', updateVelocity);
+            tauSlider.addEventListener('input', updateTau);
+            showTriangleBtn.addEventListener('click', () => setViewMode('triangle'));
+            showFormulaBtn.addEventListener('click', () => setViewMode('formula'));
+            resetViewBtn.addEventListener('click', resetView);
+            
+            // Configurar eventos dos botões de exercícios
+            setupExerciseEventListeners();
+            
+            // Desenhar triângulo inicial
+            drawTriangles();
+        }
+
+        function updateVelocity(e) {
+            velocity = parseFloat(e.target.value);
+            velocityValue.textContent = velocity.toFixed(2);
+            velocityDisplay.textContent = velocity.toFixed(2);
+            drawTriangles();
+        }
+
+        function updateTau(e) {
+            tau = parseFloat(e.target.value);
+            tauValue.textContent = tau.toFixed(1);
+            tauDisplay.textContent = tau.toFixed(1);
+            drawTriangles();
+        }
+
+        function setViewMode(mode) {
+            showFormulaSteps = (mode === 'formula');
+            showTriangleBtn.classList.toggle('active', mode === 'triangle');
+            showFormulaBtn.classList.toggle('active', mode === 'formula');
+            drawTriangles();
+        }
+
+        function resetView() {
+            velocity = 0.5;
+            tau = 1.0;
+            velocitySlider.value = velocity;
+            tauSlider.value = tau;
+            velocityValue.textContent = velocity.toFixed(2);
+            tauValue.textContent = tau.toFixed(1);
+            velocityDisplay.textContent = velocity.toFixed(2);
+            tauDisplay.textContent = tau.toFixed(1);
+            showFormulaSteps = false;
+            showTriangleBtn.classList.add('active');
+            showFormulaBtn.classList.remove('active');
+            drawTriangles();
+        }
+
+        function drawTriangles() {
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Calcular quantidades
+            const gamma = 1 / Math.sqrt(1 - velocity * velocity);
+            const t = gamma * tau;
+            const pathLength = t; // ct (com c=1)
+            const horizontalDistance = velocity * t;
+            const verticalDistance = tau; // cτ (com c=1)
+            
+            // Atualizar displays
+            gammaValue.textContent = gamma.toFixed(2);
+            timeDilationValue.textContent = t.toFixed(2);
+            gammaDisplay.textContent = gamma.toFixed(2);
+            timeDilationDisplay.textContent = t.toFixed(2);
+            distanceDisplay.textContent = horizontalDistance.toFixed(2);
+
+            if (showFormulaSteps) {
+                drawFormulaSteps(gamma, t, pathLength, horizontalDistance, verticalDistance);
+            } else {
+                drawTriangleVisualization(gamma, t, pathLength, horizontalDistance, verticalDistance);
+            }
+        }
+
+        function drawTriangleVisualization(gamma, t, pathLength, horizontalDistance, verticalDistance) {
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Configurações de desenho - posicionar no canto inferior direito com mais margem
+            const margin = 60; // Aumentei a margem para afastar das bordas
+            const maxWidth = canvas.width * 1.0; // Reduzi um pouco a largura máxima
+            const maxHeight = canvas.height * 0.8; // Reduzi um pouco a altura máxima
+            
+            // Calcular escala para caber no espaço disponível
+            const scaleX = maxWidth / (horizontalDistance + verticalDistance * 0.5);
+            const scaleY = maxHeight / (verticalDistance + horizontalDistance * 0.5);
+            const scale = Math.min(scaleX, scaleY) * 0.9; // 90% para dar margem
+            
+            // Coordenadas do ângulo reto (deslocado para cima e direita)
+            const rightAngleX = canvas.width - margin - 40;
+            const rightAngleY = canvas.height - margin - 40; // Deslocado 40px para cima
+            
+            // Coordenadas dos pontos do triângulo
+            // Ângulo reto no ponto ajustado
+            const anglePointX = rightAngleX;
+            const anglePointY = rightAngleY;
+            
+            // Cateto horizontal para a esquerda
+            const leftPointX = rightAngleX - horizontalDistance * scale;
+            const leftPointY = rightAngleY;
+            
+            // Cateto vertical para cima
+            const topPointX = rightAngleX;
+            const topPointY = rightAngleY - verticalDistance * scale;
+            
+            // Desenhar trajetória do fóton (linha pontilhada) - ida e volta
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 2;
+            
+            // Ida: do ângulo reto até o topo passando pela esquerda
+            ctx.beginPath();
+            ctx.moveTo(anglePointX, anglePointY);
+            ctx.lineTo(leftPointX, leftPointY);
+            ctx.lineTo(topPointX, topPointY);
+            ctx.stroke();
+            
+            // Volta: do topo de volta ao ângulo reto
+            ctx.beginPath();
+            ctx.moveTo(topPointX, topPointY);
+            ctx.lineTo(anglePointX, anglePointY);
+            ctx.stroke();
+            
+            ctx.setLineDash([]);
+            
+            // Desenhar triângulo retângulo
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(anglePointX, anglePointY); // Ângulo reto
+            ctx.lineTo(leftPointX, leftPointY);   // Para esquerda
+            ctx.lineTo(topPointX, topPointY);     // Para cima
+            ctx.closePath();
+            ctx.stroke();
+            
+            // Desenhar cateto horizontal (distância percorrida)
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(anglePointX, anglePointY);
+            ctx.lineTo(leftPointX, leftPointY);
+            ctx.stroke();
+            
+            // Desenhar cateto vertical (altura)
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(anglePointX, anglePointY);
+            ctx.lineTo(topPointX, topPointY);
+            ctx.stroke();
+            
+            // Desenhar hipotenusa (percurso do fóton)
+            ctx.strokeStyle = '#0066ff';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(leftPointX, leftPointY);
+            ctx.lineTo(topPointX, topPointY);
+            ctx.stroke();
+            
+            // Desenhar espaçonave no ângulo reto
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.arc(anglePointX, anglePointY, 8, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Adicionar anotações (afastadas das linhas)
+            ctx.fillStyle = 'white';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            
+            // Cateto horizontal (vt) - mais afastado
+            ctx.fillText(`vt = ${horizontalDistance.toFixed(2)}`, 
+                        (anglePointX + leftPointX) / 2, anglePointY + 30);
+            
+            // Cateto vertical (cτ) - mais afastado
+            ctx.fillText(`cτ = ${verticalDistance.toFixed(2)}`, 
+                        anglePointX + 35, (anglePointY + topPointY) / 2);
+            
+            // Hipotenusa (ct) - mais afastada
+            ctx.save();
+            ctx.translate((leftPointX + topPointX) / 2, (leftPointY + topPointY) / 2);
+            ctx.rotate(-Math.atan2(verticalDistance, horizontalDistance));
+            ctx.fillText(`ct = ${pathLength.toFixed(2)}`, 0, -25);
+            ctx.restore();
+            
+            // Adicionar legendas (mais afastadas)
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Espaçonave', anglePointX, anglePointY + 55);
+            
+            ctx.fillStyle = '#ff00ff';
+            const trailLabelX = (leftPointX + topPointX) / 2 - 50;
+            const trailLabelY = (leftPointY + topPointY) / 2 - 50;
+            ctx.fillText('Trajetória do Fóton', trailLabelX, trailLabelY);
+            
+            // Adicionar informações no canto superior esquerdo
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Velocidade: v/c = ${velocity.toFixed(2)}`, 20, 30);
+            ctx.fillText(`Tempo próprio: τ = ${tau.toFixed(1)}`, 20, 55);
+            ctx.fillText(`Fator de Lorentz: γ = ${gamma.toFixed(2)}`, 20, 80);
+            ctx.fillText(`Tempo dilatado: t = ${t.toFixed(2)}`, 20, 105);
+            
+            // Adicionar seta indicando movimento da espaçonave (sentido invertido - para a direita)
+            ctx.strokeStyle = '#ffcc00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            // Seta apontando para a direita (sentido positivo)
+            ctx.moveTo(anglePointX - 40, anglePointY);
+            ctx.lineTo(anglePointX + 20, anglePointY);
+            ctx.stroke();
+            
+            // Ponta da seta (para a direita)
+            ctx.beginPath();
+            ctx.moveTo(anglePointX + 20, anglePointY);
+            ctx.lineTo(anglePointX + 10, anglePointY - 5);
+            ctx.lineTo(anglePointX + 10, anglePointY + 5);
+            ctx.closePath();
+            ctx.fillStyle = '#ffcc00';
+            ctx.fill();
+            
+            // Legenda da seta (mais afastada)
+            ctx.fillText('Movimento →', anglePointX - 20, anglePointY + 70);
+        }
+
+        function drawFormulaSteps(gamma, t, pathLength, horizontalDistance, verticalDistance) {
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            let currentY = 30; // Posição Y inicial
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            
+            // Título
+            //ctx.fillText('Dedução da Fórmula de Dilatação do Tempo', centerX, currentY);
+            //currentY += 35;
+
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            
+            // Array com todos os passos para facilitar o loop
+            const steps = [
+                { text: '1. Aplicando o Teorema de Pitágoras ao triângulo:', formula: '(ct)² = (cτ)² + (vt)²' },
+                { text: '2. Dividindo ambos os lados por c²:', formula: 't² = τ² + (v²/c²)t²' },
+                { text: '3. Reorganizando os termos:', formula: 't² - (v²/c²)t² = τ²' },
+                { text: '4. Fatorando t²:', formula: 't²(1 - v²/c²) = τ²' },
+                { text: '5. Isolando t:', formula: 't² = τ² / (1 - v²/c²)' },
+                { text: '6. Tomando a raiz quadrada:', formula: 't = τ / √(1 - v²/c²)' }
+            ];
+
+            // Desenhar passos
+            steps.forEach(step => {
+                ctx.font = '16px Arial';
+                ctx.fillText(step.text, 40, currentY);
+                currentY += 25;
+                ctx.font = '18px Courier New';
+                ctx.fillText(step.formula, 60, currentY);
+                currentY += 35;
+            });
+
+            // Valores atuais
+            currentY += 10;
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('Com os valores atuais:', 40, currentY);
+            currentY += 25;
+            ctx.font = '16px Courier New';
+            ctx.fillText(`v/c = ${velocity.toFixed(2)}, τ = ${tau.toFixed(1)}`, 60, currentY);
+            currentY += 25;
+            ctx.fillText(`t = ${tau.toFixed(1)} / √(1 - ${velocity.toFixed(2)}²) = ${t.toFixed(2)}`, 60, currentY);
+            currentY += 25;
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(`Fator de Lorentz: γ = ${gamma.toFixed(2)}`, 60, currentY);
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+
+        function setupExerciseEventListeners() {
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        // Gerar exercícios sobre Relatividade Especial
+        function generateExercises() {
+            exercises = [];
+            
+            // Gerar 6 exercícios variados
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular Fator de Lorentz (γ = 1/√(1-v²/c²))
+                let v = (Math.floor(Math.random() * 8) + 2) * 0.1; // 0.2 a 0.9
+                let gamma = (1 / Math.sqrt(1 - v * v)).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_gamma',
+                    question: `Se uma espaçonave viaja a ${v.toFixed(1)}c, qual é o fator de Lorentz γ?`,
+                    answer: gamma,
+                    options: generateOptions(parseFloat(gamma), '')
+                });
+                
+                // Tipo 2: Calcular tempo dilatado (t = τ/√(1-v²/c²))
+                let tau_val = (Math.floor(Math.random() * 5) + 1); // 1 a 5 unidades
+                v = (Math.floor(Math.random() * 7) + 3) * 0.1; // 0.3 a 0.9
+                let t_val = (tau_val / Math.sqrt(1 - v * v)).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_tempo_dilatado',
+                    question: `Um astronauta mede ${tau_val} unidade${tau_val !== 1 ? 's' : ''} dentro da espaçonave. Quanto tempo passa para um observador na Terra se v = ${v.toFixed(1)}c?`,
+                    answer: t_val,
+                    options: generateOptions(parseFloat(t_val), 'unidades')
+                });
+                
+                // Tipo 3: Calcular velocidade (v = c√(1-1/γ²))
+                let gamma_val = (Math.floor(Math.random() * 10) + 15) * 0.1; // 1.5 a 2.4
+                let v_calc = Math.sqrt(1 - 1/(gamma_val * gamma_val)).toFixed(2);
+                
+                exercises.push({
+                    type: 'calcular_velocidade',
+                    question: `Se γ = ${gamma_val.toFixed(1)}, qual deve ser a velocidade da espaçonave em fração de c?`,
+                    answer: v_calc,
+                    options: generateOptions(parseFloat(v_calc), 'c')
+                });
+            }
+            
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 15;
+            
+            // Formatar o valor correto
+            let formattedCorrectValue;
+            if (unit) {
+                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            } else {
+                formattedCorrectValue = correctValue.toString();
+            }
+            
+            options.push({
+                value: correctValue,
+                display: formattedCorrectValue
+            });
+            
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    // Garantir que o valor seja positivo
+                    optionValue = Math.abs(optionValue);
+                    
+                    // Formatar
+                    if (unit) {
+                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    } else {
+                        formattedOption = optionValue.toFixed(2);
+                    }
+                    
+                    unique = !options.some(opt => opt.display === formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
+                    }
+                } while (!unique);
+                
+                options.push({
+                    value: optionValue,
+                    display: formattedOption
+                });
+            }
+            
+            return shuffleArray(options).map(opt => opt.display);
+        }
+
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'calcular_gamma') {
+                let v = (Math.floor(Math.random() * 8) + 2) * 0.1;
+                let gamma = (1 / Math.sqrt(1 - v * v)).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_gamma',
+                    question: `Se uma espaçonave viaja a ${v.toFixed(1)}c, qual é o fator de Lorentz γ?`,
+                    answer: gamma,
+                    options: generateOptions(parseFloat(gamma), '')
+                };
+            } else if (currentType === 'calcular_tempo_dilatado') {
+                let tau_val = (Math.floor(Math.random() * 5) + 1);
+                let v = (Math.floor(Math.random() * 7) + 3) * 0.1;
+                let t_val = (tau_val / Math.sqrt(1 - v * v)).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_tempo_dilatado',
+                    question: `Um astronauta mede ${tau_val} unidade${tau_val !== 1 ? 's' : ''} dentro da espaçonave. Quanto tempo passa para um observador na Terra se v = ${v.toFixed(1)}c?`,
+                    answer: t_val,
+                    options: generateOptions(parseFloat(t_val), 'unidades')
+                };
+            } else if (currentType === 'calcular_velocidade') {
+                let gamma_val = (Math.floor(Math.random() * 10) + 15) * 0.1;
+                let v_calc = Math.sqrt(1 - 1/(gamma_val * gamma_val)).toFixed(2);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_velocidade',
+                    question: `Se γ = ${gamma_val.toFixed(1)}, qual deve ser a velocidade da espaçonave em fração de c?`,
+                    answer: v_calc,
+                    options: generateOptions(parseFloat(v_calc), 'c')
+                };
+            }
+        }
+
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+
+        // Função para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados para envio
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Relatividade Especial',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Relatividade Especial',
+                        mensagem: `Confirmação de Envio - Simulação de Relatividade Especial'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Inicializar quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
