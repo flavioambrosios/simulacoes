@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação do Efeito Fotoelétrico com Exercícios</title>
+    <title>Simulação do Efeito Fotoelétrico com Exercício</title>
     <style>
         * {
             box-sizing: border-box;
@@ -945,54 +945,68 @@
         function generateExercises() {
             exercises = [];
             
-            // Gerar 6 exercícios variados
+            // Gerar 6 exercícios variados (2 de cada tipo)
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Calcular Energia Cinética Máxima
-                let f = (Math.floor(Math.random() * 10) + 5) * 100; // THz (500-1500)
                 let material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 let w = WORK_FUNCTIONS[material];
-                let ke = Math.max(0, (PLANCK_CONSTANT * f) / 1000 - w).toFixed(2);
+                
+                // Garantir que a frequência seja maior que a frequência de corte
+                let f0 = (w / PLANCK_CONSTANT) * 1000; // Frequência de corte em THz
+                let f = f0 + (Math.floor(Math.random() * 10) + 5) * 100; // Sempre acima da frequência de corte
+                
+                let hf = (PLANCK_CONSTANT * f) / 1000; // Converter para eV
+                let ke = Math.max(0, hf - w).toFixed(2);
+                
+                // Garantir que ke seja positivo
+                if (ke <= 0) {
+                    f = f0 + 800; // Adiciona um offset maior se ainda for zero
+                    hf = (PLANCK_CONSTANT * f) / 1000;
+                    ke = Math.max(0.1, hf - w).toFixed(2); // Mínimo de 0.1 eV
+                }
                 
                 exercises.push({
                     type: 'calcular_energia',
-                    question: `Luz com frequência de ${f} THz incide sobre uma superfície de ${material.charAt(0).toUpperCase() + material.slice(1)} com função trabalho de ${w} eV. Qual a energia cinética máxima dos elétrons emitidos?`,
+                    question: `Luz com frequência de ${f.toFixed(0)} THz incide sobre uma superfície de ${material.charAt(0).toUpperCase() + material.slice(1)} com função trabalho de ${w} eV. Qual a energia cinética máxima dos elétrons emitidos?`,
                     answer: ke + ' eV',
-                    options: generateOptions(parseFloat(ke), 'eV')
+                    options: generateOptions(parseFloat(ke), 'eV', true)
                 });
                 
                 // Tipo 2: Calcular Potencial de Corte
-                f = (Math.floor(Math.random() * 10) + 5) * 100;
                 material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 w = WORK_FUNCTIONS[material];
-                let cutoffVoltage = Math.max(0, (PLANCK_CONSTANT * f) / 1000 - w).toFixed(2);
+                
+                // Garantir que a frequência seja maior que a frequência de corte
+                f0 = (w / PLANCK_CONSTANT) * 1000;
+                f = f0 + (Math.floor(Math.random() * 10) + 5) * 100;
+                
+                hf = (PLANCK_CONSTANT * f) / 1000;
+                let cutoffVoltage = Math.max(0, hf - w).toFixed(2);
+                
+                // Garantir que cutoffVoltage seja positivo
+                if (cutoffVoltage <= 0) {
+                    f = f0 + 800;
+                    hf = (PLANCK_CONSTANT * f) / 1000;
+                    cutoffVoltage = Math.max(0.1, hf - w).toFixed(2);
+                }
                 
                 exercises.push({
                     type: 'calcular_potencial',
-                    question: `Para luz com frequência de ${f} THz incidindo sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (W = ${w} eV), qual o potencial de corte necessário para parar todos os elétrons?`,
+                    question: `Para luz com frequência de ${f.toFixed(0)} THz incidindo sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (W = ${w} eV), qual o potencial de corte necessário para parar todos os elétrons?`,
                     answer: cutoffVoltage + ' V',
-                    options: generateOptions(parseFloat(cutoffVoltage), 'V')
+                    options: generateOptions(parseFloat(cutoffVoltage), 'V', true)
                 });
                 
-                // Tipo 3: Determinar se há emissão
-                let materials = Object.keys(WORK_FUNCTIONS);
-                material = materials[Math.floor(Math.random() * materials.length)];
+                // Tipo 3: Determinar Frequência de Corte
+                material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 w = WORK_FUNCTIONS[material];
-                f = (Math.floor(Math.random() * 15) + 3) * 100; // 300-1800 THz
-                
-                let willEmit = (PLANCK_CONSTANT * f) / 1000 >= w;
-                let options = [
-                    "Sim, ocorre emissão de elétrons",
-                    "Não, a frequência é muito baixa",
-                    "Depende da intensidade da luz",
-                    "Somente se a intensidade for alta o suficiente",
-                    "Nenhuma das anteriores"
-                ];
+                let f0_calc = (w / PLANCK_CONSTANT * 1000).toFixed(0); // Converter para THz
                 
                 exercises.push({
-                    type: 'verificar_emissao',
-                    question: `Luz com frequência de ${f} THz incide sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (função trabalho = ${w} eV). Ocorrerá emissão fotoelétrica?`,
-                    answer: willEmit ? options[0] : options[1],
-                    options: shuffleArray([...options])
+                    type: 'calcular_frequencia_corte',
+                    question: `Determine a frequência de corte para o ${material.charAt(0).toUpperCase() + material.slice(1)}, que tem função trabalho de ${w} eV.`,
+                    answer: f0_calc + ' THz',
+                    options: generateOptions(parseFloat(f0_calc), 'THz', false)
                 });
             }
             
@@ -1000,13 +1014,27 @@
             exercises = shuffleArray(exercises);
         }
         
-        // Gerar opções de resposta
-        function generateOptions(correctValue, unit) {
+        // Gerar opções de resposta (5 alternativas)
+        function generateOptions(correctValue, unit, ensurePositive) {
             const options = [];
             let attempts = 0;
-            const maxAttempts = 15;
+            const maxAttempts = 20;
             
-            let formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            // Garantir que o valor correto seja positivo se necessário
+            if (ensurePositive && correctValue <= 0) {
+                correctValue = 0.1;
+            }
+            
+            // Formatar o valor correto
+            let formattedCorrectValue;
+            if (unit === 'eV' || unit === 'V') {
+                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            } else if (unit === 'THz') {
+                formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            } else {
+                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            }
+            
             options.push({
                 value: correctValue,
                 display: formattedCorrectValue
@@ -1017,30 +1045,45 @@
                 let optionValue;
                 let formattedOption;
                 let unique = false;
+                let positive = false;
                 
                 attempts = 0;
                 do {
                     const variationType = Math.random();
                     if (variationType < 0.3) {
-                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                        optionValue = correctValue * (Math.random() * 0.8 + 0.5);
                     } else if (variationType < 0.6) {
-                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                        optionValue = correctValue / (Math.random() * 0.8 + 0.5);
                     } else {
-                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        const percentChange = (Math.random() * 60 + 20) / 100;
                         optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
                     }
                     
-                    optionValue = Math.abs(optionValue);
-                    formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    // Garantir que seja positivo se necessário
+                    if (ensurePositive) {
+                        optionValue = Math.max(0.05, optionValue); // Mínimo de 0.05
+                    } else {
+                        optionValue = Math.abs(optionValue);
+                    }
+                    
+                    if (unit === 'eV' || unit === 'V') {
+                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    } else if (unit === 'THz') {
+                        formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    } else {
+                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    }
                     
                     unique = !options.some(opt => opt.display === formattedOption);
+                    positive = !ensurePositive || optionValue > 0;
                     attempts++;
                     
                     if (attempts > maxAttempts) {
-                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        // Forçar opção diferente adicionando um identificador
+                        formattedOption = optionValue.toFixed(2) + ' ' + unit + " (" + (i + 1) + ")";
                         unique = true;
                     }
-                } while (!unique);
+                } while (!unique || !positive);
                 
                 options.push({
                     value: optionValue,
@@ -1143,7 +1186,6 @@
                 // Adicionar event listeners aos novos botões
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
@@ -1155,49 +1197,63 @@
             const currentType = exercises[currentExercise].type;
             
             if (currentType === 'calcular_energia') {
-                let f = (Math.floor(Math.random() * 10) + 5) * 100;
                 let material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 let w = WORK_FUNCTIONS[material];
-                let ke = Math.max(0, (PLANCK_CONSTANT * f) / 1000 - w).toFixed(2);
+                
+                // Garantir que a frequência seja maior que a frequência de corte
+                let f0 = (w / PLANCK_CONSTANT) * 1000;
+                let f = f0 + (Math.floor(Math.random() * 10) + 5) * 100;
+                
+                let hf = (PLANCK_CONSTANT * f) / 1000;
+                let ke = Math.max(0, hf - w).toFixed(2);
+                
+                // Garantir que ke seja positivo
+                if (ke <= 0) {
+                    f = f0 + 800;
+                    hf = (PLANCK_CONSTANT * f) / 1000;
+                    ke = Math.max(0.1, hf - w).toFixed(2);
+                }
                 
                 exercises[currentExercise] = {
                     type: 'calcular_energia',
-                    question: `Luz com frequência de ${f} THz incide sobre uma superfície de ${material.charAt(0).toUpperCase() + material.slice(1)} com função trabalho de ${w} eV. Qual a energia cinética máxima dos elétrons emitidos?`,
+                    question: `Luz com frequência de ${f.toFixed(0)} THz incide sobre uma superfície de ${material.charAt(0).toUpperCase() + material.slice(1)} com função trabalho de ${w} eV. Qual a energia cinética máxima dos elétrons emitidos?`,
                     answer: ke + ' eV',
-                    options: generateOptions(parseFloat(ke), 'eV')
+                    options: generateOptions(parseFloat(ke), 'eV', true)
                 };
             } else if (currentType === 'calcular_potencial') {
-                let f = (Math.floor(Math.random() * 10) + 5) * 100;
                 let material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 let w = WORK_FUNCTIONS[material];
-                let cutoffVoltage = Math.max(0, (PLANCK_CONSTANT * f) / 1000 - w).toFixed(2);
+                
+                // Garantir que a frequência seja maior que a frequência de corte
+                let f0 = (w / PLANCK_CONSTANT) * 1000;
+                let f = f0 + (Math.floor(Math.random() * 10) + 5) * 100;
+                
+                let hf = (PLANCK_CONSTANT * f) / 1000;
+                let cutoffVoltage = Math.max(0, hf - w).toFixed(2);
+                
+                // Garantir que cutoffVoltage seja positivo
+                if (cutoffVoltage <= 0) {
+                    f = f0 + 800;
+                    hf = (PLANCK_CONSTANT * f) / 1000;
+                    cutoffVoltage = Math.max(0.1, hf - w).toFixed(2);
+                }
                 
                 exercises[currentExercise] = {
                     type: 'calcular_potencial',
-                    question: `Para luz com frequência de ${f} THz incidindo sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (W = ${w} eV), qual o potencial de corte necessário para parar todos os elétrons?`,
+                    question: `Para luz com frequência de ${f.toFixed(0)} THz incidindo sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (W = ${w} eV), qual o potencial de corte necessário para parar todos os elétrons?`,
                     answer: cutoffVoltage + ' V',
-                    options: generateOptions(parseFloat(cutoffVoltage), 'V')
+                    options: generateOptions(parseFloat(cutoffVoltage), 'V', true)
                 };
-            } else if (currentType === 'verificar_emissao') {
-                let materials = Object.keys(WORK_FUNCTIONS);
-                let material = materials[Math.floor(Math.random() * materials.length)];
+            } else if (currentType === 'calcular_frequencia_corte') {
+                let material = Object.keys(WORK_FUNCTIONS)[Math.floor(Math.random() * Object.keys(WORK_FUNCTIONS).length)];
                 let w = WORK_FUNCTIONS[material];
-                let f = (Math.floor(Math.random() * 15) + 3) * 100;
-                
-                let willEmit = (PLANCK_CONSTANT * f) / 1000 >= w;
-                let options = [
-                    "Sim, ocorre emissão de elétrons",
-                    "Não, a frequência é muito baixa",
-                    "Depende da intensidade da luz",
-                    "Somente se a intensidade for alta o suficiente",
-                    "Nenhuma das anteriores"
-                ];
+                let f0 = (w / PLANCK_CONSTANT * 1000).toFixed(0);
                 
                 exercises[currentExercise] = {
-                    type: 'verificar_emissao',
-                    question: `Luz com frequência de ${f} THz incide sobre ${material.charAt(0).toUpperCase() + material.slice(1)} (função trabalho = ${w} eV). Ocorrerá emissão fotoelétrica?`,
-                    answer: willEmit ? options[0] : options[1],
-                    options: shuffleArray([...options])
+                    type: 'calcular_frequencia_corte',
+                    question: `Determine a frequência de corte para o ${material.charAt(0).toUpperCase() + material.slice(1)}, que tem função trabalho de ${w} eV.`,
+                    answer: f0 + ' THz',
+                    options: generateOptions(parseFloat(f0), 'THz', false)
                 };
             }
         }
@@ -1286,21 +1342,142 @@
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
         }
         
-        // Função para enviar resultados
+        // Função otimizada para enviar dados e email
         function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Simulação educacional - os dados não serão realmente enviados. Em uma implementação real, aqui seriam enviados para uma planilha.';
+            emailStatus.textContent = 'Enviando dados...';
             emailStatus.className = 'email-status sending';
             emailStatus.style.display = 'block';
             
-            setTimeout(() => {
-                emailStatus.textContent = '✅ Simulação concluída com sucesso!';
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Efeito Fotoelétrico',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName,
+                        serie: studentGrade,
+                        turma: studentClass,
+                        nota: scorePercentage + '%',
+                        acertos: `${correctAnswers}/${totalExercises}`,
+                        questoes_puladas: skippedQuestions,
+                        conclusao: finalConclusion,
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Efeito Fotoelétrico',
+                        mensagem: `Confirmação de Envio - Simulação do Efeito Fotoelétrico
+
+Prezado(a) ${studentName},
+
+Confirmamos o recebimento dos seus resultados:
+
+📊 SEUS RESULTADOS:
+• Nota: ${scorePercentage}%
+• Acertos: ${correctAnswers} de ${totalExercises} questões
+• Questões Puladas: ${skippedQuestions}
+
+Data: ${new Date().toLocaleString('pt-BR')}
+
+Atenciosamente,
+Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
                     closeExercisesModal();
-                }, 2000);
-            }, 2000);
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
         }
         
         // Fechar modal de exercícios
