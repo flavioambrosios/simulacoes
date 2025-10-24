@@ -384,6 +384,7 @@
             font-weight: bold;
         }
         
+        /* Estilos para formulário de e-mail */
         .email-form {
             display: flex;
             flex-direction: column;
@@ -521,10 +522,49 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
+
+        /* NOVOS ESTILOS PARA TEXTAREA MAIOR */
+        .conclusion-textarea {
+            width: 100%;
+            min-height: 300px;
+            height: 60vh;
+            max-height: 500px;
+            resize: vertical;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            border: 2px solid #ffcc00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+        }
+
+        .conclusion-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            max-height: 600px;
+        }
+
+        .conclusion-header {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .conclusion-text-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
         
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
+            }
+
+            .conclusion-textarea {
+                height: 50vh;
+                min-height: 250px;
             }
         }
     </style>
@@ -678,10 +718,17 @@
             </div>
             
             <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusão de Estudo</h3>
-                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+                <div class="conclusion-container">
+                    <div class="conclusion-header">
+                        <h3>Conclusão de Estudo</h3>
+                        <p>Escreva abaixo tudo o que você aprendeu com os exercícios. Use o espaço máximo disponível para refletir sobre o conteúdo:</p>
+                    </div>
+                    <div class="conclusion-text-container">
+                        <textarea id="conclusionText" class="conclusion-textarea" 
+                                  placeholder="Descreva aqui tudo o que você aprendeu sobre espectrômetro de massa, força magnética, movimento de partículas carregadas, cálculo de relação carga/massa, e qualquer outra observação importante..."></textarea>
+                        <button id="submitConclusion" class="check-btn" style="margin-top: 15px;">Enviar Conclusão</button>
+                    </div>
+                </div>
             </div>
             
             <div id="resultsContainer" style="display: none;">
@@ -715,6 +762,21 @@
                             <option value="B">B</option>
                             <option value="C">C</option>
                             <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
                         </select>
                     </div>
                     
@@ -725,17 +787,18 @@
                     
                     <div class="form-row">
                         <label for="criticismInput">Críticas:</label>
-                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                        <textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>
                     </div>
                     
                     <div class="form-row">
                         <label for="suggestionInput">Sugestões:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                        <textarea id="suggestionInput" rows="3" placeholder="Tem alguma sugestão para melhorar a experiência de aprendizado?"></textarea>
                     </div>
                     
                     <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                        <label for="finalConclusion" class="required">Conclusão Final:</label>
+                        <textarea id="finalConclusion" class="conclusion-textarea" required 
+                                  placeholder="Escreva aqui sua conclusão final sobre a simulação e os exercícios..."></textarea>
                     </div>
                     
                     <div id="emailStatus" class="email-status"></div>
@@ -867,37 +930,42 @@
         let currentExerciseAttempts = 0;
 
         // =============================================
-        // FUNÇÃO DE FORMATAÇÃO PARA NOTAÇÃO CIENTÍFICA
+        // FUNÇÃO PARA FORMATAR EM NOTAÇÃO CIENTÍFICA
         // =============================================
-
+        
         function formatScientific(value, precision = 3) {
-            if (value === 0) return "0.00";
+            if (value === 0) return '0.00';
             
-            // Casos especiais para números muito próximos de zero
-            if (Math.abs(value) < 1e-100) return "0.00";
-            
+            // Determinar o expoente
             const exponent = Math.floor(Math.log10(Math.abs(value)));
+            // Calcular a mantissa
             const mantissa = value / Math.pow(10, exponent);
             
-            // Formatar para 3 algarismos significativos
-            let formattedMantissa = mantissa.toFixed(precision - 1);
+            // Formatar a mantissa com 3 algarismos significativos
+            let formattedMantissa = mantissa.toPrecision(precision);
             
-            // Se a mantissa ficar como 10.0 após arredondamento, ajustar
-            let finalMantissa = parseFloat(formattedMantissa);
-            let finalExponent = exponent;
-            
-            if (Math.abs(finalMantissa) >= 10.0) {
-                finalMantissa /= 10;
-                finalExponent += 1;
-                formattedMantissa = finalMantissa.toFixed(precision - 1);
+            // Se a mantissa for 10.0, ajustar para 1.00
+            if (Math.abs(parseFloat(formattedMantissa)) >= 10) {
+                formattedMantissa = (mantissa / 10).toPrecision(precision);
+                return `${formattedMantissa}×10<sup>${exponent + 1}</sup>`;
             }
             
-            // Garantir que números negativos sejam formatados corretamente
-            if (value < 0 && finalMantissa > 0) {
-                formattedMantissa = '-' + formattedMantissa;
+            return `${formattedMantissa}×10<sup>${exponent}</sup>`;
+        }
+        
+        // Função alternativa para valores que podem ser expressos sem notação científica
+        function formatNumber(value, precision = 3) {
+            if (value === 0) return '0.00';
+            
+            const absValue = Math.abs(value);
+            
+            // Para valores muito grandes ou muito pequenos, usar notação científica
+            if (absValue >= 1000 || absValue < 0.001) {
+                return formatScientific(value, precision);
             }
             
-            return `${formattedMantissa}×10^${finalExponent}`;
+            // Para valores intermediários, usar formato decimal
+            return value.toPrecision(precision);
         }
 
         // =============================================
@@ -931,15 +999,15 @@
         function setupEventListeners() {
             document.getElementById('voltageInput').addEventListener('input', function() {
                 voltage = parseInt(this.value);
-                document.getElementById('voltageValue').textContent = formatScientific(voltage);
-                document.getElementById('voltageDisplay').textContent = formatScientific(voltage) + ' V';
+                document.getElementById('voltageValue').innerHTML = formatScientific(voltage);
+                document.getElementById('voltageDisplay').innerHTML = formatScientific(voltage) + ' V';
                 updateParticleProperties();
             });
             
             document.getElementById('fieldInput').addEventListener('input', function() {
                 magneticField = parseFloat(this.value);
-                document.getElementById('fieldValue').textContent = formatScientific(magneticField);
-                document.getElementById('fieldDisplay').textContent = formatScientific(magneticField) + ' T';
+                document.getElementById('fieldValue').innerHTML = formatScientific(magneticField);
+                document.getElementById('fieldDisplay').innerHTML = formatScientific(magneticField) + ' T';
                 updateParticleProperties();
             });
             
@@ -959,7 +1027,7 @@
             
             document.getElementById('customCharge').addEventListener('input', function() {
                 const customChargeValue = parseInt(this.value);
-                document.getElementById('customChargeValue').textContent = formatScientific(customChargeValue * 1e-19);
+                document.getElementById('customChargeValue').innerHTML = formatScientific(customChargeValue * 1e-19);
                 if (particleType === 'custom') {
                     updateParticleProperties();
                 }
@@ -967,7 +1035,7 @@
             
             document.getElementById('customMass').addEventListener('input', function() {
                 const customMassValue = parseInt(this.value);
-                document.getElementById('customMassValue').textContent = formatScientific(customMassValue * 1e-27);
+                document.getElementById('customMassValue').innerHTML = formatScientific(customMassValue * 1e-27);
                 if (particleType === 'custom') {
                     updateParticleProperties();
                 }
@@ -1103,16 +1171,16 @@
             }
             
             // Atualizar exibição COM NOTAÇÃO CIENTÍFICA
-            document.getElementById('velocityValue').textContent = formatScientific(velocity);
-            document.getElementById('velocityDisplay2').textContent = formatScientific(velocity) + ' m/s';
-            document.getElementById('radiusValue').textContent = formatScientific(radius);
-            document.getElementById('radiusDisplay').textContent = formatScientific(radius) + ' m';
-            document.getElementById('chargeDisplay').textContent = formatScientific(charge) + ' C';
-            document.getElementById('massDisplay').textContent = formatScientific(mass) + ' kg';
+            document.getElementById('velocityValue').innerHTML = formatNumber(velocity);
+            document.getElementById('velocityDisplay2').innerHTML = formatNumber(velocity) + ' m/s';
+            document.getElementById('radiusValue').innerHTML = formatNumber(radius);
+            document.getElementById('radiusDisplay').innerHTML = formatNumber(radius) + ' m';
+            document.getElementById('chargeDisplay').innerHTML = formatScientific(charge) + ' C';
+            document.getElementById('massDisplay').innerHTML = formatScientific(mass) + ' kg';
             
             // Formatar q/m
-            document.getElementById('qmDisplay').textContent = formatScientific(qmValue) + ' C/kg';
-            document.getElementById('qmTheoreticalDisplay').textContent = formatScientific(qmTheoretical) + ' C/kg';
+            document.getElementById('qmDisplay').innerHTML = formatScientific(qmValue) + ' C/kg';
+            document.getElementById('qmTheoreticalDisplay').innerHTML = formatScientific(qmTheoretical) + ' C/kg';
         }
         
         function resetSimulation() {
@@ -1289,8 +1357,8 @@
                     else if (hitTop) particle.detectionSide = 'superior';
                     else if (hitBottom) particle.detectionSide = 'inferior';
                     
-                    // Exibir o raio calculado quando a partícula é detectada - AGORA EM NOTAÇÃO CIENTÍFICA
-                    statusIndicator.textContent = `Partícula ${particle.id} detectada no lado ${particle.detectionSide} - Raio: ${formatScientific(radius)} m`;
+                    // Exibir o raio calculado quando a partícula é detectada
+                    statusIndicator.innerHTML = `Partícula ${particle.id} detectada no lado ${particle.detectionSide} - Raio: ${formatNumber(radius)} m`;
                     statusIndicator.style.background = 'rgba(0, 255, 0, 0.3)';
                 }
             });
@@ -1316,167 +1384,106 @@
         function generateExercises() {
             exercises = [];
             
-            // Exercício 1: Cálculo básico de q/m
-            exercises.push({
-                type: 'calcular_qm',
-                question: `Um espectrômetro de massa é configurado com V=${formatScientific(5000)} V e B=${formatScientific(0.5)} T. Uma partícula é detectada com R=${formatScientific(0.1)} m. Qual a relação q/m?`,
-                answer: formatScientific(4000000) + ' C/kg',
-                options: [
-                    formatScientific(2000000) + ' C/kg', 
-                    formatScientific(4000000) + ' C/kg', 
-                    formatScientific(8000000) + ' C/kg', 
-                    formatScientific(1000000) + ' C/kg', 
-                    formatScientific(5000000) + ' C/kg'
-                ]
-            });
+            // Gerar exercícios variados
+            for (let i = 0; i < 5; i++) {
+                // Tipo 1: Cálculo básico de q/m
+                let v = (Math.floor(Math.random() * 9) + 1) * 1000; // V
+                let b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
+                let r = (Math.floor(Math.random() * 9) + 1) * 0.01; // m
+                let qm = (2 * v / (r * r * b * b));
+                
+                exercises.push({
+                    type: 'calcular_qm',
+                    question: `Um espectrômetro de massa é configurado com V=${formatScientific(v)} V e B=${formatScientific(b)} T. Uma partícula é detectada com R=${formatScientific(r)} m. Qual a relação q/m?`,
+                    answer: formatScientific(qm) + ' C/kg',
+                    options: generateOptions(qm, 'C/kg')
+                });
+                
+                // Tipo 2: Cálculo de raio
+                let m = (Math.floor(Math.random() * 9) + 1) * 1e-27; // kg
+                let vel = (Math.floor(Math.random() * 9) + 1) * 1e6; // 10⁶ m/s
+                let q = (Math.floor(Math.random() * 9) + 1) * 1e-19; // C
+                b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
+                r = (m * vel / (Math.abs(q) * b));
+                
+                exercises.push({
+                    type: 'calcular_raio',
+                    question: `Uma partícula com massa de ${formatScientific(m)} kg e carga de ${formatScientific(q)} C move-se com velocidade de ${formatScientific(vel)} m/s perpendicularmente a um campo magnético de ${formatScientific(b)} T. Qual o raio de sua trajetória circular?`,
+                    answer: formatScientific(r) + ' m',
+                    options: generateOptions(r, 'm')
+                });
+                
+                // Tipo 3: Identificação de partícula
+                let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
+                let correctIndex = Math.floor(Math.random() * 3);
+                
+                exercises.push({
+                    type: 'identificar_particula',
+                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${formatScientific((Math.floor(Math.random() * 5) + 1) * 0.01)} m. Qual partícula é mais provável?`,
+                    answer: options[correctIndex],
+                    options: shuffleArray([...options])
+                });
+            }
             
-            // Exercício 2: Cálculo de raio
-            exercises.push({
-                type: 'calcular_raio',
-                question: `Um próton (q=${formatScientific(1.602e-19)} C, m=${formatScientific(1.673e-27)} kg) é acelerado por ${formatScientific(5000)} V e entra em B=${formatScientific(0.5)} T. Qual o raio?`,
-                answer: formatScientific(0.1448) + ' m',
-                options: [
-                    formatScientific(0.0724) + ' m', 
-                    formatScientific(0.1448) + ' m', 
-                    formatScientific(0.2896) + ' m', 
-                    formatScientific(0.0500) + ' m', 
-                    formatScientific(0.2000) + ' m'
-                ]
-            });
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+        
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
             
-            // Exercício 3: Identificação de partícula
-            exercises.push({
-                type: 'identificar_particula',
-                question: `No espectrômetro (V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T), uma partícula tem R=${formatScientific(0.05)} m. Qual partícula é? (elétron, próton ou partícula alfa)`,
-                answer: 'partícula alfa',
-                options: ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron']
-            });
+            // Formatar o valor correto
+            let formattedCorrectValue = formatScientific(correctValue) + (unit ? ' ' + unit : '');
             
-            // Exercício 4: Efeito do campo magnético
-            exercises.push({
-                type: 'efeito_campo',
-                question: `Se dobrarmos o campo magnético B, o que acontece com o raio da trajetória?`,
-                answer: 'O raio diminui pela metade',
-                options: ['O raio dobra', 'O raio diminui pela metade', 'O raio quadruplica', 'O raio não muda', 'O raio fica 4 vezes menor']
-            });
+            options.push(formattedCorrectValue);
             
-            // Exercício 5: Cálculo de velocidade
-            exercises.push({
-                type: 'calcular_velocidade',
-                question: `Um elétron (q=${formatScientific(1.602e-19)} C, m=${formatScientific(9.109e-31)} kg) é acelerado por ${formatScientific(5000)} V. Qual sua velocidade?`,
-                answer: formatScientific(4.19e7) + ' m/s',
-                options: [
-                    formatScientific(2.09e7) + ' m/s', 
-                    formatScientific(4.19e7) + ' m/s', 
-                    formatScientific(8.38e7) + ' m/s', 
-                    formatScientific(1.05e7) + ' m/s', 
-                    formatScientific(6.28e7) + ' m/s'
-                ]
-            });
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                // Garantir que as opções sejam diferentes
+                do {
+                    // Usar variações mais diversificadas
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        // Multiplicador aleatório
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        // Divisor aleatório
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        // Soma/subtração de porcentagem
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    // Garantir que o valor seja positivo para grandezas físicas
+                    if (unit === 'C/kg' || unit === 'm') {
+                        optionValue = Math.abs(optionValue);
+                    }
+                    
+                    formattedOption = formatScientific(optionValue) + (unit ? ' ' + unit : '');
+                    
+                    unique = !options.includes(formattedOption);
+                } while (!unique);
+                
+                options.push(formattedOption);
+            }
             
-            // Exercício 6: Relação q/m para elétron
-            exercises.push({
-                type: 'calcular_qm',
-                question: `Qual a relação q/m teórica para o elétron?`,
-                answer: formatScientific(1.76e11) + ' C/kg',
-                options: [
-                    formatScientific(1.76e11) + ' C/kg', 
-                    formatScientific(9.58e7) + ' C/kg', 
-                    formatScientific(4.82e7) + ' C/kg', 
-                    formatScientific(3.52e11) + ' C/kg', 
-                    formatScientific(8.80e10) + ' C/kg'
-                ]
-            });
-            
-            // Exercício 7: Efeito da voltagem
-            exercises.push({
-                type: 'efeito_voltagem',
-                question: `Se quadruplicarmos a voltagem V, o que acontece com o raio?`,
-                answer: 'O raio dobra',
-                options: ['O raio dobra', 'O raio quadruplica', 'O raio não muda', 'O raio diminui pela metade', 'O raio fica 4 vezes maior']
-            });
-            
-            // Exercício 8: Cálculo de massa
-            exercises.push({
-                type: 'calcular_massa',
-                question: `Uma partícula com q=${formatScientific(3.2e-19)} C tem R=${formatScientific(0.08)} m com V=${formatScientific(5000)} V e B=${formatScientific(0.5)} T. Qual sua massa?`,
-                answer: formatScientific(6.68e-27) + ' kg',
-                options: [
-                    formatScientific(3.34e-27) + ' kg', 
-                    formatScientific(6.68e-27) + ' kg', 
-                    formatScientific(1.34e-26) + ' kg', 
-                    formatScientific(1.67e-27) + ' kg', 
-                    formatScientific(9.11e-31) + ' kg'
-                ]
-            });
-            
-            // Exercício 9: Direção da força
-            exercises.push({
-                type: 'direcao_forca',
-                question: `Para uma partícula positiva entrando em um campo magnético saindo da página, qual a direção da força?`,
-                answer: 'Para cima',
-                options: ['Para cima', 'Para baixo', 'Para a esquerda', 'Para a direita', 'Não há força']
-            });
-            
-            // Exercício 10: Partícula alfa
-            exercises.push({
-                type: 'calcular_qm',
-                question: `Qual a relação q/m teórica para a partícula alfa?`,
-                answer: formatScientific(4.82e7) + ' C/kg',
-                options: [
-                    formatScientific(1.76e11) + ' C/kg', 
-                    formatScientific(9.58e7) + ' C/kg', 
-                    formatScientific(4.82e7) + ' C/kg', 
-                    formatScientific(2.41e7) + ' C/kg', 
-                    formatScientific(9.64e7) + ' C/kg'
-                ]
-            });
-            
-            // Exercício 11: Cálculo de campo
-            exercises.push({
-                type: 'calcular_campo',
-                question: `Para uma partícula com q/m=${formatScientific(1e8)} C/kg, V=${formatScientific(5000)} V e R=${formatScientific(0.1)} m, qual o campo B necessário?`,
-                answer: formatScientific(1.00) + ' T',
-                options: [
-                    formatScientific(0.50) + ' T', 
-                    formatScientific(1.00) + ' T', 
-                    formatScientific(2.00) + ' T', 
-                    formatScientific(0.25) + ' T', 
-                    formatScientific(4.00) + ' T'
-                ]
-            });
-            
-            // Exercício 12: Comparação de partículas
-            exercises.push({
-                type: 'comparacao',
-                question: `Qual partícula terá o menor raio no mesmo espectrômetro?`,
-                answer: 'Elétron',
-                options: ['Elétron', 'Próton', 'Partícula alfa', 'Todas terão o mesmo raio', 'Depende da voltagem']
-            });
-            
-            // Exercício 13: Unidades
-            exercises.push({
-                type: 'unidades',
-                question: `Em que unidade é medida a relação carga/massa no SI?`,
-                answer: 'C/kg',
-                options: ['C/kg', 'kg/C', 'T', 'V/m', 'N/C']
-            });
-            
-            // Exercício 14: Fórmula do raio
-            exercises.push({
-                type: 'formula',
-                question: `Qual a fórmula correta para o raio no espectrômetro de massa?`,
-                answer: 'R = mv/(|q|B)',
-                options: ['R = qB/(mv)', 'R = mv/(|q|B)', 'R = m/(qBv)', 'R = qv/(mB)', 'R = B/(mvq)']
-            });
-            
-            // Exercício 15: Aplicação prática
-            exercises.push({
-                type: 'aplicacao',
-                question: `Para que serve um espectrômetro de massa na prática?`,
-                answer: 'Separar partículas por massa',
-                options: ['Medir carga elétrica', 'Separar partículas por massa', 'Acelerar partículas', 'Medir campos magnéticos', 'Gerar eletricidade']
-            });
+            // Embaralhar opções
+            return shuffleArray(options);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
         
         // Mostrar exercício atual
@@ -1559,14 +1566,58 @@
                 
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    // ALTERAÇÃO 1: Gerar nova questão do mesmo tipo ao tentar novamente
+                    generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
             }
         }
         
+        // ALTERAÇÃO 1: Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'calcular_qm') {
+                let v = (Math.floor(Math.random() * 9) + 1) * 1000;
+                let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
+                let r = (Math.floor(Math.random() * 9) + 1) * 0.01;
+                let qm = (2 * v / (r * r * b * b));
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_qm',
+                    question: `Um espectrômetro de massa é configurado com V=${formatScientific(v)} V e B=${formatScientific(b)} T. Uma partícula é detectada com R=${formatScientific(r)} m. Qual a relação q/m?`,
+                    answer: formatScientific(qm) + ' C/kg',
+                    options: generateOptions(qm, 'C/kg')
+                };
+            } else if (currentType === 'calcular_raio') {
+                let m = (Math.floor(Math.random() * 9) + 1) * 1e-27;
+                let vel = (Math.floor(Math.random() * 9) + 1) * 1e6;
+                let q = (Math.floor(Math.random() * 9) + 1) * 1e-19;
+                let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
+                let r = (m * vel / (Math.abs(q) * b));
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_raio',
+                    question: `Uma partícula com massa de ${formatScientific(m)} kg e carga de ${formatScientific(q)} C move-se com velocidade de ${formatScientific(vel)} m/s perpendicularmente a um campo magnético de ${formatScientific(b)} T. Qual o raio de sua trajetória circular?`,
+                    answer: formatScientific(r) + ' m',
+                    options: generateOptions(r, 'm')
+                };
+            } else if (currentType === 'identificar_particula') {
+                let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
+                let correctIndex = Math.floor(Math.random() * 3);
+                
+                exercises[currentExercise] = {
+                    type: 'identificar_particula',
+                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${formatScientific((Math.floor(Math.random() * 5) + 1) * 0.01)} m. Qual partícula é mais provável?`,
+                    answer: options[correctIndex],
+                    options: shuffleArray([...options])
+                };
+            }
+        }
+        
         // Pular exercício
         function skipExercise() {
-            if (confirm("Deseja pular este exercício?")) {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
                 exerciseResults.push({
                     exercise: currentExercise,
                     correct: false,
@@ -1654,29 +1705,142 @@
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
         }
         
-        // Enviar resultados (simulação)
+        // Função otimizada para enviar dados e email
         function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
-            const emailStatus = document.getElementById('emailStatus');
             
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
             sendButton.disabled = true;
             sendButton.textContent = 'Enviando...';
             
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
             emailStatus.textContent = 'Enviando dados...';
             emailStatus.className = 'email-status sending';
             emailStatus.style.display = 'block';
             
-            // Simulação de envio
-            setTimeout(() => {
-                emailStatus.textContent = '✅ Dados enviados com sucesso!';
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Espectrômetro de Massa',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Espectrômetro de Massa',
+                        mensagem: `Confirmação de Envio - Simulação de Espectrômetro de Massa'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
                     closeExercisesModal();
+                    // Reativa o botão após fechar o modal
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
-                }, 2000);
-            }, 2000);
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
         }
         
         // Abrir modal de exercícios
@@ -1707,24 +1871,24 @@
             container.innerHTML = `
                 <div class="solved-exercise">
                     <h4>Exercício 1: Cálculo de q/m</h4>
-                    <p><strong>Problema:</strong> Espectrômetro com V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T, partícula detectada em R=${formatScientific(0.1)} m. Calcule q/m.</p>
+                    <p><strong>Problema:</strong> Espectrômetro com V=5.00×10³ V, B=5.00×10⁻¹ T, partícula detectada em R=1.00×10⁻¹ m. Calcule q/m.</p>
                     <div class="solution-step"><strong>Fórmula:</strong> q/m = 2V/(R²B²)</div>
-                    <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×${formatScientific(5000)}/(${formatScientific(0.1)}²×${formatScientific(0.5)}²) = ${formatScientific(10000)}/(${formatScientific(0.01)}×${formatScientific(0.25)}) = ${formatScientific(10000)}/${formatScientific(0.0025)} = ${formatScientific(4000000)} C/kg</div>
-                    <div class="solution-step"><strong>Resposta:</strong> q/m = ${formatScientific(4e6)} C/kg</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×5.00×10³/((1.00×10⁻¹)²×(5.00×10⁻¹)²) = 1.00×10⁴/(1.00×10⁻²×2.50×10⁻¹) = 1.00×10⁴/(2.50×10⁻³) = 4.00×10⁶ C/kg</div>
+                    <div class="solution-step"><strong>Resposta:</strong> q/m = 4.00×10⁶ C/kg</div>
                 </div>
                 
                 <div class="solved-exercise">
                     <h4>Exercício 2: Raio do próton</h4>
-                    <p><strong>Problema:</strong> Próton (q=${formatScientific(1.602e-19)} C, m=${formatScientific(1.673e-27)} kg) com V=${formatScientific(5000)} V, B=${formatScientific(0.5)} T. Calcule R.</p>
+                    <p><strong>Problema:</strong> Próton (q=1.60×10⁻¹⁹ C, m=1.67×10⁻²⁷ kg) com V=5.00×10³ V, B=5.00×10⁻¹ T. Calcule R.</p>
                     <div class="solution-step"><strong>Fórmulas:</strong> v = √(2|q|V/m) e R = mv/(|q|B)</div>
-                    <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×${formatScientific(1.602e-19)}×${formatScientific(5000)}/${formatScientific(1.673e-27)}) = √(${formatScientific(9.58e10)}) ≈ ${formatScientific(3.09e5)} m/s</div>
-                    <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (${formatScientific(1.673e-27)}×${formatScientific(3.09e5)})/(${formatScientific(1.602e-19)}×${formatScientific(0.5)}) = (${formatScientific(5.16e-22)})/(${formatScientific(8e-20)}) ≈ ${formatScientific(0.00645)} m</div>
-                    <div class="solution-step"><strong>Resposta:</strong> R ≈ ${formatScientific(6.45e-3)} m</div>
+                    <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×1.60×10⁻¹⁹×5.00×10³/1.67×10⁻²⁷) = √(9.58×10¹⁰) ≈ 3.09×10⁵ m/s</div>
+                    <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (1.67×10⁻²⁷×3.09×10⁵)/(1.60×10⁻¹⁹×5.00×10⁻¹) = (5.16×10⁻²²)/(8.00×10⁻²⁰) ≈ 6.45×10⁻³ m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R ≈ 6.45×10⁻³ m</div>
                 </div>
                 
                 <div class="solved-exercise">
                     <h4>Exercício 3: Efeito do campo magnético</h4>
-                    <p><strong>Problema:</strong> O que acontece com o raio se dobrarmos o campo magnético B?</p>
+                    <p><strong>Problema:</strong> O que acontece com o raio se dobrarmos B?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> R = mv/(|q|B)</div>
                     <div class="solution-step"><strong>Análise:</strong> R é inversamente proporcional a B</div>
                     <div class="solution-step"><strong>Resposta:</strong> Se B dobra, R diminui pela metade</div>
