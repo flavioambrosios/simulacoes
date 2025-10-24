@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Radiação de Corpo Negro</title>
+    <title>Simulação de Radiação de Corpo Negro com Exercícios</title>
     <style>
         * {
             box-sizing: border-box;
@@ -378,7 +378,7 @@
         }
         
         .sending {
-            background: rgba(255, 204, 0, 0.3); 
+            background: rgba(255, 204, 0, 0.3);
             color: #ffcc00;
         }
         
@@ -482,13 +482,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação de Radiação de Corpo Negro</h1>
-            <p class="subtitle">Espectro, Temperatura e Lei de Wien</p>
+            <h1>Simulação de Radiação de Corpo Negro com Exercícios</h1>
+            <p class="subtitle">Espectro de Radiação Térmica - Leis de Planck e Wien</p>
         </header>
         
         <div class="content">
             <div class="simulation-panel">
-                <h2 class="panel-title">Simulação de Corpo Negro - PhET</h2>
+                <h2 class="panel-title">Simulação de Radiação de Corpo Negro - PhET</h2>
                 <div class="simulation-container">
                     <iframe src="https://phet.colorado.edu/sims/html/blackbody-spectrum/latest/blackbody-spectrum_pt_BR.html"
                             width="800"
@@ -512,43 +512,76 @@
                 <div class="control-group">
                     <label for="temperatureSelect">Faixa de Temperatura:</label>
                     <select id="temperatureSelect">
-                        <option value="baixa">Baixa Temperatura (até 1000K)</option>
-                        <option value="media">Temperatura Média (1000K - 5000K)</option>
-                        <option value="alta">Alta Temperatura (acima de 5000K)</option>
-                        <option value="solar">Temperatura Solar (~5800K)</option>
+                        <option value="baixa">Baixa (300-3000 K)</option>
+                        <option value="media">Média (3000-6000 K)</option>
+                        <option value="alta">Alta (6000-15000 K)</option>
+                        <option value="solar">Solar (~5778 K)</option>
                     </select>
                 </div>
                 
                 <div class="formula-box">
-                    <h3>Lei de Wien</h3>
-                    <p>λ<sub>max</sub> × T = 2,898 × 10<sup>-3</sup> m·K</p>
+                    <h3>Lei de Planck</h3>
+                    <p>B(λ,T) = (2hc²/λ⁵) · 1/(e^(hc/λkT) - 1)</p>
                     <p>Onde:</p>
-                    <p>λ<sub>max</sub> = comprimento de onda de pico</p>
-                    <p>T = temperatura absoluta (Kelvin)</p>
+                    <p>B = Intensidade espectral</p>
+                    <p>λ = Comprimento de onda</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>h = Constante de Planck</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Wien</h3>
+                    <p>λ<sub>max</sub> · T = b</p>
+                    <p>Onde:</p>
+                    <p>λ<sub>max</sub> = Comprimento de onda de pico</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>b = 2.8977729×10⁻³ m·K</p>
                 </div>
                 
                 <div class="formula-box">
                     <h3>Lei de Stefan-Boltzmann</h3>
-                    <p>P/A = σT<sup>4</sup></p>
+                    <p>P = σ · T⁴ · A</p>
                     <p>Onde:</p>
-                    <p>P/A = potência por unidade de área</p>
-                    <p>σ = constante de Stefan-Boltzmann</p>
-                    <p>T = temperatura absoluta</p>
-                </div>
-                
-                <div class="formula-box">
-                    <h3>Energia de um Fóton</h3>
-                    <p>E = hf = hc/λ</p>
-                    <p>Onde:</p>
-                    <p>h = constante de Planck</p>
-                    <p>f = frequência da radiação</p>
-                    <p>λ = comprimento de onda</p>
+                    <p>P = Potência total emitida</p>
+                    <p>σ = Constante de Stefan-Boltzmann</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>A = Área da superfície</p>
                 </div>
                 
                 <div class="exercise-buttons">
                     <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
                     <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
                     <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Temperatura (T)</div>
+                        <div class="measurement-value" id="temperatureDisplay">5000 K</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento de Onda de Pico (λ<sub>max</sub>)</div>
+                        <div class="measurement-value" id="wavelengthDisplay">579.6 nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Intensidade Máxima (B<sub>max</sub>)</div>
+                        <div class="measurement-value" id="intensityDisplay">1.00 W/m²/nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Cor Aproximada</div>
+                        <div class="measurement-value" id="colorDisplay">Branco Amarelado</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Região do Espectro</div>
+                        <div class="measurement-value" id="spectrumDisplay">Visível</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Constante de Wien (b)</div>
+                        <div class="measurement-value" id="wienConstantDisplay">2.90×10⁻³ m·K</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -670,33 +703,34 @@
             
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
-                    <h4>Exemplo 1: Aplicação da Lei de Wien</h4>
-                    <p><strong>Problema:</strong> O Sol tem temperatura superficial de aproximadamente 5800 K. Qual é o comprimento de onda de pico de sua radiação?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> λ<sub>max</sub> × T = 2,898 × 10<sup>-3</sup> m·K</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Isolar λ<sub>max</sub>: λ<sub>max</sub> = (2,898 × 10<sup>-3</sup>) / T</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir T = 5800 K: λ<sub>max</sub> = (2,898 × 10<sup>-3</sup>) / 5800</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: λ<sub>max</sub> ≈ 5,0 × 10<sup>-7</sup> m = 500 nm</div>
-                    <div class="solution-step"><strong>Resposta:</strong> O comprimento de onda de pico da radiação solar é de aproximadamente 500 nm, que está na região do verde do espectro visível.</div>
+                    <h4>Exemplo 1: Cálculo do Comprimento de Onda de Pico</h4>
+                    <p><strong>Problema:</strong> Qual é o comprimento de onda de pico da radiação emitida por um corpo negro a 6000 K?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> λ<sub>max</sub> · T = b (Lei de Wien)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar λ<sub>max</sub>: λ<sub>max</sub> = b / T</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: λ<sub>max</sub> = 2.90×10⁻³ / 6000</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: λ<sub>max</sub> = 4.83×10⁻⁷ m</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Converter para nm: λ<sub>max</sub> = 483 nm</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O comprimento de onda de pico é 483 nm (luz azul-esverdeada)</div>
                 </div>
                 
                 <div class="solved-exercise">
-                    <h4>Exemplo 2: Comparação de Temperaturas</h4>
-                    <p><strong>Problema:</strong> Uma estrela A tem temperatura de 3000 K e uma estrela B tem temperatura de 6000 K. Qual delas emite mais radiação no infravermelho?</p>
-                    <div class="solution-step"><strong>Conceito:</strong> Quanto menor a temperatura, maior o comprimento de onda de pico.</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular λ<sub>max</sub> para a estrela A: λ<sub>max</sub> = (2,898 × 10<sup>-3</sup>) / 3000 ≈ 966 nm</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular λ<sub>max</sub> para a estrela B: λ<sub>max</sub> = (2,898 × 10<sup>-3</sup>) / 6000 ≈ 483 nm</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Comparar: A estrela A tem λ<sub>max</sub> = 966 nm (infravermelho próximo), enquanto a estrela B tem λ<sub>max</sub> = 483 nm (visível, azul-esverdeado).</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A estrela A emite mais radiação no infravermelho, pois tem temperatura mais baixa.</div>
+                    <h4>Exemplo 2: Comparação de Intensidades</h4>
+                    <p><strong>Problema:</strong> Um corpo negro a 4000 K emite radiação com intensidade máxima I. Qual será a intensidade máxima se a temperatura dobrar para 8000 K?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> I ∝ T⁴ (Lei de Stefan-Boltzmann)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular o fator de aumento: (8000/4000)⁴ = 2⁴ = 16</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Nova intensidade = 16 × I</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A intensidade máxima será 16 vezes maior</div>
                 </div>
                 
                 <div class="solved-exercise">
-                    <h4>Exemplo 3: Cor e Temperatura</h4>
-                    <p><strong>Problema:</strong> Por que uma barra de ferro aquecida primeiro fica vermelha e depois, com mais aquecimento, fica branca?</p>
-                    <div class="solution-step"><strong>Conceito:</strong> À medida que a temperatura aumenta, o pico do espectro se desloca para comprimentos de onda menores.</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> A baixas temperaturas (cerca de 800-1000 K), o pico está no infravermelho, mas já há emissão no vermelho.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Com o aumento da temperatura, o pico se desloca para comprimentos de onda menores, entrando na região do laranja, amarelo, etc.</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Em temperaturas muito altas, todos os comprimentos de onda do visível são emitidos com intensidade semelhante, resultando na cor branca.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A mudança de cor reflete o deslocamento do pico espectral para comprimentos de onda menores conforme a temperatura aumenta.</div>
+                    <h4>Exemplo 3: Temperatura de uma Estrela</h4>
+                    <p><strong>Problema:</strong> Uma estrela emite radiação com comprimento de onda de pico de 290 nm. Qual é sua temperatura superficial?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> λ<sub>max</sub> · T = b (Lei de Wien)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar T: T = b / λ<sub>max</sub></div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Converter 290 nm para metros: 290 × 10⁻⁹ = 2.9×10⁻⁷ m</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Substituir os valores: T = 2.90×10⁻³ / 2.9×10⁻⁷</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Calcular: T = 10000 K</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura superficial da estrela é de aproximadamente 10000 K</div>
                 </div>
             </div>
             
@@ -717,63 +751,72 @@
             <div class="theory-content">
                 <div class="theory-section">
                     <h3>O que é um Corpo Negro?</h3>
-                    <p>Um corpo negro é um objeto teórico que absorve toda a radiação eletromagnética que incide sobre ele, sem refletir nenhuma parte. Em equilíbrio térmico, ele emite radiação característica que depende apenas de sua temperatura.</p>
+                    <p>Um corpo negro é um objeto teórico que absorve toda a radiação eletromagnética que incide sobre ele, sem refletir nenhuma parte. Quando aquecido, emite radiação térmica com um espectro característico que depende apenas de sua temperatura, não de sua composição[citation:5].</p>
                     
-                    <p>Embora seja uma idealização, muitos objetos no universo se comportam de maneira aproximada a um corpo negro, como estrelas (incluindo o Sol) e fornos de laboratório.</p>
+                    <p>Embora seja uma idealização, muitos objetos no universo (como estrelas) se comportam aproximadamente como corpos negros. Um exemplo cotidiano é a lâmpada de filamento: quando passa corrente elétrica através do filamento, este se aquece e se comporta praticamente como um corpo negro[citation:5].</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Planck</h3>
+                    <p>Em 1900, Max Planck propôs uma fórmula para descrever a distribuição espectral da radiação de corpo negro:</p>
                     
-                    <div class="theory-formula">Lei de Wien: λ<sub>max</sub> × T = 2,898 × 10<sup>-3</sup> m·K</div>
+                    <div class="theory-formula">B(λ, T) = (2hc²/λ⁵) · 1/(e^(hc/λkT) - 1)</div>
                     
                     <p>Onde:</p>
                     <ul>
-                        <li><span class="highlight">λ<sub>max</sub></span> = comprimento de onda de pico da radiação</li>
-                        <li><span class="highlight">T</span> = temperatura absoluta em Kelvin</li>
+                        <li><span class="highlight">B(λ, T)</span> = Intensidade espectral (W/m²/nm)</li>
+                        <li><span class="highlight">λ</span> = Comprimento de onda (m)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">h</span> = Constante de Planck (6.626×10⁻³⁴ J·s)</li>
+                        <li><span class="highlight">c</span> = Velocidade da luz (3×10⁸ m/s)</li>
+                        <li><span class="highlight">k</span> = Constante de Boltzmann (1.381×10⁻²³ J/K)</li>
                     </ul>
+                    
+                    <p>A Lei de Planck foi fundamental para o desenvolvimento da mecânica quântica, pois introduziu a ideia de que a energia é quantizada.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Wien</h3>
+                    <p>A Lei de Wien descreve a relação entre a temperatura de um corpo negro e o comprimento de onda no qual emite a maior intensidade de radiação:</p>
+                    
+                    <div class="theory-formula">λ<sub>max</sub> · T = b</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">λ<sub>max</sub></span> = Comprimento de onda de pico (m)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">b</span> = Constante de Wien (2.8977729×10⁻³ m·K)</li>
+                    </ul>
+                    
+                    <p>Esta lei mostra que quanto mais quente um objeto, menor será o comprimento de onda de sua radiação de pico. Por exemplo, o ferro quando aquecido a cerca de 1000 K fica rubro, enquanto para produzir luz semelhante à do Sol, seria necessária temperatura de aproximadamente 5700 K[citation:5].</p>
                 </div>
                 
                 <div class="theory-section">
                     <h3>Lei de Stefan-Boltzmann</h3>
-                    <p>A lei de Stefan-Boltzmann relaciona a potência total irradiada por unidade de área de um corpo negro com sua temperatura:</p>
+                    <p>A Lei de Stefan-Boltzmann relaciona a temperatura de um corpo negro com a potência total que ele emite por unidade de área:</p>
                     
-                    <div class="theory-formula">P/A = σT<sup>4</sup></div>
+                    <div class="theory-formula">P = σ · T⁴</div>
                     
                     <p>Onde:</p>
                     <ul>
-                        <li><span class="highlight">P/A</span> = potência por unidade de área (W/m²)</li>
-                        <li><span class="highlight">σ</span> = constante de Stefan-Boltzmann (5,67 × 10<sup>-8</sup> W/m²K<sup>4</sup>)</li>
-                        <li><span class="highlight">T</span> = temperatura absoluta em Kelvin</li>
+                        <li><span class="highlight">P</span> = Potência por unidade de área (W/m²)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">σ</span> = Constante de Stefan-Boltzmann (5.67×10⁻⁸ W/m²/K⁴)</li>
                     </ul>
                     
-                    <p>Esta lei mostra que a energia total irradiada aumenta rapidamente com a temperatura (proporcional a T<sup>4</sup>).</p>
+                    <p>Esta lei mostra que a energia total emitida aumenta rapidamente com a temperatura (proporcional a T⁴).</p>
                 </div>
                 
                 <div class="theory-section">
-                    <h3>Espectro de Corpo Negro</h3>
-                    <p>O espectro de um corpo negro é contínuo e sua forma depende apenas da temperatura. Características importantes:</p>
+                    <h3>Aplicações Práticas</h3>
+                    <p>O estudo da radiação de corpo negro tem diversas aplicações importantes:</p>
                     
                     <ul>
-                        <li>O pico do espectro se desloca para comprimentos de onda menores conforme a temperatura aumenta (Lei de Wien)</li>
-                        <li>A área sob a curva (energia total) aumenta com a temperatura (Lei de Stefan-Boltzmann)</li>
-                        <li>O espectro se estende por todos os comprimentos de onda, mas a intensidade em cada λ depende da temperatura</li>
-                    </ul>
-                    
-                    <p>Exemplos de temperaturas típicas:</p>
-                    <ul>
-                        <li>Lâmpada incandescente: ~2800 K</li>
-                        <li>Superfície do Sol: ~5800 K</li>
-                        <li>Estrela azul: ~10000-50000 K</li>
-                        <li>Radiação cósmica de fundo: ~2,7 K</li>
-                    </ul>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Aplicações e Importância</h3>
-                    <p>O conceito de corpo negro é fundamental em diversas áreas:</p>
-                    
-                    <ul>
-                        <li><span class="highlight">Astronomia:</span> Permite estimar temperaturas de estrelas a partir de seu espectro</li>
-                        <li><span class="highlight">Climatologia:</span> Explica o efeito estufa e o balanço energético da Terra</li>
-                        <li><span class="highlight">Tecnologia:</span> Base para desenvolvimento de lâmpadas, fornos, sensores infravermelhos</li>
-                        <li><span class="highlight">Física Quântica:</span> O estudo da radiação de corpo negro levou ao desenvolvimento da teoria quântica</li>
+                        <li><span class="highlight">Astronomia:</span> Determinar temperaturas de estrelas a partir de seu espectro</li>
+                        <li><span class="highlight">Tecnologia:</span> Desenvolvimento de sensores de temperatura por infravermelho</li>
+                        <li><span class="highlight">Climatologia:</span> Estudo do efeito estufa e balanço energético da Terra</li>
+                        <li><span class="highlight">Física:</span> Compreensão da natureza quântica da luz e matéria</li>
+                        <li><span class="highlight">Medicina:</span> Técnicas de imageamento por termografia</li>
                     </ul>
                 </div>
             </div>
@@ -792,11 +835,14 @@
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
         
+        // Constante de Wien
+        const b = 2.8977729e-3; // m·K
+        
         // Configurar eventos
         function setupEventListeners() {
             // Botão de ajuda
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert("Como usar a simulação:\n\n• Ajuste a temperatura usando o controle deslizante\n• Observe como o espectro muda com a temperatura\n• Veja a cor do objeto na parte superior\n• Compare com espectros de objetos conhecidos (Sol, lâmpada, etc.)\n• Use os exercícios para testar seu conhecimento\n\nDica: Preste atenção na relação entre temperatura e cor do objeto!");
+                alert("Como usar a simulação:\n\n• Use os controles do PhET para ajustar a temperatura do corpo negro\n• Observe como o espectro muda com a temperatura\n• Note a mudança no comprimento de onda de pico (Lei de Wien)\n• Observe o aumento da intensidade total (Lei de Stefan-Boltzmann)\n• Use os exercícios para testar seu conhecimento\n\nDica: Compare diferentes temperaturas para entender os padrões!");
             });
             
             // Botões de exercícios
@@ -858,54 +904,40 @@
         function generateExercises() {
             exercises = [];
             
-            // Gerar 6 exercícios variados
+            // Gerar 6 exercícios variados (2 de cada tipo)
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Cálculo com Lei de Wien
-                let T = Math.floor(Math.random() * 9 + 1) * 1000; // 1000, 2000, ... 9000 K
-                let lambda_max = (2.898e-3 / T) * 1e9; // Converter para nm
+                let T = (Math.floor(Math.random() * 9) + 1) * 1000; // 1000, 2000... 9000 K
+                let lambda_max = (b / T * 1e9).toFixed(1); // Converter para nm
                 
                 exercises.push({
                     type: 'calcular_wien',
                     question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
-                    answer: lambda_max.toFixed(0) + ' nm',
-                    options: generateOptions(lambda_max, 'nm')
+                    answer: lambda_max + ' nm',
+                    options: generateOptions(parseFloat(lambda_max), 'nm')
                 });
                 
-                // Tipo 2: Identificação de características
-                let temperatures = [
-                    { T: 3000, desc: 'estrela vermelha' },
-                    { T: 5800, desc: 'Sol' },
-                    { T: 10000, desc: 'estrela azul' },
-                    { T: 2800, desc: 'lâmpada incandescente' }
-                ];
-                
-                let temp = temperatures[Math.floor(Math.random() * temperatures.length)];
-                let lambda = (2.898e-3 / temp.T) * 1e9;
-                let cor = '';
-                
-                if (lambda > 620) cor = 'vermelho';
-                else if (lambda > 590) cor = 'laranja';
-                else if (lambda > 570) cor = 'amarelo';
-                else if (lambda > 495) cor = 'verde';
-                else if (lambda > 450) cor = 'azul';
-                else cor = 'violeta';
+                // Tipo 2: Cálculo de temperatura a partir do comprimento de onda
+                let lambda = (Math.floor(Math.random() * 9) + 1) * 100; // 100, 200... 900 nm
+                let T_calc = (b / (lambda * 1e-9)).toFixed(0);
                 
                 exercises.push({
-                    type: 'identificar_caracteristicas',
-                    question: `Uma ${temp.desc} tem temperatura de aproximadamente ${temp.T} K. Que cor predominante ela apresenta?`,
-                    answer: cor,
-                    options: ['vermelho', 'laranja', 'amarelo', 'verde', 'azul', 'violeta']
+                    type: 'calcular_temperatura',
+                    question: `Um corpo negro emite radiação com comprimento de onda de pico de ${lambda} nm. Qual é sua temperatura?`,
+                    answer: T_calc + ' K',
+                    options: generateOptions(parseFloat(T_calc), 'K')
                 });
                 
-                // Tipo 3: Comparação qualitativa
-                let T1 = Math.floor(Math.random() * 5 + 1) * 1000;
-                let T2 = T1 * (Math.floor(Math.random() * 3) + 2);
+                // Tipo 3: Comparação de intensidades (Lei de Stefan-Boltzmann)
+                let T1 = (Math.floor(Math.random() * 4) + 1) * 1000; // 1000 a 4000 K
+                let T2 = T1 * (Math.floor(Math.random() * 3) + 2); // 2x a 4x
+                let ratio = Math.pow(T2 / T1, 4);
                 
                 exercises.push({
-                    type: 'comparar_temperaturas',
-                    question: `Um objeto A tem temperatura ${T1} K e um objeto B tem temperatura ${T2} K. Qual deles emite mais radiação no ultravioleta?`,
-                    answer: 'Objeto B',
-                    options: ['Objeto A', 'Objeto B', 'Ambos emitem igual', 'Nenhum emite no ultravioleta']
+                    type: 'comparar_intensidades',
+                    question: `Um corpo negro a ${T1} K emite radiação com intensidade I. Se sua temperatura aumentar para ${T2} K, qual será a nova intensidade?`,
+                    answer: ratio.toFixed(0) + ' I',
+                    options: generateOptions(ratio, 'I')
                 });
             }
             
@@ -920,7 +952,15 @@
             const maxAttempts = 15;
             
             // Formatar o valor correto
-            let formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            let formattedCorrectValue;
+            if (unit === 'nm') {
+                formattedCorrectValue = correctValue.toFixed(1) + ' ' + unit;
+            } else if (unit === 'K') {
+                formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            } else {
+                formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            }
+            
             options.push({
                 value: correctValue,
                 display: formattedCorrectValue
@@ -945,7 +985,14 @@
                     }
                     
                     optionValue = Math.abs(optionValue);
-                    formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    
+                    if (unit === 'nm') {
+                        formattedOption = optionValue.toFixed(1) + ' ' + unit;
+                    } else if (unit === 'K') {
+                        formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    } else {
+                        formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    }
                     
                     unique = !options.some(opt => opt.display === formattedOption);
                     attempts++;
@@ -1068,49 +1115,35 @@
             const currentType = exercises[currentExercise].type;
             
             if (currentType === 'calcular_wien') {
-                let T = Math.floor(Math.random() * 9 + 1) * 1000;
-                let lambda_max = (2.898e-3 / T) * 1e9;
+                let T = (Math.floor(Math.random() * 9) + 1) * 1000;
+                let lambda_max = (b / T * 1e9).toFixed(1);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_wien',
                     question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
-                    answer: lambda_max.toFixed(0) + ' nm',
-                    options: generateOptions(lambda_max, 'nm')
+                    answer: lambda_max + ' nm',
+                    options: generateOptions(parseFloat(lambda_max), 'nm')
                 };
-            } else if (currentType === 'identificar_caracteristicas') {
-                let temperatures = [
-                    { T: 3000, desc: 'estrela vermelha' },
-                    { T: 5800, desc: 'Sol' },
-                    { T: 10000, desc: 'estrela azul' },
-                    { T: 2800, desc: 'lâmpada incandescente' }
-                ];
-                
-                let temp = temperatures[Math.floor(Math.random() * temperatures.length)];
-                let lambda = (2.898e-3 / temp.T) * 1e9;
-                let cor = '';
-                
-                if (lambda > 620) cor = 'vermelho';
-                else if (lambda > 590) cor = 'laranja';
-                else if (lambda > 570) cor = 'amarelo';
-                else if (lambda > 495) cor = 'verde';
-                else if (lambda > 450) cor = 'azul';
-                else cor = 'violeta';
+            } else if (currentType === 'calcular_temperatura') {
+                let lambda = (Math.floor(Math.random() * 9) + 1) * 100;
+                let T_calc = (b / (lambda * 1e-9)).toFixed(0);
                 
                 exercises[currentExercise] = {
-                    type: 'identificar_caracteristicas',
-                    question: `Uma ${temp.desc} tem temperatura de aproximadamente ${temp.T} K. Que cor predominante ela apresenta?`,
-                    answer: cor,
-                    options: ['vermelho', 'laranja', 'amarelo', 'verde', 'azul', 'violeta']
+                    type: 'calcular_temperatura',
+                    question: `Um corpo negro emite radiação com comprimento de onda de pico de ${lambda} nm. Qual é sua temperatura?`,
+                    answer: T_calc + ' K',
+                    options: generateOptions(parseFloat(T_calc), 'K')
                 };
-            } else if (currentType === 'comparar_temperaturas') {
-                let T1 = Math.floor(Math.random() * 5 + 1) * 1000;
+            } else if (currentType === 'comparar_intensidades') {
+                let T1 = (Math.floor(Math.random() * 4) + 1) * 1000;
                 let T2 = T1 * (Math.floor(Math.random() * 3) + 2);
+                let ratio = Math.pow(T2 / T1, 4);
                 
                 exercises[currentExercise] = {
-                    type: 'comparar_temperaturas',
-                    question: `Um objeto A tem temperatura ${T1} K e um objeto B tem temperatura ${T2} K. Qual deles emite mais radiação no ultravioleta?`,
-                    answer: 'Objeto B',
-                    options: ['Objeto A', 'Objeto B', 'Ambos emitem igual', 'Nenhum emite no ultravioleta']
+                    type: 'comparar_intensidades',
+                    question: `Um corpo negro a ${T1} K emite radiação com intensidade I. Se sua temperatura aumentar para ${T2} K, qual será a nova intensidade?`,
+                    answer: ratio.toFixed(0) + ' I',
+                    options: generateOptions(ratio, 'I')
                 };
             }
         }
