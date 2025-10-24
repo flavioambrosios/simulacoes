@@ -378,7 +378,7 @@
         }
         
         .sending {
-            background: rgba(255, 204, 0, 0.3);
+            background: rgba(255, 204, 0, 0.3); 
             color: #ffcc00;
         }
         
@@ -466,21 +466,6 @@
             padding: 10px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
-        }
-        
-        /* Estilos para os ícones de cor */
-        .color-icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 8px;
-            vertical-align: middle;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .option .color-icon {
-            margin-right: 10px;
         }
         
         @media (max-width: 768px) {
@@ -768,7 +753,7 @@
                     <ul>
                         <li>O pico do espectro se desloca para comprimentos de onda menores conforme a temperatura aumenta (Lei de Wien)</li>
                         <li>A área sob a curva (energia total) aumenta com a temperatura (Lei de Stefan-Boltzmann)</li>
-                        <li>O espectro se estende por todos os comprimentos de onda, mais a intensidade em cada λ depende da temperatura</li>
+                        <li>O espectro se estende por todos os comprimentos de onda, mas a intensidade em cada λ depende da temperatura</li>
                     </ul>
                     
                     <p>Exemplos de temperaturas típicas:</p>
@@ -807,51 +792,6 @@
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
         
-        // Dados das classes estelares da tabela
-        const stellarClasses = [
-            { class: 'O2', radius: 16, mass: 158, luminosity: 2000000, temperature: 54000 },
-            { class: 'O5', radius: 14, mass: 58, luminosity: 800000, temperature: 46000 },
-            { class: 'B0', radius: 5.7, mass: 16, luminosity: 16000, temperature: 29000 },
-            { class: 'B5', radius: 3.7, mass: 5.4, luminosity: 750, temperature: 15200 },
-            { class: 'A0', radius: 2.3, mass: 2.6, luminosity: 63, temperature: 9600 },
-            { class: 'A5', radius: 1.8, mass: 1.9, luminosity: 24, temperature: 8700 },
-            { class: 'F0', radius: 1.5, mass: 1.6, luminosity: 9.0, temperature: 7200 },
-            { class: 'F5', radius: 1.2, mass: 1.35, luminosity: 4.0, temperature: 6400 },
-            { class: 'G0', radius: 1.05, mass: 1.08, luminosity: 1.45, temperature: 6000 },
-            { class: 'G2', radius: 1.0, mass: 1.0, luminosity: 1.0, temperature: 5900 },
-            { class: 'G5', radius: 0.98, mass: 0.95, luminosity: 0.70, temperature: 5500 },
-            { class: 'K0', radius: 0.89, mass: 0.83, luminosity: 0.36, temperature: 5150 },
-            { class: 'K5', radius: 0.75, mass: 0.62, luminosity: 0.18, temperature: 4450 },
-            { class: 'M0', radius: 0.64, mass: 0.47, luminosity: 0.075, temperature: 3850 },
-            { class: 'M5', radius: 0.36, mass: 0.25, luminosity: 0.013, temperature: 3200 },
-            { class: 'M8', radius: 0.15, mass: 0.10, luminosity: 0.0008, temperature: 2500 },
-            { class: 'M9.5', radius: 0.10, mass: 0.08, luminosity: 0.0001, temperature: 1900 }
-        ];
-
-        // Função para obter cor aproximada baseada na temperatura
-        function getStellarColor(temperature) {
-            if (temperature >= 30000) return '#9bb0ff'; // Azul muito quente
-            else if (temperature >= 10000) return '#a6c0ff'; // Azul
-            else if (temperature >= 7500) return '#c6d3ff'; // Azul-branco
-            else if (temperature >= 6000) return '#ffffff'; // Branco
-            else if (temperature >= 5200) return '#fff4ea'; // Amarelo-branco
-            else if (temperature >= 3700) return '#fff4c2'; // Amarelo
-            else if (temperature >= 2400) return '#ffb347'; // Laranja
-            else return '#ff6961'; // Vermelho
-        }
-
-        // Função para obter nome da cor baseada na temperatura
-        function getStellarColorName(temperature) {
-            if (temperature >= 30000) return 'Azul muito quente';
-            else if (temperature >= 10000) return 'Azul';
-            else if (temperature >= 7500) return 'Azul-branco';
-            else if (temperature >= 6000) return 'Branco';
-            else if (temperature >= 5200) return 'Amarelo-branco';
-            else if (temperature >= 3700) return 'Amarelo';
-            else if (temperature >= 2400) return 'Laranja';
-            else return 'Vermelho';
-        }
-
         // Configurar eventos
         function setupEventListeners() {
             // Botão de ajuda
@@ -912,141 +852,65 @@
             document.getElementById('theoryModal').style.display = 'flex';
         }
         
-        // ========== SISTEMA DE EXERCÍCIOS MODIFICADO ==========
+        // ========== SISTEMA DE EXERCÍCIOS ==========
         
-        // Gerar exercícios sobre Radiação de Corpo Negro com dados estelares
+        // Gerar exercícios sobre Radiação de Corpo Negro
         function generateExercises() {
             exercises = [];
             
-            // Exercício 1: Identificação de classe estelar pela temperatura
-            let randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-            exercises.push({
-                type: 'identificar_classe_temperatura',
-                question: `Uma estrela tem temperatura de ${randomClass.temperature} K. A qual classe estelar ela pertence?`,
-                answer: randomClass.class,
-                options: getRandomStellarClasses(randomClass.class, 4)
-            });
-            
-            // Exercício 2: Identificação de temperatura pela classe estelar
-            randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-            exercises.push({
-                type: 'identificar_temperatura_classe',
-                question: `Uma estrela de classe ${randomClass.class} tem qual temperatura aproximada?`,
-                answer: randomClass.temperature + ' K',
-                options: generateTemperatureOptions(randomClass.temperature)
-            });
-            
-            // Exercício 3: Identificação de cor pela temperatura
-            randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-            let colorName = getStellarColorName(randomClass.temperature);
-            let colorHex = getStellarColor(randomClass.temperature);
-            exercises.push({
-                type: 'identificar_cor_temperatura',
-                question: `Uma estrela com temperatura de ${randomClass.temperature} K tem qual cor predominante?`,
-                answer: colorName,
-                options: generateColorOptions(colorName),
-                colorHex: colorHex
-            });
-            
-            // Exercício 4: Relação entre temperatura e luminosidade
-            let class1 = stellarClasses[Math.floor(Math.random() * 8)]; // Classes mais quentes
-            let class2 = stellarClasses[Math.floor(Math.random() * 8) + 8]; // Classes mais frias
-            
-            exercises.push({
-                type: 'comparar_luminosidade',
-                question: `Compare a estrela de classe ${class1.class} (T = ${class1.temperature} K) com a de classe ${class2.class} (T = ${class2.temperature} K). Qual tem maior luminosidade?`,
-                answer: class1.class,
-                options: [class1.class, class2.class, 'Ambas têm a mesma luminosidade', 'Não é possível determinar']
-            });
-            
-            // Exercício 5: Cálculo com Lei de Wien
-            let T = Math.floor(Math.random() * 9 + 1) * 1000;
-            let lambda_max = (2.898e-3 / T) * 1e9;
-            
-            exercises.push({
-                type: 'calcular_wien',
-                question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
-                answer: lambda_max.toFixed(0) + ' nm',
-                options: generateOptions(lambda_max, 'nm')
-            });
-            
-            // Exercício 6: Aplicação da Lei de Stefan-Boltzmann com dados estelares
-            randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-            exercises.push({
-                type: 'aplicar_stefan_boltzmann',
-                question: `De acordo com a Lei de Stefan-Boltzmann, se a temperatura de uma estrela de classe ${randomClass.class} dobrar, o que acontece com sua luminosidade?`,
-                answer: 'A luminosidade aumenta 16 vezes',
-                options: [
-                    'A luminosidade dobra',
-                    'A luminosidade quadruplica',
-                    'A luminosidade aumenta 8 vezes',
-                    'A luminosidade aumenta 16 vezes'
-                ]
-            });
+            // Gerar 6 exercícios variados
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Cálculo com Lei de Wien
+                let T = Math.floor(Math.random() * 9 + 1) * 1000; // 1000, 2000, ... 9000 K
+                let lambda_max = (2.898e-3 / T) * 1e9; // Converter para nm
+                
+                exercises.push({
+                    type: 'calcular_wien',
+                    question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
+                    answer: lambda_max.toFixed(0) + ' nm',
+                    options: generateOptions(lambda_max, 'nm')
+                });
+                
+                // Tipo 2: Identificação de características
+                let temperatures = [
+                    { T: 3000, desc: 'estrela vermelha' },
+                    { T: 5800, desc: 'Sol' },
+                    { T: 10000, desc: 'estrela azul' },
+                    { T: 2800, desc: 'lâmpada incandescente' }
+                ];
+                
+                let temp = temperatures[Math.floor(Math.random() * temperatures.length)];
+                let lambda = (2.898e-3 / temp.T) * 1e9;
+                let cor = '';
+                
+                if (lambda > 620) cor = 'vermelho';
+                else if (lambda > 590) cor = 'laranja';
+                else if (lambda > 570) cor = 'amarelo';
+                else if (lambda > 495) cor = 'verde';
+                else if (lambda > 450) cor = 'azul';
+                else cor = 'violeta';
+                
+                exercises.push({
+                    type: 'identificar_caracteristicas',
+                    question: `Uma ${temp.desc} tem temperatura de aproximadamente ${temp.T} K. Que cor predominante ela apresenta?`,
+                    answer: cor,
+                    options: ['vermelho', 'laranja', 'amarelo', 'verde', 'azul', 'violeta']
+                });
+                
+                // Tipo 3: Comparação qualitativa
+                let T1 = Math.floor(Math.random() * 5 + 1) * 1000;
+                let T2 = T1 * (Math.floor(Math.random() * 3) + 2);
+                
+                exercises.push({
+                    type: 'comparar_temperaturas',
+                    question: `Um objeto A tem temperatura ${T1} K e um objeto B tem temperatura ${T2} K. Qual deles emite mais radiação no ultravioleta?`,
+                    answer: 'Objeto B',
+                    options: ['Objeto A', 'Objeto B', 'Ambos emitem igual', 'Nenhum emite no ultravioleta']
+                });
+            }
             
             // Embaralhar exercícios
             exercises = shuffleArray(exercises);
-        }
-        
-        // Funções auxiliares para gerar opções baseadas em dados estelares
-        function getRandomStellarClasses(correctClass, count) {
-            const options = [correctClass];
-            const usedClasses = new Set([correctClass]);
-            
-            while (options.length < count) {
-                const randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)].class;
-                if (!usedClasses.has(randomClass)) {
-                    options.push(randomClass);
-                    usedClasses.add(randomClass);
-                }
-            }
-            
-            return shuffleArray(options);
-        }
-        
-        function generateTemperatureOptions(correctTemp) {
-            const options = [correctTemp + ' K'];
-            const usedTemps = new Set([correctTemp]);
-            
-            while (options.length < 4) {
-                // Gerar temperaturas próximas mas diferentes
-                let variation;
-                if (correctTemp > 10000) {
-                    variation = Math.floor(Math.random() * 5000) + 1000;
-                } else if (correctTemp > 5000) {
-                    variation = Math.floor(Math.random() * 1000) + 200;
-                } else {
-                    variation = Math.floor(Math.random() * 500) + 100;
-                }
-                
-                const newTemp = correctTemp + (Math.random() > 0.5 ? variation : -variation);
-                if (newTemp > 0 && !usedTemps.has(newTemp)) {
-                    options.push(newTemp + ' K');
-                    usedTemps.add(newTemp);
-                }
-            }
-            
-            return shuffleArray(options);
-        }
-        
-        function generateColorOptions(correctColor) {
-            const allColors = [
-                'Azul muito quente', 'Azul', 'Azul-branco', 'Branco', 
-                'Amarelo-branco', 'Amarelo', 'Laranja', 'Vermelho'
-            ];
-            const options = [correctColor];
-            const usedColors = new Set([correctColor]);
-            
-            // Adicionar cores aleatórias diferentes da correta
-            while (options.length < 4 && options.length < allColors.length) {
-                const randomColor = allColors[Math.floor(Math.random() * allColors.length)];
-                if (!usedColors.has(randomColor)) {
-                    options.push(randomColor);
-                    usedColors.add(randomColor);
-                }
-            }
-            
-            return shuffleArray(options);
         }
         
         // Gerar opções de resposta (5 alternativas)
@@ -1110,54 +974,19 @@
             return array;
         }
         
-        // Função auxiliar para obter código hexadecimal da cor pelo nome
-        function getColorHexFromName(colorName) {
-            const colorMap = {
-                'Azul muito quente': '#9bb0ff',
-                'Azul': '#a6c0ff',
-                'Azul-branco': '#c6d3ff',
-                'Branco': '#ffffff',
-                'Amarelo-branco': '#fff4ea',
-                'Amarelo': '#fff4c2',
-                'Laranja': '#ffb347',
-                'Vermelho': '#ff6961'
-            };
-            return colorMap[colorName] || '#cccccc';
-        }
-        
         // Mostrar exercício atual
         function showCurrentExercise() {
             const exercise = exercises[currentExercise];
             const container = document.getElementById('exerciseContainer');
-            
-            // Verificar se é um exercício de cor para adicionar ícones
-            const isColorExercise = exercise.type === 'identificar_cor_temperatura';
-            
-            let optionsHTML = '';
-            if (isColorExercise) {
-                // Para exercícios de cor, adicionar ícones coloridos
-                optionsHTML = exercise.options.map((option, index) => {
-                    const colorHex = getColorHexFromName(option);
-                    return `
-                        <div class="option" data-value="${option}">
-                            <span class="color-icon" style="background-color: ${colorHex};"></span>
-                            ${option}
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                // Para outros exercícios, opções normais
-                optionsHTML = exercise.options.map((option, index) => `
-                    <div class="option" data-value="${option}">${option}</div>
-                `).join('');
-            }
             
             container.innerHTML = `
                 <div class="exercise">
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
                     <p>${exercise.question}</p>
                     <div class="options">
-                        ${optionsHTML}
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
                     </div>
                     <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
                     <div class="result"></div>
@@ -1248,60 +1077,40 @@
                     answer: lambda_max.toFixed(0) + ' nm',
                     options: generateOptions(lambda_max, 'nm')
                 };
-            } 
-            else if (currentType === 'identificar_classe_temperatura') {
-                let randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-                exercises[currentExercise] = {
-                    type: 'identificar_classe_temperatura',
-                    question: `Uma estrela tem temperatura de ${randomClass.temperature} K. A qual classe estelar ela pertence?`,
-                    answer: randomClass.class,
-                    options: getRandomStellarClasses(randomClass.class, 4)
-                };
-            }
-            else if (currentType === 'identificar_temperatura_classe') {
-                let randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-                exercises[currentExercise] = {
-                    type: 'identificar_temperatura_classe',
-                    question: `Uma estrela de classe ${randomClass.class} tem qual temperatura aproximada?`,
-                    answer: randomClass.temperature + ' K',
-                    options: generateTemperatureOptions(randomClass.temperature)
-                };
-            }
-            else if (currentType === 'identificar_cor_temperatura') {
-                let randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
-                let colorName = getStellarColorName(randomClass.temperature);
-                let colorHex = getStellarColor(randomClass.temperature);
-                exercises[currentExercise] = {
-                    type: 'identificar_cor_temperatura',
-                    question: `Uma estrela com temperatura de ${randomClass.temperature} K tem qual cor predominante?`,
-                    answer: colorName,
-                    options: generateColorOptions(colorName),
-                    colorHex: colorHex
-                };
-            }
-            else if (currentType === 'comparar_luminosidade') {
-                let class1 = stellarClasses[Math.floor(Math.random() * 8)];
-                let class2 = stellarClasses[Math.floor(Math.random() * 8) + 8];
+            } else if (currentType === 'identificar_caracteristicas') {
+                let temperatures = [
+                    { T: 3000, desc: 'estrela vermelha' },
+                    { T: 5800, desc: 'Sol' },
+                    { T: 10000, desc: 'estrela azul' },
+                    { T: 2800, desc: 'lâmpada incandescente' }
+                ];
+                
+                let temp = temperatures[Math.floor(Math.random() * temperatures.length)];
+                let lambda = (2.898e-3 / temp.T) * 1e9;
+                let cor = '';
+                
+                if (lambda > 620) cor = 'vermelho';
+                else if (lambda > 590) cor = 'laranja';
+                else if (lambda > 570) cor = 'amarelo';
+                else if (lambda > 495) cor = 'verde';
+                else if (lambda > 450) cor = 'azul';
+                else cor = 'violeta';
                 
                 exercises[currentExercise] = {
-                    type: 'comparar_luminosidade',
-                    question: `Compare a estrela de classe ${class1.class} (T = ${class1.temperature} K) com a de classe ${class2.class} (T = ${class2.temperature} K). Qual tem maior luminosidade?`,
-                    answer: class1.class,
-                    options: [class1.class, class2.class, 'Ambas têm a mesma luminosidade', 'Não é possível determinar']
+                    type: 'identificar_caracteristicas',
+                    question: `Uma ${temp.desc} tem temperatura de aproximadamente ${temp.T} K. Que cor predominante ela apresenta?`,
+                    answer: cor,
+                    options: ['vermelho', 'laranja', 'amarelo', 'verde', 'azul', 'violeta']
                 };
-            }
-            else if (currentType === 'aplicar_stefan_boltzmann') {
-                let randomClass = stellarClasses[Math.floor(Math.random() * stellarClasses.length)];
+            } else if (currentType === 'comparar_temperaturas') {
+                let T1 = Math.floor(Math.random() * 5 + 1) * 1000;
+                let T2 = T1 * (Math.floor(Math.random() * 3) + 2);
+                
                 exercises[currentExercise] = {
-                    type: 'aplicar_stefan_boltzmann',
-                    question: `De acordo com a Lei de Stefan-Boltzmann, se a temperatura de uma estrela de classe ${randomClass.class} dobrar, o que acontece com sua luminosidade?`,
-                    answer: 'A luminosidade aumenta 16 vezes',
-                    options: [
-                        'A luminosidade dobra',
-                        'A luminosidade quadruplica',
-                        'A luminosidade aumenta 8 vezes',
-                        'A luminosidade aumenta 16 vezes'
-                    ]
+                    type: 'comparar_temperaturas',
+                    question: `Um objeto A tem temperatura ${T1} K e um objeto B tem temperatura ${T2} K. Qual deles emite mais radiação no ultravioleta?`,
+                    answer: 'Objeto B',
+                    options: ['Objeto A', 'Objeto B', 'Ambos emitem igual', 'Nenhum emite no ultravioleta']
                 };
             }
         }
