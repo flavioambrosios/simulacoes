@@ -262,6 +262,10 @@
             cursor: pointer;
             transition: background 0.3s;
             text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .option:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -1414,7 +1418,8 @@
                     "Para cima (eixo y positivo)",
                     "Para baixo (eixo y negativo)",
                     "Para a frente (eixo z positivo)",
-                    "Para trás (eixo z negativo)"
+                    "Para trás (eixo z negativo)",
+                    "Não há força magnética"
                 ];
                 
                 // Escolher uma direção correta aleatoriamente
@@ -1452,18 +1457,18 @@
             exercises = shuffleArray(exercises);
         }
         
-        // Gerar opções de resposta
+        // Gerar opções de resposta (agora com 5 alternativas)
         function generateOptions(correctValue, unit) {
             const options = [];
             let attempts = 0;
-            const maxAttempts = 10; // Prevenir loop infinito
+            const maxAttempts = 15; // Aumentado para garantir opções únicas
             
             // Formatar o valor correto
             let formattedCorrectValue;
             if (unit === 'N' || unit === 'm') {
                 formattedCorrectValue = correctValue.toFixed(unit === 'N' ? 2 : 4) + ' ' + unit;
             } else {
-                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+                formattedCorrectValue = correctValue;
             }
             
             options.push({
@@ -1471,8 +1476,8 @@
                 display: formattedCorrectValue
             });
             
-            // Gerar opções incorretas
-            for (let i = 0; i < 3; i++) {
+            // Gerar 4 opções incorretas (total de 5 alternativas)
+            for (let i = 0; i < 4; i++) {
                 let optionValue;
                 let formattedOption;
                 let unique = false;
@@ -1480,14 +1485,30 @@
                 // Garantir que as opções sejam diferentes
                 attempts = 0;
                 do {
-                    const variation = (Math.random() * 0.4 + 0.8);
-                    optionValue = correctValue * variation;
+                    // Usar variações mais diversificadas
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        // Multiplicador aleatório
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        // Divisor aleatório
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        // Soma/subtração de porcentagem
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    // Garantir que o valor seja positivo para grandezas físicas
+                    if (unit === 'N' || unit === 'm') {
+                        optionValue = Math.abs(optionValue);
+                    }
                     
                     // Formatar com a mesma precisão
                     if (unit === 'N' || unit === 'm') {
                         formattedOption = optionValue.toFixed(unit === 'N' ? 2 : 4) + ' ' + unit;
                     } else {
-                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                        formattedOption = optionValue;
                     }
                     
                     unique = !options.some(opt => opt.display === formattedOption);
@@ -1495,7 +1516,9 @@
                     
                     if (attempts > maxAttempts) {
                         console.warn("Muitas tentativas para gerar opção única");
-                        break;
+                        // Forçar uma opção única adicionando um identificador
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
                     }
                 } while (!unique);
                 
@@ -1642,7 +1665,8 @@
                     "Para cima (eixo y positivo)",
                     "Para baixo (eixo y negativo)",
                     "Para a frente (eixo z positivo)",
-                    "Para trás (eixo z negativo)"
+                    "Para trás (eixo z negativo)",
+                    "Não há força magnética"
                 ];
                 
                 // Escolher uma direção correta aleatoriamente
@@ -1761,7 +1785,8 @@
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
         }
         
-        // Função para enviar dados para a planilha do Google
+        
+        // Função otimizada para enviar dados e email
         function sendResultsToSheet() {
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
@@ -1770,11 +1795,16 @@
             const criticism = document.getElementById('criticismInput').value;
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
             
             if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
             
             const totalExercises = exercises.length;
             const correctAnswers = exerciseResults.filter(r => r.correct).length;
@@ -1785,7 +1815,9 @@
             emailStatus.className = 'email-status sending';
             emailStatus.style.display = 'block';
             
-            const data = {
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
                 timestamp: new Date().toLocaleString('pt-BR'),
                 serie: studentGrade,
                 turma: studentClass,
@@ -1797,33 +1829,102 @@
                 conclusao: finalConclusion,
                 criticas: criticism,
                 sugestoes: suggestion,
-                email: studentEmail || ''
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
             };
-            
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            
-            fetch(scriptUrl, {
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
             })
             .then(() => {
-                emailStatus.textContent = 'Dados enviados com sucesso!';
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                // Se o aluno forneceu email, enviar cópia
+            if (studentEmail) {
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Não informado',
+                    serie: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
+                    nota: scorePercentage + '%' || '0%',
+                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                    questoes_puladas: skippedQuestions || 0,
+                    conclusao: finalConclusion || 'Não informado',
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulacao: 'Força Magnética',
+                    mensagem: `Confirmação de Envio - Simulação de Força Magnética'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                };
+                
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(emailDataAluno)
+                });
+            }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
                     closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
                 }, 3000);
             })
             .catch(error => {
-                emailStatus.textContent = 'Erro ao enviar dados. Tente novamente.';
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
                 emailStatus.className = 'email-status error-status';
                 console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
             });
         }
+        
         
         // Abrir modal de exercícios
         function openExercisesModal() {
