@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Força Magnética com Exercícios</title>
+    <title>Simulação de Força Magnética com Exercícios - NOTAÇÃO CIENTÍFICA</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <style>
@@ -540,7 +540,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação de Força Magnética com Exercícios</h1>
+            <h1>Simulação de Força Magnética com Exercícios - NOTAÇÃO CIENTÍFICA</h1>
             <p class="subtitle">Partícula Carregada em Campo Magnético - Visualização e Aprendizado</p>
         </header>
         
@@ -678,7 +678,7 @@
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Carga (q)</div>
-                        <div class="measurement-value" id="chargeValueDisplay">1.00e-3 C</div>
+                        <div class="measurement-value" id="chargeValueDisplay">1.00×10^-3 C</div>
                     </div>
                 </div>
             </div>
@@ -689,7 +689,7 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercícios sobre Força Magnética</h2>
+                <h2>Exercícios sobre Força Magnética - NOTAÇÃO CIENTÍFICA</h2>
                 <span class="close">&times;</span>
             </div>
             
@@ -942,6 +942,59 @@
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
         
+        // Função para formatar números em notação científica com 3 algarismos significativos
+        function formatScientificWith3Digits(value, unit = '') {
+            if (value === 0) return '0.00 ' + unit;
+            
+            // Para valores muito pequenos ou grandes, usar notação científica
+            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+                // Converter para notação científica com 3 algarismos significativos
+                const exponent = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exponent);
+                
+                // Arredondar para 3 algarismos significativos
+                const roundedMantissa = Math.round(mantissa * 100) / 100;
+                
+                // Garantir que temos exatamente 3 algarismos significativos
+                let mantissaStr = roundedMantissa.toFixed(2);
+                
+                // Se após arredondamento tivermos 10.00, ajustar
+                if (mantissaStr === '10.00') {
+                    mantissaStr = '1.00';
+                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
+                }
+                
+                return mantissaStr + '×10^' + exponent + ' ' + unit;
+            }
+            
+            // Para valores intermediários, usar formato decimal com 3 algarismos significativos
+            // Encontrar o número de casas decimais necessárias
+            const integerPart = Math.floor(Math.abs(value));
+            let decimalPlaces;
+            
+            if (integerPart === 0) {
+                // Número entre 0 e 1
+                const firstNonZero = -Math.floor(Math.log10(value));
+                decimalPlaces = firstNonZero + 2;
+            } else if (integerPart < 10) {
+                // Número com 1 dígito inteiro
+                decimalPlaces = 2;
+            } else if (integerPart < 100) {
+                // Número com 2 dígitos inteiros
+                decimalPlaces = 1;
+            } else {
+                // Número com 3 dígitos inteiros
+                decimalPlaces = 0;
+            }
+            
+            return value.toFixed(decimalPlaces) + ' ' + unit;
+        }
+        
+        // Atualizar a função formatScientific existente para usar a nova formatação
+        function formatScientific(value, unit = '') {
+            return formatScientificWith3Digits(value, unit);
+        }
+        
         // Inicializar a simulação
         function init() {
             // Configurar a cena
@@ -1010,27 +1063,6 @@
             // Adicionar eixos
             const axesHelper = new THREE.AxesHelper(5);
             scene.add(axesHelper);
-
-            // Adicionar rótulos 3D para os eixos
-            addAxisLabel(new THREE.Vector3(5.5, 0, 0), 'X', 0xff0000); // X vermelho
-            addAxisLabel(new THREE.Vector3(0, 5.5, 0), 'Y', 0x00ff00); // Y verde
-            addAxisLabel(new THREE.Vector3(0, 0, 5.5), 'Z', 0x0000ff); // Z azul
-        }
-
-        // Função para adicionar rótulo 3D
-        function addAxisLabel(position, text, color) {
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-                const textGeometry = new THREE.TextGeometry(text, {
-                    font: font,
-                    size: 0.5,
-                    height: 0.05,
-                });
-                const textMaterial = new THREE.MeshBasicMaterial({ color: color });
-                const mesh = new THREE.Mesh(textGeometry, textMaterial);
-                mesh.position.copy(position);
-                scene.add(mesh);
-            });
         }
         
         // Criar partícula
@@ -1074,6 +1106,7 @@
                 if (obj instanceof THREE.ArrowHelper) scene.remove(obj);
             });
             fieldArrows = [];
+            
             // Criar múltiplas setas para representar o campo ao longo do eixo y
             for (let x = -4; x <= 4; x += 2) {
                 for (let z = -4; z <= 4; z += 2) {
@@ -1091,21 +1124,6 @@
                     fieldArrows.push({ arrow: arrowHelper, label: null });
                 }
             }
-            // Adicionar um único "B" para todas as setas do campo magnético
-            const loader = new THREE.FontLoader();
-            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-                const textGeometry = new THREE.TextGeometry('B', {
-                    font: font,
-                    size: 0.7,
-                    height: 0.05,
-                });
-                const textMaterial = new THREE.MeshBasicMaterial({ color: 0x0066ff });
-                const mesh = new THREE.Mesh(textGeometry, textMaterial);
-                // Posição: acima do grupo de setas (ajuste conforme necessário)
-                mesh.position.set(0.7, -2.5, 4.2);
-                scene.add(mesh);
-                fieldArrows.push({ arrow: null, label: mesh });
-            });
         }
         
         // Criar trajetória da partícula
@@ -1212,24 +1230,22 @@
         function updateMeasurements() {
             document.getElementById('fieldValue').textContent = magneticField;
             document.getElementById('velocityValue').textContent = velocity;
-            document.getElementById('forceValue').textContent = force.toFixed(2);
-            document.getElementById('trajectoryValue').textContent = trajectoryRadius.toFixed(2);
+            document.getElementById('forceValue').textContent = formatScientific(force, 'N');
+            document.getElementById('trajectoryValue').textContent = formatScientific(trajectoryRadius, 'm');
     
             document.getElementById('fieldDisplay').textContent = magneticField + ' T';
             document.getElementById('velocityDisplay').textContent = velocity + ' m/s';
-            document.getElementById('forceDisplay').textContent = force.toFixed(2) + ' N';
-            document.getElementById('trajectoryDisplay').textContent = trajectoryRadius.toFixed(2) + ' m';
+            document.getElementById('forceDisplay').textContent = formatScientific(force, 'N');
+            document.getElementById('trajectoryDisplay').textContent = formatScientific(trajectoryRadius, 'm');
     
             const chargeDisplay = chargeType === 'positive' ? 'Positiva' : 'Negativa';
             document.getElementById('chargeDisplay').textContent = chargeDisplay;
             // Atualizar massa e carga
             if (document.getElementById('massDisplay')) {
-                document.getElementById('massDisplay').textContent = massValue.toFixed(2) + ' kg';
+                document.getElementById('massDisplay').textContent = formatScientific(massValue, 'kg');
             }
             if (document.getElementById('chargeValueDisplay')) {
-                // Exibir notação científica para valores pequenos
-                let qStr = chargeValue.toExponential(2).replace('e', 'e');
-                document.getElementById('chargeValueDisplay').textContent = qStr + ' C';
+                document.getElementById('chargeValueDisplay').textContent = formatScientific(chargeValue, 'C');
             }
         }
         
@@ -1378,7 +1394,7 @@
             renderer.setSize(width, height);
         }
         
-        // ========== SISTEMA DE EXERCÍCIOS ==========
+        // ========== SISTEMA DE EXERCÍCIOS - NOTAÇÃO CIENTÍFICA ==========
         
         // Gerar exercícios sobre Força Magnética
         function generateExercises() {
@@ -1387,69 +1403,61 @@
             // Gerar 6 exercícios variados
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Calcular Força Magnética (F = q·v·B·senθ)
-                let q = (Math.floor(Math.random() * 9) + 1) * 1e-6; // μC
-                let v = (Math.floor(Math.random() * 9) + 1) * 1e6; // 10⁶ m/s
-                let b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
-                let f = (q * v * b).toFixed(2);
+                let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 6); // C (valores variados)
+                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5); // m/s (valores variados)
+                let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // T (valores variados)
+                // Cálculo CORRETO: converter μC para C (1 μC = 1e-6 C)
+                let f = Math.abs(q) * v * b;
+                
+                // Formatar com 3 algarismos significativos
+                let qFormatted = formatScientificWith3Digits(q, 'C');
+                let vFormatted = formatScientificWith3Digits(v, 'm/s');
+                let bFormatted = formatScientificWith3Digits(b, 'T');
                 
                 exercises.push({
                     type: 'calcular_forca',
-                    question: `Uma partícula com carga de ${q*1e6} μC move-se com velocidade de ${v/1e6}×10⁶ m/s perpendicularmente a um campo magnético de ${b} T. Qual é a força magnética sobre a partícula?`,
-                    answer: f,
-                    options: generateOptions(parseFloat(f), 'N')
+                    question: `Uma partícula com carga de ${qFormatted} move-se com velocidade de ${vFormatted} perpendicularmente a um campo magnético de ${bFormatted}. Qual é a força magnética sobre a partícula?`,
+                    answer: formatScientificWith3Digits(f, 'N'),
+                    options: generateOptions(f, 'N')
                 });
                 
                 // Tipo 2: Calcular raio da trajetória (r = m·v/(|q|·B))
-                let m = (Math.floor(Math.random() * 9) + 1) * 1e-27; // kg
-                v = (Math.floor(Math.random() * 9) + 1) * 1e6; // 10⁶ m/s
-                q = (Math.floor(Math.random() * 9) + 1) * 1e-19; // C
-                b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
-                let r = (m * v / (Math.abs(q) * b)).toFixed(4);
+                let m = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 27); // kg
+                v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5); // m/s
+                q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 19); // C
+                b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // T
+                // Cálculo CORRETO: usar valor absoluto da carga
+                let r = m * v / (Math.abs(q) * b);
+                
+                // Formatar com 3 algarismos significativos
+                mFormatted = formatScientificWith3Digits(m, 'kg');
+                qFormatted = formatScientificWith3Digits(q, 'C');
+                vFormatted = formatScientificWith3Digits(v, 'm/s');
+                bFormatted = formatScientificWith3Digits(b, 'T');
                 
                 exercises.push({
                     type: 'calcular_raio',
-                    question: `Uma partícula com massa de ${m.toExponential(1).replace('e', '×10^')} kg e carga de ${q.toExponential(1).replace('e', '×10^')} C move-se com velocidade de ${v/1e6}×10⁶ m/s perpendicularmente a um campo magnético de ${b} T. Qual o raio de sua trajetória circular?`,
-                    answer: r,
-                    options: generateOptions(parseFloat(r), 'm')
+                    question: `Uma partícula com massa de ${mFormatted} e carga de ${qFormatted} move-se com velocidade de ${vFormatted} perpendicularmente a um campo magnético de ${bFormatted}. Qual o raio de sua trajetória circular?`,
+                    answer: formatScientificWith3Digits(r, 'm'),
+                    options: generateOptions(r, 'm')
                 });
                 
-                // Tipo 3: Determinar direção da força
-                let options = [
-                    "Para cima (eixo y positivo)",
-                    "Para baixo (eixo y negativo)",
-                    "Para a frente (eixo z positivo)",
-                    "Para trás (eixo z negativo)",
-                    "Não há força magnética"
-                ];
-                
-                // Escolher uma direção correta aleatoriamente
-                let correctIndex = Math.floor(Math.random() * 4);
-                let vDir = "", bDir = "";
-                
-                switch(correctIndex) {
-                    case 0:
-                        vDir = "para a direita (eixo x positivo)";
-                        bDir = "para fora da página (eixo z positivo)";
-                        break;
-                    case 1:
-                        vDir = "para a esquerda (eixo x negativo)";
-                        bDir = "para dentro da página (eixo z negativo)";
-                        break;
-                    case 2:
-                        vDir = "para cima (eixo y positivo)";
-                        bDir = "para a direita (eixo x positivo)";
-                        break;
-                    case 3:
-                        vDir = "para baixo (eixo y negativo)";
-                        bDir = "para a esquerda (eixo x negativo)";
-                        break;
-                }
+                // Tipo 3: Determinar direção da força usando produto vetorial
+                let { vDir, bDir, correctDirection } = generateDirectionQuestion();
                 
                 exercises.push({
                     type: 'direcao_forca',
                     question: `Uma partícula com carga positiva move-se ${vDir} em uma região onde o campo magnético está orientado ${bDir}. Qual é a direção da força magnética?`,
-                    answer: options[correctIndex],
-                    options: shuffleArray([...options])
+                    answer: correctDirection,
+                    options: shuffleArray([
+                        "Para a direita (eixo x positivo)",
+                        "Para a esquerda (eixo x negativo)", 
+                        "Para cima (eixo y positivo)",
+                        "Para baixo (eixo y negativo)",
+                        "Para a frente (eixo z positivo)",
+                        "Para trás (eixo z negativo)",
+                        "Não há força magnética"
+                    ])
                 });
             }
             
@@ -1457,19 +1465,83 @@
             exercises = shuffleArray(exercises);
         }
         
-        // Gerar opções de resposta (agora com 5 alternativas)
+        // Gerar questão de direção usando produto vetorial
+        function generateDirectionQuestion() {
+            const directions = [
+                { name: "para a direita (eixo x positivo)", vector: new THREE.Vector3(1, 0, 0) },
+                { name: "para a esquerda (eixo x negativo)", vector: new THREE.Vector3(-1, 0, 0) },
+                { name: "para cima (eixo y positivo)", vector: new THREE.Vector3(0, 1, 0) },
+                { name: "para baixo (eixo y negativo)", vector: new THREE.Vector3(0, -1, 0) },
+                { name: "para a frente (eixo z positivo)", vector: new THREE.Vector3(0, 0, 1) },
+                { name: "para trás (eixo z negativo)", vector: new THREE.Vector3(0, 0, -1) }
+            ];
+            
+            // Escolher direções aleatórias para velocidade e campo
+            const vIndex = Math.floor(Math.random() * directions.length);
+            const bIndex = Math.floor(Math.random() * directions.length);
+            
+            const vDir = directions[vIndex].name;
+            const bDir = directions[bIndex].name;
+            const vVector = directions[vIndex].vector;
+            const bVector = directions[bIndex].vector;
+            
+            // Calcular força usando produto vetorial: F = q(v × B)
+            const forceVector = new THREE.Vector3().crossVectors(vVector, bVector);
+            
+            let correctDirection;
+            
+            // Se o produto vetorial for zero, não há força
+            if (forceVector.length() === 0) {
+                correctDirection = "Não há força magnética";
+            } else {
+                // Determinar a direção baseada no vetor força
+                const tolerance = 0.1;
+                
+                if (Math.abs(forceVector.x - 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                    correctDirection = "Para a direita (eixo x positivo)";
+                } else if (Math.abs(forceVector.x + 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                    correctDirection = "Para a esquerda (eixo x negativo)";
+                } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y - 1) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                    correctDirection = "Para cima (eixo y positivo)";
+                } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y + 1) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                    correctDirection = "Para baixo (eixo y negativo)";
+                } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z - 1) < tolerance) {
+                    correctDirection = "Para a frente (eixo z positivo)";
+                } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z + 1) < tolerance) {
+                    correctDirection = "Para trás (eixo z negativo)";
+                } else {
+                    // Em caso de vetor não unitário, normalizar e verificar novamente
+                    forceVector.normalize();
+                    if (Math.abs(forceVector.x - 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                        correctDirection = "Para a direita (eixo x positivo)";
+                    } else if (Math.abs(forceVector.x + 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                        correctDirection = "Para a esquerda (eixo x negativo)";
+                    } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y - 1) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                        correctDirection = "Para cima (eixo y positivo)";
+                    } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y + 1) < tolerance && Math.abs(forceVector.z) < tolerance) {
+                        correctDirection = "Para baixo (eixo y negativo)";
+                    } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z - 1) < tolerance) {
+                        correctDirection = "Para a frente (eixo z positivo)";
+                    } else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z + 1) < tolerance) {
+                        correctDirection = "Para trás (eixo z negativo)";
+                    } else {
+                        // Fallback - usar a primeira direção disponível
+                        correctDirection = "Para a direita (eixo x positivo)";
+                    }
+                }
+            }
+            
+            return { vDir, bDir, correctDirection };
+        }
+        
+        // Gerar opções de resposta com notação científica
         function generateOptions(correctValue, unit) {
             const options = [];
             let attempts = 0;
-            const maxAttempts = 15; // Aumentado para garantir opções únicas
+            const maxAttempts = 20;
             
             // Formatar o valor correto
-            let formattedCorrectValue;
-            if (unit === 'N' || unit === 'm') {
-                formattedCorrectValue = correctValue.toFixed(unit === 'N' ? 2 : 4) + ' ' + unit;
-            } else {
-                formattedCorrectValue = correctValue;
-            }
+            let formattedCorrectValue = formatScientificWith3Digits(correctValue, unit);
             
             options.push({
                 value: correctValue,
@@ -1489,13 +1561,13 @@
                     const variationType = Math.random();
                     if (variationType < 0.3) {
                         // Multiplicador aleatório
-                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                        optionValue = correctValue * (Math.random() * 1.5 + 0.5);
                     } else if (variationType < 0.6) {
                         // Divisor aleatório
-                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                        optionValue = correctValue / (Math.random() * 1.5 + 0.5);
                     } else {
                         // Soma/subtração de porcentagem
-                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        const percentChange = (Math.random() * 60 + 20) / 100;
                         optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
                     }
                     
@@ -1504,18 +1576,13 @@
                         optionValue = Math.abs(optionValue);
                     }
                     
-                    // Formatar com a mesma precisão
-                    if (unit === 'N' || unit === 'm') {
-                        formattedOption = optionValue.toFixed(unit === 'N' ? 2 : 4) + ' ' + unit;
-                    } else {
-                        formattedOption = optionValue;
-                    }
+                    // Formatar com notação científica
+                    formattedOption = formatScientificWith3Digits(optionValue, unit);
                     
                     unique = !options.some(opt => opt.display === formattedOption);
                     attempts++;
                     
                     if (attempts > maxAttempts) {
-                        console.warn("Muitas tentativas para gerar opção única");
                         // Forçar uma opção única adicionando um identificador
                         formattedOption = formattedOption + " (opção " + (i + 1) + ")";
                         unique = true;
@@ -1636,67 +1703,59 @@
             const currentType = exercises[currentExercise].type;
             
             if (currentType === 'calcular_forca') {
-                let q = (Math.floor(Math.random() * 9) + 1) * 1e-6; // μC
-                let v = (Math.floor(Math.random() * 9) + 1) * 1e6; // 10⁶ m/s
-                let b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
-                let f = (q * v * b).toFixed(2);
+                let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 6); // C (valores variados)
+                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5); // m/s (valores variados)
+                let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // T (valores variados)
+                // Cálculo CORRETO: converter μC para C (1 μC = 1e-6 C)
+                let f = Math.abs(q) * v * b;
+                
+                // Formatar com 3 algarismos significativos
+                let qFormatted = formatScientificWith3Digits(q, 'C');
+                let vFormatted = formatScientificWith3Digits(v, 'm/s');
+                let bFormatted = formatScientificWith3Digits(b, 'T');
                 
                 exercises[currentExercise] = {
                     type: 'calcular_forca',
-                    question: `Uma partícula com carga de ${q*1e6} μC move-se com velocidade de ${v/1e6}×10⁶ m/s perpendicularmente a um campo magnético de ${b} T. Qual é a força magnética sobre a partícula?`,
-                    answer: f,
-                    options: generateOptions(parseFloat(f), 'N')
+                    question: `Uma partícula com carga de ${qFormatted} move-se com velocidade de ${vFormatted} perpendicularmente a um campo magnético de ${bFormatted}. Qual é a força magnética sobre a partícula?`,
+                    answer: formatScientificWith3Digits(f, 'N'),
+                    options: generateOptions(f, 'N')
                 };
             } else if (currentType === 'calcular_raio') {
-                let m = (Math.floor(Math.random() * 9) + 1) * 1e-27; // kg
-                let v = (Math.floor(Math.random() * 9) + 1) * 1e6; // 10⁶ m/s
-                let q = (Math.floor(Math.random() * 9) + 1) * 1e-19; // C
-                let b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
-                let r = (m * v / (Math.abs(q) * b)).toFixed(4);
+                let m = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 27); // kg
+                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5); // m/s
+                let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 19); // C
+                let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // T
+                // Cálculo CORRETO: usar valor absoluto da carga
+                let r = m * v / (Math.abs(q) * b);
+                
+                // Formatar com 3 algarismos significativos
+                mFormatted = formatScientificWith3Digits(m, 'kg');
+                qFormatted = formatScientificWith3Digits(q, 'C');
+                vFormatted = formatScientificWith3Digits(v, 'm/s');
+                bFormatted = formatScientificWith3Digits(b, 'T');
                 
                 exercises[currentExercise] = {
                     type: 'calcular_raio',
-                    question: `Uma partícula com massa de ${m.toExponential(1).replace('e', '×10^')} kg e carga de ${q.toExponential(1).replace('e', '×10^')} C move-se com velocidade de ${v/1e6}×10⁶ m/s perpendicularmente a um campo magnético de ${b} T. Qual o raio de sua trajetória circular?`,
-                    answer: r,
-                    options: generateOptions(parseFloat(r), 'm')
+                    question: `Uma partícula com massa de ${mFormatted} e carga de ${qFormatted} move-se com velocidade de ${vFormatted} perpendicularmente a um campo magnético de ${bFormatted}. Qual o raio de sua trajetória circular?`,
+                    answer: formatScientificWith3Digits(r, 'm'),
+                    options: generateOptions(r, 'm')
                 };
             } else if (currentType === 'direcao_forca') {
-                let options = [
-                    "Para cima (eixo y positivo)",
-                    "Para baixo (eixo y negativo)",
-                    "Para a frente (eixo z positivo)",
-                    "Para trás (eixo z negativo)",
-                    "Não há força magnética"
-                ];
-                
-                // Escolher uma direção correta aleatoriamente
-                let correctIndex = Math.floor(Math.random() * 4);
-                let vDir = "", bDir = "";
-                
-                switch(correctIndex) {
-                    case 0:
-                        vDir = "para a direita (eixo x positivo)";
-                        bDir = "para fora da página (eixo z positivo)";
-                        break;
-                    case 1:
-                        vDir = "para a esquerda (eixo x negativo)";
-                        bDir = "para dentro da página (eixo z negativo)";
-                        break;
-                    case 2:
-                        vDir = "para cima (eixo y positivo)";
-                        bDir = "para a direita (eixo x positivo)";
-                        break;
-                    case 3:
-                        vDir = "para baixo (eixo y negativo)";
-                        bDir = "para a esquerda (eixo x negativo)";
-                        break;
-                }
+                let { vDir, bDir, correctDirection } = generateDirectionQuestion();
                 
                 exercises[currentExercise] = {
                     type: 'direcao_forca',
                     question: `Uma partícula com carga positiva move-se ${vDir} em uma região onde o campo magnético está orientado ${bDir}. Qual é a direção da força magnética?`,
-                    answer: options[correctIndex],
-                    options: shuffleArray([...options])
+                    answer: correctDirection,
+                    options: shuffleArray([
+                        "Para a direita (eixo x positivo)",
+                        "Para a esquerda (eixo x negativo)", 
+                        "Para cima (eixo y positivo)",
+                        "Para baixo (eixo y negativo)",
+                        "Para a frente (eixo z positivo)",
+                        "Para trás (eixo z negativo)",
+                        "Não há força magnética"
+                    ])
                 };
             }
         }
@@ -1861,20 +1920,19 @@
             })
             .then(() => {
                 // Se o aluno forneceu email, enviar cópia
-                // Se o aluno forneceu email, enviar cópia
-            if (studentEmail) {
-                const emailDataAluno = {
-                    to_email: studentEmail,
-                    nome_aluno: studentName || 'Não informado',
-                    serie: studentGrade || 'Não informado',
-                    turma: studentClass || 'Não informado',
-                    nota: scorePercentage + '%' || '0%',
-                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                    questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Não informado',
-                    data_envio: new Date().toLocaleString('pt-BR'),
-                    simulacao: 'Força Magnética',
-                    mensagem: `Confirmação de Envio - Simulação de Força Magnética'
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Força Magnética',
+                        mensagem: `Confirmação de Envio - Simulação de Força Magnética'
 
             Prezado(a) ${studentName},
 
@@ -1889,15 +1947,15 @@
 
             Atenciosamente,
             Sistema de Simulações Físicas`
-                };
-                
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(emailDataAluno)
-                });
-            }
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
             })
             .then(() => {
                 const mensagemSucesso = studentEmail 
