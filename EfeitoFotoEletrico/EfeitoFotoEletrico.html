@@ -1,0 +1,2656 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação do Efeito Fotoelétrico com Exercícios</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --metal-color: #bdc3c7;
+            --light-color: #f1c40f;
+            --electron-color: #e74c3c;
+            --panel-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #2c3e50;
+            border-radius: 8px;
+        }
+
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #ffdd55;
+        }
+
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .exercise-btn {
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        /* Estilos para gráficos */
+        .graph-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .graph-panel h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .graph-canvas {
+            width: 100%;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+        }
+        
+        /* Estilos para o controle de velocidade */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .speed-btn {
+            padding: 8px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        .speed-btn:hover {
+            background: #2980b9;
+        }
+        
+        .speed-display {
+            flex: 2;
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação do Efeito Fotoelétrico com Exercícios</h1>
+            <p class="subtitle">Explore como a luz ejeta elétrons de metais - Visualização e Aprendizado</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação do Efeito Fotoelétrico</h2>
+                <div class="simulation-container">
+                    <canvas id="simulationCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                    <button id="graphsBtn">Gráficos</button>
+                </div>
+                
+                <div class="measurement-panel">
+                    <h2 class="panel-title">Medições e Resultados</h2>
+                    <div class="measurement-grid">
+                        <div class="measurement-item">
+                            <div class="measurement-label">Corrente Fotoelétrica</div>
+                            <div class="measurement-value" id="currentValue">0.00 A</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Elétrons Emitidos/s</div>
+                            <div class="measurement-value" id="electronsValue">0</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Energia Cinética Máx</div>
+                            <div class="measurement-value" id="kineticEnergyValue">0.00 eV</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Voltagem de Parada</div>
+                            <div class="measurement-value" id="stopVoltageValue">0.00 V</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Função Trabalho (φ)</div>
+                            <div class="measurement-value" id="workFunctionValue">2.28 eV</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Energia do Fóton (E)</div>
+                            <div class="measurement-value" id="photonEnergyValue">2.28 eV</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="metalType">Tipo de Metal:</label>
+                    <select id="metalType">
+                        <option value="sodium">Sódio (φ = 2.28 eV)</option>
+                        <option value="zinc">Zinco (φ = 4.33 eV)</option>
+                        <option value="copper">Cobre (φ = 4.70 eV)</option>
+                        <option value="calcium">Cálcio (φ = 2.71 eV)</option>
+                        <option value="platinum">Platina (φ = 6.35 eV)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="lightFrequency">Frequência da Luz (ν):</label>
+                    <input type="range" id="lightFrequency" min="1" max="20" value="12">
+                    <div class="value-display"><span id="frequencyValue">6.5×10¹⁴ Hz</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="lightIntensity">Intensidade da Luz:</label>
+                    <input type="range" id="lightIntensity" min="1" max="10" value="5">
+                    <div class="value-display"><span id="intensityValue">50%</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="voltage">Tensão Aplicada:</label>
+                    <input type="range" id="voltage" min="-5" max="5" value="0" step="0.1">
+                    <div class="value-display"><span id="voltageValue">0.0 V</span></div>
+                </div>
+                
+                <!-- Novo controle de velocidade -->
+                <div class="control-group">
+                    <label for="animationSpeed">Velocidade de Animação:</label>
+                    <input type="range" id="animationSpeed" min="1.0" max="10" value="5.0" step="1.0">
+                    <div class="speed-control">
+                        <button id="decreaseSpeed" class="speed-btn">-</button>
+                        <div class="speed-display" id="speedValue">1.0x</div>
+                        <button id="increaseSpeed" class="speed-btn">+</button>
+                    </div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Equação do Efeito Fotoelétrico</h3>
+                    <p>E<sub>cinética</sub> = hν - φ</p>
+                    <p>Onde:</p>
+                    <p>h = Constante de Planck (4.135667662×10⁻¹⁵ eV·s)</p>
+                    <p>ν = Frequência da luz (Hz)</p>
+                    <p>φ = Função trabalho do metal (eV)</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Voltagem de Parada</h3>
+                    <p>V<sub>parada</sub> = E<sub>cinética</sub> / e</p>
+                    <p>Onde:</p>
+                    <p>e = Carga do elétron (1.60217662×10⁻¹⁹ C)</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Efeito Fotoelétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Efeito Fotoelétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo da Energia Cinética Máxima</h4>
+                    <p><strong>Problema:</strong> Uma luz com frequência de 7,5×10¹⁴ Hz incide sobre uma placa de sódio, cuja função trabalho é 2,28 eV. Qual é a energia cinética máxima dos elétrons emitidos?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> E<sub>cinética máxima</sub> = h·ν - φ</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular a energia do fóton: E<sub>fóton</sub> = h·ν = (4,135667662×10⁻¹⁵ eV·s) × (7,5×10¹⁴ Hz) = 3,10 eV</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Subtrair a função trabalho: E<sub>cinética</sub> = 3,10 eV - 2,28 eV = 0,82 eV</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A energia cinética máxima é 0,82 eV</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Cálculo da Voltagem de Parada</h4>
+                    <p><strong>Problema:</strong> Para o mesmo caso anterior, qual é a voltagem de parada necessária para impedir que os elétrons mais energéticos alcancem o coletor?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> V<sub>parada</sub> = E<sub>cinética máxima</sub> / e</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> A energia cinética máxima é 0,82 eV. Como 1 eV é a energia ganha por um elétron ao atravessar 1 V, a voltagem de parada é numericamente igual à energia cinética em eV.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> V<sub>parada</sub> = 0,82 V</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Frequência Limiar</h4>
+                    <p><strong>Problema:</strong> Qual é a frequência limiar para o sódio (φ = 2,28 eV)?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> ν₀ = φ / h</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> ν₀ = 2,28 eV / (4,135667662×10⁻¹⁵ eV·s) = 5,51×10¹⁴ Hz</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A frequência limiar é 5,51×10¹⁴ Hz</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Efeito Fotoelétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que é o Efeito Fotoelétrico?</h3>
+                    <p>O efeito fotoelétrico é o fenômeno no qual elétrons são ejetados de uma superfície metálica quando esta é iluminada por luz de frequência suficientemente alta.</p>
+                    
+                    <div class="theory-formula">E<sub>fóton</sub> = h·ν</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">E<sub>fóton</sub></span> = Energia do fóton (eV ou J)</li>
+                        <li><span class="highlight">h</span> = Constante de Planck (4,135667662×10⁻¹⁵ eV·s ou 6,626×10⁻³⁴ J·s)</li>
+                        <li><span class="highlight">ν</span> = Frequência da luz (Hz)</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Equação do Efeito Fotoelétrico</h3>
+                    <p>A energia cinética máxima dos elétrons emitidos é dada por:</p>
+                    
+                    <div class="theory-formula">E<sub>cinética máxima</sub> = h·ν - φ</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">φ</span> = Função trabalho do metal (energia mínima para remover um elétron)</li>
+                    </ul>
+                    
+                    <p>Se a energia do fóton for menor que a função trabalho (h·ν < φ), nenhum elétron será emitido, independentemente da intensidade da luz.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Voltagem de Parada</h3>
+                    <p>A voltagem de parada (V<sub>parada</sub>) é a voltagem necessária para impedir que os elétrons mais energéticos alcancem o coletor. Ela está relacionada à energia cinética máxima por:</p>
+                    
+                    <div class="theory-formula">e·V<sub>parada</sub> = E<sub>cinética máxima</sub></div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">e</span> = Carga do elétron (1,602×10⁻¹⁹ C)</li>
+                        <li><span class="highlight">V<sub>parada</sub></span> = Voltagem de parada (V)</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Características Importantes</h3>
+                    <ul>
+                        <li>A emissão de elétrons é instantânea.</li>
+                        <li>O número de elétrons emitidos é proporcional à intensidade da luz.</li>
+                        <li>A energia cinética dos elétrons depende apenas da frequência da luz, não da intensidade.</li>
+                        <li>Existe uma frequência mínima (limiar) abaixo da qual não há emissão, independentemente da intensidade.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gráficos -->
+    <div id="graphsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gráficos - Efeito Fotoelétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="graph-panel">
+                <h3>Gráfico: Energia Cinética vs Frequência</h3>
+                <canvas id="energyFrequencyGraph" class="graph-canvas"></canvas>
+            </div>
+            <div class="graph-panel">
+                <h3>Gráfico: Corrente vs Tensão</h3>
+                <canvas id="currentVoltageGraph" class="graph-canvas"></canvas>
+            </div>
+            <div class="graph-panel">
+                <h3>Gráfico: Corrente vs Intensidade</h3>
+                <canvas id="currentIntensityGraph" class="graph-canvas"></canvas>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeGraphs" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONSTANTES E VARIÁVEIS GLOBAIS ==========
+        
+        // Constantes físicas
+        const PLANCK_CONSTANT = 4.135667662e-15; // em eV·s
+        const ELECTRON_CHARGE = 1.60217662e-19; // em C
+        
+        // Propriedades dos metais (função trabalho em eV)
+        const METALS = {
+            sodium: { workFunction: 2.28, color: "#ffeb3b", name: "Sódio" },
+            zinc: { workFunction: 4.33, color: "#a1887f", name: "Zinco" },
+            copper: { workFunction: 4.70, color: "#b87333", name: "Cobre" },
+            calcium: { workFunction: 2.71, color: "#e0e0e0", name: "Cálcio" },
+            platinum: { workFunction: 6.35, color: "#e5e4e2", name: "Platina" }
+        };
+
+        // Mapeamento de frequência para cor (espectro visível)
+        const FREQUENCY_TO_COLOR = {
+            1: "#ff0000",   // Vermelho
+            2: "#ff4000",   
+            3: "#ff8000",   // Laranja
+            4: "#ffbf00",   
+            5: "#ffff00",   // Amarelo
+            6: "#bfff00",   
+            7: "#80ff00",   // Verde-amarelado
+            8: "#40ff00",   
+            9: "#00ff00",   // Verde
+            10: "#00ff40",  
+            11: "#00ff80",  
+            12: "#00ffbf",  
+            13: "#00ffff",  // Ciano
+            14: "#00bfff",  
+            15: "#0080ff",  // Azul
+            16: "#0040ff",  
+            17: "#0000ff",  // Azul-escuro
+            18: "#4000ff",  
+            19: "#8000ff",  // Violeta
+            20: "#bf00ff"   // Violeta-escuro
+        };
+
+        // Elementos do DOM
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Elementos dos gráficos
+        const energyFrequencyGraph = document.getElementById('energyFrequencyGraph');
+        const currentVoltageGraph = document.getElementById('currentVoltageGraph');
+        const currentIntensityGraph = document.getElementById('currentIntensityGraph');
+        const energyFrequencyCtx = energyFrequencyGraph.getContext('2d');
+        const currentVoltageCtx = currentVoltageGraph.getContext('2d');
+        const currentIntensityCtx = currentIntensityGraph.getContext('2d');
+        
+        // Controles
+        const lightFrequency = document.getElementById('lightFrequency');
+        const frequencyValue = document.getElementById('frequencyValue');
+        const lightIntensity = document.getElementById('lightIntensity');
+        const intensityValue = document.getElementById('intensityValue');
+        const metalType = document.getElementById('metalType');
+        const voltage = document.getElementById('voltage');
+        const voltageValue = document.getElementById('voltageValue');
+        
+        // Novo controle de velocidade
+        const animationSpeed = document.getElementById('animationSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const decreaseSpeedBtn = document.getElementById('decreaseSpeed');
+        const increaseSpeedBtn = document.getElementById('increaseSpeed');
+        
+        // Valores de medição
+        const currentValue = document.getElementById('currentValue');
+        const electronsValue = document.getElementById('electronsValue');
+        const kineticEnergyValue = document.getElementById('kineticEnergyValue');
+        const stopVoltageValue = document.getElementById('stopVoltageValue');
+        const workFunctionValue = document.getElementById('workFunctionValue');
+        const photonEnergyValue = document.getElementById('photonEnergyValue');
+
+        // Variáveis da simulação
+        let photons = [];
+        let electrons = [];
+        let currentMetal = METALS[metalType.value];
+        let simulationTime = 0;
+        let electronsEmitted = 0;
+        let electronsCollected = 0;
+        let isRunning = false;
+        
+        // Nova variável para controlar a velocidade da animação
+        let animationSpeedFactor = 1.0;
+        
+        // Variáveis para medição de corrente corrigidas
+        let lastMeasurementTime = 0;
+        let currentCurrent = 0; // Corrente atual em A
+        
+        // Variáveis para dados dos gráficos
+        let energyFrequencyData = [];
+        let currentVoltageData = [];
+        let currentIntensityData = [];
+        
+        // Posições das placas (definidas uma vez para consistência)
+        let leftPlateX, leftPlateY, leftPlateWidth, leftPlateHeight;
+        let rightPlateX, rightPlateY, rightPlateWidth, rightPlateHeight;
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // ========== FUNÇÕES DA SIMULAÇÃO ==========
+
+        // Ajustar tamanho do canvas
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Definir posições das placas após redimensionamento
+            leftPlateWidth = 10;
+            leftPlateHeight = 150;
+            leftPlateX = canvas.width * 0.2;
+            leftPlateY = canvas.height / 2 - leftPlateHeight / 2;
+            
+            rightPlateWidth = 10;
+            rightPlateHeight = 150;
+            rightPlateX = canvas.width * 0.8;
+            rightPlateY = canvas.height / 2 - rightPlateHeight / 2;
+        }
+        
+        // Inicialização
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            updateLightColor();
+            updateMeasurements();
+            setupEventListeners();
+            setupExerciseEventListeners();
+            resizeGraphs();
+            animate();
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Event listeners para controles
+        function setupEventListeners() {
+            lightFrequency.addEventListener('input', () => {
+                const freq = parseFloat(lightFrequency.value);
+                frequencyValue.textContent = formatFrequency((freq * 0.5 + 1) * 1e14);
+                updateLightColor();
+                updateMeasurements();
+            });
+            
+            lightIntensity.addEventListener('input', () => {
+                const intensity = parseInt(lightIntensity.value);
+                intensityValue.textContent = (intensity * 10) + '%';
+                updateCurrentIntensityData();
+            });
+            
+            metalType.addEventListener('change', () => {
+                currentMetal = METALS[metalType.value];
+                workFunctionValue.textContent = formatEnergy(currentMetal.workFunction);
+                updateMeasurements();
+            });
+            
+            voltage.addEventListener('input', () => {
+                const volt = parseFloat(voltage.value);
+                voltageValue.textContent = formatVoltage(volt);
+                updateCurrentVoltageData();
+            });
+            
+            // Novos event listeners para controle de velocidade
+            animationSpeed.addEventListener('input', () => {
+                animationSpeedFactor = parseFloat(animationSpeed.value);
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            decreaseSpeedBtn.addEventListener('click', () => {
+                animationSpeedFactor = Math.max(0.1, animationSpeedFactor - 0.1);
+                animationSpeed.value = animationSpeedFactor;
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            increaseSpeedBtn.addEventListener('click', () => {
+                animationSpeedFactor = Math.min(3.0, animationSpeedFactor + 0.1);
+                animationSpeed.value = animationSpeedFactor;
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            document.getElementById('startBtn').addEventListener('click', () => {
+                isRunning = true;
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                isRunning = false;
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                photons = [];
+                electrons = [];
+                electronsEmitted = 0;
+                electronsCollected = 0;
+                simulationTime = 0;
+                lastMeasurementTime = 0;
+                currentCurrent = 0;
+                updateMeasurements();
+            });
+            
+            document.getElementById('helpBtn').addEventListener('click', () => {
+                alert("Como usar:\n\n• Selecione o tipo de metal\n• Ajuste a frequência da luz\n• Ajuste a intensidade da luz\n• Ajuste a tensão aplicada\n• Use os botões Iniciar, Pausar e Reiniciar para controlar a simulação\n• Ajuste a velocidade da animação para observar melhor os fenômenos\n• Observe os elétrons sendo emitidos quando a energia do fóton é maior que a função trabalho\n• Use os botões de exercícios para testar seu conhecimento");
+            });
+            
+            document.getElementById('graphsBtn').addEventListener('click', openGraphsModal);
+        }
+        
+        // Atualizar a cor da luz baseada na frequência
+        function updateLightColor() {
+            const freqValue = parseInt(lightFrequency.value);
+            const color = FREQUENCY_TO_COLOR[freqValue] || "#ffffff";
+            // Atualizar a cor da luz na simulação
+        }
+        
+        // Atualizar medições com base nos controles
+        function updateMeasurements() {
+            const frequency = (parseFloat(lightFrequency.value) * 0.5 + 1) * 1e14; // Hz
+            const photonEnergy = PLANCK_CONSTANT * frequency; // eV
+            
+            photonEnergyValue.textContent = formatEnergy(photonEnergy);
+            
+            // Calcular energia cinética máxima
+            let maxKineticEnergy = 0;
+            if (photonEnergy > currentMetal.workFunction) {
+                maxKineticEnergy = photonEnergy - currentMetal.workFunction;
+            }
+            kineticEnergyValue.textContent = formatEnergy(maxKineticEnergy);
+            
+            // Calcular voltagem de parada (NEGATIVA)
+            const stopVoltage = -maxKineticEnergy; // Negativa para parar os elétrons
+            stopVoltageValue.textContent = formatVoltage(stopVoltage);
+            
+            // Adicionar ponto ao gráfico se a frequência for suficiente
+            if (photonEnergy > currentMetal.workFunction) {
+                addEnergyFrequencyDataPoint(frequency, maxKineticEnergy);
+            }
+        }
+        
+        // SISTEMA DE NOTAÇÃO CIENTÍFICA MELHORADO
+        function toScientific(value, unit = "") {
+            if (value === 0) return `0.00 ${unit}`.trim();
+            
+            // Usar notação científica para todos os valores
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const coefficient = value / Math.pow(10, exponent);
+            
+            // Arredondar para 3 algarismos significativos
+            const roundedCoefficient = Math.round(coefficient * 100) / 100;
+            
+            // Usar caracteres Unicode para expoentes
+            const superscripts = {
+                '-': '⁻',
+                '0': '⁰',
+                '1': '¹',
+                '2': '²',
+                '3': '³',
+                '4': '⁴',
+                '5': '⁵',
+                '6': '⁶',
+                '7': '⁷',
+                '8': '⁸',
+                '9': '⁹'
+            };
+            
+            const exponentStr = exponent.toString();
+            let superscript = '';
+            for (let char of exponentStr) {
+                superscript += superscripts[char] || char;
+            }
+            
+            return `${roundedCoefficient.toPrecision(3)}×10${superscript} ${unit}`.trim();
+        }
+
+        function formatFrequency(value) {
+            // Formatar frequência em notação científica com 3 algarismos significativos
+            return toScientific(value, "Hz");
+        }
+
+        function formatEnergy(value) {
+            // Formatar energia em notação científica com 3 algarismos significativos
+            return toScientific(value, "eV");
+        }
+
+        function formatVoltage(value) {
+            // Formatar voltagem em notação científica com 3 algarismos significativos
+            return toScientific(value, "V");
+        }
+        
+        // Animação principal
+        function animate() {
+            // Limpar canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Atualizar tempo de simulação
+            simulationTime += 1;
+            
+            // Desenhar componentes fixos
+            drawComponents();
+            
+            if (isRunning) {
+                // Gerar novos fótons baseado na intensidade
+                const intensity = parseInt(lightIntensity.value);
+                if (Math.random() < intensity / 30) {
+                    createPhoton();
+                }
+                
+                // Atualizar e desenhar fótons
+                updatePhotons();
+                
+                // Atualizar e desenhar elétrons
+                updateElectrons();
+                
+                // Atualizar medições em tempo real
+                updateRealTimeMeasurements();
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // Desenhar componentes fixos da simulação
+        function drawComponents() {
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Fundo
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Placa metálica esquerda (cátodo)
+            ctx.fillStyle = currentMetal.color;
+            ctx.fillRect(leftPlateX, leftPlateY, leftPlateWidth, leftPlateHeight);
+            
+            // Placa metálica direita (ânodo)
+            ctx.fillStyle = '#7f8c8d';
+            ctx.fillRect(rightPlateX, rightPlateY, rightPlateWidth, rightPlateHeight);
+            
+            // Fonte de luz (no topo, centralizada)
+            const lightSourceX = width / 2;
+            const lightSourceY = 30;
+            const lightColor = FREQUENCY_TO_COLOR[parseInt(lightFrequency.value)] || "#ffffff";
+            
+            ctx.fillStyle = lightColor;
+            ctx.beginPath();
+            ctx.arc(lightSourceX, lightSourceY, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Feixe de luz (diagonal para a placa esquerda)
+            ctx.fillStyle = lightColor + '40'; // Cor com transparência
+            ctx.beginPath();
+            ctx.moveTo(lightSourceX, lightSourceY);
+            ctx.lineTo(leftPlateX, leftPlateY);
+            ctx.lineTo(leftPlateX, leftPlateY + leftPlateHeight);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Bateria na horizontal na parte inferior
+            const batteryWidth = 80;
+            const batteryHeight = 40;
+            const batteryX = width / 2 - batteryWidth / 2;
+            const batteryY = height - 80;
+            
+            // Corpo da bateria
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(batteryX, batteryY, batteryWidth, batteryHeight);
+            
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(batteryX + 5, batteryY + 5, batteryWidth - 10, batteryHeight - 10);
+            
+            // Terminais da bateria
+            ctx.fillStyle = '#ecf0f1';
+            ctx.fillRect(batteryX - 5, batteryY + 10, 5, 20); // Terminal esquerdo
+            ctx.fillRect(batteryX + batteryWidth, batteryY + 10, 5, 20); // Terminal direito
+            
+            // Símbolos + e -
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('+', batteryX + batteryWidth - 15, batteryY + 25);
+            ctx.fillText('-', batteryX + 15, batteryY + 25);
+            
+            // Conexões da bateria às placas
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.lineWidth = 2;
+            
+            // Conexão do terminal positivo à placa direita
+            ctx.beginPath();
+            ctx.moveTo(batteryX + batteryWidth, batteryY + 20);
+            ctx.lineTo(rightPlateX, batteryY + 20);
+            ctx.lineTo(rightPlateX, rightPlateY);
+            ctx.stroke();
+            
+            // Conexão do terminal negativo à placa esquerda
+            ctx.beginPath();
+            ctx.moveTo(batteryX, batteryY + 20);
+            ctx.lineTo(leftPlateX + leftPlateWidth, batteryY + 20);
+            ctx.lineTo(leftPlateX + leftPlateWidth, leftPlateY + leftPlateHeight);
+            ctx.stroke();
+            
+            // Amperímetro - posicionado entre a bateria e a placa direita
+            const ammeterX = (batteryX + batteryWidth + rightPlateX) / 2;
+            const ammeterY = batteryY + 20 - 30;
+            
+            // Caixa do amperímetro
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(ammeterX - 30, ammeterY - 15, 60, 30);
+            
+            // Display do amperímetro
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(ammeterX - 25, ammeterY - 10, 50, 20);
+            
+            // Leitura do amperímetro (corrente atual)
+            const current = currentCurrent; // Usa a corrente calculada em A
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(toScientific(current, "A"), ammeterX, ammeterY + 3);
+            
+            // Rótulo
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '10px Arial';
+            ctx.fillText('Amperímetro', ammeterX, ammeterY - 20);
+            
+            // Mostrar voltagem aplicada
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(voltage.value + ' V', batteryX + batteryWidth / 2, batteryY + 60);
+        }
+        
+        // Criar um novo fóton
+        function createPhoton() {
+            const lightSourceX = canvas.width / 2;
+            const lightSourceY = 30;
+            
+            // Posição aleatória na placa metálica esquerda (superfície)
+            const targetY = leftPlateY + Math.random() * leftPlateHeight;
+            
+            const lightColor = FREQUENCY_TO_COLOR[parseInt(lightFrequency.value)] || "#ffffff";
+            
+            photons.push({
+                x: lightSourceX,
+                y: lightSourceY,
+                targetX: leftPlateX, // Exatamente na superfície da placa
+                targetY: targetY,
+                progress: 0,
+                speed: 0.02 + Math.random() * 0.01,
+                color: lightColor,
+                energy: PLANCK_CONSTANT * ((parseFloat(lightFrequency.value) * 0.5 + 1) * 1e14) // eV
+            });
+        }
+        
+        // Atualizar e desenhar fótons
+        function updatePhotons() {
+            for (let i = photons.length - 1; i >= 0; i--) {
+                const photon = photons[i];
+                // Aplicar fator de velocidade
+                photon.progress += photon.speed * animationSpeedFactor;
+                
+                // Calcular posição atual
+                photon.x = canvas.width / 2 + (photon.targetX - canvas.width / 2) * photon.progress;
+                photon.y = 30 + (photon.targetY - 30) * photon.progress;
+                
+                // Desenhar fóton
+                ctx.fillStyle = photon.color;
+                ctx.beginPath();
+                ctx.arc(photon.x, photon.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Verificar se o fóton atingiu a placa (exatamente na superfície)
+                if (photon.progress >= 1) {
+                    // Verificar se a energia é suficiente para ejetar elétrons
+                    if (photon.energy > currentMetal.workFunction) {
+                        createElectron(photon.targetX, photon.targetY, photon.energy);
+                        electronsEmitted++;
+                    }
+                    
+                    // Remover fóton
+                    photons.splice(i, 1);
+                }
+            }
+        }
+        
+        // Criar um novo elétron
+        function createElectron(x, y, photonEnergy) {
+            // Calcular energia cinética inicial
+            const initialKineticEnergy = photonEnergy - currentMetal.workFunction;
+            
+            // Velocidade inicial aumentada
+            const initialSpeed = Math.sqrt(2 * initialKineticEnergy * 1.6e-19 / 9.1e-31) * 5e-9;
+            
+            electrons.push({
+                x: x, // Começa exatamente na superfície da placa esquerda
+                y: y,
+                targetX: rightPlateX, // Termina exatamente na superfície da placa direita
+                targetY: y, // Mesma altura (trajetória horizontal)
+                progress: 0,
+                speed: initialSpeed,
+                energy: initialKineticEnergy,
+                reachedCollector: false
+            });
+        }
+        
+        // Atualizar e desenhar elétrons
+        function updateElectrons() {
+            const appliedVoltage = parseFloat(voltage.value);
+            
+            for (let i = electrons.length - 1; i >= 0; i--) {
+                const electron = electrons[i];
+                
+                // A voltagem aplicada afeta o movimento do elétron
+                let effectiveSpeed = electron.speed;
+                if (appliedVoltage < 0) {
+                    // Voltagem negativa dificulta o movimento
+                    effectiveSpeed = Math.max(0, electron.speed + appliedVoltage * 0.01);
+                } else {
+                    // Voltagem positiva ajuda o movimento
+                    effectiveSpeed = electron.speed + appliedVoltage * 0.01;
+                }
+                
+                // Aplicar fator de velocidade
+                electron.progress += effectiveSpeed * animationSpeedFactor / 100;
+                
+                // Calcular posição atual (trajetória horizontal)
+                electron.x = leftPlateX + (electron.targetX - leftPlateX) * electron.progress;
+                // Y permanece constante (trajetória horizontal)
+                
+                // Desenhar elétron
+                ctx.fillStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(electron.x, electron.y, 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Verificar se o elétron atingiu o coletor (exatamente na superfície)
+                if (electron.progress >= 1 && !electron.reachedCollector) {
+                    electron.reachedCollector = true;
+                    electronsCollected++;
+                    
+                    // Efeito visual quando o elétron é absorvido
+                    drawAbsorptionEffect(electron.x, electron.y);
+                }
+                
+                // Remover elétrons que foram absorvidos
+                if (electron.progress > 1.1) {
+                    electrons.splice(i, 1);
+                }
+            }
+        }
+        
+        // Efeito visual quando elétron é absorvido pela placa
+        function drawAbsorptionEffect(x, y) {
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Efeito de dissipação
+            setTimeout(() => {
+                ctx.fillStyle = '#e74c3c60';
+                ctx.beginPath();
+                ctx.arc(x, y, 12, 0, Math.PI * 2);
+                ctx.fill();
+            }, 50);
+        }
+        
+        // Atualizar medições em tempo real
+        function updateRealTimeMeasurements() {
+            const now = Date.now();
+            
+            // Calcular corrente baseada na taxa de elétrons coletados por segundo
+            if (lastMeasurementTime === 0) {
+                lastMeasurementTime = now;
+            }
+            
+            const elapsedTime = (now - lastMeasurementTime) / 1000; // em segundos
+            
+            // Atualizar a cada 0.5 segundos para uma medição mais estável
+            if (elapsedTime >= 0.5) {
+                const electronsPerSecond = electronsCollected / elapsedTime;
+                currentCurrent = electronsPerSecond * ELECTRON_CHARGE; // Em Amperes
+                
+                currentValue.textContent = toScientific(currentCurrent, "A");
+                electronsValue.textContent = electronsEmitted.toLocaleString();
+                
+                // Reset para o próximo período de medição
+                electronsCollected = 0;
+                lastMeasurementTime = now;
+            }
+            
+            // Manter a atualização da energia cinética em tempo real
+            const frequency = (parseFloat(lightFrequency.value) * 0.5 + 1) * 1e14;
+            const photonEnergy = PLANCK_CONSTANT * frequency;
+            let maxKineticEnergy = 0;
+            if (photonEnergy > currentMetal.workFunction) {
+                maxKineticEnergy = photonEnergy - currentMetal.workFunction;
+            }
+            kineticEnergyValue.textContent = formatEnergy(maxKineticEnergy);
+            
+            // VOLTAGEM DE PARADA AGORA É NEGATIVA
+            const stopVoltage = -maxKineticEnergy;
+            stopVoltageValue.textContent = formatVoltage(stopVoltage);
+        }
+
+        // ========== SISTEMA DE GRÁFICOS ==========
+
+        // Redimensionar gráficos
+        function resizeGraphs() {
+            energyFrequencyGraph.width = energyFrequencyGraph.offsetWidth;
+            energyFrequencyGraph.height = energyFrequencyGraph.offsetHeight;
+            
+            currentVoltageGraph.width = currentVoltageGraph.offsetWidth;
+            currentVoltageGraph.height = currentVoltageGraph.offsetHeight;
+            
+            currentIntensityGraph.width = currentIntensityGraph.offsetWidth;
+            currentIntensityGraph.height = currentIntensityGraph.offsetHeight;
+            
+            drawGraphs();
+        }
+        
+        // Adicionar ponto ao gráfico Energia vs Frequência
+        function addEnergyFrequencyDataPoint(frequency, kineticEnergy) {
+            // Verificar se já existe um ponto com frequência similar
+            const existingPoint = energyFrequencyData.find(point => 
+                Math.abs(point.frequency - frequency) < 0.1e14
+            );
+            
+            if (!existingPoint) {
+                energyFrequencyData.push({
+                    frequency: frequency,
+                    kineticEnergy: kineticEnergy
+                });
+                
+                // Manter apenas os últimos 20 pontos
+                if (energyFrequencyData.length > 20) {
+                    energyFrequencyData.shift();
+                }
+                
+                drawGraphs();
+            }
+        }
+        
+        // Atualizar dados do gráfico Corrente vs Tensão
+        function updateCurrentVoltageData() {
+            const volt = parseFloat(voltage.value);
+            const intensity = parseInt(lightIntensity.value);
+            const frequency = (parseFloat(lightFrequency.value) * 0.5 + 1) * 1e14;
+            const photonEnergy = PLANCK_CONSTANT * frequency;
+            
+            // Calcular corrente baseada na voltagem e energia dos fótons
+            let current = 0;
+            if (photonEnergy > currentMetal.workFunction) {
+                // Corrente máxima (quando voltagem é positiva)
+                const maxCurrent = (intensity / 10) * 5e-9; // Em Amperes
+                
+                // A voltagem negativa reduz a corrente
+                if (volt >= 0) {
+                    current = maxCurrent;
+                } else {
+                    // Calcular voltagem de parada
+                    const stopVoltage = -(photonEnergy - currentMetal.workFunction); // Negativa
+                    
+                    // Corrente reduzida por voltagem negativa
+                    if (volt > stopVoltage) { // Lembre-se: stopVoltage é negativo, então volt > stopVoltage significa menos negativo
+                        current = maxCurrent * (1 - (volt - stopVoltage) / stopVoltage);
+                    } else {
+                        current = 0;
+                    }
+                }
+            }
+            
+            // Adicionar ponto ao gráfico
+            currentVoltageData.push({
+                voltage: volt,
+                current: current
+            });
+            
+            // Manter apenas os últimos 50 pontos
+            if (currentVoltageData.length > 50) {
+                currentVoltageData.shift();
+            }
+            
+            drawGraphs();
+        }
+        
+        // Atualizar dados do gráfico Corrente vs Intensidade
+        function updateCurrentIntensityData() {
+            const intensity = parseInt(lightIntensity.value);
+            const frequency = (parseFloat(lightFrequency.value) * 0.5 + 1) * 1e14;
+            const photonEnergy = PLANCK_CONSTANT * frequency;
+            const volt = parseFloat(voltage.value);
+            
+            // Calcular corrente baseada na intensidade e energia dos fótons
+            let current = 0;
+            if (photonEnergy > currentMetal.workFunction && volt >= 0) {
+                current = (intensity / 10) * 5e-9; // Em Amperes
+            }
+            
+            // Adicionar ponto ao gráfico
+            currentIntensityData.push({
+                intensity: intensity,
+                current: current
+            });
+            
+            // Manter apenas os últimos 50 pontos
+            if (currentIntensityData.length > 50) {
+                currentIntensityData.shift();
+            }
+            
+            drawGraphs();
+        }
+        
+        // Desenhar todos os gráficos
+        function drawGraphs() {
+            drawEnergyFrequencyGraph();
+            drawCurrentVoltageGraph();
+            drawCurrentIntensityGraph();
+        }
+        
+        // Desenhar o gráfico Energia vs Frequência
+        function drawEnergyFrequencyGraph() {
+            const width = energyFrequencyGraph.width;
+            const height = energyFrequencyGraph.height;
+            const padding = 50;
+            
+            energyFrequencyCtx.clearRect(0, 0, width, height);
+            
+            // Fundo
+            energyFrequencyCtx.fillStyle = '#f8f9fa';
+            energyFrequencyCtx.fillRect(0, 0, width, height);
+            
+            // Desenhar eixos
+            energyFrequencyCtx.strokeStyle = '#333';
+            energyFrequencyCtx.lineWidth = 2;
+            energyFrequencyCtx.beginPath();
+            energyFrequencyCtx.moveTo(padding, padding);
+            energyFrequencyCtx.lineTo(padding, height - padding);
+            energyFrequencyCtx.lineTo(width - padding, height - padding);
+            energyFrequencyCtx.stroke();
+            
+            // Rótulos dos eixos
+            energyFrequencyCtx.fillStyle = '#333';
+            energyFrequencyCtx.font = '14px Arial';
+            energyFrequencyCtx.textAlign = 'center';
+            energyFrequencyCtx.fillText('Frequência (Hz)', width / 2, height - 10);
+            
+            energyFrequencyCtx.save();
+            energyFrequencyCtx.translate(15, height / 2);
+            energyFrequencyCtx.rotate(-Math.PI / 2);
+            energyFrequencyCtx.fillText('Energia Cinética Máxima (eV)', 0, 0);
+            energyFrequencyCtx.restore();
+            
+            // Se não há pontos, mostrar mensagem
+            if (energyFrequencyData.length === 0) {
+                energyFrequencyCtx.fillStyle = '#666';
+                energyFrequencyCtx.font = '14px Arial';
+                energyFrequencyCtx.textAlign = 'center';
+                energyFrequencyCtx.fillText('Ajuste a frequência acima do limiar para ver dados', width / 2, height / 2);
+                return;
+            }
+            
+            // Encontrar valores mínimos e máximos
+            const minFreq = Math.min(...energyFrequencyData.map(p => p.frequency));
+            const maxFreq = Math.max(...energyFrequencyData.map(p => p.frequency));
+            const minEnergy = 0;
+            const maxEnergy = Math.max(0.1, ...energyFrequencyData.map(p => p.kineticEnergy));
+            
+            // Desenhar grade
+            energyFrequencyCtx.strokeStyle = '#e0e0e0';
+            energyFrequencyCtx.lineWidth = 0.5;
+            
+            // Grade vertical
+            const xSteps = 5;
+            for (let i = 0; i <= xSteps; i++) {
+                const x = padding + (i / xSteps) * (width - 2 * padding);
+                energyFrequencyCtx.beginPath();
+                energyFrequencyCtx.moveTo(x, padding);
+                energyFrequencyCtx.lineTo(x, height - padding);
+                energyFrequencyCtx.stroke();
+                
+                // Valores do eixo X
+                const freqValue = minFreq + (i / xSteps) * (maxFreq - minFreq);
+                energyFrequencyCtx.fillStyle = '#333';
+                energyFrequencyCtx.font = '12px Arial';
+                energyFrequencyCtx.textAlign = 'center';
+                energyFrequencyCtx.fillText(toScientific(freqValue, ""), x, height - padding + 20);
+            }
+            
+            // Grade horizontal
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = height - padding - (i / ySteps) * (height - 2 * padding);
+                energyFrequencyCtx.beginPath();
+                energyFrequencyCtx.moveTo(padding, y);
+                energyFrequencyCtx.lineTo(width - padding, y);
+                energyFrequencyCtx.stroke();
+                
+                // Valores do eixo Y
+                const energyValue = minEnergy + (i / ySteps) * (maxEnergy - minEnergy);
+                energyFrequencyCtx.fillStyle = '#333';
+                energyFrequencyCtx.font = '12px Arial';
+                energyFrequencyCtx.textAlign = 'right';
+                energyFrequencyCtx.fillText(toScientific(energyValue, ""), padding - 5, y + 4);
+            }
+            
+            // Desenhar linha através dos pontos
+            if (energyFrequencyData.length >= 2) {
+                energyFrequencyCtx.strokeStyle = '#3498db';
+                energyFrequencyCtx.lineWidth = 2;
+                energyFrequencyCtx.beginPath();
+                
+                energyFrequencyData.forEach((point, index) => {
+                    const x = padding + (point.frequency - minFreq) / (maxFreq - minFreq) * (width - 2 * padding);
+                    const y = height - padding - (point.kineticEnergy - minEnergy) / (maxEnergy - minEnergy) * (height - 2 * padding);
+                    
+                    if (index === 0) {
+                        energyFrequencyCtx.moveTo(x, y);
+                    } else {
+                        energyFrequencyCtx.lineTo(x, y);
+                    }
+                });
+                
+                energyFrequencyCtx.stroke();
+            }
+            
+            // Desenhar pontos
+            energyFrequencyData.forEach(point => {
+                const x = padding + (point.frequency - minFreq) / (maxFreq - minFreq) * (width - 2 * padding);
+                const y = height - padding - (point.kineticEnergy - minEnergy) / (maxEnergy - minEnergy) * (height - 2 * padding);
+                
+                energyFrequencyCtx.fillStyle = '#3498db';
+                energyFrequencyCtx.beginPath();
+                energyFrequencyCtx.arc(x, y, 4, 0, Math.PI * 2);
+                energyFrequencyCtx.fill();
+                
+                energyFrequencyCtx.strokeStyle = '#2980b9';
+                energyFrequencyCtx.lineWidth = 1;
+                energyFrequencyCtx.stroke();
+            });
+        }
+        
+        // Desenhar o gráfico Corrente vs Tensão
+        function drawCurrentVoltageGraph() {
+            const width = currentVoltageGraph.width;
+            const height = currentVoltageGraph.height;
+            const padding = 50;
+            
+            currentVoltageCtx.clearRect(0, 0, width, height);
+            
+            // Fundo
+            currentVoltageCtx.fillStyle = '#f8f9fa';
+            currentVoltageCtx.fillRect(0, 0, width, height);
+            
+            // Desenhar eixos
+            currentVoltageCtx.strokeStyle = '#333';
+            currentVoltageCtx.lineWidth = 2;
+            currentVoltageCtx.beginPath();
+            currentVoltageCtx.moveTo(padding, padding);
+            currentVoltageCtx.lineTo(padding, height - padding);
+            currentVoltageCtx.lineTo(width - padding, height - padding);
+            currentVoltageCtx.stroke();
+            
+            // Rótulos dos eixos
+            currentVoltageCtx.fillStyle = '#333';
+            currentVoltageCtx.font = '14px Arial';
+            currentVoltageCtx.textAlign = 'center';
+            currentVoltageCtx.fillText('Tensão (V)', width / 2, height - 10);
+            
+            currentVoltageCtx.save();
+            currentVoltageCtx.translate(15, height / 2);
+            currentVoltageCtx.rotate(-Math.PI / 2);
+            currentVoltageCtx.fillText('Corrente (A)', 0, 0);
+            currentVoltageCtx.restore();
+            
+            // Se não há pontos, mostrar mensagem
+            if (currentVoltageData.length === 0) {
+                currentVoltageCtx.fillStyle = '#666';
+                currentVoltageCtx.font = '14px Arial';
+                currentVoltageCtx.textAlign = 'center';
+                currentVoltageCtx.fillText('Ajuste os parâmetros para ver dados', width / 2, height / 2);
+                return;
+            }
+            
+            // Encontrar valores mínimos e máximos
+            const minVoltage = Math.min(-1, ...currentVoltageData.map(p => p.voltage));
+            const maxVoltage = Math.max(1, ...currentVoltageData.map(p => p.voltage));
+            const minCurrent = 0;
+            const maxCurrent = Math.max(1e-10, ...currentVoltageData.map(p => p.current));
+            
+            // Desenhar grade
+            currentVoltageCtx.strokeStyle = '#e0e0e0';
+            currentVoltageCtx.lineWidth = 0.5;
+            
+            // Grade vertical
+            const xSteps = 6;
+            for (let i = 0; i <= xSteps; i++) {
+                const x = padding + (i / xSteps) * (width - 2 * padding);
+                currentVoltageCtx.beginPath();
+                currentVoltageCtx.moveTo(x, padding);
+                currentVoltageCtx.lineTo(x, height - padding);
+                currentVoltageCtx.stroke();
+                
+                // Valores do eixo X
+                const voltageValue = minVoltage + (i / xSteps) * (maxVoltage - minVoltage);
+                currentVoltageCtx.fillStyle = '#333';
+                currentVoltageCtx.font = '12px Arial';
+                currentVoltageCtx.textAlign = 'center';
+                currentVoltageCtx.fillText(toScientific(voltageValue, ""), x, height - padding + 20);
+            }
+            
+            // Grade horizontal
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = height - padding - (i / ySteps) * (height - 2 * padding);
+                currentVoltageCtx.beginPath();
+                currentVoltageCtx.moveTo(padding, y);
+                currentVoltageCtx.lineTo(width - padding, y);
+                currentVoltageCtx.stroke();
+                
+                // Valores do eixo Y
+                const currentValue = minCurrent + (i / ySteps) * (maxCurrent - minCurrent);
+                currentVoltageCtx.fillStyle = '#333';
+                currentVoltageCtx.font = '12px Arial';
+                currentVoltageCtx.textAlign = 'right';
+                currentVoltageCtx.fillText(toScientific(currentValue, ""), padding - 5, y + 4);
+            }
+            
+            // Desenhar linha através dos pontos
+            if (currentVoltageData.length >= 2) {
+                currentVoltageCtx.strokeStyle = '#3498db';
+                currentVoltageCtx.lineWidth = 2;
+                currentVoltageCtx.beginPath();
+                
+                currentVoltageData.forEach((point, index) => {
+                    const x = padding + (point.voltage - minVoltage) / (maxVoltage - minVoltage) * (width - 2 * padding);
+                    const y = height - padding - (point.current - minCurrent) / (maxCurrent - minCurrent) * (height - 2 * padding);
+                    
+                    if (index === 0) {
+                        currentVoltageCtx.moveTo(x, y);
+                    } else {
+                        currentVoltageCtx.lineTo(x, y);
+                    }
+                });
+                
+                currentVoltageCtx.stroke();
+            }
+            
+            // Desenhar pontos
+            currentVoltageData.forEach(point => {
+                const x = padding + (point.voltage - minVoltage) / (maxVoltage - minVoltage) * (width - 2 * padding);
+                const y = height - padding - (point.current - minCurrent) / (maxCurrent - minCurrent) * (height - 2 * padding);
+                
+                currentVoltageCtx.fillStyle = '#3498db';
+                currentVoltageCtx.beginPath();
+                currentVoltageCtx.arc(x, y, 3, 0, Math.PI * 2);
+                currentVoltageCtx.fill();
+                
+                currentVoltageCtx.strokeStyle = '#2980b9';
+                currentVoltageCtx.lineWidth = 1;
+                currentVoltageCtx.stroke();
+            });
+        }
+        
+        // Desenhar o gráfico Corrente vs Intensidade
+        function drawCurrentIntensityGraph() {
+            const width = currentIntensityGraph.width;
+            const height = currentIntensityGraph.height;
+            const padding = 50;
+            
+            currentIntensityCtx.clearRect(0, 0, width, height);
+            
+            // Fundo
+            currentIntensityCtx.fillStyle = '#f8f9fa';
+            currentIntensityCtx.fillRect(0, 0, width, height);
+            
+            // Desenhar eixos
+            currentIntensityCtx.strokeStyle = '#333';
+            currentIntensityCtx.lineWidth = 2;
+            currentIntensityCtx.beginPath();
+            currentIntensityCtx.moveTo(padding, padding);
+            currentIntensityCtx.lineTo(padding, height - padding);
+            currentIntensityCtx.lineTo(width - padding, height - padding);
+            currentIntensityCtx.stroke();
+            
+            // Rótulos dos eixos
+            currentIntensityCtx.fillStyle = '#333';
+            currentIntensityCtx.font = '14px Arial';
+            currentIntensityCtx.textAlign = 'center';
+            currentIntensityCtx.fillText('Intensidade da Luz', width / 2, height - 10);
+            
+            currentIntensityCtx.save();
+            currentIntensityCtx.translate(15, height / 2);
+            currentIntensityCtx.rotate(-Math.PI / 2);
+            currentIntensityCtx.fillText('Corrente (A)', 0, 0);
+            currentIntensityCtx.restore();
+            
+            // Se não há pontos, mostrar mensagem
+            if (currentIntensityData.length === 0) {
+                currentIntensityCtx.fillStyle = '#666';
+                currentIntensityCtx.font = '14px Arial';
+                currentIntensityCtx.textAlign = 'center';
+                currentIntensityCtx.fillText('Ajuste os parâmetros para ver dados', width / 2, height / 2);
+                return;
+            }
+            
+            // Encontrar valores mínimos e máximos
+            const minIntensity = 1;
+            const maxIntensity = 10;
+            const minCurrent = 0;
+            const maxCurrent = Math.max(1e-10, ...currentIntensityData.map(p => p.current));
+            
+            // Desenhar grade
+            currentIntensityCtx.strokeStyle = '#e0e0e0';
+            currentIntensityCtx.lineWidth = 0.5;
+            
+            // Grade vertical
+            const xSteps = 5;
+            for (let i = 0; i <= xSteps; i++) {
+                const x = padding + (i / xSteps) * (width - 2 * padding);
+                currentIntensityCtx.beginPath();
+                currentIntensityCtx.moveTo(x, padding);
+                currentIntensityCtx.lineTo(x, height - padding);
+                currentIntensityCtx.stroke();
+                
+                // Valores do eixo X
+                const intensityValue = minIntensity + (i / xSteps) * (maxIntensity - minIntensity);
+                currentIntensityCtx.fillStyle = '#333';
+                currentIntensityCtx.font = '12px Arial';
+                currentIntensityCtx.textAlign = 'center';
+                currentIntensityCtx.fillText(intensityValue.toPrecision(3), x, height - padding + 20);
+            }
+            
+            // Grade horizontal
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = height - padding - (i / ySteps) * (height - 2 * padding);
+                currentIntensityCtx.beginPath();
+                currentIntensityCtx.moveTo(padding, y);
+                currentIntensityCtx.lineTo(width - padding, y);
+                currentIntensityCtx.stroke();
+                
+                // Valores do eixo Y
+                const currentValue = minCurrent + (i / ySteps) * (maxCurrent - minCurrent);
+                currentIntensityCtx.fillStyle = '#333';
+                currentIntensityCtx.font = '12px Arial';
+                currentIntensityCtx.textAlign = 'right';
+                currentIntensityCtx.fillText(toScientific(currentValue, ""), padding - 5, y + 4);
+            }
+            
+            // Desenhar linha através dos pontos
+            if (currentIntensityData.length >= 2) {
+                currentIntensityCtx.strokeStyle = '#2ecc71';
+                currentIntensityCtx.lineWidth = 2;
+                currentIntensityCtx.beginPath();
+                
+                currentIntensityData.forEach((point, index) => {
+                    const x = padding + (point.intensity - minIntensity) / (maxIntensity - minIntensity) * (width - 2 * padding);
+                    const y = height - padding - (point.current - minCurrent) / (maxCurrent - minCurrent) * (height - 2 * padding);
+                    
+                    if (index === 0) {
+                        currentIntensityCtx.moveTo(x, y);
+                    } else {
+                        currentIntensityCtx.lineTo(x, y);
+                    }
+                });
+                
+                currentIntensityCtx.stroke();
+            }
+            
+            // Desenhar pontos
+            currentIntensityData.forEach(point => {
+                const x = padding + (point.intensity - minIntensity) / (maxIntensity - minIntensity) * (width - 2 * padding);
+                const y = height - padding - (point.current - minCurrent) / (maxCurrent - minCurrent) * (height - 2 * padding);
+                
+                currentIntensityCtx.fillStyle = '#2ecc71';
+                currentIntensityCtx.beginPath();
+                currentIntensityCtx.arc(x, y, 3, 0, Math.PI * 2);
+                currentIntensityCtx.fill();
+                
+                currentIntensityCtx.strokeStyle = '#27ae60';
+                currentIntensityCtx.lineWidth = 1;
+                currentIntensityCtx.stroke();
+            });
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+
+        // Configurar eventos dos botões de exercícios
+        function setupExerciseEventListeners() {
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.querySelector('#graphsModal .close').addEventListener('click', closeGraphsModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeGraphs').addEventListener('click', closeGraphsModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                } else if (event.target == document.getElementById('graphsModal')) {
+                    closeGraphsModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Fechar modal de gráficos
+        function closeGraphsModal() {
+            document.getElementById('graphsModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de gráficos
+        function openGraphsModal() {
+            document.getElementById('graphsModal').style.display = 'flex';
+            resizeGraphs();
+            drawGraphs();
+        }
+        
+        // Gerar exercícios sobre Efeito Fotoelétrico - MODIFICADA PARA EVITAR RESPOSTAS ZERO
+        function generateExercises() {
+            exercises = [];
+            
+            // Gerar 6 exercícios variados
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular Energia Cinética Máxima (E = h·ν - φ)
+                let h = 4.135667662e-15; // eV·s
+                let nu, phi, E;
+                
+                // Garantir que a energia cinética seja positiva e significativa
+                do {
+                    nu = (Math.floor(Math.random() * 10) + 8) * 1e14; // Hz (valores entre 8-17 ×10¹⁴ Hz)
+                    phi = (Math.floor(Math.random() * 3) + 2) + Math.random(); // eV (valores entre 2-5 eV)
+                    E = h * nu - phi;
+                } while (E <= 0.1); // Garantir energia cinética mínima de 0.1 eV
+                
+                // Formatar com 3 algarismos significativos
+                const formattedE = parseFloat(E.toPrecision(3));
+                
+                exercises.push({
+                    type: 'calcular_energia_cinetica',
+                    question: `Uma luz com frequência de ${formatFrequency(nu)} incide sobre um metal cuja função trabalho é ${formatEnergy(phi)}. Qual é a energia cinética máxima dos elétrons emitidos?`,
+                    answer: formatEnergy(formattedE),
+                    options: generateOptions(formattedE, 'eV')
+                });
+                
+                // Tipo 2: Calcular Voltagem de Parada (V = E / e)
+                // Usar a mesma energia cinética do exercício anterior
+                const V = formattedE; // Como E está em eV, a voltagem de parada em V é numericamente igual
+                
+                exercises.push({
+                    type: 'calcular_voltagem_parada',
+                    question: `Para o mesmo metal (φ = ${formatEnergy(phi)}) iluminado pela mesma luz (ν = ${formatFrequency(nu)}), qual é a voltagem de parada?`,
+                    answer: formatVoltage(V),
+                    options: generateOptions(V, 'V')
+                });
+                
+                // Tipo 3: Calcular Frequência Limiar (ν₀ = φ / h)
+                const nu0 = phi / h;
+                const formattedNu0 = parseFloat(nu0.toPrecision(3));
+                
+                exercises.push({
+                    type: 'calcular_frequencia_limiar',
+                    question: `Qual é a frequência limiar para um metal com função trabalho de ${formatEnergy(phi)}?`,
+                    answer: formatFrequency(formattedNu0),
+                    options: generateOptions(formattedNu0, 'Hz', true)
+                });
+            }
+            
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+        
+        // Gerar opções de resposta (agora com 5 alternativas) - MODIFICADA PARA EVITAR ZEROS
+        function generateOptions(correctValue, unit, isFrequency = false) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 20;
+            
+            // Formatar o valor correto
+            let formattedCorrectValue;
+            if (isFrequency) {
+                formattedCorrectValue = formatFrequency(correctValue);
+            } else if (unit === 'eV') {
+                formattedCorrectValue = formatEnergy(correctValue);
+            } else if (unit === 'V') {
+                formattedCorrectValue = formatVoltage(correctValue);
+            } else {
+                formattedCorrectValue = toScientific(correctValue, unit);
+            }
+            
+            options.push({
+                value: correctValue,
+                display: formattedCorrectValue
+            });
+            
+            // Gerar 4 opções incorretas (total de 5 alternativas)
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                // Garantir que as opções sejam diferentes e não zero
+                attempts = 0;
+                do {
+                    // Usar variações mais diversificadas
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        // Multiplicador aleatório
+                        optionValue = correctValue * (Math.random() * 0.8 + 0.5);
+                    } else if (variationType < 0.6) {
+                        // Divisor aleatório
+                        optionValue = correctValue / (Math.random() * 0.8 + 0.5);
+                    } else {
+                        // Soma/subtração de porcentagem
+                        const percentChange = (Math.random() * 50 + 20) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    // Garantir que o valor seja positivo e significativo para grandezas físicas
+                    if (unit === 'eV' || unit === 'V' || unit === 'Hz') {
+                        optionValue = Math.abs(optionValue);
+                        // Evitar valores muito próximos de zero
+                        if (optionValue < 0.01) {
+                            optionValue = 0.01 + Math.random() * 0.1;
+                        }
+                    }
+                    
+                    // Formatar com a mesma precisão
+                    if (isFrequency) {
+                        formattedOption = formatFrequency(optionValue);
+                    } else if (unit === 'eV') {
+                        formattedOption = formatEnergy(optionValue);
+                    } else if (unit === 'V') {
+                        formattedOption = formatVoltage(optionValue);
+                    } else {
+                        formattedOption = toScientific(optionValue, unit);
+                    }
+                    
+                    unique = !options.some(opt => opt.display === formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        // Forçar uma opção única adicionando um pequeno valor aleatório
+                        optionValue = correctValue * (0.5 + Math.random());
+                        if (isFrequency) {
+                            formattedOption = formatFrequency(optionValue);
+                        } else if (unit === 'eV') {
+                            formattedOption = formatEnergy(optionValue);
+                        } else if (unit === 'V') {
+                            formattedOption = formatVoltage(optionValue);
+                        } else {
+                            formattedOption = toScientific(optionValue, unit);
+                        }
+                        unique = true;
+                    }
+                } while (!unique);
+                
+                options.push({
+                    value: optionValue,
+                    display: formattedOption
+                });
+            }
+            
+            // Embaralhar opções e retornar apenas os valores formatados
+            return shuffleArray(options).map(opt => opt.display);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'calcular_energia_cinetica') {
+                let h = 4.135667662e-15; // eV·s
+                let nu, phi, E;
+                
+                do {
+                    nu = (Math.floor(Math.random() * 10) + 8) * 1e14; // Hz
+                    phi = (Math.floor(Math.random() * 3) + 2) + Math.random(); // eV
+                    E = h * nu - phi;
+                } while (E <= 0.1);
+                
+                const formattedE = parseFloat(E.toPrecision(3));
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_energia_cinetica',
+                    question: `Uma luz com frequência de ${formatFrequency(nu)} incide sobre um metal cuja função trabalho é ${formatEnergy(phi)}. Qual é a energia cinética máxima dos elétrons emitidos?`,
+                    answer: formatEnergy(formattedE),
+                    options: generateOptions(formattedE, 'eV')
+                };
+            } else if (currentType === 'calcular_voltagem_parada') {
+                // Para voltagem de parada, vamos reutilizar o mesmo metal e luz do exercício de energia cinética
+                // Mas como não temos mais os valores, vamos gerar novos
+                let h = 4.135667662e-15; // eV·s
+                let nu, phi, E;
+                
+                do {
+                    nu = (Math.floor(Math.random() * 10) + 8) * 1e14; // Hz
+                    phi = (Math.floor(Math.random() * 3) + 2) + Math.random(); // eV
+                    E = h * nu - phi;
+                } while (E <= 0.1);
+                
+                const formattedE = parseFloat(E.toPrecision(3));
+                const V = formattedE;
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_voltagem_parada',
+                    question: `Para um metal com função trabalho de ${formatEnergy(phi)} iluminado por uma luz de frequência ${formatFrequency(nu)}, qual é a voltagem de parada?`,
+                    answer: formatVoltage(V),
+                    options: generateOptions(V, 'V')
+                };
+            } else if (currentType === 'calcular_frequencia_limiar') {
+                let phi = (Math.floor(Math.random() * 3) + 2) + Math.random(); // eV
+                let h = 4.135667662e-15; // eV·s
+                let nu0 = phi / h;
+                const formattedNu0 = parseFloat(nu0.toPrecision(3));
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_frequencia_limiar',
+                    question: `Qual é a frequência limiar para um metal com função trabalho de ${formatEnergy(phi)}?`,
+                    answer: formatFrequency(formattedNu0),
+                    options: generateOptions(formattedNu0, 'Hz', true)
+                };
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Efeito Fotoelétrico',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Efeito Fotoelétrico',
+                        mensagem: `Confirmação de Envio - Simulação de Efeito Fotoelétrico'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    </script>
+</body>
+</html>
