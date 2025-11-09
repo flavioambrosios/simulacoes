@@ -886,7 +886,67 @@
             <div class="buttons-container">
                 <button id="closeTheory" class="check-btn">Fechar</button>
             </div>
-        </div>
+        
+
+            <div class="theory-section">
+                <h3>Relação Carga/Massa de Partículas Comuns</h3>
+                <p>Valores de referência para comparação em espectrômetros de massa:</p>
+                
+                <div style="overflow-x: auto; margin: 15px 0;">
+                    <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.1);">
+                        <thead>
+                            <tr style="background: rgba(255, 204, 0, 0.3);">
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Partícula</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Carga (q)</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Massa (m)</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Relação q/m (C/kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Elétron</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,602 × 10⁻¹⁹ C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10⁻³¹ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,76 × 10¹¹</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Próton</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10⁻¹⁹ C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,673 × 10⁻²⁷ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+9,58 × 10⁷</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Partícula Alfa</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+3,204 × 10⁻¹⁹ C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">6,645 × 10⁻²⁷ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+4,82 × 10⁷</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Nêutron</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">0 C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,675 × 10⁻²⁷ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">0</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Pósitron</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10⁻¹⁹ C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10⁻³¹ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,76 × 10¹¹</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p><strong>Observações importantes:</strong></p>
+                <ul>
+                    <li>O <span class="highlight">elétron</span> tem a maior relação |q/m| em valor absoluto</li>
+                    <li>O <span class="highlight">próton</span> e a <span class="highlight">partícula alfa</span> têm relações q/m similares</li>
+                    <li>O <span class="highlight">nêutron</span> não é defletido por campos magnéticos (q/m = 0)</li>
+                    <li>O <span class="highlight">pósitron</span> tem mesma relação que o elétron, mas com carga positiva</li>
+                </ul>
+            </div>
+        </div>    
+
     </div>
 
     <script>
@@ -1380,6 +1440,44 @@
 
         // ========== SISTEMA DE EXERCÍCIOS ==========
 
+        // Função para calcular raios realistas baseados na física
+        function calculateRealisticRadius(particleType) {
+            const V = 5000; // Voltagem fixa do exercício
+            const B = 0.5;  // Campo magnético fixo do exercício
+            
+            let charge, mass;
+            
+            // Definir propriedades da partícula
+            switch(particleType) {
+                case 'electron':
+                    charge = 1.602e-19;
+                    mass = 9.109e-31;
+                    break;
+                case 'proton':
+                    charge = 1.602e-19;
+                    mass = 1.673e-27;
+                    break;
+                case 'alpha':
+                    charge = 3.204e-19;
+                    mass = 6.645e-27;
+                    break;
+                case 'positron':
+                    charge = 1.602e-19;
+                    mass = 9.109e-31;
+                    break;
+            }
+            
+            // Calcular velocidade: v = √(2|q|V/m)
+            const velocity = Math.sqrt(2 * Math.abs(charge) * V / mass);
+            
+            // Calcular raio: R = mv/(|q|B)
+            const radius = mass * velocity / (Math.abs(charge) * B);
+            
+            // Arredondar para 4 casas decimais
+            return radius.toFixed(4);
+        }
+
+
         // Gerar 15 exercícios sobre Espectrômetro de Massa
         function generateExercises() {
             exercises = [];
@@ -1405,22 +1503,47 @@
                 let q = (Math.floor(Math.random() * 9) + 1) * 1e-19; // C
                 b = (Math.floor(Math.random() * 9) + 1) * 0.1; // T
                 r = (m * vel / (Math.abs(q) * b));
-                
+
                 exercises.push({
                     type: 'calcular_raio',
                     question: `Uma partícula com massa de ${formatScientific(m)} kg e carga de ${formatScientific(q)} C move-se com velocidade de ${formatScientific(vel)} m/s perpendicularmente a um campo magnético de ${formatScientific(b)} T. Qual o raio de sua trajetória circular?`,
                     answer: formatScientific(r) + ' m',
                     options: generateOptions(r, 'm')
                 });
-                
+
                 // Tipo 3: Identificação de partícula
                 let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
-                let correctIndex = Math.floor(Math.random() * 3);
-                
+
+                // Calcular raios REALISTAS baseados na física
+                const realisticRadii = {
+                    'elétron': calculateRealisticRadius('electron'),
+                    'próton': calculateRealisticRadius('proton'), 
+                    'partícula alfa': calculateRealisticRadius('alpha'),
+                    'pósitron': calculateRealisticRadius('positron')
+                };
+
+                // Para raios pequenos (elétron/pósitron), incluir ambos como possíveis respostas
+                const particleTypes = ['elétron', 'próton', 'partícula alfa', 'pósitron'];
+                let correctParticle;
+
+                // Escolher uma partícula aleatória, mas com pesos diferentes baseados na probabilidade
+                const random = Math.random();
+                if (random < 0.4) { // 40% de chance de ser elétron (mais comum)
+                    correctParticle = 'elétron';
+                } else if (random < 0.5) { // 10% de chance de ser pósitron (menos comum)
+                    correctParticle = 'pósitron';
+                } else if (random < 0.8) { // 30% de chance de ser próton
+                    correctParticle = 'próton';
+                } else { // 20% de chance de ser partícula alfa
+                    correctParticle = 'partícula alfa';
+                }
+
+                const realisticR = realisticRadii[correctParticle];
+
                 exercises.push({
                     type: 'identificar_particula',
-                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${formatScientific((Math.floor(Math.random() * 5) + 1) * 0.01)} m. Qual partícula é mais provável?`,
-                    answer: options[correctIndex],
+                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
+                    answer: correctParticle,
                     options: shuffleArray([...options])
                 });
             }
@@ -1520,30 +1643,50 @@
         }
         
         // Verificar resposta
+       // Verificar resposta
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
             const resultDiv = container.querySelector('.result');
             const checkButton = document.getElementById('checkAnswerBtn');
             const options = container.querySelectorAll('.option');
-            
+
             if (!selectedOption) {
                 resultDiv.textContent = 'Por favor, selecione uma opção.';
                 resultDiv.className = 'result error';
                 return;
             }
-            
+
             // Desabilitar opções
             options.forEach(opt => opt.classList.add('disabled'));
             checkButton.disabled = true;
-            
-            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
-            
+
+            let isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+
+            // CORREÇÃO: Para exercícios de identificação, elétron e pósitron são equivalentes para raios pequenos
+            if (!isCorrect && exercises[currentExercise].type === 'identificar_particula') {
+                const selected = selectedOption.dataset.value;
+                const correct = exercises[currentExercise].answer;
+
+                // Verificar se é um caso de elétron/pósitron com raio pequeno
+                const question = exercises[currentExercise].question;
+                const radiusMatch = question.match(/R=([0-9.]+)/);
+                if (radiusMatch) {
+                    const radius = parseFloat(radiusMatch[1]);
+                    // Se o raio é pequeno (típico de elétron/pósitron) e a resposta trocou elétron por pósitron ou vice-versa
+                    if (radius < 0.001 && 
+                        ((selected === 'elétron' && correct === 'pósitron') || 
+                        (selected === 'pósitron' && correct === 'elétron'))) {
+                        isCorrect = true; // Considerar como correto
+                    }
+                }
+            }
+
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!';
                 resultDiv.className = 'result success';
                 selectedOption.classList.add('correct');
-                
+
                 // Registrar resultado
                 exerciseResults.push({ 
                     exercise: currentExercise, 
@@ -1552,7 +1695,7 @@
                     attempts: currentExerciseAttempts + 1
                 });
                 currentExerciseAttempts = 0;
-                
+
                 setTimeout(nextExercise, 1500);
             } else {
                 currentExerciseAttempts++;
@@ -1563,7 +1706,7 @@
                         <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
                     </div>
                 `;
-                
+
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
                     // ALTERAÇÃO 1: Gerar nova questão do mesmo tipo ao tentar novamente
@@ -1571,6 +1714,23 @@
                     showCurrentExercise();
                 });
             }
+        
+
+            // CORREÇÃO: Para exercícios de identificação, elétron e pósitron são equivalentes para raios pequenos
+            let isActuallyCorrect = isCorrect;
+            if (!isCorrect && exercises[currentExercise].type === 'identificar_particula') {
+                const selected = selectedOption.dataset.value;
+                const correct = exercises[currentExercise].answer;
+                
+                // Se um for elétron e o outro pósitron, e o raio for pequeno, considerar correto
+                const smallRadius = exercises[currentExercise].question.includes('R=0.0005');
+                if (smallRadius && 
+                    ((selected === 'elétron' && correct === 'pósitron') || 
+                    (selected === 'pósitron' && correct === 'elétron'))) {
+                    isActuallyCorrect = true;
+                }
+            }
+
         }
         
         // ALTERAÇÃO 1: Gerar novo exercício do mesmo tipo
@@ -1604,14 +1764,39 @@
                 };
             } else if (currentType === 'identificar_particula') {
                 let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
-                let correctIndex = Math.floor(Math.random() * 3);
-                
-                exercises[currentExercise] = {
-                    type: 'identificar_particula',
-                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${formatScientific((Math.floor(Math.random() * 5) + 1) * 0.01)} m. Qual partícula é mais provável?`,
-                    answer: options[correctIndex],
-                    options: shuffleArray([...options])
+
+                // Calcular raios REALISTAS baseados na física
+                const realisticRadii = {
+                    'elétron': calculateRealisticRadius('electron'),
+                    'próton': calculateRealisticRadius('proton'), 
+                    'partícula alfa': calculateRealisticRadius('alpha'),
+                    'pósitron': calculateRealisticRadius('positron')
                 };
+
+                // Para raios pequenos (elétron/pósitron), incluir ambos como possíveis respostas
+                const particleTypes = ['elétron', 'próton', 'partícula alfa', 'pósitron'];
+                let correctParticle;
+
+                // Escolher uma partícula aleatória, mas com pesos diferentes baseados na probabilidade
+                const random = Math.random();
+                if (random < 0.4) { // 40% de chance de ser elétron (mais comum)
+                    correctParticle = 'elétron';
+                } else if (random < 0.5) { // 10% de chance de ser pósitron (menos comum)
+                    correctParticle = 'pósitron';
+                } else if (random < 0.8) { // 30% de chance de ser próton
+                    correctParticle = 'próton';
+                } else { // 20% de chance de ser partícula alfa
+                    correctParticle = 'partícula alfa';
+                }
+
+                const realisticR = realisticRadii[correctParticle];
+
+                exercises.push({
+                    type: 'identificar_particula',
+                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
+                    answer: correctParticle,
+                    options: shuffleArray([...options])
+                });
             }
         }
         
