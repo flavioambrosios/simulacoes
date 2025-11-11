@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação de Ondas Unidimensionais - 2D</title>
     <style>
+        /* Estilos mantidos do código original */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -770,13 +771,11 @@
                 </div>
                 
                 <div class="solved-exercise">
-                    <h4>Exemplo 3: Determinar Deslocamento</h4>
-                    <p><strong>Problema:</strong> Dada a equação y(x,t) = 2·cos(0,5x - 4t), qual é o deslocamento em x=2 m e t=1 s?</p>
-                    <div class="solution-step"><strong>Passo 1:</strong> Substituir valores: y(2,1) = 2·cos(0,5×2 - 4×1)</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular argumento: 0,5×2 - 4×1 = 1 - 4 = -3 rad</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular cosseno: cos(-3) = cos(3) ≈ -0,99</div>
-                    <div class="solution-step"><strong>Passo 4:</strong> Calcular deslocamento: y = 2×(-0,99) = -1,98 m</div>
-                    <div class="solution-step"><strong>Resposta:</strong> y(2,1) ≈ -1,98 m</div>
+                    <h4>Exemplo 3: Velocidade usando ω e k</h4>
+                    <p><strong>Problema:</strong> Dada a equação y(x,t) = 2·cos(0,5x - 4t), qual é a velocidade de propagação da onda?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Identificar k e ω: k = 0,5 rad/m; ω = 4 rad/s</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Aplicar fórmula: v = ω/k = 4 / 0,5 = 8 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v = 8 m/s</div>
                 </div>
             </div>
             
@@ -1282,20 +1281,16 @@
                     options: generateOptions(parseFloat(v), 'm/s')
                 });
                 
-                // Tipo 3: Determinar deslocamento
-                A = (Math.floor(Math.random() * 4) + 1) * 0.5; // Amplitude entre 0.5 e 2.5
+                // Tipo 3: Calcular velocidade usando ω e k
                 k = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1); // k entre 0.5 e 3.0
                 ω = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1); // ω entre 0.5 e 3.0
-                let x = Math.floor(Math.random() * 5) + 1; // x entre 1 e 5
-                let t = Math.floor(Math.random() * 5) + 1; // t entre 1 e 5
-                
-                let y = (A * Math.cos(k * x - ω * t)).toFixed(2);
+                v = (ω / k).toFixed(2);
                 
                 exercises.push({
-                    type: 'calcular_deslocamento',
-                    question: `Dada a equação y(x,t) = ${A}·cos(${k}x - ${ω}t), qual é o deslocamento em x=${x} m e t=${t} s?`,
-                    answer: `${y} m`,
-                    options: generateOptions(parseFloat(y), 'm')
+                    type: 'calcular_velocidade_fase',
+                    question: `Dada a equação y(x,t) = A·cos(${k}x - ${ω}t), qual é a velocidade de propagação da onda?`,
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
                 });
             }
             
@@ -1516,20 +1511,16 @@
                     answer: `${v} m/s`,
                     options: generateOptions(parseFloat(v), 'm/s')
                 };
-            } else if (currentType === 'calcular_deslocamento') {
-                let A = (Math.floor(Math.random() * 4) + 1) * 0.5;
+            } else if (currentType === 'calcular_velocidade_fase') {
                 let k = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
                 let ω = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
-                let x = Math.floor(Math.random() * 5) + 1;
-                let t = Math.floor(Math.random() * 5) + 1;
-                
-                let y = (A * Math.cos(k * x - ω * t)).toFixed(2);
+                let v = (ω / k).toFixed(2);
                 
                 exercises[currentExercise] = {
-                    type: 'calcular_deslocamento',
-                    question: `Dada a equação y(x,t) = ${A}·cos(${k}x - ${ω}t), qual é o deslocamento em x=${x} m e t=${t} s?`,
-                    answer: `${y} m`,
-                    options: generateOptions(parseFloat(y), 'm')
+                    type: 'calcular_velocidade_fase',
+                    question: `Dada a equação y(x,t) = A·cos(${k}x - ${ω}t), qual é a velocidade de propagação da onda?`,
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
                 };
             }
         }
