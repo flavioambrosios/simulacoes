@@ -1125,6 +1125,7 @@
         }
         
         // Gerar novo exercício do mesmo tipo
+        // Substitua a função generateNewExerciseOfSameType por esta versão corrigida:
         function generateNewExerciseOfSameType() {
             const currentType = exercises[currentExercise].type;
             
@@ -1166,15 +1167,60 @@
                         p: (Math.floor(Math.random() * 9) + 1) * 10, 
                         f: (Math.floor(Math.random() * 9) + 1) * 5,
                         description: `espelho côncavo`
+                    },
+                    {
+                        type: 'lente_divergente',
+                        p: (Math.floor(Math.random() * 9) + 1) * 10,
+                        f: (Math.floor(Math.random() * 9) + 1) * 5,
+                        description: `lente divergente`
+                    },
+                    {
+                        type: 'espelho_convexo',
+                        p: (Math.floor(Math.random() * 9) + 1) * 10,
+                        f: (Math.floor(Math.random() * 9) + 1) * 5,
+                        description: `espelho convexo`
                     }
                 ];
                 
                 let optic = opticTypes[Math.floor(Math.random() * opticTypes.length)];
-                let p_prime = (optic.f * optic.p) / (optic.p - optic.f);
-                let A = -p_prime / optic.p;
-                let natureza = p_prime > 0 ? "real" : "virtual";
-                let orientacao = A < 0 ? "invertida" : "direita";
-                let tamanho = Math.abs(A) > 1 ? "maior" : (Math.abs(A) < 1 ? "menor" : "igual");
+                let natureza, orientacao, tamanho;
+                
+                // Lógica CORRIGIDA para determinar características das imagens
+                if (optic.type === 'lente_convergente') {
+                    if (optic.p > optic.f) {
+                        // Objeto além do foco: imagem real, invertida
+                        natureza = "real";
+                        orientacao = "invertida";
+                        tamanho = optic.p > (2 * optic.f) ? "menor" : (optic.p < (2 * optic.f) ? "maior" : "igual");
+                    } else {
+                        // Objeto entre foco e lente: imagem virtual, direita, maior
+                        natureza = "virtual";
+                        orientacao = "direita";
+                        tamanho = "maior";
+                    }
+                } else if (optic.type === 'lente_divergente') {
+                    // Sempre: virtual, direita, menor
+                    natureza = "virtual";
+                    orientacao = "direita";
+                    tamanho = "menor";
+                } else if (optic.type === 'espelho_concavo') {
+                    if (optic.p > optic.f) {
+                        // Objeto além do foco: imagem real, invertida
+                        natureza = "real";
+                        orientacao = "invertida";
+                        tamanho = optic.p > (2 * optic.f) ? "menor" : (optic.p < (2 * optic.f) ? "maior" : "igual");
+                    } else {
+                        // Objeto entre foco e vértice: imagem virtual, direita, maior
+                        natureza = "virtual";
+                        orientacao = "direita";
+                        tamanho = "maior";
+                    }
+                } else if (optic.type === 'espelho_convexo') {
+                    // Sempre: virtual, direita, menor
+                    natureza = "virtual";
+                    orientacao = "direita";
+                    tamanho = "menor";
+                }
                 
                 exercises[currentExercise] = {
                     type: 'identificar_imagem',
@@ -1182,12 +1228,20 @@
                     answer: `${natureza}, ${orientacao}, ${tamanho}`,
                     options: [
                         "real, invertida, maior",
-                        "real, invertida, menor",
-                        "virtual, direita, menor", 
-                        "real, direita, maior",
-                        "virtual, invertida, igual"
+                        "real, invertida, menor", 
+                        "real, invertida, igual",
+                        "virtual, direita, menor",
+                        "virtual, direita, maior",
+                        "virtual, direita, igual"
                     ]
                 };
+                
+                // Garantir que a resposta correta esteja nas opções
+                if (!exercises[currentExercise].options.includes(exercises[currentExercise].answer)) {
+                    exercises[currentExercise].options.push(exercises[currentExercise].answer);
+                    // Embaralhar novamente
+                    exercises[currentExercise].options = shuffleArray(exercises[currentExercise].options);
+                }
             }
         }
         
@@ -1422,6 +1476,17 @@
             document.getElementById('conclusionContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'none';
             showCurrentExercise();
+
+            // Na função generateExercises(), após gerar cada exercício de identificação:
+            if (exercise.type === 'identificar_imagem') {
+                // Verificar se a resposta está entre as opções
+                if (!exercise.options.includes(exercise.answer)) {
+                    // Se não estiver, adicionar
+                    exercise.options.push(exercise.answer);
+                    // Embaralhar novamente
+                    exercise.options = shuffleArray(exercise.options);
+                }
+            }    
         }
         
         // Inicializar quando a página carregar
