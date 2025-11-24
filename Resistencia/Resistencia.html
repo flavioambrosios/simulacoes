@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação: A Resistência em um Fio</title>
+    <title>Simulação: A Resistência em um Fio - NOTAÇÃO CIENTÍFICA</title>
     <style>
         * {
             box-sizing: border-box;
@@ -182,7 +182,7 @@
             padding: 20px;
             border-radius: 10px;
             width: 100%;
-            max-width: 600px;
+            max-width: 800px;
             max-height: 85vh;
             overflow-y: auto;
         }
@@ -209,9 +209,11 @@
         .exercise h3 {
             color: #ffcc00;
             margin-bottom: 10px;
+            text-align: center;
         }
         .exercise p {
             margin-bottom: 10px;
+            text-align: center;
         }
         .options {
             display: grid;
@@ -227,6 +229,10 @@
             cursor: pointer;
             transition: background 0.3s;
             text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .option:hover {
             background: rgba(255, 255, 255, 0.2);
@@ -243,6 +249,10 @@
             background: rgba(255, 0, 0, 0.2);
             border: 1px solid #ff0000;
         }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
         .check-btn {
             width: 100%;
             margin-top: 10px;
@@ -253,6 +263,10 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
         }
         .skip-btn {
             width: 100%;
@@ -387,6 +401,89 @@
             background: rgba(255, 0, 0, 0.2);
             color: #ff0000;
         }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
 
         @media (max-width: 768px) {
             .content {
@@ -402,7 +499,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação: A Resistência em um Fio</h1>
+            <h1>Simulação: A Resistência em um Fio - NOTAÇÃO CIENTÍFICA</h1>
             <p class="subtitle">Visualização da resistência elétrica em diferentes materiais</p>
         </header>
         
@@ -469,7 +566,11 @@
                     </ul>
                 </div>
                 
-                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
             </div>
             
             <div class="measurement-panel">
@@ -504,7 +605,7 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercícios sobre Resistência em Fios</h2>
+                <h2>Exercícios sobre Resistência em Fios - NOTAÇÃO CIENTÍFICA</h2>
                 <span class="close">&times;</span>
             </div>
             
@@ -522,11 +623,11 @@
             </div>
             
             <div id="conclusionContainer" style="display: none;">
-            <h3>Conclusão de Estudo</h3>
-            <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
-                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
             
             <div id="resultsContainer" style="display: none;">
@@ -606,12 +707,184 @@
         </div>
     </div>
 
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Resistência em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo da Resistência</h4>
+                    <p><strong>Problema:</strong> Um fio de cobre (ρ = 1.68×10⁻⁸ Ω·m) tem 2 m de comprimento e área transversal de 0.5 mm². Qual é sua resistência?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> R = ρ × L / A</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 0.5 mm² = 0.5×10⁻⁶ m² = 5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: R = (1.68×10⁻⁸) × 2 / (5×10⁻⁷)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: R = (3.36×10⁻⁸) / (5×10⁻⁷) = 0.0672 Ω</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R = 0.0672 Ω</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Cálculo do Comprimento</h4>
+                    <p><strong>Problema:</strong> Um fio de alumínio (ρ = 2.82×10⁻⁸ Ω·m) com área transversal de 1 mm² tem resistência de 0.5 Ω. Qual é seu comprimento?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> L = R × A / ρ</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 1 mm² = 1×10⁻⁶ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: L = 0.5 × (1×10⁻⁶) / (2.82×10⁻⁸)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: L = (5×10⁻⁷) / (2.82×10⁻⁸) = 17.73 m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> L ≈ 17.73 m</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Cálculo da Área Transversal</h4>
+                    <p><strong>Problema:</strong> Um fio de ferro (ρ = 1.00×10⁻⁷ Ω·m) com 5 m de comprimento tem resistência de 2 Ω. Qual é sua área transversal?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> A = ρ × L / R</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: A = (1.00×10⁻⁷) × 5 / 2</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: A = (5×10⁻⁷) / 2 = 2.5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Converter para mm²: A = 2.5×10⁻⁷ m² = 0.25 mm²</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A = 0.25 mm²</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Resistência Elétrica em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Resistência Elétrica</h3>
+                    <p>A resistência elétrica é uma propriedade dos materiais que mede a oposição à passagem de corrente elétrica. Em condutores, essa resistência depende das características físicas do material e de suas dimensões.</p>
+                    
+                    <div class="theory-formula">R = ρ × L / A</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">R</span> = Resistência elétrica (Ohms - Ω)</li>
+                        <li><span class="highlight">ρ</span> = Resistividade do material (Ω·m)</li>
+                        <li><span class="highlight">L</span> = Comprimento do condutor (metros)</li>
+                        <li><span class="highlight">A</span> = Área da seção transversal (m²)</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Fatores que Influenciam a Resistência</h3>
+                    <p>A resistência de um condutor depende de vários fatores:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Comprimento (L):</span> A resistência é diretamente proporcional ao comprimento do fio. Quanto maior o fio, maior a resistência.</li>
+                        <li><span class="highlight">Área transversal (A):</span> A resistência é inversamente proporcional à área da seção transversal. Fios mais grossos têm menor resistência.</li>
+                        <li><span class="highlight">Material (ρ):</span> Cada material tem uma resistividade específica. Materiais como prata e cobre têm baixa resistividade, enquanto materiais como ferro e tungstênio têm maior resistividade.</li>
+                        <li><span class="highlight">Temperatura:</span> Para a maioria dos metais, a resistência aumenta com a temperatura devido ao aumento das vibrações da rede cristalina.</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Resistividade de Materiais Comuns</h3>
+                    <p>Valores típicos de resistividade a 20°C:</p>
+                    
+                    <ul>
+                        <li>Prata: 1.59 × 10⁻⁸ Ω·m</li>
+                        <li>Cobre: 1.68 × 10⁻⁸ Ω·m</li>
+                        <li>Ouro: 2.44 × 10⁻⁸ Ω·m</li>
+                        <li>Alumínio: 2.82 × 10⁻⁸ Ω·m</li>
+                        <li>Tungstênio: 5.60 × 10⁻⁸ Ω·m</li>
+                        <li>Ferro: 1.00 × 10⁻⁷ Ω·m</li>
+                        <li>Constantan: 4.90 × 10⁻⁷ Ω·m</li>
+                        <li>Carbono: 3.50 × 10⁻⁵ Ω·m</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O conhecimento da resistência elétrica é fundamental para:</p>
+                    
+                    <ul>
+                        <li>Projetar circuitos elétricos e eletrônicos</li>
+                        <li>Selecionar cabos adequados para instalações elétricas</li>
+                        <li>Projetar elementos de aquecimento (resistências)</li>
+                        <li>Construir sensores de temperatura (termistores)</li>
+                        <li>Desenvolver dispositivos de proteção contra sobrecargas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Sistema de exercícios
         let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // Função para formatar números em notação científica com 3 algarismos significativos
+        function formatScientificWith3Digits(value, unit = '') {
+            if (value === 0) return '0.00 ' + unit;
+            
+            // Para valores muito pequenos ou grandes, usar notação científica
+            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+                // Converter para notação científica com 3 algarismos significativos
+                const exponent = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exponent);
+                
+                // Arredondar para 3 algarismos significativos
+                const roundedMantissa = Math.round(mantissa * 100) / 100;
+                
+                // Garantir que temos exatamente 3 algarismos significativos
+                let mantissaStr = roundedMantissa.toFixed(2);
+                
+                // Se após arredondamento tivermos 10.00, ajustar
+                if (mantissaStr === '10.00') {
+                    mantissaStr = '1.00';
+                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
+                }
+                
+                return mantissaStr + '×10^' + exponent + ' ' + unit;
+            }
+            
+            // Para valores intermediários, usar formato decimal com 3 algarismos significativos
+            // Encontrar o número de casas decimais necessárias
+            const integerPart = Math.floor(Math.abs(value));
+            let decimalPlaces;
+            
+            if (integerPart === 0) {
+                // Número entre 0 e 1
+                const firstNonZero = -Math.floor(Math.log10(value));
+                decimalPlaces = firstNonZero + 2;
+            } else if (integerPart < 10) {
+                // Número com 1 dígito inteiro
+                decimalPlaces = 2;
+            } else if (integerPart < 100) {
+                // Número com 2 dígitos inteiros
+                decimalPlaces = 1;
+            } else {
+                // Número com 3 dígitos inteiros
+                decimalPlaces = 0;
+            }
+            
+            return value.toFixed(decimalPlaces) + ' ' + unit;
+        }
+        
+        // Atualizar a função formatScientific existente para usar a nova formatação
+        function formatScientific(value, unit = '') {
+            return formatScientificWith3Digits(value, unit);
+        }
 
         // Gerar exercícios sobre resistência em fios
         function generateExercises() {
@@ -623,45 +896,45 @@
                 let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 let length = (Math.floor(Math.random() * 9) + 1);
                 let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
-                let resistance = (resistivity * length / area).toFixed(4);
+                let resistance = resistivity * length / area;
                 
                 let materialName = getMaterialName(resistivity);
                 
                 exercises.push({
                     type: 'calcular_resistencia',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
-                    answer: resistance,
-                    options: generateOptions(parseFloat(resistance), 'Ω')
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    answer: formatScientific(resistance, 'Ω'),
+                    options: generateOptions(resistance, 'Ω')
                 });
                 
                 // Tipo 2: Calcular comprimento
                 resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 resistance = (Math.floor(Math.random() * 9) + 1) / 10;
                 area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
-                length = (resistance * area / resistivity).toFixed(2);
+                length = (resistance * area / resistivity);
                 
                 materialName = getMaterialName(resistivity);
                 
                 exercises.push({
                     type: 'calcular_comprimento',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
-                    answer: length,
-                    options: generateOptions(parseFloat(length), 'm')
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    answer: formatScientific(length, 'm'),
+                    options: generateOptions(length, 'm')
                 });
                 
                 // Tipo 3: Calcular área transversal
                 resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 resistance = (Math.floor(Math.random() * 9) + 1) / 10;
                 length = (Math.floor(Math.random() * 9) + 1);
-                area = (resistivity * length / resistance).toFixed(8);
+                area = (resistivity * length / resistance);
                 
                 materialName = getMaterialName(resistivity);
                 
                 exercises.push({
                     type: 'calcular_area',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal em m²?`,
-                    answer: area,
-                    options: generateOptions(parseFloat(area), 'm²', false)
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal?`,
+                    answer: formatScientific(area, 'm²'),
+                    options: generateOptions(area, 'm²')
                 });
             }
             
@@ -671,47 +944,66 @@
         
         // Obter nome do material com base na resistividade
         function getMaterialName(resistivity) {
-            if (resistivity === 1.68e-8) return "Cobre";
-            if (resistivity === 2.82e-8) return "Alumínio";
-            if (resistivity === 1.0e-7) return "Ferro";
+            if (Math.abs(resistivity - 1.68e-8) < 1e-10) return "Cobre";
+            if (Math.abs(resistivity - 2.82e-8) < 1e-10) return "Alumínio";
+            if (Math.abs(resistivity - 1.0e-7) < 1e-10) return "Ferro";
             return "Material Desconhecido";
         }
         
-        // Gerar opções de resposta
-        function generateOptions(correctValue, unit, isSimpleUnit = true) {
+        // Gerar opções de resposta com notação científica
+        function generateOptions(correctValue, unit) {
             const options = [];
+            let attempts = 0;
+            const maxAttempts = 20;
             
             // Formatar o valor correto
-            let formattedCorrectValue;
-            if (isSimpleUnit) {
-                formattedCorrectValue = correctValue.toFixed(4) + ' ' + unit;
-            } else {
-                formattedCorrectValue = correctValue.toExponential(2) + ' ' + unit;
-            }
+            let formattedCorrectValue = formatScientificWith3Digits(correctValue, unit);
             
             options.push({
                 value: correctValue,
                 display: formattedCorrectValue
             });
             
-            // Gerar opções incorretas
-            for (let i = 0; i < 3; i++) {
+            // Gerar 4 opções incorretas (total de 5 alternativas)
+            for (let i = 0; i < 4; i++) {
                 let optionValue;
                 let formattedOption;
+                let unique = false;
                 
                 // Garantir que as opções sejam diferentes
+                attempts = 0;
                 do {
-                    const variation = (Math.random() * 0.5 + 0.75);
-                    optionValue = correctValue * variation;
-                    
-                    // Formatar com a mesma precisão
-                    if (isSimpleUnit) {
-                        formattedOption = optionValue.toFixed(4) + ' ' + unit;
+                    // Usar variações mais diversificadas
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        // Multiplicador aleatório
+                        optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                    } else if (variationType < 0.6) {
+                        // Divisor aleatório
+                        optionValue = correctValue / (Math.random() * 1.5 + 0.5);
                     } else {
-                        formattedOption = optionValue.toExponential(2) + ' ' + unit;
+                        // Soma/subtração de porcentagem
+                        const percentChange = (Math.random() * 60 + 20) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
                     }
                     
-                } while (options.some(opt => opt.display === formattedOption));
+                    // Garantir que o valor seja positivo para grandezas físicas
+                    if (unit === 'Ω' || unit === 'm' || unit === 'm²') {
+                        optionValue = Math.abs(optionValue);
+                    }
+                    
+                    // Formatar com notação científica
+                    formattedOption = formatScientificWith3Digits(optionValue, unit);
+                    
+                    unique = !options.some(opt => opt.display === formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        // Forçar uma opção única adicionando um identificador
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
+                    }
+                } while (!unique);
                 
                 options.push({
                     value: optionValue,
@@ -746,31 +1038,33 @@
                             <div class="option" data-value="${option}">${option}</div>
                         `).join('')}
                     </div>
-                    <button class="check-btn">Verificar Resposta</button>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
                     <div class="result"></div>
                 </div>
             `;
             
-            // Adicionar event listeners
-            container.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', function() {
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                });
+                    e.target.classList.add('selected');
+                }
             });
             
-            container.querySelector('.check-btn').addEventListener('click', checkAnswer);
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             
             // Atualizar barra de progresso
             updateProgressBar();
         }
         
         // Verificar resposta
-        // Verificar resposta
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
             const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
             
             if (!selectedOption) {
                 resultDiv.textContent = 'Por favor, selecione uma opção.';
@@ -778,49 +1072,42 @@
                 return;
             }
             
-            const selectedValue = parseFloat(selectedOption.dataset.value);
-            const correctValue = parseFloat(exercises[currentExercise].answer);
-            const isCorrect = Math.abs(selectedValue - correctValue) < 0.001;
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
             
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!';
                 resultDiv.className = 'result success';
                 selectedOption.classList.add('correct');
                 
-                // Desativar cliques nas opções
-                container.querySelectorAll('.option').forEach(option => {
-                    option.style.pointerEvents = 'none';
-                });
-                
                 // Registrar resultado e avançar após delay
-                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false });
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
                 setTimeout(nextExercise, 1500);
             } else {
+                currentExerciseAttempts++;
                 resultDiv.innerHTML = `
-                <div class="error">Incorreto. A resposta correta é: ${exercises[currentExercise].answer}</div>
+                <div class="error">Incorreto. Tente novamente.</div>
                 <div class="button-group">
-                    <button class="skip-btn">Pular Exercício</button>
-                    <button class="try-again-btn">Tentar Novamente</button>
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
                 </div>
                 `;
                 
-                // Desativar cliques nas opções
-                container.querySelectorAll('.option').forEach(option => {
-                    option.style.pointerEvents = 'none';
-                });
-                
                 // Adicionar event listeners aos novos botões
-                resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
-                resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
-                    // Reativar cliques nas opções
-                    container.querySelectorAll('.option').forEach(option => {
-                        option.style.pointerEvents = 'auto';
-                    });
-                    
-                    // Limpar resultado mas manter a seleção atual
-                    resultDiv.innerHTML = '';
-                    
-                    // Gerar novo exercício do mesmo tipo
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
@@ -835,43 +1122,43 @@
                 let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 let length = (Math.floor(Math.random() * 9) + 1);
                 let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
-                let resistance = (resistivity * length / area).toFixed(4);
+                let resistance = resistivity * length / area;
                 
                 let materialName = getMaterialName(resistivity);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_resistencia',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
-                    answer: resistance,
-                    options: generateOptions(parseFloat(resistance), 'Ω')
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    answer: formatScientific(resistance, 'Ω'),
+                    options: generateOptions(resistance, 'Ω')
                 };
             } else if (currentType === 'calcular_comprimento') {
                 let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 let resistance = (Math.floor(Math.random() * 9) + 1) / 10;
                 let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
-                let length = (resistance * area / resistivity).toFixed(2);
+                let length = (resistance * area / resistivity);
                 
                 let materialName = getMaterialName(resistivity);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_comprimento',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
-                    answer: length,
-                    options: generateOptions(parseFloat(length), 'm')
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    answer: formatScientific(length, 'm'),
+                    options: generateOptions(length, 'm')
                 };
             } else if (currentType === 'calcular_area') {
                 let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
                 let resistance = (Math.floor(Math.random() * 9) + 1) / 10;
                 let length = (Math.floor(Math.random() * 9) + 1);
-                let area = (resistivity * length / resistance).toFixed(8);
+                let area = (resistivity * length / resistance);
                 
                 let materialName = getMaterialName(resistivity);
                 
                 exercises[currentExercise] = {
                     type: 'calcular_area',
-                    question: `Um fio de ${materialName} (ρ = ${resistivity.toExponential(2)} Ω·m) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal em m²?`,
-                    answer: area,
-                    options: generateOptions(parseFloat(area), 'm²', false)
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal?`,
+                    answer: formatScientific(area, 'm²'),
+                    options: generateOptions(area, 'm²')
                 };
             }
         }
@@ -882,10 +1169,12 @@
                 exerciseResults.push({
                     exercise: currentExercise,
                     correct: false,
-                    skipped: true
+                    skipped: true,
+                    attempts: currentExerciseAttempts
                 });
                 
                 skippedQuestions++;
+                currentExerciseAttempts = 0;
                 currentExercise++;
                 
                 if (currentExercise < exercises.length) {
@@ -958,7 +1247,7 @@
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
         }
         
-        // Função para enviar dados para a planilha do Google
+        // Função otimizada para enviar dados e email
         function sendResultsToSheet() {
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
@@ -967,11 +1256,16 @@
             const criticism = document.getElementById('criticismInput').value;
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
             
             if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
             
             const totalExercises = exercises.length;
             const correctAnswers = exerciseResults.filter(r => r.correct).length;
@@ -982,7 +1276,9 @@
             emailStatus.className = 'email-status sending';
             emailStatus.style.display = 'block';
             
-            const data = {
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
                 timestamp: new Date().toLocaleString('pt-BR'),
                 serie: studentGrade,
                 turma: studentClass,
@@ -994,31 +1290,98 @@
                 conclusao: finalConclusion,
                 criticas: criticism,
                 sugestoes: suggestion,
-                email: studentEmail || ''
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
             };
-            
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            
-            fetch(scriptUrl, {
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
             })
             .then(() => {
-                emailStatus.textContent = 'Dados enviados com sucesso!';
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Resistência em um Fio',
+                        mensagem: `Confirmação de Envio - Simulação de Resistência em um Fio
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
                     closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
                 }, 3000);
             })
             .catch(error => {
-                emailStatus.textContent = 'Erro ao enviar dados. Tente novamente.';
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
                 emailStatus.className = 'email-status error-status';
                 console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
             });
         }
         
@@ -1028,6 +1391,7 @@
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
+            currentExerciseAttempts = 0;
         }
         
         // Abrir modal de exercícios
@@ -1039,6 +1403,26 @@
             document.getElementById('resultsContainer').style.display = 'none';
             showCurrentExercise();
         }
+
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
         
         // Configurar eventos da UI
         document.getElementById('helpBtn').addEventListener('click', function() {
@@ -1046,12 +1430,23 @@
         });
         
         document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+        document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
         
-        document.querySelector('.close').addEventListener('click', closeExercisesModal);
+        // Fechar modais
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+        document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+        document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
         
         window.addEventListener('click', function(event) {
             if (event.target == document.getElementById('exercisesModal')) {
                 closeExercisesModal();
+            } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                closeSolvedExercisesModal();
+            } else if (event.target == document.getElementById('theoryModal')) {
+                closeTheoryModal();
             }
         });
     </script>
