@@ -353,7 +353,7 @@
     <div class="container">
         <div class="header">
             <h1>Átomo de Hidrogênio - Nuvem Quântica</h1>
-            <div class="subtitle">Visualização 3D com efeito de nuvem e evolução temporal</div>            
+            <div class="subtitle">Prof. Flávio Ambrósio</div>            
         </div>
         <div class="content">
             <div class="controls" id="controlsPanel">
@@ -400,7 +400,7 @@
             <div class="view-container">
                 <div id="renderer3D"></div>
                 <div class="orbital-info">
-                    <div class="info-title">Informações</div>
+                    <div class="info-title">Informações do Orbital</div>
                     <div class="info-content" id="orbitalDetails">
                         Carregando...
                     </div>
@@ -408,7 +408,7 @@
                 <div class="loading" id="loadingIndicator">Calculando orbital...</div>
                 
                 <div class="comparison-panel">
-                    <div class="info-title">Compare os Orbitais</div>
+                    <div class="info-title">Comparação de Orbitais</div>
                     <div class="info-content" id="comparisonDetails">
                         Selecione um orbital para ver comparações.
                     </div>
@@ -938,7 +938,9 @@
                 <strong>Orbital:</strong> ${n}${nomeOrbital}<br>
                 <strong>Energia:</strong> ${energia} eV<br>
                 <strong>Números quânticos:</strong> n=${n}, l=${l}, m=${m}<br>
-                <strong>Forma:</strong> ${obterDescricaoForma(l, m)}<br>`;
+                <strong>Forma:</strong> ${obterDescricaoForma(l, m)}<br>
+                <strong>Elétrons no orbital:</strong> 1 (átomo de hidrogênio)
+            `;
             
             // Atualizar informações de comparação
             atualizarComparacaoOrbitais(n, l, m);
@@ -952,7 +954,7 @@
             } else if (l === 1) {
                 comparacao = "Orbital em forma de haltere. Três orientações possíveis (px, py, pz).";
             } else if (l === 2) {
-                comparacao = "Orbital complexo com múltiplos lobos. Formas diversificadas.";
+                comparacao = "Orbital complexo com múltiplos lobos. Formas mais diversificadas.";
             } else if (l === 3) {
                 comparacao = "Orbital com estrutura complexa de múltiplos lobos e anéis.";
             } else {
@@ -961,7 +963,10 @@
             
             // CORREÇÃO: Informação sobre o único elétron do hidrogênio
             document.getElementById('comparisonDetails').innerHTML = `
-                <strong>Características:</strong>  ${comparacao}<br>`;
+                <strong>Características:</strong><br>${comparacao}<br><br>
+                <strong>Nota:</strong> O átomo de hidrogênio possui apenas 1 elétron, 
+                que ocupa um orbital de cada vez.
+            `;
         }
         
         function obterDescricaoForma(l, m) {
