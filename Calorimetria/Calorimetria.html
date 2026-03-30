@@ -549,7 +549,7 @@
         </div>
     </div>
 
-    <!-- Modal de Exercícios Resolvidos (atualizado com os três modelos) -->
+    <!-- Modal de Exercícios Resolvidos (atualizado com os três modelos e formatação matemática) -->
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -561,38 +561,71 @@
                 <!-- Exemplo 1: Metal + Água -->
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Metal aquecido em água</h4>
-                    <p><strong>Problema:</strong> Uma peça de ferro de 200g é aquecida a 250°C e é colocada em seguida em um recipiente com um litro (1 kg) de água a 25°C. Depois de algum tempo, qual a temperatura de equilíbrio do sistema? (c_ferro = 0,11 cal/g°C, c_água = 1 cal/g°C)</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div>
-                    <div class="solution-step"><strong>Calor cedido pelo ferro:</strong> Q<sub>ferro</sub> = m_ferro · c_ferro · (T_eq - 250)</div>
-                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = m_água · c_água · (T_eq - 25)</div>
-                    <div class="solution-step"><strong>Equação:</strong> 200·0,11·(T_eq - 250) + 1000·1·(T_eq - 25) = 0</div>
-                    <div class="solution-step"><strong>Desenvolvendo:</strong> 22·(T_eq - 250) + 1000·(T_eq - 25) = 0 → 22T_eq - 5500 + 1000T_eq - 25000 = 0 → 1022T_eq = 30500 → T_eq ≈ 29,84°C</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>29,8°C</strong>.</div>
+                    <p><strong>Problema:</strong> Uma peça de ferro de 200 g é aquecida a 250 °C e é colocada em seguida em um recipiente com um litro (1 kg) de água a 25 °C. Depois de algum tempo, qual a temperatura de equilíbrio do sistema? (c<sub>ferro</sub> = 0,11 cal/g°C, c<sub>água</sub> = 1 cal/g°C)</p>
+                    
+                    <div class="solution-step"><strong>Calor cedido pelo ferro:</strong> Q<sub>ferro</sub> = m<sub>ferro</sub> · c<sub>ferro</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</div>
+                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div> 
+                    <div class="solution-step">200 · 0,11 · (T<sub>eq</sub> - 250) + 1000 · 1 · (T<sub>eq</sub> - 25) = 0</div>
+                    <div class="solution-step">22 · (T<sub>eq</sub> - 250) + 1000 · (T<sub>eq</sub> - 25) = 0 </p>
+                         22 . T<sub>eq</sub> - 5500 + 1000 . T<sub>eq</sub> - 25000 = 0 </p>
+                         1022 . T<sub>eq</sub> = 30500 </p>
+                         T<sub>eq</sub> ≈ 29,84 °C</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>29,8 °C</strong>.</div>
                 </div>
                 
                 <!-- Exemplo 2: Gelo a temperatura negativa em água -->
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Gelo em água</h4>
-                    <p><strong>Problema:</strong> Uma pedra de gelo de 250g, com temperatura inicial de -10°C, é colocada em recipiente isolado com 1500g de água a 25°C. Calcule a temperatura de equilíbrio do sistema. (c_gelo = 0,5 cal/g°C, L_fusão = 80 cal/g, c_água = 1 cal/g°C)</p>
-                    <div class="solution-step"><strong>Etapas:</strong> O gelo precisa primeiro aquecer até 0°C, depois derreter, e então a água resultante pode aquecer até a temperatura de equilíbrio.</div>
-                    <div class="solution-step"><strong>Calor para aquecer o gelo até 0°C:</strong> Q1 = m_gelo · c_gelo · (0 - (-10)) = 250·0,5·10 = 1250 cal</div>
-                    <div class="solution-step"><strong>Calor para derreter o gelo:</strong> Q2 = m_gelo · L = 250·80 = 20000 cal</div>
-                    <div class="solution-step"><strong>Calor total necessário para transformar o gelo em água a 0°C:</strong> Q_total = Q1 + Q2 = 21250 cal</div>
-                    <div class="solution-step"><strong>Esse calor é cedido pela água inicial, que esfria até uma temperatura T (≥0):</strong> Q_cedido = m_água·c_água·(25 - T) = 1500·1·(25 - T)</div>
-                    <div class="solution-step"><strong>Equação:</strong> 1500·(25 - T) = 21250 → 37500 - 1500T = 21250 → 1500T = 16250 → T ≈ 10,83°C</div>
-                    <div class="solution-step"><strong>Como T > 0, todo gelo derreteu e a temperatura final é 10,83°C.</strong></div>
-                    <div class="solution-step"><strong>Resposta:</strong> Temperatura de equilíbrio ≈ <strong>10,8°C</strong>.</div>
+                    <p><strong>Problema:</strong> Uma pedra de gelo de 250 g, com temperatura inicial de -10 °C, é colocada em recipiente isolado com 1500 g de água a 25 °C. Calcule a temperatura de equilíbrio do sistema. <br> (c<sub>gelo</sub> = 0,5 cal/g°C, L<sub>fusão</sub> = 80 cal/g, c<sub>água</sub> = 1 cal/g°C)</p>
+                    <div class="solution-step"><strong>Etapas:</strong> O gelo precisa primeiro aquecer até 0 °C, depois derreter, e então a água resultante pode aquecer até a temperatura de equilíbrio.</div>
+                    <div class="solution-step"><strong>Calor para aquecer o gelo até 0 °C:</strong></p>
+                        Q<sub>1</sub> = m<sub>gelo</sub> · c<sub>gelo</sub> · (T<sub>fg</sub> - T<sub>ig</sub>) </p>
+                        Q<sub>1</sub>= 250 · 0,5 · (0-(-10)) = 250 · 0,5 · 10 = 1250 cal</div>                    
+                    <div class="solution-step"><strong>Calor para derreter o gelo:</strong> Q<sub>2</sub> = m<sub>gelo</sub> · L<sub>fusão</sub> = 250 · 80 = 20000 cal</div>
+                    <div class="solution-step"><strong>Calor total recebido para transformar o gelo em água a 0 °C:</strong></p>
+                         Q<sub>recebido</sub> = Q<sub>1</sub> + Q<sub>2</sub> = 21250 cal</div>
+                    <div class="solution-step"><strong>Esse é o cálculo do calor é cedido pela água, que esfria até uma temperatura T (≥0):</strong></p>
+                         Q<sub>cedido</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>) = 1500 · 1 · (T<sub>eq</sub> - 25)</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div> 
+                    <div class="solution-step">1500 · ( T<sub>eq</sub> - 25) + 21250 = 0 </p> 
+                        1500 . T<sub>eq</sub> - 37500 + 21250 = 0 </p> 
+                        1500 . T<sub>eq</sub> - 16250 = 0 </p>
+                        1500 . T<sub>eq</sub> = 16250 </p> 
+                        T<sub>eq</sub> = 16250 / 1500 </p>
+                        T<sub>eq</sub> ≈ 10,83 °C</div>
+                    <div class="solution-step"><strong>Como T > 0, todo gelo derreteu e a temperatura final é 10,83 °C.</strong></div>
+                    <div class="solution-step"><strong>Resposta:</strong> Temperatura de equilíbrio ≈ <strong>10,8 °C</strong>.</div>
                 </div>
                 
                 <!-- Exemplo 3: Calorímetro com capacidade térmica desconhecida -->
                 <div class="solved-exercise">
                     <h4>Exemplo 3: Capacidade térmica de um calorímetro</h4>
-                    <p><strong>Problema:</strong> Calcule a capacidade térmica de um calorímetro no qual contém 300 ml de água a 20°C. Neste calorímetro é colocada uma barra de metal de massa 300g, calor específico 0,2 cal/g°C, a 300°C. A temperatura de equilíbrio do sistema é 50°C. Despreze perdas.</p>
-                    <div class="solution-step"><strong>Dados:</strong> m_água = 300g (1ml = 1g), c_água = 1 cal/g°C, T_água_inicial = 20°C; m_metal = 300g, c_metal = 0,2 cal/g°C, T_metal = 300°C; T_eq = 50°C. Capacidade térmica do calorímetro = C (cal/°C).</div>
-                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q_água = m_água·c_água·(50 - 20) = 300·1·30 = 9000 cal</div>
-                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:</strong> Q_cal = C·(50 - 20) = 30·C</div>
-                    <div class="solution-step"><strong>Calor cedido pelo metal:</strong> Q_metal = m_metal·c_metal·(300 - 50) = 300·0,2·250 = 15000 cal</div>
-                    <div class="solution-step"><strong>Conservação:</strong> Q_cedido + Q_recebido = 0 → -15000 + 9000 + 30C = 0 → 30C = 6000 → C = 200 cal/°C</div>
+                    <p><strong>Problema:</strong> Calcule a capacidade térmica de um calorímetro (C<sub>c) no qual contém 300 ml (300g) de água a 20 °C. Neste calorímetro é colocada uma barra de metal de massa 300 g, calor específico 0,2 cal/g°C, a 300 °C. A temperatura de equilíbrio do sistema é 50 °C. Despreze perdas.</p>
+                    <div class="solution-step"><strong>Dados:</strong> </p> 
+                        m<sub>água</sub> = 300 g, </p>
+                        c<sub>água</sub> = 1 cal/g°C, </p>
+                        T<sub>ia</sub> = 20 °C, </p> 
+                        m<sub>metal</sub> = 300 g, </p>
+                        c<sub>metal</sub> = 0,2 cal/g°C, </p>
+                        T<sub>im</sub> = 300 °C, </p>
+                        T<sub>eq</sub> = 50 °C </p>
+                        Capacidade térmica do calorímetro: C<sub>c</sub></div>
+                    <div class="solution-step"><strong>Calor recebido pela água:</p></strong> </p>
+                        Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</p>
+                        Q<sub>água</sub> = 300 . 1. (50 - 20) = 300 · 30 = 9000 cal</div>
+                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:</strong> </p>
+                        Q<sub>calorímetro</sub> = C<sub>c</sub> · (T<sub>eq</sub> - T<sub>ic</sub>)</p>
+                        Q<sub>calorímetro</sub> = C<sub>c</sub> . (50 - 20) = 30 · C<sub>c</sub></div>
+                    <div class="solution-step"><strong>Calor cedido pelo metal:</strong> </p>
+                        Q<sub>metal</sub> = m<sub>metal</sub> · c<sub>metal</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</p>
+                        Q<sub>metal</sub> = 300 . 0,2 . (50 - 300) = 60 · (-250) = -15000 cal</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:</strong> </p>
+                        Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0 </p> 
+                        9000 - 15000  + 30 . C<sub>c</sub> = 0 </p> 
+                        - 6000  + 30 . C<sub>c</sub> = 0 </p>
+                        30 . C<sub>c</sub> = 6000 </p> 
+                        C<sub>c</sub> = 200 cal/°C</div>
                     <div class="solution-step"><strong>Resposta:</strong> A capacidade térmica do calorímetro é <strong>200 cal/°C</strong>.</div>
                 </div>
             </div>
@@ -606,7 +639,7 @@
     <script>
         // ========== CONSTANTES FÍSICAS ==========
         const C_AGUA = 1;          // cal/g°C
-        const C_FERRO = 0.11;       // cal/g°C (usado para metais em geral, pode variar)
+        const C_FERRO = 0.11;       // cal/g°C (usado para metais em geral)
         const C_GELO = 0.5;         // cal/g°C
         const L_FUSAO = 80;          // cal/g
 
@@ -726,22 +759,31 @@
                     options: options
                 };
             },
-            // Tipo 3: Calorímetro com capacidade térmica desconhecida (duas variações)
+            // Tipo 3: Calorímetro com capacidade térmica desconhecida (corrigido)
             function() {
                 let m_agua = Math.floor(Math.random() * 200) + 200; // 200-400g
                 let t_agua = Math.floor(Math.random() * 10) + 15;   // 15-25°C
                 let m_metal = Math.floor(Math.random() * 200) + 200; // 200-400g
-                let c_metal = (Math.random() * 0.1 + 0.1).toFixed(2); // 0.1 a 0.2
+                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.10 a 0.25
                 c_metal = parseFloat(c_metal);
                 let t_metal = Math.floor(Math.random() * 200) + 200; // 200-400°C
-                let t_eq = Math.floor(Math.random() * 20) + 40;      // 40-60°C
-                // Equação: C*(t_eq - t_agua) + m_agua*1*(t_eq - t_agua) + m_metal*c_metal*(t_eq - t_metal) = 0
-                let C = (m_metal*c_metal*(t_metal - t_eq) - m_agua*(t_eq - t_agua)) / (t_eq - t_agua);
-                C = Math.round(C);
+                // Definir uma capacidade térmica positiva
+                let C = Math.floor(Math.random() * 250) + 50; // 50 a 300 cal/°C
+                // Calcular a temperatura de equilíbrio usando a equação correta
+                // Q_metal + Q_agua + Q_cal = 0
+                // m_metal*c_metal*(T_eq - t_metal) + m_agua*1*(T_eq - t_agua) + C*(T_eq - t_agua) = 0
+                // Isolando T_eq:
+                let numerador = m_metal * c_metal * t_metal + m_agua * t_agua + C * t_agua;
+                let denominador = m_metal * c_metal + m_agua + C;
+                let t_eq = numerador / denominador;
+                t_eq = Math.round(t_eq * 100) / 100;
+                // A resposta correta é C (valor inteiro)
                 let answerStr = C + " cal/°C";
                 let options = [answerStr];
                 while(options.length < 5) {
-                    let fake = (C + Math.floor(Math.random()*100 - 50)) + " cal/°C";
+                    let fake = (C + Math.floor(Math.random() * 100 - 50)) + " cal/°C";
+                    // garantir que fake não seja negativo
+                    if (parseInt(fake) < 0) fake = (Math.abs(parseInt(fake)) + 50) + " cal/°C";
                     if(!options.includes(fake) && fake !== answerStr) options.push(fake);
                 }
                 options = shuffleArray(options);
@@ -756,16 +798,19 @@
                 let m_agua = Math.floor(Math.random() * 250) + 250; // 250-500g
                 let t_agua = Math.floor(Math.random() * 10) + 18;   // 18-28°C
                 let m_metal = Math.floor(Math.random() * 300) + 250; // 250-550g
-                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.1 a 0.25
+                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.10 a 0.25
                 c_metal = parseFloat(c_metal);
                 let t_metal = Math.floor(Math.random() * 250) + 250; // 250-500°C
-                let t_eq = Math.floor(Math.random() * 20) + 45;      // 45-65°C
-                let C = (m_metal*c_metal*(t_metal - t_eq) - m_agua*(t_eq - t_agua)) / (t_eq - t_agua);
-                C = Math.round(C);
+                let C = Math.floor(Math.random() * 250) + 50; // 50 a 300 cal/°C
+                let numerador = m_metal * c_metal * t_metal + m_agua * t_agua + C * t_agua;
+                let denominador = m_metal * c_metal + m_agua + C;
+                let t_eq = numerador / denominador;
+                t_eq = Math.round(t_eq * 100) / 100;
                 let answerStr = C + " cal/°C";
                 let options = [answerStr];
                 while(options.length < 5) {
-                    let fake = (C + Math.floor(Math.random()*100 - 50)) + " cal/°C";
+                    let fake = (C + Math.floor(Math.random() * 100 - 50)) + " cal/°C";
+                    if (parseInt(fake) < 0) fake = (Math.abs(parseInt(fake)) + 50) + " cal/°C";
                     if(!options.includes(fake) && fake !== answerStr) options.push(fake);
                 }
                 options = shuffleArray(options);
