@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Dilatação Térmica com Exercícios</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --metal-color: #bdc3c7;
+            --heat-color: #ff6b6b;
+            --cool-color: #4ecdc4;
+            --panel-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #2c3e50;
+            border-radius: 8px;
+        }
+
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #ffdd55;
+        }
+
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .exercise-btn {
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .examples-panel {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .examples-panel h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .example-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .example-item p {
+            margin: 5px 0;
+        }
+
+        .temp-bar {
+            flex: 1;
+            height: 20px;
+            background: linear-gradient(to right, #4ecdc4, #ff6b6b);
+            border-radius: 10px;
+            margin: 0 10px;
+            position: relative;
+        }
+        .temp-marker {
+            position: absolute;
+            top: -5px;
+            width: 10px;
+            height: 30px;
+            background: #ffcc00;
+            border-radius: 5px;
+            transform: translateX(-50%);
+        }
+        .temperature-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Dilatação Térmica com Exercícios</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação de Dilatação Térmica</h2>
+                <div class="simulation-container">
+                    <canvas id="simulationCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="measurement-panel">
+                    <h2 class="panel-title">Medições e Resultados</h2>
+                    <div class="measurement-grid">
+                        <div class="measurement-item">
+                            <div class="measurement-label" id="dimensionLabel">Comprimento Inicial</div>
+                            <div class="measurement-value" id="initialDimensionValue">1.00 m</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Temperatura</div>
+                            <div class="measurement-value" id="temperatureValue">20 °C</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">ΔT (Variação)</div>
+                            <div class="measurement-value" id="deltaTempValue">0 °C</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Coeficiente α</div>
+                            <div class="measurement-value" id="alphaValue">2.4×10⁻⁵ °C⁻¹</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label" id="variationLabel">Dilatação Linear ΔL</div>
+                            <div class="measurement-value" id="variationValue">0.00 m</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label" id="finalLabel">Comprimento Final</div>
+                            <div class="measurement-value" id="finalValue">1.00 m</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="examples-panel">
+                    <h3>Exemplos com os valores atuais</h3>
+                    <div class="example-item">
+                        <h4>📐 Dilatação Superficial (área)</h4>
+                        <p>Para uma placa quadrada de lado L₀ = <span id="exL0">1.00</span> m:</p>
+                        <p>Área inicial A₀ = L₀² = <span id="exA0">1.00</span> m²</p>
+                        <p>β = 2α = <span id="exBeta">4.8×10⁻⁵</span> °C⁻¹</p>
+                        <p>ΔA = A₀ × β × ΔT = <span id="exDeltaA">0.0000</span> m²</p>
+                        <p>Área final A = A₀ + ΔA = <span id="exAFinal">1.0000</span> m²</p>
+                    </div>
+                    <div class="example-item">
+                        <h4>🧊 Dilatação Volumétrica (volume)</h4>
+                        <p>Para um cubo de lado L₀ = <span id="exL0vol">1.00</span> m:</p>
+                        <p>Volume inicial V₀ = L₀³ = <span id="exV0">1.00</span> m³</p>
+                        <p>γ = 3α = <span id="exGamma">7.2×10⁻⁵</span> °C⁻¹</p>
+                        <p>ΔV = V₀ × γ × ΔT = <span id="exDeltaV">0.0000</span> m³</p>
+                        <p>Volume final V = V₀ + ΔV = <span id="exVFinal">1.0000</span> m³</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="materialType">Tipo de Material:</label>
+                    <select id="materialType">
+                        <option value="aluminum">Alumínio (α = 2.4×10⁻⁵ °C⁻¹)</option>
+                        <option value="copper">Cobre (α = 1.7×10⁻⁵ °C⁻¹)</option>
+                        <option value="steel">Aço (α = 1.2×10⁻⁵ °C⁻¹)</option>
+                        <option value="glass">Vidro (α = 0.9×10⁻⁵ °C⁻¹)</option>
+                        <option value="concrete">Concreto (α = 1.2×10⁻⁵ °C⁻¹)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="initialLength">Comprimento Inicial (m):</label>
+                    <input type="range" id="initialLength" min="0.5" max="5" value="1" step="0.1">
+                    <div class="value-display"><span id="initialLengthDisplay">1.0 m</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="temperature">Temperatura (°C):</label>
+                    <input type="range" id="temperature" min="-50" max="300" value="20" step="1">
+                    <div class="temperature-indicator">
+                        <span>-50°C</span>
+                        <div class="temp-bar">
+                            <div class="temp-marker" id="tempMarker"></div>
+                        </div>
+                        <span>300°C</span>
+                    </div>
+                    <div class="value-display"><span id="temperatureDisplay">20 °C</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="dilationType">Tipo de Dilatação:</label>
+                    <select id="dilationType">
+                        <option value="linear">Linear (1D)</option>
+                        <option value="superficial">Superficial (2D)</option>
+                        <option value="volumetric">Volumétrica (3D)</option>
+                    </select>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Fórmulas</h3>
+                    <p>Linear: ΔL = L₀ × α × ΔT</p>
+                    <p>Superficial: ΔA = A₀ × 2α × ΔT</p>
+                    <p>Volumétrica: ΔV = V₀ × 3α × ΔT</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Dilatação Térmica</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            <div id="exerciseContainer"></div>
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a dilatação térmica..."></textarea>
+                    </div>
+                    <div id="emailStatus" class="email-status"></div>
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Dilatação Térmica</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Dilatação Linear</h4>
+                    <p><strong>Problema:</strong> Uma barra de alumínio de 2 m de comprimento a 20°C é aquecida a 120°C. Qual será seu novo comprimento? (α = 2.4×10⁻⁵ °C⁻¹)</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> ΔL = L₀ × α × ΔT</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular ΔT = 120°C - 20°C = 100°C</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ΔL = 2 × 2.4×10⁻⁵ × 100 = 0.0048 m</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular L = L₀ + ΔL = 2 + 0.0048 = 2.0048 m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O novo comprimento é 2.0048 m</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Dilatação Superficial</h4>
+                    <p><strong>Problema:</strong> Uma placa de cobre de área 1 m² a 25°C é aquecida a 125°C. Qual será sua nova área? (α = 1.7×10⁻⁵ °C⁻¹)</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> ΔA = A₀ × β × ΔT, onde β = 2α</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular β = 2 × 1.7×10⁻⁵ = 3.4×10⁻⁵ °C⁻¹</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ΔT = 125°C - 25°C = 100°C</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular ΔA = 1 × 3.4×10⁻⁵ × 100 = 0.0034 m²</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Calcular A = A₀ + ΔA = 1 + 0.0034 = 1.0034 m²</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A nova área é 1.0034 m²</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Dilatação Volumétrica</h4>
+                    <p><strong>Problema:</strong> Um cubo de aço de volume 1 m³ a 30°C é aquecido a 130°C. Qual será seu novo volume? (α = 1.2×10⁻⁵ °C⁻¹)</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> ΔV = V₀ × γ × ΔT, onde γ = 3α</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular γ = 3 × 1.2×10⁻⁵ = 3.6×10⁻⁵ °C⁻¹</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ΔT = 130°C - 30°C = 100°C</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular ΔV = 1 × 3.6×10⁻⁵ × 100 = 0.0036 m³</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Calcular V = V₀ + ΔV = 1 + 0.0036 = 1.0036 m³</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O novo volume é 1.0036 m³</div>
+                </div>
+            </div>
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Dilatação Térmica</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que é Dilatação Térmica?</h3>
+                    <p>A dilatação térmica é o fenômeno no qual materiais aumentam suas dimensões quando sua temperatura aumenta. Isso ocorre porque o aumento da temperatura faz com que as moléculas vibrem mais intensamente, ocupando mais espaço.</p>
+                    <div class="theory-formula">ΔL = L₀ × α × ΔT</div>
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">ΔL</span> = Variação no comprimento (m)</li>
+                        <li><span class="highlight">L₀</span> = Comprimento inicial (m)</li>
+                        <li><span class="highlight">α</span> = Coeficiente de dilatação linear (°C⁻¹)</li>
+                        <li><span class="highlight">ΔT</span> = Variação de temperatura (°C)</li>
+                    </ul>
+                </div>
+                <div class="theory-section">
+                    <h3>Tipos de Dilatação</h3>
+                    <h4>1. Dilatação Linear</h4>
+                    <p>Ocorre em uma dimensão (comprimento). Exemplos: barras, fios, trilhos.</p>
+                    <div class="theory-formula">ΔL = L₀ × α × ΔT</div>
+                    <h4>2. Dilatação Superficial</h4>
+                    <p>Ocorre em duas dimensões (área). Para materiais isotrópicos, β = 2α.</p>
+                    <div class="theory-formula">ΔA = A₀ × β × ΔT</div>
+                    <h4>3. Dilatação Volumétrica</h4>
+                    <p>Ocorre em três dimensões (volume). Para materiais isotrópicos, γ = 3α.</p>
+                    <div class="theory-formula">ΔV = V₀ × γ × ΔT</div>
+                </div>
+                <div class="theory-section">
+                    <h3>Coeficientes de Dilatação Comuns</h3>
+                    <ul>
+                        <li><span class="highlight">Alumínio:</span> α = 2.4×10⁻⁵ °C⁻¹</li>
+                        <li><span class="highlight">Cobre:</span> α = 1.7×10⁻⁵ °C⁻¹</li>
+                        <li><span class="highlight">Aço:</span> α = 1.2×10⁻⁵ °C⁻¹</li>
+                        <li><span class="highlight">Vidro:</span> α = 0.9×10⁻⁵ °C⁻¹</li>
+                        <li><span class="highlight">Concreto:</span> α = 1.2×10⁻⁵ °C⁻¹</li>
+                    </ul>
+                </div>
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <ul>
+                        <li>Juntas de dilatação em pontes e edifícios</li>
+                        <li>Termômetros de líquido em vidro</li>
+                        <li>Fixadores de trilhos de trem</li>
+                        <li>Lâminas bimetálicas em termostatos</li>
+                        <li>Engenharia de materiais e construção civil</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONSTANTES E VARIÁVEIS ==========
+        const MATERIALS = {
+            aluminum: { alpha: 2.4e-5, color: "#a0a0a0", name: "Alumínio" },
+            copper: { alpha: 1.7e-5, color: "#b87333", name: "Cobre" },
+            steel: { alpha: 1.2e-5, color: "#4682b4", name: "Aço" },
+            glass: { alpha: 0.9e-5, color: "#87ceeb", name: "Vidro" },
+            concrete: { alpha: 1.2e-5, color: "#808080", name: "Concreto" }
+        };
+
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Elementos
+        const materialType = document.getElementById('materialType');
+        const initialLength = document.getElementById('initialLength');
+        const initialLengthDisplay = document.getElementById('initialLengthDisplay');
+        const temperature = document.getElementById('temperature');
+        const temperatureDisplay = document.getElementById('temperatureDisplay');
+        const tempMarker = document.getElementById('tempMarker');
+        const dilationType = document.getElementById('dilationType');
+
+        // Elementos de medição dinâmicos
+        const dimensionLabel = document.getElementById('dimensionLabel');
+        const initialDimensionValue = document.getElementById('initialDimensionValue');
+        const variationLabel = document.getElementById('variationLabel');
+        const variationValue = document.getElementById('variationValue');
+        const finalLabel = document.getElementById('finalLabel');
+        const finalValue = document.getElementById('finalValue');
+        const temperatureValue = document.getElementById('temperatureValue');
+        const deltaTempValue = document.getElementById('deltaTempValue');
+        const alphaValue = document.getElementById('alphaValue');
+
+        // Variáveis
+        let currentMaterial = MATERIALS[materialType.value];
+        let currentLength = parseFloat(initialLength.value);
+        let currentTemp = parseInt(temperature.value);
+        let baseTemp = 20;
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // ========== FUNÇÕES AUXILIARES ==========
+        function toScientific(value, unit = "") {
+            if (value === 0) return `0.00 ${unit}`.trim();
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const coefficient = value / Math.pow(10, exponent);
+            const roundedCoefficient = Math.round(coefficient * 100) / 100;
+            const superscripts = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+            let superscript = '';
+            for (let char of exponent.toString()) superscript += superscripts[char] || char;
+            return `${roundedCoefficient.toPrecision(3)}×10${superscript} ${unit}`.trim();
+        }
+
+        function updateTempMarker() {
+            const percent = (currentTemp + 50) / 350;
+            tempMarker.style.left = `${percent * 100}%`;
+        }
+
+        function updateMeasurements() {
+            const deltaT = currentTemp - baseTemp;
+            const alpha = currentMaterial.alpha;
+            const type = dilationType.value;
+
+            let initialVal, variation, finalVal, unit, labelInitial, labelVar, labelFinal;
+
+            if (type === 'linear') {
+                initialVal = currentLength;
+                variation = currentLength * alpha * deltaT;
+                finalVal = initialVal + variation;
+                unit = 'm';
+                labelInitial = 'Comprimento Inicial';
+                labelVar = 'Dilatação Linear ΔL';
+                labelFinal = 'Comprimento Final';
+            } else if (type === 'superficial') {
+                const area = currentLength * currentLength;
+                initialVal = area;
+                variation = area * (2 * alpha) * deltaT;
+                finalVal = initialVal + variation;
+                unit = 'm²';
+                labelInitial = 'Área Inicial';
+                labelVar = 'Dilatação Superficial ΔA';
+                labelFinal = 'Área Final';
+            } else { // volumetric
+                const volume = currentLength * currentLength * currentLength;
+                initialVal = volume;
+                variation = volume * (3 * alpha) * deltaT;
+                finalVal = initialVal + variation;
+                unit = 'm³';
+                labelInitial = 'Volume Inicial';
+                labelVar = 'Dilatação Volumétrica ΔV';
+                labelFinal = 'Volume Final';
+            }
+
+            dimensionLabel.textContent = labelInitial;
+            initialDimensionValue.textContent = initialVal.toFixed(4) + ' ' + unit;
+            variationLabel.textContent = labelVar;
+            variationValue.textContent = toScientific(variation, unit);
+            finalLabel.textContent = labelFinal;
+            finalValue.textContent = finalVal.toFixed(6) + ' ' + unit;
+
+            temperatureValue.textContent = currentTemp + ' °C';
+            deltaTempValue.textContent = deltaT + ' °C';
+            alphaValue.textContent = toScientific(alpha, "°C⁻¹");
+
+            // Atualizar exemplos de superfície e volume
+            const L0 = currentLength;
+            const deltaT2 = deltaT;
+            const alphaVal = alpha;
+            const beta = 2 * alphaVal;
+            const gamma = 3 * alphaVal;
+            const A0 = L0 * L0;
+            const V0 = L0 * L0 * L0;
+            const deltaA = A0 * beta * deltaT2;
+            const deltaV = V0 * gamma * deltaT2;
+
+            document.getElementById('exL0').textContent = L0.toFixed(2);
+            document.getElementById('exA0').textContent = A0.toFixed(4);
+            document.getElementById('exBeta').textContent = toScientific(beta, "°C⁻¹");
+            document.getElementById('exDeltaA').textContent = toScientific(deltaA, "m²");
+            document.getElementById('exAFinal').textContent = (A0 + deltaA).toFixed(6);
+
+            document.getElementById('exL0vol').textContent = L0.toFixed(2);
+            document.getElementById('exV0').textContent = V0.toFixed(4);
+            document.getElementById('exGamma').textContent = toScientific(gamma, "°C⁻¹");
+            document.getElementById('exDeltaV').textContent = toScientific(deltaV, "m³");
+            document.getElementById('exVFinal').textContent = (V0 + deltaV).toFixed(6);
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        function getTemperatureColor(temp) {
+            const normalized = (temp + 50) / 350;
+            const hue = 240 - (normalized * 240);
+            return `hsl(${hue}, 70%, 50%)`;
+        }
+
+        function drawThermometer(x, y, temp) {
+            const thermometerWidth = 40;
+            const thermometerHeight = 200;
+            const bulbRadius = 25;
+            const normalizedTemp = (temp + 50) / 350;
+            const mercuryHeight = normalizedTemp * thermometerHeight;
+
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.arc(x, y + thermometerHeight, bulbRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#bdc3c7';
+            ctx.fillRect(x - thermometerWidth/2, y, thermometerWidth, thermometerHeight);
+
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(x - thermometerWidth/2 + 5, y + thermometerHeight - mercuryHeight, thermometerWidth - 10, mercuryHeight);
+
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            for (let t = -50; t <= 300; t += 50) {
+                const posY = y + thermometerHeight - ((t + 50) / 350) * thermometerHeight;
+                ctx.beginPath();
+                ctx.moveTo(x - thermometerWidth/2 - 5, posY);
+                ctx.lineTo(x - thermometerWidth/2, posY);
+                ctx.stroke();
+                ctx.fillText(`${t}°C`, x - thermometerWidth/2 - 10, posY + 4);
+            }
+
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${temp}°C`, x, y - 20);
+        }
+
+        function drawLegend(x, y) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(x, y, 140, 90);
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Legenda:', x + 10, y + 20);
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '12px Arial';
+            ctx.fillText(`Material: ${currentMaterial.name}`, x + 10, y + 40);
+            ctx.fillText(`α = ${toScientific(currentMaterial.alpha, "°C⁻¹")}`, x + 10, y + 60);
+            ctx.fillText(`Temperatura: ${currentTemp}°C`, x + 10, y + 80);
+        }
+
+        // ========== DESENHO DOS TIPOS ==========
+        function drawLinear() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const deltaT = currentTemp - baseTemp;
+            const deltaL = currentLength * currentMaterial.alpha * deltaT;
+            const barX = width * 0.1;
+            const barY = height * 0.4;
+            const barWidth = currentLength * 100;
+            const barHeight = 30;
+            const currentBarWidth = barWidth + (deltaL * 100);
+
+            const barColor = getTemperatureColor(currentTemp);
+            ctx.fillStyle = barColor;
+            ctx.fillRect(barX, barY, currentBarWidth, barHeight);
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(barX, barY, currentBarWidth, barHeight);
+
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, barX + barWidth / 2, barY - 10);
+            ctx.beginPath();
+            ctx.moveTo(barX, barY - 5);
+            ctx.lineTo(barX, barY - 15);
+            ctx.lineTo(barX + barWidth, barY - 15);
+            ctx.lineTo(barX + barWidth, barY - 5);
+            ctx.stroke();
+
+            if (Math.abs(deltaL) > 0.001) {
+                ctx.fillStyle = '#ffcc00';
+                ctx.fillText(`ΔL = ${deltaL.toFixed(4)} m`, barX + barWidth + deltaL * 50, barY + barHeight + 25);
+                ctx.beginPath();
+                ctx.moveTo(barX + barWidth, barY + barHeight + 5);
+                ctx.lineTo(barX + barWidth, barY + barHeight + 15);
+                ctx.lineTo(barX + currentBarWidth, barY + barHeight + 15);
+                ctx.lineTo(barX + currentBarWidth, barY + barHeight + 5);
+                ctx.strokeStyle = '#ffcc00';
+                ctx.stroke();
+            }
+        }
+
+        function drawSurface() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const side = currentLength * 100;
+            const x = (width - side) / 2;
+            const y = (height - side) / 2;
+
+            const deltaT = currentTemp - baseTemp;
+            const alpha = currentMaterial.alpha;
+            const area = currentLength * currentLength;
+            const deltaArea = area * 2 * alpha * deltaT;
+            const newSide = Math.sqrt(area + deltaArea) * 100;
+
+            // Contorno inicial (tracejado)
+            ctx.strokeStyle = '#aaa';
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(x, y, side, side);
+            ctx.setLineDash([]);
+
+            // Placa dilatada
+            const newX = (width - newSide) / 2;
+            const newY = (height - newSide) / 2;
+            const color = getTemperatureColor(currentTemp);
+            ctx.fillStyle = color;
+            ctx.fillRect(newX, newY, newSide, newSide);
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.strokeRect(newX, newY, newSide, newSide);
+
+            // Anotações
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, width/2, y - 10);
+            ctx.fillText(`ΔA = ${deltaArea.toFixed(5)} m²`, width/2, newY + newSide + 20);
+        }
+
+        // NOVA FUNÇÃO: Desenha um cubo em perspectiva completa (com todas as arestas)
+        function drawVolumetric() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const deltaT = currentTemp - baseTemp;
+            const alpha = currentMaterial.alpha;
+            const volume = currentLength * currentLength * currentLength;
+            const deltaVolume = volume * 3 * alpha * deltaT;
+            const newVolume = volume + deltaVolume;
+            const newSide = Math.cbrt(newVolume); // novo lado em metros
+
+            // Escala: 1 metro = 70 pixels (ajustável)
+            const scale = 70;
+            const sidePx = currentLength * scale;
+            const newSidePx = newSide * scale;
+
+            // Centro do canvas
+            const centerX = width / 2;
+            const centerY = height / 2 + 20; // deslocado para baixo
+
+            // Deslocamento em perspectiva (projeção isométrica simplificada)
+            const offsetX = 30;
+            const offsetY = 20;
+
+            // Função para desenhar um cubo com todas as arestas
+            function drawCube(edgePx, x0, y0, fillColor, strokeColor, isDashed = false) {
+                // Vértices da face frontal (quadrado)
+                const front = [
+                    { x: x0, y: y0 },
+                    { x: x0 + edgePx, y: y0 },
+                    { x: x0 + edgePx, y: y0 + edgePx },
+                    { x: x0, y: y0 + edgePx }
+                ];
+                // Vértices da face superior (deslocada)
+                const top = [
+                    { x: x0 + offsetX, y: y0 - offsetY },
+                    { x: x0 + edgePx + offsetX, y: y0 - offsetY },
+                    { x: x0 + edgePx + offsetX, y: y0 + edgePx - offsetY },
+                    { x: x0 + offsetX, y: y0 + edgePx - offsetY }
+                ];
+                // Vértices da face lateral direita
+                const side = [
+                    { x: x0 + edgePx, y: y0 },
+                    { x: x0 + edgePx + offsetX, y: y0 - offsetY },
+                    { x: x0 + edgePx + offsetX, y: y0 + edgePx - offsetY },
+                    { x: x0 + edgePx, y: y0 + edgePx }
+                ];
+
+                if (isDashed) ctx.setLineDash([5, 5]);
+                else ctx.setLineDash([]);
+
+                // Desenhar faces preenchidas (com opacidade reduzida para tracejado)
+                if (isDashed) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                } else {
+                    ctx.fillStyle = fillColor;
+                }
+                ctx.beginPath();
+                front.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.fill();
+                ctx.beginPath();
+                top.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.fill();
+                ctx.beginPath();
+                side.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.fill();
+
+                // Desenhar contornos
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                front.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.closePath();
+                ctx.stroke();
+                ctx.beginPath();
+                top.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.closePath();
+                ctx.stroke();
+                ctx.beginPath();
+                side.forEach(p => ctx.lineTo(p.x, p.y));
+                ctx.closePath();
+                ctx.stroke();
+
+                // Desenhar as arestas diagonais faltantes:
+                // superior esquerda (conecta canto superior esquerdo da face frontal ao canto superior esquerdo da face superior)
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x0 + offsetX, y0 - offsetY);
+                ctx.stroke();
+
+                // inferior esquerda (conecta canto inferior esquerdo da face frontal ao canto inferior esquerdo da face superior)
+                ctx.beginPath();
+                ctx.moveTo(x0, y0 + edgePx);
+                ctx.lineTo(x0 + offsetX, y0 + edgePx - offsetY);
+                ctx.stroke();
+
+                // Aresta traseira esquerda (conecta canto superior esquerdo da face superior ao canto superior esquerdo da face traseira - já está implícita no topo)
+                // Mas também a aresta vertical traseira esquerda (do topo à base da face superior)
+                ctx.beginPath();
+                ctx.moveTo(x0 + offsetX, y0 - offsetY);
+                ctx.lineTo(x0 + offsetX, y0 + edgePx - offsetY);
+                ctx.stroke();
+
+                ctx.setLineDash([]);
+            }
+
+            // Desenhar cubo inicial (tracejado) como referência
+            const initialX = centerX - sidePx / 2;
+            const initialY = centerY - sidePx / 2;
+            drawCube(sidePx, initialX, initialY, 'rgba(255,255,255,0.1)', '#aaa', true);
+
+            // Desenhar cubo dilatado (cheio)
+            const newX = centerX - newSidePx / 2;
+            const newY = centerY - newSidePx / 2;
+            const color = getTemperatureColor(currentTemp);
+            drawCube(newSidePx, newX, newY, color, '#ecf0f1', false);
+
+            // Anotações
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, centerX, initialY - 20);
+            ctx.fillText(`ΔV = ${deltaVolume.toFixed(5)} m³`, centerX, newY + newSidePx + 30);
+        }
+
+        function drawComponents() {
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, width, height);
+
+            // Título
+            ctx.fillStyle = '#ecf0f1';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${currentMaterial.name} - Dilatação ${dilationType.value === 'linear' ? 'Linear' : dilationType.value === 'superficial' ? 'Superficial' : 'Volumétrica'}`, width / 2, 30);
+
+            const type = dilationType.value;
+            if (type === 'linear') {
+                drawLinear();
+            } else if (type === 'superficial') {
+                drawSurface();
+            } else {
+                drawVolumetric();
+            }
+
+            drawThermometer(width - 100, 100, currentTemp);
+            drawLegend(width - 150, height - 100);
+        }
+
+        function animate() {
+            drawComponents();
+            requestAnimationFrame(animate);
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        function generateExercises() {
+            exercises = [];
+            for (let i = 0; i < 2; i++) {
+                let L0 = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                let alpha = [2.4e-5, 1.7e-5, 1.2e-5, 0.9e-5][Math.floor(Math.random() * 4)];
+                let T0 = Math.floor(Math.random() * 20) + 10;
+                let T1 = T0 + Math.floor(Math.random() * 100) + 50;
+                let deltaT = T1 - T0;
+                let deltaL = L0 * alpha * deltaT;
+                let formattedDeltaL = parseFloat(deltaL.toPrecision(4));
+                exercises.push({
+                    type: 'dilatacao_linear',
+                    question: `Uma barra de comprimento inicial ${L0.toFixed(2)} m a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação no comprimento?`,
+                    answer: toScientific(formattedDeltaL, "m"),
+                    options: generateOptions(formattedDeltaL, 'm')
+                });
+
+                let A0 = (Math.floor(Math.random() * 5) + 1);
+                let beta = 2 * alpha;
+                let deltaA = A0 * beta * deltaT;
+                let formattedDeltaA = parseFloat(deltaA.toPrecision(4));
+                exercises.push({
+                    type: 'dilatacao_superficial',
+                    question: `Uma placa de área inicial ${A0.toFixed(1)} m² a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação na área?`,
+                    answer: toScientific(formattedDeltaA, "m²"),
+                    options: generateOptions(formattedDeltaA, 'm²')
+                });
+
+                let V0 = (Math.floor(Math.random() * 5) + 1);
+                let gamma = 3 * alpha;
+                let deltaV = V0 * gamma * deltaT;
+                let formattedDeltaV = parseFloat(deltaV.toPrecision(4));
+                exercises.push({
+                    type: 'dilatacao_volumetrica',
+                    question: `Um cubo de volume inicial ${V0.toFixed(1)} m³ a ${T0}°C é aquecido a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação no volume?`,
+                    answer: toScientific(formattedDeltaV, "m³"),
+                    options: generateOptions(formattedDeltaV, 'm³')
+                });
+            }
+            exercises = shuffleArray(exercises);
+        }
+
+        function generateOptions(correctValue, unit) {
+            const options = [{ value: correctValue, display: toScientific(correctValue, unit) }];
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                do {
+                    optionValue = Math.abs(correctValue * (Math.random() * 0.8 + 0.5));
+                    if (optionValue < 0.0001) optionValue = 0.0001 + Math.random() * 0.001;
+                } while (options.some(opt => opt.display === toScientific(optionValue, unit)));
+                options.push({ value: optionValue, display: toScientific(optionValue, unit) });
+            }
+            return shuffleArray(options).map(opt => opt.display);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selected) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkBtn.disabled = true;
+
+            const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            let alpha = [2.4e-5, 1.7e-5, 1.2e-5, 0.9e-5][Math.floor(Math.random() * 4)];
+            let T0 = Math.floor(Math.random() * 20) + 10;
+            let T1 = T0 + Math.floor(Math.random() * 100) + 50;
+            let deltaT = T1 - T0;
+
+            if (currentType === 'dilatacao_linear') {
+                let L0 = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                let deltaL = L0 * alpha * deltaT;
+                exercises[currentExercise] = {
+                    type: 'dilatacao_linear',
+                    question: `Uma barra de comprimento inicial ${L0.toFixed(2)} m a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação no comprimento?`,
+                    answer: toScientific(parseFloat(deltaL.toPrecision(4)), "m"),
+                    options: generateOptions(parseFloat(deltaL.toPrecision(4)), 'm')
+                };
+            } else if (currentType === 'dilatacao_superficial') {
+                let A0 = (Math.floor(Math.random() * 5) + 1);
+                let beta = 2 * alpha;
+                let deltaA = A0 * beta * deltaT;
+                exercises[currentExercise] = {
+                    type: 'dilatacao_superficial',
+                    question: `Uma placa de área inicial ${A0.toFixed(1)} m² a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação na área?`,
+                    answer: toScientific(parseFloat(deltaA.toPrecision(4)), "m²"),
+                    options: generateOptions(parseFloat(deltaA.toPrecision(4)), 'm²')
+                };
+            } else if (currentType === 'dilatacao_volumetrica') {
+                let V0 = (Math.floor(Math.random() * 5) + 1);
+                let gamma = 3 * alpha;
+                let deltaV = V0 * gamma * deltaT;
+                exercises[currentExercise] = {
+                    type: 'dilatacao_volumetrica',
+                    question: `Um cubo de volume inicial ${V0.toFixed(1)} m³ a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha, "°C⁻¹")}, qual é a variação no volume?`,
+                    answer: toScientific(parseFloat(deltaV.toPrecision(4)), "m³"),
+                    options: generateOptions(parseFloat(deltaV.toPrecision(4)), 'm³')
+                };
+            }
+        }
+
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const item = document.getElementById(`progress${i+1}`);
+                item.classList.remove('active', 'completed');
+                if (i === currentExercise) item.classList.add('active');
+                else if (i < currentExercise) item.classList.add('completed');
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') alert('Por favor, escreva uma conclusão antes de enviar.');
+                else showResults(conclusionText);
+            });
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const score = Math.round((correct / total) * 100);
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${total}</p>
+                <p>Respostas corretas: ${correct}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${score}%</p>
+            `;
+            document.getElementById('finalConclusion').value = conclusion;
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendBtn = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Enviando...';
+
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const score = Math.round((correct / total) * 100);
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Dilatação Térmica',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correct}/${total - correct}`,
+                nota: score + '%',
+                conclusao: finalConclusion,
+                email: studentEmail || '',
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correct}/${total}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            const statusDiv = document.getElementById('emailStatus');
+            statusDiv.textContent = 'Enviando dados...';
+            statusDiv.className = 'email-status sending';
+            statusDiv.style.display = 'block';
+
+            fetch(planilhaUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosCompletos) })
+                .then(() => {
+                    statusDiv.textContent = 'Dados salvos! Enviando email...';
+                    return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosCompletos) });
+                })
+                .then(() => {
+                    if (studentEmail) {
+                        const emailAluno = { ...dadosCompletos, to_email: studentEmail, mensagem: `Confirmação de envio...` };
+                        return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(emailAluno) });
+                    }
+                })
+                .then(() => {
+                    statusDiv.textContent = studentEmail ? '✅ Dados salvos e emails enviados!' : '✅ Dados salvos e email enviado ao professor!';
+                    statusDiv.className = 'email-status sent';
+                    setTimeout(() => {
+                        closeExercisesModal();
+                        sendBtn.disabled = false;
+                        sendBtn.textContent = 'Enviar Resultados';
+                    }, 3000);
+                })
+                .catch(error => {
+                    statusDiv.textContent = '❌ Erro ao enviar. Tente novamente.';
+                    statusDiv.className = 'email-status error-status';
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'Enviar Resultados';
+                });
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+        // ========== EVENTOS E INICIALIZAÇÃO ==========
+        function setupEventListeners() {
+            materialType.addEventListener('change', () => {
+                currentMaterial = MATERIALS[materialType.value];
+                updateMeasurements();
+            });
+            initialLength.addEventListener('input', () => {
+                currentLength = parseFloat(initialLength.value);
+                initialLengthDisplay.textContent = currentLength.toFixed(1) + ' m';
+                updateMeasurements();
+            });
+            temperature.addEventListener('input', () => {
+                currentTemp = parseInt(temperature.value);
+                temperatureDisplay.textContent = currentTemp + ' °C';
+                updateTempMarker();
+                updateMeasurements();
+            });
+            dilationType.addEventListener('change', () => {
+                updateMeasurements();
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                currentTemp = 20;
+                temperature.value = 20;
+                temperatureDisplay.textContent = '20 °C';
+                updateTempMarker();
+                updateMeasurements();
+            });
+            document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar:\n\n• Selecione o tipo de material\n• Ajuste o comprimento inicial (lado)\n• Ajuste a temperatura\n• Selecione o tipo de dilatação (linear, superficial ou volumétrica)\n• Observe a representação visual e as medições\n• Use os botões de exercícios para testar seu conhecimento"));
+
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+
+            window.addEventListener('click', function(e) {
+                if (e.target == document.getElementById('exercisesModal')) closeExercisesModal();
+                else if (e.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+                else if (e.target == document.getElementById('theoryModal')) closeTheoryModal();
+            });
+        }
+
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            updateTempMarker();
+            updateMeasurements();
+            setupEventListeners();
+            animate();
+        });
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
