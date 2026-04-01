@@ -164,7 +164,6 @@
         .orange { background: #ff7700; }
         .dark-orange { background: #cc5500; }
         
-        /* Estilos para o toggle switch */
         .toggle-container {
             display: flex;
             align-items: center;
@@ -215,14 +214,9 @@
             min-width: 80px;
             text-align: center;
         }
-        .toggle-off {
-            color: #ff4444;
-        }
-        .toggle-on {
-            color: #22ff22;
-        }
-        
-        /* Estilos para o modal de exercícios */
+        .toggle-off { color: #ff4444; }
+        .toggle-on { color: #22ff22; }
+
         .modal {
             display: none;
             position: fixed;
@@ -277,7 +271,6 @@
             grid-template-columns: 1fr;
             gap: 8px;
             margin: 10px 0;
-            width: 100%;
         }
         .option {
             padding: 12px;
@@ -287,21 +280,11 @@
             transition: background 0.3s;
             text-align: center;
         }
-        .option:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .selected {
-            background: rgba(255, 204, 0, 0.3);
-            border: 1px solid #ffcc00;
-        }
-        .correct {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid #00ff00;
-        }
-        .incorrect {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
-        }
+        .option:hover { background: rgba(255, 255, 255, 0.2); }
+        .selected { background: rgba(255, 204, 0, 0.3); border: 1px solid #ffcc00; }
+        .correct { background: rgba(0, 255, 0, 0.2); border: 1px solid #00ff00; }
+        .incorrect { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff0000; }
+        .disabled { pointer-events: none; opacity: 0.7; }
         .check-btn {
             width: 100%;
             margin-top: 10px;
@@ -331,14 +314,8 @@
             text-align: center;
             font-weight: bold;
         }
-        .success {
-            background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
-        }
-        .error {
-            background: rgba(255, 0, 0, 0.2);
-            color: #ff0000;
-        }
+        .success { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
+        .error { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
         .progress {
             display: flex;
             justify-content: space-between;
@@ -352,12 +329,8 @@
             border-radius: 5px;
             margin: 0 2px;
         }
-        .progress-item.active {
-            background: rgba(255, 204, 0, 0.3);
-        }
-        .progress-item.completed {
-            background: rgba(0, 255, 0, 0.2);
-        }
+        .progress-item.active { background: rgba(255, 204, 0, 0.3); }
+        .progress-item.completed { background: rgba(0, 255, 0, 0.2); }
         .button-group {
             display: flex;
             gap: 10px;
@@ -373,42 +346,26 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .pulse {
-            animation: pulse 2s infinite;
-        }
+        .pulse { animation: pulse 2s infinite; }
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
-        
-        /* Estilos para formulário de e-mail */
         .email-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-top: 15px;
         }
-        
         .form-row {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        
-        .form-row label {
-            font-weight: bold;
-            color: #ffcc00;
-        }
-        
-        .required::after {
-            content: " *";
-            color: #ff0000;
-        }
-        
-        .form-row input,
-        .form-row select,
-        .form-row textarea {
+        .form-row label { font-weight: bold; color: #ffcc00; }
+        .required::after { content: " *"; color: #ff0000; }
+        .form-row input, .form-row select, .form-row textarea {
             width: 100%;
             padding: 12px;
             border-radius: 5px;
@@ -417,12 +374,7 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        
-        .form-row textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-        
+        .form-row textarea { min-height: 80px; resize: vertical; }
         .email-status {
             margin-top: 10px;
             padding: 10px;
@@ -431,971 +383,382 @@
             font-weight: bold;
             display: none;
         }
-        
-        .sending {
-            background: rgba(255, 204, 0, 0.3);
-            color: #ffcc00;
-        }
-        
-        .sent {
-            background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
-        }
-        
-        .error-status {
-            background: rgba(255, 0, 0, 0.2);
-            color: #ff0000;
-        }
+        .sending { background: rgba(255, 204, 0, 0.3); color: #ffcc00; }
+        .sent { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
+        .error-status { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Simulação de Transformadores</h1>
-            <p class="subtitle">Prof. Flávio Ambrósio</p>
-        </header>
-        
-        <div class="content">
-            <div class="simulation-panel">
-                <h2 class="panel-title">Visualização do Transformador</h2>
-                <canvas id="transformerCanvas"></canvas>
-                
-                <div class="visualization-toggle">
-                    <button id="fluxBtn" class="active">Campo Magnético</button>
-                    <button id="currentBtn" class="active">Corrente Elétrica</button>
-                    <button id="helpBtn">Ajuda</button>
-                </div>
-                
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color red"></div>
-                        <span>Bobina Primária</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color blue"></div>
-                        <span>Bobina Secundária</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color green"></div>
-                        <span>Campo Magnético</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color dark-orange"></div>
-                        <span>Núcleo de Ferro</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color orange"></div>
-                        <span>Corrente Elétrica</span>
-                    </div>
-                </div>
+<div class="container">
+    <header><h1>Simulação de Transformadores</h1><p>Prof. Flávio Ambrósio</p></header>
+    <div class="content">
+        <div class="simulation-panel">
+            <h2 class="panel-title">Visualização do Transformador</h2>
+            <canvas id="transformerCanvas"></canvas>
+            <div class="visualization-toggle">
+                <button id="fluxBtn" class="active">Campo Magnético</button>
+                <button id="currentBtn" class="active">Corrente Elétrica</button>
+                <button id="helpBtn">Ajuda</button>
             </div>
-            
-            <div class="controls-panel">
-                <h2 class="panel-title">Controles</h2>
-                
-                <div class="control-group">
-                    <label for="voltageInput">Tensão de Entrada (V):</label>
-                    <input type="range" id="voltageInput" min="1" max="50" value="12" step="1">
-                    <div class="value-display"><span id="voltageValue">12</span> V</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="primaryTurns">Espiras no Primário:</label>
-                    <input type="range" id="primaryTurns" min="50" max="500" value="200" step="10">
-                    <div class="value-display"><span id="primaryTurnsValue">200</span> espiras</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="secondaryTurns">Espiras no Secundário:</label>
-                    <input type="range" id="secondaryTurns" min="50" max="500" value="100" step="10">
-                    <div class="value-display"><span id="secondaryTurnsValue">100</span> espiras</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="coreToggle">Núcleo de Ferro:</label>
-                    <div class="toggle-container">
-                        <span class="toggle-label toggle-off" id="toggleOff">Sem Núcleo</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="coreToggle" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="toggle-label toggle-on" id="toggleOn">Com Núcleo</span>
-                    </div>
-                </div>
-                
-                <div class="formula-box">
-                    <h3>Princípio do Transformador</h3>
-                    <p>V<sub>s</sub> / V<sub>p</sub> = N<sub>s</sub> / N<sub>p</sub></p>
-                    <p>P<sub>p</sub> ≈ P<sub>s</sub> (considerando eficiência)</p>
-                    <p>V<sub>p</sub> × I<sub>p</sub> ≈ V<sub>s</sub> × I<sub>s</sub></p>
-                </div>
-                
-                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color red"></div><span>Bobina Primária</span></div>
+                <div class="legend-item"><div class="legend-color blue"></div><span>Bobina Secundária</span></div>
+                <div class="legend-item"><div class="legend-color green"></div><span>Campo Magnético</span></div>
+                <div class="legend-item"><div class="legend-color dark-orange"></div><span>Núcleo de Ferro</span></div>
+                <div class="legend-item"><div class="legend-color orange"></div><span>Corrente Elétrica</span></div>
             </div>
-            
-            <div class="measurement-panel">
-                <h2 class="panel-title">Medições</h2>
-                <div class="measurement-grid">
-                    <div class="measurement-item">
-                        <div class="measurement-label">Tensão de Entrada (V<sub>p</sub>)</div>
-                        <div class="measurement-value" id="inputVoltageDisplay">12 V</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Corrente de Entrada (I<sub>p</sub>)</div>
-                        <div class="measurement-value" id="inputCurrentDisplay">0.12 A</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Tensão de Saída (V<sub>s</sub>)</div>
-                        <div class="measurement-value" id="outputVoltageDisplay">6 V</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Corrente de Saída (I<sub>s</sub>)</div>
-                        <div class="measurement-value" id="outputCurrentDisplay">0.24 A</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Potência de Entrada</div>
-                        <div class="measurement-value" id="inputPowerDisplay">1.44 W</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Potência de Saída</div>
-                        <div class="measurement-value" id="outputPowerDisplay">1.44 W</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Eficiência</div>
-                        <div class="measurement-value" id="efficiencyDisplay">95%</div>
-                    </div>
-                </div>
+        </div>
+        <div class="controls-panel">
+            <h2 class="panel-title">Controles</h2>
+            <div class="control-group"><label>Tensão de Entrada (V):</label><input type="range" id="voltageInput" min="1" max="50" value="12" step="1"><div class="value-display"><span id="voltageValue">12</span> V</div></div>
+            <div class="control-group"><label>Espiras no Primário:</label><input type="range" id="primaryTurns" min="50" max="500" value="200" step="10"><div class="value-display"><span id="primaryTurnsValue">200</span> espiras</div></div>
+            <div class="control-group"><label>Espiras no Secundário:</label><input type="range" id="secondaryTurns" min="50" max="500" value="100" step="10"><div class="value-display"><span id="secondaryTurnsValue">100</span> espiras</div></div>
+            <div class="control-group"><label>Núcleo de Ferro:</label><div class="toggle-container"><span class="toggle-label toggle-off">Sem Núcleo</span><label class="toggle-switch"><input type="checkbox" id="coreToggle" checked><span class="toggle-slider"></span></label><span class="toggle-label toggle-on">Com Núcleo</span></div></div>
+            <div class="formula-box"><h3>Princípio do Transformador</h3><p>V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></p><p>P<sub>p</sub> ≈ P<sub>s</sub></p><p>V<sub>p</sub> × I<sub>p</sub> ≈ V<sub>s</sub> × I<sub>s</sub></p></div>
+            <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+        </div>
+        <div class="measurement-panel">
+            <h2 class="panel-title">Medições</h2>
+            <div class="measurement-grid">
+                <div class="measurement-item"><div class="measurement-label">Tensão Entrada (V<sub>p</sub>)</div><div class="measurement-value" id="inputVoltageDisplay">12 V</div></div>
+                <div class="measurement-item"><div class="measurement-label">Corrente Entrada (I<sub>p</sub>)</div><div class="measurement-value" id="inputCurrentDisplay">0.12 A</div></div>
+                <div class="measurement-item"><div class="measurement-label">Tensão Saída (V<sub>s</sub>)</div><div class="measurement-value" id="outputVoltageDisplay">6 V</div></div>
+                <div class="measurement-item"><div class="measurement-label">Corrente Saída (I<sub>s</sub>)</div><div class="measurement-value" id="outputCurrentDisplay">0.24 A</div></div>
+                <div class="measurement-item"><div class="measurement-label">Potência Entrada</div><div class="measurement-value" id="inputPowerDisplay">1.44 W</div></div>
+                <div class="measurement-item"><div class="measurement-label">Potência Saída</div><div class="measurement-value" id="outputPowerDisplay">1.44 W</div></div>
+                <div class="measurement-item"><div class="measurement-label">Eficiência</div><div class="measurement-value" id="efficiencyDisplay">95%</div></div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal de Exercícios -->
-    <div id="exercisesModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercícios de Transformadores</h2>
-                <span class="close">&times;</span>
-            </div>
-            
-            <div class="progress" id="progressBar">
-                <div class="progress-item" id="progress1">1</div>
-                <div class="progress-item" id="progress2">2</div>
-                <div class="progress-item" id="progress3">3</div>
-                <div class="progress-item" id="progress4">4</div>
-                <div class="progress-item" id="progress5">5</div>
-                <div class="progress-item" id="progress6">6</div>
-            </div>
-            
-            <div id="exerciseContainer">
-                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
-            </div>
-            
-            <div id="conclusionContainer" style="display: none;">
-            <h3>Conclusão de Estudo</h3>
-            <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
-                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
-            </div>
-            
-            <div id="resultsContainer" style="display: none;">
-                <h3>Resultados dos Exercícios</h3>
-                <div id="resultsSummary"></div>
-                
-                <h3>Enviar Resultados</h3>
-                <p>Preencha os dados abaixo para enviar seus resultados:</p>
-                
-                <div class="email-form">
-                    <div class="form-row">
-                        <label for="studentName" class="required">Nome Completo:</label>
-                        <input type="text" id="studentName" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentGrade" class="required">Série:</label>
-                        <select id="studentGrade" required>
-                            <option value="">Selecione sua série</option>
-                            <option value="1o ano">1º ano</option>
-                            <option value="2o ano">2º ano</option>
-                            <option value="3o ano">3º ano</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentClass" class="required">Turma:</label>
-                        <select id="studentClass" required>
-                            <option value="">Selecione sua turma</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="G">G</option>
-                            <option value="H">H</option>
-                            <option value="I">I</option>
-                            <option value="J">J</option>
-                            <option value="K">K</option>
-                            <option value="L">L</option>
-                            <option value="M">M</option>
-                            <option value="N">N</option>
-                            <option value="O">O</option>
-                            <option value="P">P</option>
-                            <option value="Q">Q</option>
-                            <option value="R">R</option>
-                            <option value="S">S</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentEmail">E-mail para cópia:</label>
-                        <input type="email" id="studentEmail" placeholder="seu@email.com">
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="criticismInput">Críticas:</label>
-                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="suggestionInput">Sugestões:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
-                    </div>
-                    
-                    <div id="emailStatus" class="email-status"></div>
-                    
-                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
-                </div>
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Exercícios de Transformadores</h2><span class="close">&times;</span></div>
+        <div class="progress" id="progressBar"><div class="progress-item" id="progress1">1</div><div class="progress-item" id="progress2">2</div><div class="progress-item" id="progress3">3</div><div class="progress-item" id="progress4">4</div><div class="progress-item" id="progress5">5</div><div class="progress-item" id="progress6">6</div></div>
+        <div id="exerciseContainer"></div>
+        <div id="conclusionContainer" style="display:none;"><h3>Conclusão de Estudo</h3><textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; height:150px; resize:both;"></textarea><button id="submitConclusion" class="check-btn">Enviar Conclusão</button></div>
+        <div id="resultsContainer" style="display:none;">
+            <h3>Resultados dos Exercícios</h3><div id="resultsSummary"></div>
+            <h3>Enviar Resultados</h3>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option></select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão sobre o exercício:</label><textarea id="finalConclusion" rows="4" required></textarea></div>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="check-btn">Enviar Resultados</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Variáveis globais
-        let canvas, ctx;
-        let voltageInput = 12;
-        let primaryTurns = 200;
-        let secondaryTurns = 100;
-        let hasIronCore = true;
-        let showFlux = true;
-        let showCurrent = true;
-        let animationTime = 0;
-        let coreThickness = 30;       // ← Altere para 50  
-        let coreHoleRatio = 0.3;      // ← Altere para 0.5
-        let coreOpacity = 0.7;
+<script>
+    // ---------- Simulação (não alterada) ----------
+    let canvas, ctx;
+    let voltageInput = 12, primaryTurns = 200, secondaryTurns = 100, hasIronCore = true;
+    let showFlux = true, showCurrent = true, animationTime = 0;
+    let coreThickness = 30, coreHoleRatio = 0.3, coreOpacity = 0.7;
+    function initSimulation() {
+        canvas = document.getElementById('transformerCanvas'); ctx = canvas.getContext('2d');
+        updateCanvasSize(); animate(); updateMeasurements(); updateToggleDisplay();
+        window.addEventListener('resize', updateCanvasSize);
+        document.getElementById('voltageInput').addEventListener('input', function() { voltageInput = parseFloat(this.value); document.getElementById('voltageValue').textContent = voltageInput; updateSimulation(); });
+        document.getElementById('primaryTurns').addEventListener('input', function() { primaryTurns = parseFloat(this.value); document.getElementById('primaryTurnsValue').textContent = primaryTurns; updateSimulation(); });
+        document.getElementById('secondaryTurns').addEventListener('input', function() { secondaryTurns = parseFloat(this.value); document.getElementById('secondaryTurnsValue').textContent = secondaryTurns; updateSimulation(); });
+        document.getElementById('coreToggle').addEventListener('change', function() { hasIronCore = this.checked; updateSimulation(); });
+        document.getElementById('fluxBtn').addEventListener('click', function() { showFlux = !showFlux; this.classList.toggle('active', showFlux); updateSimulation(); });
+        document.getElementById('currentBtn').addEventListener('click', function() { showCurrent = !showCurrent; this.classList.toggle('active', showCurrent); updateSimulation(); });
+        document.getElementById('helpBtn').addEventListener('click', () => alert("Use os controles para ajustar tensão, espiras e núcleo. Observe as medições."));
+    }
+    function updateCanvasSize() { const container = document.querySelector('.simulation-panel'); canvas.width = container.clientWidth - 40; canvas.height = 400; drawTransformer(); }
+    function updateToggleDisplay() {
+        const on = document.querySelector('.toggle-on');
+        const off = document.querySelector('.toggle-off');
+        if(!on || !off) return;
+        if(hasIronCore){
+            on.style.color = '#22ff22';
+            on.style.fontWeight = 'bold';
+            off.style.color = '#ccc';
+            off.style.fontWeight = 'normal';
+        } else {
+            on.style.color = '#ccc';
+            on.style.fontWeight = 'normal';
+            off.style.color = '#ff4444';
+            off.style.fontWeight = 'bold';
+        }
+    }
+    function drawTransformer() { ctx.clearRect(0,0,canvas.width,canvas.height); const cx=canvas.width/2, cy=canvas.height/2, fw=canvas.width*0.7, fh=canvas.height*0.5, fx=cx-fw/2, fy=cy-fh/2, cr=10; if(hasIronCore){ ctx.fillStyle='#9d4d00'; ctx.strokeStyle='#9d4d10'; ctx.lineWidth=4; ctx.beginPath(); ctx.rect(fx,fy,fw,coreThickness); ctx.rect(fx,fy+fh-coreThickness,fw,coreThickness); ctx.rect(fx,fy+coreThickness,coreThickness,fh-2*coreThickness); ctx.rect(fx+fw-coreThickness,fy+coreThickness,coreThickness,fh-2*coreThickness); ctx.fill(); ctx.stroke(); } const coilW = fw*0.21, primX = fx, secX = fx+fw-coilW; drawCoil(primX,cy,coilW,fh*0.8,primaryTurns,'#ff0000','Primária'); drawCoil(secX,cy,coilW,fh*0.8,secondaryTurns,'#0066ff','Secundária'); if(showFlux && hasIronCore) drawMagneticFlux(fx,fy,fw,fh,cr,coreThickness); if(showCurrent){ const outV = voltageInput*(secondaryTurns/primaryTurns), eff = hasIronCore?0.95:0.6, outI = outV/50, inP = outV*outI/eff, inI = voltageInput>0?inP/voltageInput:0; drawCurrent(primX,cy,coilW,fh*0.8,Math.min(1,inI/0.5),true); drawCurrent(secX,cy,coilW,fh*0.8,Math.min(1,outI/0.5),false); } }
+    function drawCoil(x,y,w,h,turns,color,label){ const num=Math.min(20,Math.floor(turns/10)), sp=h/(num+1); ctx.strokeStyle=color; ctx.lineWidth=5; for(let i=1;i<=num;i++){ const yp=y-h/2+i*sp; ctx.beginPath(); ctx.moveTo(x,yp); ctx.lineTo(x+w,yp); ctx.stroke(); } ctx.beginPath(); ctx.moveTo(x,y-h/2); ctx.lineTo(x-20,y-h/2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+w,y-h/2); ctx.lineTo(x+w+20,y-h/2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y+h/2); ctx.lineTo(x-20,y+h/2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x+w,y+h/2); ctx.lineTo(x+w+20,y+h/2); ctx.stroke(); ctx.fillStyle='#fff'; ctx.font='14px Arial'; ctx.fillText(`${label} (${turns} espiras)`,x+w/2,y+h/2+30); }
+    function drawMagneticFlux(x,y,w,h,cr,thick){ const intens=voltageInput*(hasIronCore?1.5:0.3)*(primaryTurns/200), op=Math.min(0.8,0.3*intens); ctx.strokeStyle=`rgba(0,255,0,${op})`; ctx.lineWidth=2; for(let i=0;i<5;i++){ const off=i*5, ix=x+thick/2+off, iy=y+thick/2+off, iw=w-thick-2*off, ih=h-thick-2*off; if(iw>0 && ih>0){ ctx.beginPath(); ctx.moveTo(ix+cr,iy); ctx.lineTo(ix+iw-cr,iy); ctx.quadraticCurveTo(ix+iw,iy,ix+iw,iy+cr); ctx.lineTo(ix+iw,iy+ih-cr); ctx.quadraticCurveTo(ix+iw,iy+ih,ix+iw-cr,iy+ih); ctx.lineTo(ix+cr,iy+ih); ctx.quadraticCurveTo(ix,iy+ih,ix,iy+ih-cr); ctx.lineTo(ix,iy+cr); ctx.quadraticCurveTo(ix,iy,ix+cr,iy); ctx.stroke(); if(i===2){ ctx.fillStyle=`rgba(0,255,0,${op})`; ctx.beginPath(); ctx.moveTo(ix+iw*0.7,iy); ctx.lineTo(ix+iw*0.7-8,iy-4); ctx.lineTo(ix+iw*0.7-8,iy+4); ctx.fill(); } } } }
+    function drawCurrent(x,y,w,h,intens,isPrim){ if(intens<=0)return; const num=Math.min(20,Math.floor(primaryTurns/10)), sp=h/(num+1), op=Math.min(1,0.5+intens*2); ctx.strokeStyle=`rgba(255,119,0,${op})`; ctx.lineWidth=2; ctx.setLineDash([3,5]); for(let i=1;i<=num;i++){ const yp=y-h/2+i*sp; ctx.beginPath(); if(isPrim){ ctx.moveTo(x+w,yp); ctx.lineTo(x,yp); }else{ ctx.moveTo(x,yp); ctx.lineTo(x+w,yp); } ctx.stroke(); const arrowX=isPrim?x+w*0.3:x+w*0.7; ctx.fillStyle=`rgba(255,119,0,${op})`; ctx.beginPath(); if(isPrim){ ctx.moveTo(arrowX,yp); ctx.lineTo(arrowX+5,yp-2.5); ctx.lineTo(arrowX+5,yp+2.5); }else{ ctx.moveTo(arrowX,yp); ctx.lineTo(arrowX-5,yp-2.5); ctx.lineTo(arrowX-5,yp+2.5); } ctx.fill(); } ctx.setLineDash([]); }
+    function updateSimulation(){ drawTransformer(); updateMeasurements(); updateToggleDisplay(); }
+    function updateMeasurements(){ const ratio=secondaryTurns/primaryTurns, outV=voltageInput*ratio, eff=hasIronCore?0.95:0.6, outI=outV/50, outP=outV*outI, inP=outP/eff, inI=inP/voltageInput; document.getElementById('inputVoltageDisplay').textContent=voltageInput.toFixed(1)+' V'; document.getElementById('inputCurrentDisplay').textContent=inI.toFixed(2)+' A'; document.getElementById('outputVoltageDisplay').textContent=outV.toFixed(1)+' V'; document.getElementById('outputCurrentDisplay').textContent=outI.toFixed(2)+' A'; document.getElementById('inputPowerDisplay').textContent=inP.toFixed(2)+' W'; document.getElementById('outputPowerDisplay').textContent=outP.toFixed(2)+' W'; document.getElementById('efficiencyDisplay').textContent=Math.round(eff*100)+'%'; }
+    function animate(){ animationTime+=0.05; drawTransformer(); requestAnimationFrame(animate); }
 
-        // Sistema de exercícios
-        let exercises = [];
-        let currentExercise = 0;
-        let exerciseResults = [];
-        let skippedQuestions = 0;
-        let currentExerciseAnswered = false; // Nova variável para controlar se a pergunta atual foi respondida
+    // ---------- SISTEMA DE EXERCÍCIOS DINÂMICO (estilo Força Magnética) ----------
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+    const LOAD_RESISTANCE = 50; // ohms
 
-        // Dimensina núcleo
-        function updateCoreDimensions(thickness, holeRatio, opacity) {
-            coreThickness = thickness;
-            coreHoleRatio = Math.max(0.1, Math.min(0.9, holeRatio));
-            coreOpacity = Math.max(0.3, Math.min(1, opacity));
-            drawTransformer();
+    // Formatação com 3 algarismos significativos
+    function formatScientific(value, unit='') {
+        if(value === 0) return '0.00 ' + unit;
+        if(Math.abs(value) < 0.001 || Math.abs(value) > 1000){
+            let exp = Math.floor(Math.log10(Math.abs(value)));
+            let mant = value / Math.pow(10, exp);
+            mant = Math.round(mant * 100) / 100;
+            if(mant >= 10){ mant /= 10; exp++; }
+            return mant.toFixed(2) + '×10^' + exp + ' ' + unit;
         }
+        let intPart = Math.floor(Math.abs(value));
+        let decimals = intPart === 0 ? 3 : (intPart < 10 ? 2 : (intPart < 100 ? 1 : 0));
+        return value.toFixed(decimals) + ' ' + unit;
+    }
 
+    function generateOptions(correctVal, unit) {
+        let opts = [{ value: correctVal, display: formatScientific(correctVal, unit) }];
+        for(let i=0; i<4; i++){
+            let newVal;
+            do {
+                let factor = 0.5 + Math.random() * 1.5;
+                if(Math.random() > 0.5) factor = 1/factor;
+                newVal = correctVal * factor;
+                if(unit !== 'N' && unit !== 'm' && unit !== 'V' && unit !== 'A' && unit !== 'W') newVal = Math.abs(newVal);
+                else newVal = Math.abs(newVal);
+            } while(opts.some(o => Math.abs(o.value - newVal) < 0.01*Math.abs(correctVal)));
+            opts.push({ value: newVal, display: formatScientific(newVal, unit) });
+        }
+        for(let i=opts.length-1; i>0; i--){ const j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+        return opts.map(o => o.display);
+    }
 
-        // Inicializar a simulação
-        function init() {
-            canvas = document.getElementById('transformerCanvas');
-            ctx = canvas.getContext('2d');
-            
-            // Configurar tamanho do canvas
-            updateCanvasSize();
-            
-            // Iniciar animação
-            animate();
-            
-            // Atualizar medições iniciais
-            updateMeasurements();
-            
-            // Atualizar visualização do toggle
-            updateToggleDisplay();
-            
-            // Configurar evento de redimensionamento
-            window.addEventListener('resize', updateCanvasSize);
+    function generateRandomTransformerExercise(type) {
+        const vp = Math.floor(Math.random() * 40) + 10; // 10-50 V
+        const np = Math.floor(Math.random() * 400) + 100; // 100-500
+        const ns = Math.floor(Math.random() * 400) + 100;
+        const hasCore = Math.random() > 0.3;
+        const efficiency = hasCore ? 0.95 : 0.6;
+        const ratio = ns / np;
+        const vs = vp * ratio;
+        const is = vs / LOAD_RESISTANCE;
+        const ps = vs * is;
+        const pin = ps / efficiency;
+        const ip = pin / vp;
+
+        if(type === 'calcular_tensao_saida'){
+            const answer = formatScientific(vs, 'V');
+            const question = `Um transformador tem ${np} espiras no primário e ${ns} espiras no secundário. Se a tensão de entrada é ${vp} V, qual a tensão de saída?`;
+            return { type, question, answer, options: generateOptions(vs, 'V') };
         }
-        
-        // Atualizar tamanho do canvas
-        function updateCanvasSize() {
-            const container = document.querySelector('.simulation-panel');
-            canvas.width = container.clientWidth - 40;
-            canvas.height = 400;
-            drawTransformer();
+        if(type === 'calcular_corrente_saida'){
+            const answer = formatScientific(is, 'A');
+            const question = `A tensão de saída do transformador é ${formatScientific(vs, 'V')} e a carga resistiva é de ${LOAD_RESISTANCE} Ω. Qual a corrente de saída?`;
+            return { type, question, answer, options: generateOptions(is, 'A') };
         }
-        
-        // Atualizar display do toggle
-        function updateToggleDisplay() {
-            const toggleOn = document.getElementById('toggleOn');
-            const toggleOff = document.getElementById('toggleOff');
-            
-            if (hasIronCore) {
-                toggleOn.style.color = '#22ff22';
-                toggleOn.style.fontWeight = 'bold';
-                toggleOff.style.color = '#ccc';
-                toggleOff.style.fontWeight = 'normal';
-            } else {
-                toggleOn.style.color = '#ccc';
-                toggleOn.style.fontWeight = 'normal';
-                toggleOff.style.color = '#ff4444';
-                toggleOff.style.fontWeight = 'bold';
-            }
+        if(type === 'calcular_potencia_saida'){
+            const answer = formatScientific(ps, 'W');
+            const question = `Com tensão de saída ${formatScientific(vs, 'V')} e corrente ${formatScientific(is, 'A')}, qual a potência de saída do transformador?`;
+            return { type, question, answer, options: generateOptions(ps, 'W') };
         }
-        
-        // Desenhar o transformador
-        function drawTransformer() {
-            // Limpar o canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Dimensões e posições base
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const frameWidth = canvas.width * 0.7;
-            const frameHeight = canvas.height * 0.5;
-            const frameX = centerX - frameWidth / 2;
-            const frameY = centerY - frameHeight / 2;
-            const cornerRadius = 10;
-            
-            
-            // Desenhar núcleo de ferro em forma de "O" oco (apenas as bordas)
-            if (hasIronCore) {
-                ctx.fillStyle = '#9d4d00';
-                ctx.strokeStyle = '#9d4d10';
-                ctx.lineWidth = 4;
-                
-               // Desenhar núcleo oco (apenas as bordas) - buraco menor
-                ctx.beginPath();
-                // Parte superior
-                ctx.rect(frameX, frameY, frameWidth, coreThickness);  // ← frameThickness → coreThickness
-                // Parte inferior
-                ctx.rect(frameX, frameY + frameHeight - coreThickness, frameWidth, coreThickness);  // ← frameThickness → coreThickness
-                // Lado esquerdo
-                ctx.rect(frameX, frameY + coreThickness, coreThickness, frameHeight - 2 * coreThickness);  // ← frameThickness → coreThickness
-                // Lado direito
-                ctx.rect(frameX + frameWidth - coreThickness, frameY + coreThickness, coreThickness, frameHeight - 2 * coreThickness);  // ← frameThickness → coreThickness
-                
-                ctx.fill();
-                ctx.stroke();
-            }
-                        
-            // Desenhar bobina primária (esquerda) - SOBRE o núcleo
-            const coilWidth = frameWidth * 0.21;
-            const primaryX = frameX;
-            drawCoil(primaryX, centerY, coilWidth, frameHeight * 0.8, primaryTurns, '#ff0000', 'Primária');
-            
-            // Desenhar bobina secundária (direita) - SOBRE o núcleo
-            const secondaryX = frameX + frameWidth - coilWidth;
-            drawCoil(secondaryX, centerY, coilWidth, frameHeight * 0.8, secondaryTurns, '#0066ff', 'Secundária');
-            
-            // Desenhar campo magnético (se ativado) - SOBRE o núcleo mas SOB as bobinas
-            if (showFlux && hasIronCore) {
-                 drawMagneticFlux(frameX, frameY, frameWidth, frameHeight, cornerRadius, coreThickness);  // ← frameThickness → coreThickness
-}
-            
-            // Desenhar corrente elétrica (se ativado) - SOBRE tudo
-            if (showCurrent) {
-                // Calcular intensidades relativas para a visualização
-                const outputVoltage = voltageInput * (secondaryTurns / primaryTurns);
-                const efficiency = hasIronCore ? 0.95 : 0.6;
-                
-                // Cálculo CORRETO das correntes
-                const outputCurrent = outputVoltage > 0 ? outputVoltage / 50 : 0; // Assumindo resistência fixa de 50Ω
-                const inputPower = outputVoltage * outputCurrent / efficiency;
-                const inputCurrent = voltageInput > 0 ? inputPower / voltageInput : 0;
-                
-                const primaryIntensity = Math.min(1, inputCurrent / 0.5);
-                const secondaryIntensity = Math.min(1, outputCurrent / 0.5);
-                
-                drawCurrent(primaryX, centerY, coilWidth, frameHeight * 0.8, primaryIntensity, true);
-                drawCurrent(secondaryX, centerY, coilWidth, frameHeight * 0.8, secondaryIntensity, false);
-            }
+        if(type === 'relacao_transformacao'){
+            const answer = `${ratio.toFixed(2)}`;
+            const question = `Qual a relação de transformação (Ns/Np) de um transformador com ${np} espiras no primário e ${ns} no secundário?`;
+            return { type, question, answer, options: [`${ratio.toFixed(2)}`, `${(1/ratio).toFixed(2)}`, `${(ratio*1.5).toFixed(2)}`, `${(ratio/1.5).toFixed(2)}`, `${(ratio+0.5).toFixed(2)}`].slice(0,5) };
         }
-        
-        // Desenhar uma bobina
-        function drawCoil(x, y, width, height, turns, color, label) {
-            const numLines = Math.min(20, Math.floor(turns / 10));
-            const lineSpacing = height / (numLines + 1);
-            
-            // Desenhar espiras (linhas horizontais mais grossas)
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 5;
-            
-            for (let i = 1; i <= numLines; i++) {
-                const yPos = y - height/2 + i * lineSpacing;
-                ctx.beginPath();
-                ctx.moveTo(x, yPos);
-                ctx.lineTo(x + width, yPos);
-                ctx.stroke();
-            }
-            
-            // Desenhar conexões
-            ctx.beginPath();
-            ctx.moveTo(x, y - height/2);
-            ctx.lineTo(x - 20, y - height/2);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(x + width, y - height/2);
-            ctx.lineTo(x + width + 20, y - height/2);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(x, y + height/2);
-            ctx.lineTo(x - 20, y + height/2);
-            ctx.stroke();
-            
-            ctx.beginPath();
-            ctx.moveTo(x + width, y + height/2);
-            ctx.lineTo(x + width + 20, y + height/2);
-            ctx.stroke();
-            
-            // Desenhar label
-            ctx.fillStyle = '#fff';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${label} (${turns} espiras)`, x + width/2, y + height/2 + 30);
+        if(type === 'eficiencia'){
+            const ans = Math.round(efficiency*100) + '%';
+            const question = `Um transformador com núcleo de ferro (${hasCore?'com':'sem'} núcleo) tem potência de entrada ${formatScientific(pin, 'W')} e potência de saída ${formatScientific(ps, 'W')}. Qual a eficiência aproximada?`;
+            const opts = [`${Math.round(efficiency*100)}%`, `${Math.round((efficiency+0.05)*100)}%`, `${Math.round((efficiency-0.1)*100)}%`, `${Math.round((efficiency+0.1)*100)}%`, `${Math.round((efficiency-0.05)*100)}%`].slice(0,5);
+            return { type, question, answer: ans, options: opts };
         }
-        
-        // Desenhar campo magnético com linhas concêntricas e cantos arredondados
-        function drawMagneticFlux(x, y, width, height, cornerRadius, coreThickness) {
-            const fluxIntensity = voltageInput * (hasIronCore ? 1.5 : 0.3) * (primaryTurns / 200);
-            const opacity = Math.min(0.8, 0.3 * fluxIntensity);
-            
-            ctx.strokeStyle = `rgba(0, 255, 0, ${opacity})`;
-            ctx.lineWidth = 2;
-            
-            // Desenhar linhas de fluxo concêntricas com cantos arredondados
-            const numLines = 5;
-            const spacing = 5;
-            
-            for (let i = 0; i < numLines; i++) {
-                const offset = i * spacing;
-                const innerX = x + coreThickness/2 + offset;
-                const innerY = y + coreThickness/2 + offset;
-                const innerWidth = width - coreThickness - 2 * offset;
-                const innerHeight = height - coreThickness - 2 * offset;
-                
-                if (innerWidth > 0 && innerHeight > 0) {
-                    ctx.beginPath();
-                    
-                    // Canto superior esquerdo para superior direito
-                    ctx.moveTo(innerX + cornerRadius, innerY);
-                    ctx.lineTo(innerX + innerWidth - cornerRadius, innerY);
-                    
-                    // Arredondar canto superior direito
-                    ctx.quadraticCurveTo(
-                        innerX + innerWidth, innerY,
-                        innerX + innerWidth, innerY + cornerRadius
-                    );
-                    
-                    // Lado direito (de cima para baixo)
-                    ctx.lineTo(innerX + innerWidth, innerY + innerHeight - cornerRadius);
-                    
-                    // Arredondar canto inferior direito
-                    ctx.quadraticCurveTo(
-                        innerX + innerWidth, innerY + innerHeight,
-                        innerX + innerWidth - cornerRadius, innerY + innerHeight
-                    );
-                    
-                    // Parte inferior (direita para esquerda)
-                    ctx.lineTo(innerX + cornerRadius, innerY + innerHeight);
-                    
-                    // Arredondar canto inferior esquerdo
-                    ctx.quadraticCurveTo(
-                        innerX, innerY + innerHeight,
-                        innerX, innerY + innerHeight - cornerRadius
-                    );
-                    
-                    // Lado esquerdo (de baixo para cima)
-                    ctx.lineTo(innerX, innerY + cornerRadius);
-                    
-                    // Arredondar canto superior esquerdo
-                    ctx.quadraticCurveTo(
-                        innerX, innerY,
-                        innerX + cornerRadius, innerY
-                    );
-                    
-                    ctx.stroke();
-                    
-                    // Adicionar setas para indicar direção (apenas na linha do meio)
-                    if (i === Math.floor(numLines / 2)) {
-                        const arrowSize = 8;
-                        const arrowX = innerX + innerWidth * 0.7;
-                        const arrowY = innerY;
-                        
-                        ctx.fillStyle = `rgba(0, 255, 0, ${opacity})`;
-                        ctx.beginPath();
-                        ctx.moveTo(arrowX, arrowY);
-                        ctx.lineTo(arrowX - arrowSize, arrowY - arrowSize/2);
-                        ctx.lineTo(arrowX - arrowSize, arrowY + arrowSize/2);
-                        ctx.closePath();
-                        ctx.fill();
-                    }
-                }
-            }
+        if(type === 'relacao_correntes'){
+            const rel = (ns/np).toFixed(2);
+            const answer = `Ip/Is = ${(1/ratio).toFixed(2)}`;
+            const question = `Para um transformador ideal com relação de espiras Np/Ns = ${(np/ns).toFixed(2)}, qual a relação entre as correntes Ip/Is?`;
+            const opts = [`Ip/Is = ${(1/ratio).toFixed(2)}`, `Ip/Is = ${ratio.toFixed(2)}`, `Ip/Is = ${(ratio*1.2).toFixed(2)}`, `Ip/Is = ${(1/(ratio*1.2)).toFixed(2)}`, `Ip/Is = ${(ratio+0.5).toFixed(2)}`];
+            return { type, question, answer, options: opts };
         }
-        
-        // Desenhar corrente elétrica
-        function drawCurrent(x, y, width, height, intensity, isPrimary) {
-            if (intensity > 0) {
-                const numLines = Math.min(20, Math.floor(primaryTurns / 10));
-                const lineSpacing = height / (numLines + 1);
-                const opacity = Math.min(1, 0.5 + intensity * 2);
-                
-                ctx.strokeStyle = `rgba(255, 119, 0, ${opacity})`;
-                ctx.lineWidth = 2;
-                ctx.setLineDash([3, 5]);
-                
-                for (let i = 1; i <= numLines; i++) {
-                    const yPos = y - height/2 + i * lineSpacing;
-                    
-                    // Desenhar linha pontilhada para corrente
-                    ctx.beginPath();
-                    if (isPrimary) {
-                        ctx.moveTo(x + width, yPos);
-                        ctx.lineTo(x, yPos);
-                    } else {
-                        ctx.moveTo(x, yPos);
-                        ctx.lineTo(x + width, yPos);
-                    }
-                    ctx.stroke();
-                    
-                    // Adicionar setas para indicar direção
-                    const arrowSize = 5;
-                    const arrowX = isPrimary ? x + width * 0.3 : x + width * 0.7;
-                    
-                    ctx.fillStyle = `rgba(255, 119, 0, ${opacity})`;
-                    ctx.beginPath();
-                    
-                    if (isPrimary) {
-                        ctx.moveTo(arrowX, yPos);
-                        ctx.lineTo(arrowX + arrowSize, yPos - arrowSize/2);
-                        ctx.lineTo(arrowX + arrowSize, yPos + arrowSize/2);
-                    } else {
-                        ctx.moveTo(arrowX, yPos);
-                        ctx.lineTo(arrowX - arrowSize, yPos - arrowSize/2);
-                        ctx.lineTo(arrowX - arrowSize, yPos + arrowSize/2);
-                    }
-                    
-                    ctx.closePath();
-                    ctx.fill();
-                }
-                
-                ctx.setLineDash([]);
-            }
+        return null;
+    }
+
+    function generateExercises() {
+        const types = ['calcular_tensao_saida', 'calcular_corrente_saida', 'calcular_potencia_saida', 'relacao_transformacao', 'eficiencia', 'relacao_correntes'];
+        let ex = [];
+        for(let i=0; i<6; i++){
+            let type = types[i % types.length];
+            ex.push(generateRandomTransformerExercise(type));
         }
-        
-        // Atualizar a simulação
-        function updateSimulation() {
-            drawTransformer();
-            updateMeasurements();
-            updateToggleDisplay();
-        }
-        
-        // Atualizar medições exibidas - CÁLCULOS CORRIGIDOS
-        function updateMeasurements() {
-            // Calcular relação de transformação
-            const transformationRatio = secondaryTurns / primaryTurns;
-            
-            // Calcular tensão de saída
-            const outputVoltage = voltageInput * transformationRatio;
-            
-            // Calcular eficiência (95% com núcleo, 60% sem núcleo)
-            const efficiency = hasIronCore ? 0.95 : 0.6;
-            
-            // Calcular corrente de saída (Lei de Ohm - assumindo resistência fixa de 50Ω)
-            const outputCurrent = outputVoltage / 50;
-            
-            // Calcular potência de saída
-            const outputPower = outputVoltage * outputCurrent;
-            
-            // Calcular potência de entrada (considerando eficiência)
-            const inputPower = outputPower / efficiency;
-            
-            // Calcular corrente de entrada
-            const inputCurrent = inputPower / voltageInput;
-            
-            // Atualizar displays
-            document.getElementById('inputVoltageDisplay').textContent = voltageInput.toFixed(1) + ' V';
-            document.getElementById('inputCurrentDisplay').textContent = inputCurrent.toFixed(2) + ' A';
-            document.getElementById('outputVoltageDisplay').textContent = outputVoltage.toFixed(1) + ' V';
-            document.getElementById('outputCurrentDisplay').textContent = outputCurrent.toFixed(2) + ' A';
-            document.getElementById('inputPowerDisplay').textContent = inputPower.toFixed(2) + ' W';
-            document.getElementById('outputPowerDisplay').textContent = outputPower.toFixed(2) + ' W';
-            document.getElementById('efficiencyDisplay').textContent = Math.round(efficiency * 100) + '%';
-        }
-        
-        // Animação
-        function animate() {
-            animationTime += 0.05;
-            drawTransformer();
-            requestAnimationFrame(animate);
-        }
-        
-        // ========== SISTEMA DE EXERCÍCIOS ==========
-        
-        // Gerar exercícios sobre transformadores
-        function generateExercises() {
-            exercises = [
-                {
-                    question: "Um transformador possui 200 espiras no primário e 100 espiras no secundário. Se a tensão de entrada é 12V, qual será a tensão de saída?",
-                    options: ["6V", "12V", "24V", "18V"],
-                    answer: "6V"
-                },
-                {
-                    question: "Qual a corrente de saída se a tensão de saída é 6V e a resistência de carga é 50Ω?",
-                    options: ["0.12A", "0.5A", "1.2A", "0.3A"],
-                    answer: "0.12A"
-                },
-                {
-                    question: "Se a potência de entrada é 10W e a eficiência é 95%, qual será a potência de saída?",
-                    options: ["9W", "9.5W", "10W", "10.5W"],
-                    answer: "9.5W"
-                },
-                {
-                    question: "Qual a relação entre as correntes no primário e secundário de um transformador?",
-                    options: ["Ip/Is = Ns/Np", "Ip/Is = Np/Ns", "Ip/Is = Vp/Vs", "Ip/Is = Vs/Vp"],
-                    answer: "Ip/Is = Ns/Np"
-                },
-                {
-                    question: "Como a eficiência do transformador é afetada pela presença do núcleo de ferro?",
-                    options: ["Aumenta significativamente", "Diminui significativamente", "Permanece a mesma", "Não há relação"],
-                    answer: "Aumenta significativamente"
-                },
-                {
-                    question: "Se um transformador abaixa a tensão, o que acontece com a corrente?",
-                    options: ["Aumenta na mesma proporção", "Diminui na mesma proporção", "Permanece a mesma", "Aumenta, mas não na mesma proporção"],
-                    answer: "Aumenta na mesma proporção"
-                }
-            ];
-        }
-        
-        // Mostrar exercício atual
-        function showCurrentExercise() {
-            const exercise = exercises[currentExercise];
-            const container = document.getElementById('exerciseContainer');
-            
-            // Resetar flag de resposta
-            currentExerciseAnswered = false;
-            
-            container.innerHTML = `
-                <div class="exercise">
-                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
-                    <p>${exercise.question}</p>
-                    <div class="options">
-                        ${exercise.options.map((option, index) => `
-                            <div class="option" data-value="${option}">${option}</div>
-                        `).join('')}
-                    </div>
-                    <button class="check-btn">Verificar Resposta</button>
-                    <div class="result"></div>
+        return ex;
+    }
+
+    function generateNewExerciseOfSameType() {
+        const oldType = exercises[currentExercise].type;
+        const newEx = generateRandomTransformerExercise(oldType);
+        exercises[currentExercise] = newEx;
+    }
+
+    function showCurrentExercise() {
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise+1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map(opt => `<div class="option">${opt}</div>`).join('')}
                 </div>
-            `;
-            
-            // Adicionar event listeners
-            container.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', function() {
-                    if (!currentExerciseAnswered) {
-                        container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                        this.classList.add('selected');
-                    }
-                });
-            });
-            
-            container.querySelector('.check-btn').addEventListener('click', checkAnswer);
-            
-            // Atualizar barra de progresso
-            updateProgressBar();
-        }
-        
-        // Verificar resposta
-        function checkAnswer() {
-            if (currentExerciseAnswered) return;
-            
-            const container = document.getElementById('exerciseContainer');
-            const selectedOption = container.querySelector('.option.selected');
-            const resultDiv = container.querySelector('.result');
-            
-            if (!selectedOption) {
-                resultDiv.textContent = 'Por favor, selecione uma opção.';
-                resultDiv.className = 'result error';
-                return;
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+        container.querySelectorAll('.option').forEach(opt => opt.addEventListener('click', function() {
+            if(!container.querySelector('.option.disabled')) {
+                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
             }
-            
-            const selectedValue = selectedOption.dataset.value;
-            const correctValue = exercises[currentExercise].answer;
-            const isCorrect = selectedValue === correctValue;
-            
-            // Marcar exercício como respondido
-            currentExerciseAnswered = true;
-            
-            if (isCorrect) {
-                resultDiv.textContent = 'Correto! Parabéns!';
-                resultDiv.className = 'result success';
-                selectedOption.classList.add('correct');
-                
-                // Registrar resultado e avançar após delay
-                exerciseResults.push({ 
-                    exercise: currentExercise, 
-                    correct: true, 
-                    skipped: false 
-                });
-                
-                setTimeout(nextExercise, 1500);
-            } else {
-                resultDiv.innerHTML = `
-                <div class="error">Resposta incorreta. Tente novamente.</div>
-                <div class="button-group">
-                    <button class="skip-btn">Pular Exercício</button>
-                    <button class="try-again-btn">Tentar Novamente</button>
-                </div>
-                `;
-                
-                // Adicionar event listeners aos novos botões
-                resultDiv.querySelector('.skip-btn').addEventListener('click', skipExercise);
-                resultDiv.querySelector('.try-again-btn').addEventListener('click', function() {
-                    // Limpar seleção e resultado
-                    container.querySelectorAll('.option').forEach(opt => {
-                        opt.classList.remove('selected', 'correct', 'incorrect');
-                    });
-                    resultDiv.innerHTML = '';
-                    currentExerciseAnswered = false;
-                });
-            }
+        }));
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+        const checkBtn = document.getElementById('checkAnswerBtn');
+        if(!selected) {
+            resultDiv.textContent = 'Selecione uma opção.'; resultDiv.className = 'result error';
+            return;
         }
-        
-        // Pular exercício
-        function skipExercise() {
-            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
-                // Registrar exercício como pulado com erro
-                exerciseResults.push({
-                    exercise: currentExercise,
-                    correct: false,
-                    skipped: true
-                });
-                
-                skippedQuestions++;
-                
-                // Avançar para o próximo exercício
-                currentExercise++;
-                
-                // Verificar se ainda há exercícios
-                if (currentExercise < exercises.length) {
-                    showCurrentExercise();
-                } else {
-                    // Só mostrar conclusão quando todos os exercícios forem completados
-                    showConclusion();
-                }
-            }   
-        }
-        
-        // Avançar para o próximo exercício
-        function nextExercise() {
-            currentExercise++;
-            
-            if (currentExercise < exercises.length) {
+        const isCorrect = selected.textContent === exercises[currentExercise].answer;
+        const optionsDivs = container.querySelectorAll('.option');
+        optionsDivs.forEach(opt => opt.classList.add('disabled'));
+        checkBtn.disabled = true;
+
+        if(isCorrect){
+            resultDiv.textContent = 'Correto! Parabéns!'; resultDiv.className = 'result success';
+            selected.classList.add('correct');
+            exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts+1 });
+            currentExerciseAttempts = 0;
+            setTimeout(nextExercise, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `<div class="error">Incorreto. Tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>`;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                generateNewExerciseOfSameType();
                 showCurrentExercise();
-            } else {
-                showConclusion();
-            }
-        }
-        
-        // Atualizar barra de progresso
-        function updateProgressBar() {
-            for (let i = 0; i < 6; i++) {
-                const progressItem = document.getElementById(`progress${i+1}`);
-                progressItem.classList.remove('active', 'completed');
-                
-                if (i === currentExercise) {
-                    progressItem.classList.add('active');
-                } else if (i < currentExercise) {
-                    progressItem.classList.add('completed');
-                }
-            }
-        }
-        
-        // Mostrar tela de conclusão
-        function showConclusion() {
-            document.getElementById('exerciseContainer').style.display = 'none';
-            document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
-                const conclusionText = document.getElementById('conclusionText').value;
-                if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusão antes de enviar.');
-                    return;
-                }
-                
-                showResults(conclusionText);
             });
         }
-        
-        // Mostrar resultados finais
-        function showResults(conclusion) {
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
-            document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercícios respondidos: ${totalExercises}</p>
-                <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercícios pulados: ${skippedQuestions}</p>
-                <p>Nota: ${scorePercentage}%</p>
-            `;
-            
-            document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+    }
+
+    function skipExercise() {
+        if(confirm("Deseja pular este exercício? Um erro será registrado.")){
+            exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+            if(currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
         }
-        
-        // Função para enviar dados para a planilha do Google
-        function sendResultsToSheet() {
-            const studentName = document.getElementById('studentName').value;
-            const studentGrade = document.getElementById('studentGrade').value;
-            const studentClass = document.getElementById('studentClass').value;
-            const studentEmail = document.getElementById('studentEmail').value;
-            const criticism = document.getElementById('criticismInput').value;
-            const suggestion = document.getElementById('suggestionInput').value;
-            const finalConclusion = document.getElementById('finalConclusion').value;
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
-            const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-            
-            const data = {
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Transformadores',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || ''
-            };
-            
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            
-            fetch(scriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+    }
+
+    function nextExercise() {
+        currentExercise++;
+        if(currentExercise < exercises.length) showCurrentExercise();
+        else showConclusion();
+    }
+
+    function updateProgressBar() {
+        for(let i=0;i<6;i++){
+            const prog = document.getElementById(`progress${i+1}`);
+            prog.classList.remove('active','completed');
+            if(i === currentExercise) prog.classList.add('active');
+            else if(i < currentExercise) prog.classList.add('completed');
+        }
+    }
+
+    function showConclusion() {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'block';
+        document.getElementById('submitConclusion').onclick = function(){
+            const text = document.getElementById('conclusionText').value.trim();
+            if(!text) { alert('Escreva uma conclusão.'); return; }
+            showResults(text);
+        };
+    }
+
+    function showResults(conclusion) {
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(r => r.correct).length;
+        const percent = Math.round((correct/total)*100);
+        document.getElementById('resultsSummary').innerHTML = `<p>Total: ${total}</p><p>Acertos: ${correct}</p><p>Pulados: ${skippedQuestions}</p><p>Nota: ${percent}%</p>`;
+        document.getElementById('finalConclusion').value = conclusion;
+        document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+    }
+
+    function sendResultsToSheet() {
+        const name = document.getElementById('studentName').value;
+        const grade = document.getElementById('studentGrade').value;
+        const turma = document.getElementById('studentClass').value;
+        const email = document.getElementById('studentEmail').value;
+        const criticism = document.getElementById('criticismInput').value;
+        const suggestion = document.getElementById('suggestionInput').value;
+        const concl = document.getElementById('finalConclusion').value;
+        if(!name || !grade || !turma || !concl) { alert('Preencha os campos obrigatórios.'); return; }
+        const sendBtn = document.getElementById('sendResults');
+        sendBtn.disabled = true; sendBtn.textContent = 'Enviando...';
+        const total = exercises.length, correct = exerciseResults.filter(r=>r.correct).length, percent = Math.round((correct/total)*100);
+        const data = {
+            timestamp: new Date().toLocaleString('pt-BR'), serie: grade, turma, estudante: name, simulacao: 'Transformadores',
+            questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: concl,
+            criticas: criticism, sugestoes: suggestion, email: email || '', to_email: "flavio.ambrosio@edu.se.df.gov.br",
+            nome_aluno: name, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR')
+        };
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const emailScript = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+        const statusDiv = document.getElementById('emailStatus');
+        statusDiv.style.display = 'block'; statusDiv.textContent = 'Enviando dados...'; statusDiv.className = 'email-status sending';
+        fetch(scriptUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) })
+            .then(() => { statusDiv.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScript, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
             })
-            .then(() => {
-                emailStatus.textContent = 'Dados enviados com sucesso!';
-                emailStatus.className = 'email-status sent';
-                
-                setTimeout(() => {
-                    closeExercisesModal();
-                }, 3000);
-            })
-            .catch(error => {
-                emailStatus.textContent = 'Erro ao enviar dados. Tente novamente.';
-                emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-            });
-        }
-        
-        // Fechar modal de exercícios
-        function closeExercisesModal() {
-            document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAnswered = false;
-        }
-        
-        // Abrir modal de exercícios
-        function openExercisesModal() {
-            generateExercises();
-            document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            showCurrentExercise();
-        }
-        
-        // Configurar eventos da UI
-        document.getElementById('voltageInput').addEventListener('input', function() {
-            voltageInput = parseFloat(this.value);
-            document.getElementById('voltageValue').textContent = voltageInput;
-            updateSimulation();
-        });
-        
-        document.getElementById('primaryTurns').addEventListener('input', function() {
-            primaryTurns = parseFloat(this.value);
-            document.getElementById('primaryTurnsValue').textContent = primaryTurns;
-            updateSimulation();
-        });
-        
-        document.getElementById('secondaryTurns').addEventListener('input', function() {
-            secondaryTurns = parseFloat(this.value);
-            document.getElementById('secondaryTurnsValue').textContent = secondaryTurns;
-            updateSimulation();
-        });
-        
-        document.getElementById('coreToggle').addEventListener('change', function() {
-            hasIronCore = this.checked;
-            updateSimulation();
-        });
-        
-        document.getElementById('fluxBtn').addEventListener('click', function() {
-            showFlux = !showFlux;
-            this.classList.toggle('active', showFlux);
-            updateSimulation();
-        });
-        
-        document.getElementById('currentBtn').addEventListener('click', function() {
-            showCurrent = !showCurrent;
-            this.classList.toggle('active', showCurrent);
-            updateSimulation();
-        });
-        
-        document.getElementById('helpBtn').addEventListener('click', function() {
-            alert("Como usar:\n\n• Ajuste a tensão de entrada com o primeiro controle\n• Defina o número de espiras em cada bobina\n• Ative/desative o núcleo de ferro para ver a diferença de eficiência\n• Observe as medições de tensão, corrente e potência\n• Use os botões para mostrar/ocultar o fluxo magnético e a corrente");
-        });
-        
+            .then(() => { if(email){ const alunoData = {...data, to_email: email, mensagem: `Confirmação - Transformadores\nNota: ${percent}%\nAcertos: ${correct}/${total}`}; return fetch(emailScript, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(alunoData) }); } })
+            .then(() => { statusDiv.textContent = '✅ Dados enviados com sucesso!'; statusDiv.className = 'email-status sent'; setTimeout(()=>closeExercisesModal(), 3000); })
+            .catch(err => { statusDiv.textContent = '❌ Erro ao enviar. Tente novamente.'; statusDiv.className = 'email-status error-status'; console.error(err); sendBtn.disabled = false; sendBtn.textContent = 'Enviar Resultados'; });
+    }
+
+    function closeExercisesModal() {
+        document.getElementById('exercisesModal').style.display = 'none';
+        currentExercise = 0; exerciseResults = []; skippedQuestions = 0; currentExerciseAttempts = 0;
+        document.getElementById('exerciseContainer').style.display = 'block';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+    }
+    function openExercisesModal() {
+        exercises = generateExercises();
+        document.getElementById('exercisesModal').style.display = 'flex';
+        document.getElementById('exerciseContainer').style.display = 'block';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+        showCurrentExercise();
+    }
+
+    window.addEventListener('load', () => {
+        initSimulation();
         document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
-        
-        document.querySelector('.close').addEventListener('click', closeExercisesModal);
-        
-        window.addEventListener('click', function(event) {
-            if (event.target == document.getElementById('exercisesModal')) {
-                closeExercisesModal();
-            }
-        });
-        
-        // Inicializar a simulação quando a página carregar
-        window.addEventListener('load', init);
-    </script>
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        window.addEventListener('click', e => { if(e.target === document.getElementById('exercisesModal')) closeExercisesModal(); });
+    });
+</script>
 </body>
 </html>
