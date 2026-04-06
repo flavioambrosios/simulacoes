@@ -174,7 +174,7 @@
             border-radius: 3px;
         }
         .red { background: #ff0000; }
-        .blue { background: #0066ff; }
+        .blue { background: #00ff00; }
         .green { background: #00ff00; }
         .yellow { background: #ffcc00; }
         .cyan { background: #00ffff; }
@@ -818,7 +818,7 @@
                 const direction = new THREE.Vector3(0, 1, 0);
                 const origin = new THREE.Vector3(x, -5, z);
                 const length = magneticField / 20;
-                const arrowHelper = new THREE.ArrowHelper(direction, origin, length, 0x0066ff);
+                const arrowHelper = new THREE.ArrowHelper(direction, origin, length, 0xffffff);
                 scene.add(arrowHelper);
                 fieldArrows.push({ arrow: arrowHelper });
             }
@@ -943,13 +943,13 @@
     let selectedVoice = null;  // DECLARAÇÃO DA VARIÁVEL
 
     const tracks = [
-        `Olá, ${studentName}! Seja bem-vindo à Simulação de Força Magnética. Você está vendo uma tela com um retângulo escuro principal e vários controles ao lado. No meio, há uma esfera amarela – essa é a partícula carregada. Ao redor dela, setas azuis representam o campo magnético. Há também botões: Iniciar, Pausar, Reiniciar. E mais abaixo, painéis com medições: Força, Raio, Velocidade, Campo. Tudo é interativo. Agora, localize o botão 'Iniciar' com o mouse. Quando achar, clique em 'Próximo trecho'.`,
-        `Muito bem. Agora clique no botão 'Iniciar'. Observe a partícula amarela. Ela começa a se mover em círculo. Você vê uma seta verde (velocidade) e uma vermelha (força). Pause a simulação clicando em 'Pausar'. Gire a visão 3D usando o mouse: segure o botão esquerdo e mova. Veja que a força vermelha está sempre perpendicular à velocidade verde. Quando entender essa perpendicularidade, clique em 'Próximo'.`,
-        `Agora, no painel direito, procure o seletor 'Tipo de Carga'. Ele está com 'Positiva'. Troque para 'Negativa'. Clique em 'Iniciar' novamente. Compare a seta vermelha com antes – ela inverteu de direção? Para cargas negativas, a força magnética tem sentido oposto. Pause e volte para 'Positiva'. Entendeu? Clique em 'Próximo'.`,
-        `Vamos explorar o controle 'Intensidade do Campo Magnético (B)'. Diminua o valor para 10 (arraste para esquerda). Inicie a simulação. O que aconteceu com o raio da trajetória? Ficou maior. Agora aumente o campo para 50. O raio diminui. Isso porque o raio é inversamente proporcional ao campo: r = m·v/(|q|·B). Volte para 30 e siga para o próximo trecho.`,
-        `Agora mexa no controle 'Velocidade da Partícula (v)'. Reduza para 5 m/s. O raio ficou bem menor. Aumente para o máximo (50). O raio aumenta. O raio é diretamente proporcional à velocidade. Teste valores intermediários e observe o painel de medições. Pronto? Clique em 'Próximo'.`,
+        `Olá, ${studentName}! Seja bem-vindo à Simulação de Força Magnética. Coloque o celular na posição paisagem. Você está vendo uma tela com um retângulo escuro à esquerda e vários controles ao lado. No meio, há uma esfera amarela – essa é a partícula carregada. Ao redor dela, setas brancas representam o campo magnético. Há também botões: Iniciar, Pausar, Reiniciar. E mais abaixo, painéis com medições: Força, Raio, Velocidade, Campo. Tudo é interativo. Agora, localize o botão 'Iniciar' com o mouse. Quando achar, clique em 'Próximo trecho'.`,
+        `Muito bem. Agora clique no botão 'Iniciar'. Observe a partícula amarela. Ela começa a se mover em círculo. Você vê uma seta verde (velocidade) e uma vermelha (força). Aplique a regra da mão direita e faça uma análise para compreender o sentido da força magnética. Para aplicar a regra da mão direita, posicione os dedos: polegar, indicador e o dedo médio, fazendo ângulos de 90 graus entre si. Posicione o dedo indicador no sentido do movimento da partícula. Posicione o dedo médio no sentido do campo magnético. A força magnética estará no sentido do polegar. Pause a simulação clicando em 'Pausar'. Experimente girar a visão 3D usando o mouse: segure o botão esquerdo e mova, ou use o touch no celular. Veja que a força vermelha está sempre perpendicular à velocidade e também ao campo magnético. Quando entender essa perpendicularidade entre os três votores, clique em 'Próximo'.`,
+        `Agora, no painel direito, procure o seletor 'Tipo de Carga'. Ele está como 'Positiva'. Troque para 'Negativa'. Clique em 'Iniciar' novamente. Observe que o sentido da velocidade inverteu, mas a força magnética permanece apontando para o centro, com a partícula agora girando no sentido oposto. Experimente utilizar a mão esquerda e verifique se a regra funciona para cargas negativas. Clique em Pausar e volte para carga 'Positiva'. Se você entendeu esta parte, Clique em 'Próximo'.`,
+        `Vamos explorar o controle 'Intensidade do Campo Magnético (B)'. Diminua o valor para 20 (arraste para esquerda). Inicie a simulação. O que aconteceu com o raio da trajetória? Ficou maior. Agora aumente o campo para 50. O raio diminui. Isso porque o raio é inversamente proporcional ao campo: r = m·v/(|q|·B). Volte para 30 e siga para o próximo trecho.`,
+        `Agora mexa no controle 'Velocidade da Partícula (v)'. Reduza para 5 m/s. O raio ficou bem menor. Aumente para o máximo (50). O raio aumenta muito. O raio é diretamente proporcional à velocidade. Teste valores intermediários e observe o painel de medições. Pronto? Clique em 'Próximo'.`,
         `No painel de medições, há o campo 'Força Magnética (F)'. Observe que, ao mudar B ou v, a força também muda. A força é F = |q|·v·B. Experimente: dobre a velocidade, a força dobra. Dobre o campo, a força dobra. Percebeu a proporcionalidade? Quando estiver seguro, clique em 'Próximo'.`,
-        `Você notou o rastro azul claro? É a trajetória. No canto superior direito, há 'Mostrar Trajetória'. Desmarque e marque para ver o efeito. Reinicie a simulação e veja o círculo perfeito de cima (gire a câmera). Legal, né? Vamos para o último trecho.`,
+        `Você notou o rastro azul claro? É a trajetória. Observe que abaixo dos botões de iniciar e pausar, você pode marcar 'Mostrar Trajetória'. Agora, desmarque e marque para ver o efeito. Que tal girar a visão 3D da simulação para ver o círculo de vários ângulos? Legal, né? Vamos para o último trecho.`,
         `Parabéns, ${studentName}! Você explorou os conceitos: força magnética, direção (regra da mão direita), movimento circular, raio e influência de B e v. Agora clique no botão 'Iniciar Exercícios' (no painel direito, abaixo das fórmulas). Lá você vai responder questões usando o que aprendeu. A simulação continua disponível. Bons estudos!`
     ];
 
