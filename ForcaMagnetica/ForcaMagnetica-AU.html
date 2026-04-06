@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Força Magnética - Áudio Interativo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <style>
+        /* ===== ESTILOS COMPLETOS (mesmos do original) ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #renderer-container {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .yellow { background: #ffcc00; }
+        .cyan { background: #00ffff; }
+        
+        .trail-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Modais e exercícios (estilos completos do original) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input, .form-row select, .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        /* Painel de controle de áudio */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffcc00;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Simulação de Força Magnética com Áudio Interativo</h1>
+        <p class="subtitle">Prof. Flávio Ambrósio | Aprenda no seu ritmo</p>
+    </header>
+    <div class="content">
+        <div class="simulation-panel">
+            <h2 class="panel-title">Simulação 3D - Movimento de Partícula Carregada</h2>
+            <div class="simulation-container">
+                <div id="renderer-container"></div>
+            </div>
+            <div class="visualization-toggle">
+                <button id="startBtn">Iniciar</button>
+                <button id="pauseBtn">Pausar</button>
+                <button id="resetBtn">Reiniciar</button>
+                <button id="helpBtn">Ajuda</button>
+            </div>
+            <div class="trail-controls">
+                <label for="trailToggle">Mostrar Trajetória:</label>
+                <input type="checkbox" id="trailToggle" checked>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color blue"></div><span>Campo Magnético (B)</span></div>
+                <div class="legend-item"><div class="legend-color green"></div><span>Velocidade (v)</span></div>
+                <div class="legend-item"><div class="legend-color red"></div><span>Força Magnética (F)</span></div>
+                <div class="legend-item"><div class="legend-color yellow"></div><span>Partícula</span></div>
+                <div class="legend-item"><div class="legend-color cyan"></div><span>Trajetória</span></div>
+            </div>
+        </div>
+        <div class="controls-panel">
+            <h2 class="panel-title">Controles</h2>
+            <div class="control-group">
+                <label for="chargeSelect">Tipo de Carga:</label>
+                <select id="chargeSelect">
+                    <option value="positive">Positiva (próton)</option>
+                    <option value="negative">Negativa (elétron)</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="fieldInput">Intensidade do Campo Magnético (B):</label>
+                <input type="range" id="fieldInput" min="1" max="100" value="30" step="1">
+                <div class="value-display"><span id="fieldValue">30</span> T</div>
+            </div>
+            <div class="control-group">
+                <label for="velocityInput">Velocidade da Partícula (v):</label>
+                <input type="range" id="velocityInput" min="1" max="50" value="15" step="1">
+                <div class="value-display"><span id="velocityValue">15</span> m/s</div>
+            </div>
+            <div class="control-group">
+                <label for="forceDisplay">Força Magnética (F):</label>
+                <div class="value-display"><span id="forceValue">0.00</span> N</div>
+            </div>
+            <div class="control-group">
+                <label for="trajectoryDisplay">Raio da Trajetória:</label>
+                <div class="value-display"><span id="trajectoryValue">0.00</span> m</div>
+            </div>
+            <div class="formula-box">
+                <h3>Fórmula da Força Magnética</h3>
+                <p>F = q · (v × B)</p>
+            </div>
+            <div class="formula-box">
+                <h3>Raio da Trajetória</h3>
+                <p>r = m·v / (|q|·B)</p>
+            </div>
+            <div class="exercise-buttons">
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                <button class="exercise-btn" id="theoryBtn">Teoria</button>
+            </div>
+        </div>
+        <div class="measurement-panel">
+            <h2 class="panel-title">Medições e Resultados</h2>
+            <div class="measurement-grid">
+                <div class="measurement-item"><div class="measurement-label">Tipo de Carga</div><div class="measurement-value" id="chargeDisplay">Positiva</div></div>
+                <div class="measurement-item"><div class="measurement-label">Campo Magnético (B)</div><div class="measurement-value" id="fieldDisplay">30 T</div></div>
+                <div class="measurement-item"><div class="measurement-label">Velocidade (v)</div><div class="measurement-value" id="velocityDisplay">15 m/s</div></div>
+                <div class="measurement-item"><div class="measurement-label">Força Magnética (F)</div><div class="measurement-value" id="forceDisplay">0.00 N</div></div>
+                <div class="measurement-item"><div class="measurement-label">Raio da Trajetória</div><div class="measurement-value" id="trajectoryDisplay">0.00 m</div></div>
+                <div class="measurement-item"><div class="measurement-label">Massa (m)</div><div class="measurement-value" id="massDisplay">0.01 kg</div></div>
+                <div class="measurement-item"><div class="measurement-label">Carga (q)</div><div class="measurement-value" id="chargeValueDisplay">1.00×10^-3 C</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modais (idênticos ao original ForcaMagnetica.html) -->
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios sobre Força Magnética - NOTAÇÃO CIENTÍFICA</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="progress" id="progressBar">
+            <div class="progress-item" id="progress1">1</div>
+            <div class="progress-item" id="progress2">2</div>
+            <div class="progress-item" id="progress3">3</div>
+            <div class="progress-item" id="progress4">4</div>
+            <div class="progress-item" id="progress5">5</div>
+            <div class="progress-item" id="progress6">6</div>
+        </div>
+        <div id="exerciseContainer"></div>
+        <div id="conclusionContainer" style="display: none;">
+            <h3>Conclusão de Estudo</h3>
+            <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+        </div>
+        <div id="resultsContainer" style="display: none;">
+            <h3>Resultados dos Exercícios</h3>
+            <div id="resultsSummary"></div>
+            <h3>Enviar Resultados</h3>
+            <p>Preencha os dados abaixo para enviar seus resultados:</p>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione sua série</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione sua turma</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão sobre o exercício:</label><textarea id="finalConclusion" rows="4" required></textarea></div>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="check-btn">Enviar Resultados</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Exercícios Resolvidos - Força Magnética</h2><span class="close">&times;</span></div>
+        <div id="solvedExercivesContainer">
+            <div class="solved-exercise"><h4>Exemplo 1: Cálculo da Força Magnética</h4><p><strong>Problema:</strong> Uma partícula com carga de 2 μC move-se com velocidade de 5×10⁶ m/s perpendicularmente a um campo magnético de 0,5 T. Qual é a força magnética sobre a partícula?</p><div class="solution-step"><strong>Fórmula:</strong> F = q·v·B·senθ (θ = 90°, sen90° = 1)</div><div class="solution-step"><strong>Passo 1:</strong> Converter a carga para Coulombs: q = 2 μC = 2×10⁻⁶ C</div><div class="solution-step"><strong>Passo 2:</strong> Substituir: F = (2×10⁻⁶) × (5×10⁶) × 0,5 × 1 = 5 N</div><div class="solution-step"><strong>Resposta:</strong> F = 5 N</div></div>
+            <div class="solved-exercise"><h4>Exemplo 2: Cálculo do Raio da Trajetória</h4><p><strong>Problema:</strong> Um próton (m = 1,67×10⁻²⁷ kg, q = 1,6×10⁻¹⁹ C) move-se com velocidade de 3×10⁶ m/s perpendicularmente a um campo magnético de 0,8 T. Qual o raio de sua trajetória circular?</p><div class="solution-step"><strong>Fórmula:</strong> r = m·v / (|q|·B)</div><div class="solution-step"><strong>Cálculo:</strong> r = (1,67×10⁻²⁷ × 3×10⁶) / (1,6×10⁻¹⁹ × 0,8) = 0,03914 m</div><div class="solution-step"><strong>Resposta:</strong> r ≈ 3,91 cm</div></div>
+            <div class="solved-exercise"><h4>Exemplo 3: Direção da Força Magnética</h4><p><strong>Problema:</strong> Uma partícula com carga positiva move-se para a direita (eixo x positivo) em uma região onde o campo magnético está orientado para fora da página (eixo z positivo). Qual é a direção da força magnética?</p><div class="solution-step"><strong>Regra da mão direita:</strong> Aponte os dedos na direção da velocidade (→), dobre-os na direção do campo magnético (⊙), o polegar indica a direção da força (↑)</div><div class="solution-step"><strong>Resposta:</strong> Para cima (eixo y positivo)</div></div>
+        </div>
+        <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
+    </div>
+</div>
+
+<!-- Modal de Teoria (conteúdo restaurado do original ForcaMagnetica.html) -->
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Força Magnética</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="theory-content">
+            <div class="theory-section">
+                <h3>Força Magnética sobre Cargas em Movimento</h3>
+                <p>A força magnética atua sobre partículas carregadas em movimento na presença de um campo magnético. Esta força é perpendicular tanto à velocidade da partícula quanto ao campo magnético.</p>
+                <div class="theory-formula">F = q · (v × B)</div>
+                <p>Onde:</p>
+                <ul>
+                    <li><span class="highlight">F</span> = Força magnética (Newtons)</li>
+                    <li><span class="highlight">q</span> = Carga da partícula (Coulombs)</li>
+                    <li><span class="highlight">v</span> = Velocidade da partícula (m/s)</li>
+                    <li><span class="highlight">B</span> = Campo magnético (Tesla)</li>
+                    <li><span class="highlight">×</span> = Produto vetorial</li>
+                </ul>
+                <p>O módulo da força magnética é dado por:</p>
+                <div class="theory-formula">|F| = |q|·v·B·senθ</div>
+                <p>onde θ é o ângulo entre os vetores velocidade e campo magnético.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Movimento de Partículas Carregadas em Campos Magnéticos</h3>
+                <p>Quando uma partícula carregada se move perpendicularmente a um campo magnético uniforme, ela descreve um movimento circular uniforme. A força magnética atua como força centrípeta.</p>
+                <div class="theory-formula">F<sub>magnética</sub> = F<sub>centrípeta</sub></div>
+                <div class="theory-formula">|q|·v·B = m·v² / r</div>
+                <p>Isolando o raio (r):</p>
+                <div class="theory-formula">r = m·v / (|q|·B)</div>
+                <p>Onde:</p>
+                <ul>
+                    <li><span class="highlight">m</span> = Massa da partícula (kg)</li>
+                    <li><span class="highlight">r</span> = Raio da trajetória circular (m)</li>
+                </ul>
+            </div>
+            <div class="theory-section">
+                <h3>Regra da Mão Direita</h3>
+                <p>Para determinar a direção da força magnética, utiliza-se a regra da mão direita:</p>
+                <ul>
+                    <li>Aponte os dedos (exceto o polegar) na direção da velocidade (v)</li>
+                    <li>Dobre os dedos na direção do campo magnético (B)</li>
+                    <li>O polegar estendido indica a direção da força magnética (F) para cargas positivas</li>
+                </ul>
+                <p>Para cargas negativas, a força tem direção oposta à indicada pela regra da mão direita.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Aplicações Práticas</h3>
+                <p>Os princípios da força magnética são fundamentais para:</p>
+                <ul>
+                    <li>Espectrômetros de massa (separação de íons)</li>
+                    <li>Aceleradores de partículas</li>
+                    <li>Armadilhas magnéticas (como a garrafa magnética)</li>
+                    <li>Seletores de velocidade (combinando campos elétricos e magnéticos)</li>
+                    <li>Dispositivos de imageamento médico (ressonância magnética)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="buttons-container">
+            <button id="closeTheory" class="check-btn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Painel de áudio interativo -->
+<div class="audio-controls" id="audioControls">
+    <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+    <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
+    <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+    <span id="trackCounter">Trecho 0/8</span>
+</div>
+
+<script>
+    // ==================== SIMULAÇÃO 3D (idêntica ao original ForcaMagnetica.html) ====================
+    let scene, camera, renderer, controls;
+    let particle, velocityArrow, forceArrow, fieldArrows = [];
+    let chargeType = 'positive';
+    let magneticField = 30;
+    let velocity = 15;
+    let force = 0;
+    let trajectoryRadius = 0;
+    let chargeValue = 1e-3;
+    let massValue = 1e-2;
+    let isRunning = false;
+    let trailVisible = true;
+    let trailGeometry, trailMaterial, trailLine;
+    let particleTrail = [];
+    const maxTrailPoints = 200;
+    let simulationTime = 0;
+
+    function formatScientificWith3Digits(value, unit = '') {
+        if (value === 0) return '0.00 ' + unit;
+        if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const mantissa = value / Math.pow(10, exponent);
+            const roundedMantissa = Math.round(mantissa * 100) / 100;
+            let mantissaStr = roundedMantissa.toFixed(2);
+            if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit; }
+            return mantissaStr + '×10^' + exponent + ' ' + unit;
+        }
+        const integerPart = Math.floor(Math.abs(value));
+        let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
+        return value.toFixed(decimalPlaces) + ' ' + unit;
+    }
+    function formatScientific(value, unit) { return formatScientificWith3Digits(value, unit); }
+
+    function initSimulation() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+        camera = new THREE.PerspectiveCamera(75, document.getElementById('renderer-container').clientWidth / document.getElementById('renderer-container').clientHeight, 0.1, 1000);
+        camera.position.set(0, 8, 8);
+        camera.lookAt(0, 0, 0);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        const container = document.getElementById('renderer-container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        const axesHelper = new THREE.AxesHelper(5);
+        scene.add(axesHelper);
+        const geometry = new THREE.SphereGeometry(0.3, 32, 32);
+        const material = new THREE.MeshPhongMaterial({ color: 0xffcc00 });
+        particle = new THREE.Mesh(geometry, material);
+        particle.position.set(0, 0, 0);
+        scene.add(particle);
+        velocityArrow = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,0), velocity/10, 0x00ff00);
+        scene.add(velocityArrow);
+        forceArrow = new THREE.ArrowHelper(new THREE.Vector3(0,0,1), new THREE.Vector3(0,0,0), Math.abs(force)*10, 0xff0000);
+        scene.add(forceArrow);
+        createMagneticField();
+        trailGeometry = new THREE.BufferGeometry();
+        trailMaterial = new THREE.LineBasicMaterial({ color: 0x00ffff, linewidth: 2 });
+        trailLine = new THREE.Line(trailGeometry, trailMaterial);
+        scene.add(trailLine);
+        window.addEventListener('resize', onWindowResize);
+        animate();
+        updateMeasurements();
+        setupEventListeners();
+    }
+
+    function createMagneticField() {
+        fieldArrows.forEach(obj => { if(obj.arrow) scene.remove(obj.arrow); });
+        fieldArrows = [];
+        for (let x = -4; x <= 4; x += 2) {
+            for (let z = -4; z <= 4; z += 2) {
+                const direction = new THREE.Vector3(0, 1, 0);
+                const origin = new THREE.Vector3(x, -5, z);
+                const length = magneticField / 20;
+                const arrowHelper = new THREE.ArrowHelper(direction, origin, length, 0x0066ff);
+                scene.add(arrowHelper);
+                fieldArrows.push({ arrow: arrowHelper });
+            }
+        }
+    }
+
+    function updateTrail() {
+        if (!trailVisible) return;
+        particleTrail.push(particle.position.clone());
+        if (particleTrail.length > maxTrailPoints) particleTrail.shift();
+        trailGeometry.setFromPoints(particleTrail);
+        trailGeometry.attributes.position.needsUpdate = true;
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (isRunning) {
+            const period = (2 * Math.PI * massValue) / (Math.abs(chargeValue) * magneticField);
+            simulationTime += 0.016;
+            const angle = (simulationTime / period) * 2 * Math.PI;
+            trajectoryRadius = (massValue * velocity) / (Math.abs(chargeValue) * magneticField);
+            let sentido = (chargeType === 'positive') ? 1 : -1;
+            let x = trajectoryRadius * Math.cos(angle);
+            let z = sentido * trajectoryRadius * Math.sin(angle);
+            particle.position.set(x, 0, z);
+            const angularVelocity = (2 * Math.PI) / period;
+            const velocityVector = new THREE.Vector3(-trajectoryRadius * angularVelocity * Math.sin(angle), 0, sentido * trajectoryRadius * angularVelocity * Math.cos(angle));
+            const B = new THREE.Vector3(0, magneticField, 0);
+            const forceVector = new THREE.Vector3().crossVectors(velocityVector, B).multiplyScalar(chargeValue);
+            force = forceVector.length();
+            velocityArrow.setDirection(velocityVector.clone().normalize());
+            velocityArrow.setLength(velocityVector.length() / 10);
+            velocityArrow.position.copy(particle.position);
+            forceArrow.setDirection(forceVector.clone().normalize());
+            forceArrow.setLength(force * 10);
+            forceArrow.position.copy(particle.position);
+            updateTrail();
+            updateMeasurements();
+        }
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    function updateMeasurements() {
+        document.getElementById('fieldValue').innerText = magneticField;
+        document.getElementById('velocityValue').innerText = velocity;
+        document.getElementById('forceValue').innerHTML = formatScientificWith3Digits(force, 'N');
+        document.getElementById('trajectoryValue').innerHTML = formatScientificWith3Digits(trajectoryRadius, 'm');
+        document.getElementById('fieldDisplay').innerText = magneticField + ' T';
+        document.getElementById('velocityDisplay').innerText = velocity + ' m/s';
+        document.getElementById('forceDisplay').innerHTML = formatScientificWith3Digits(force, 'N');
+        document.getElementById('trajectoryDisplay').innerHTML = formatScientificWith3Digits(trajectoryRadius, 'm');
+        document.getElementById('chargeDisplay').innerText = (chargeType === 'positive') ? 'Positiva' : 'Negativa';
+        document.getElementById('massDisplay').innerHTML = formatScientificWith3Digits(massValue, 'kg');
+        document.getElementById('chargeValueDisplay').innerHTML = formatScientificWith3Digits(chargeValue, 'C');
+    }
+
+    function setupEventListeners() {
+        document.getElementById('chargeSelect').addEventListener('change', function() {
+            chargeType = this.value;
+            chargeValue = (this.value === 'positive') ? 1e-3 : -1e-3;
+            simulationTime = 0;
+            updateMeasurements();
+        });
+        document.getElementById('fieldInput').addEventListener('input', function() {
+            magneticField = parseFloat(this.value);
+            document.getElementById('fieldValue').innerText = magneticField;
+            createMagneticField();
+            updateMeasurements();
+        });
+        document.getElementById('velocityInput').addEventListener('input', function() {
+            velocity = parseFloat(this.value);
+            document.getElementById('velocityValue').innerText = velocity;
+            updateMeasurements();
+        });
+        document.getElementById('trailToggle').addEventListener('change', function() {
+            trailVisible = this.checked;
+            trailLine.visible = trailVisible;
+            if (!trailVisible) { particleTrail = []; trailGeometry.setFromPoints(particleTrail); }
+        });
+        document.getElementById('startBtn').addEventListener('click', () => { isRunning = true; });
+        document.getElementById('pauseBtn').addEventListener('click', () => { isRunning = false; });
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            isRunning = false;
+            simulationTime = 0;
+            particle.position.set(0, 0, 0);
+            particleTrail = [];
+            trailGeometry.setFromPoints(particleTrail);
+            chargeType = 'positive';
+            magneticField = 30;
+            velocity = 15;
+            chargeValue = 1e-3;
+            document.getElementById('chargeSelect').value = chargeType;
+            document.getElementById('fieldInput').value = magneticField;
+            document.getElementById('velocityInput').value = velocity;
+            document.getElementById('fieldValue').innerText = magneticField;
+            document.getElementById('velocityValue').innerText = velocity;
+            createMagneticField();
+            updateMeasurements();
+        });
+        document.getElementById('helpBtn').addEventListener('click', () => alert("Use o mouse para girar a cena. Ajuste os controles e clique em Iniciar. O áudio interativo te guiará passo a passo!"));
+    }
+
+    function onWindowResize() {
+        const container = document.getElementById('renderer-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    // ==================== ÁUDIO INTERATIVO GUIADO (CORRIGIDO) ====================
+    let studentName = localStorage.getItem('studentName');
+    if (!studentName) {
+        studentName = prompt("🎧 Olá! Qual é o seu nome? (Vou te chamar durante o áudio interativo)");
+        if (studentName) localStorage.setItem('studentName', studentName);
+        else studentName = "estudante";
+    }
+
+    const tracks = [
+        `Olá, ${studentName}! Seja bem-vindo à Simulação de Força Magnética. Você está vendo uma tela com um círculo escuro no centro e vários controles ao lado. No meio, há uma esfera amarela – essa é a partícula carregada. Ao redor dela, setas azuis representam o campo magnético. Há também botões: Iniciar, Pausar, Reiniciar. E mais abaixo, painéis com medições: Força, Raio, Velocidade, Campo. Tudo é interativo. Agora, localize o botão 'Iniciar' com o mouse. Quando achar, clique em 'Próximo trecho'.`,
+        `Muito bem. Agora clique no botão 'Iniciar'. Observe a partícula amarela. Ela começa a se mover em círculo. Você vê uma seta verde (velocidade) e uma vermelha (força). Pause a simulação clicando em 'Pausar'. Gire a visão 3D usando o mouse: segure o botão esquerdo e mova. Veja que a força vermelha está sempre perpendicular à velocidade verde. Quando entender essa perpendicularidade, clique em 'Próximo'.`,
+        `Agora, no painel direito, procure o seletor 'Tipo de Carga'. Ele está com 'Positiva'. Troque para 'Negativa'. Clique em 'Iniciar' novamente. Compare a seta vermelha com antes – ela inverteu de direção? Para cargas negativas, a força magnética tem sentido oposto. Pause e volte para 'Positiva'. Entendeu? Clique em 'Próximo'.`,
+        `Vamos explorar o controle 'Intensidade do Campo Magnético (B)'. Diminua o valor para 10 (arraste para esquerda). Inicie a simulação. O que aconteceu com o raio da trajetória? Ficou maior. Agora aumente o campo para 50. O raio diminui. Isso porque o raio é inversamente proporcional ao campo: r = m·v/(|q|·B). Volte para 30 e siga para o próximo trecho.`,
+        `Agora mexa no controle 'Velocidade da Partícula (v)'. Reduza para 5 m/s. O raio ficou bem menor. Aumente para o máximo (50). O raio aumenta. O raio é diretamente proporcional à velocidade. Teste valores intermediários e observe o painel de medições. Pronto? Clique em 'Próximo'.`,
+        `No painel de medições, há o campo 'Força Magnética (F)'. Observe que, ao mudar B ou v, a força também muda. A força é F = |q|·v·B. Experimente: dobre a velocidade, a força dobra. Dobre o campo, a força dobra. Percebeu a proporcionalidade? Quando estiver seguro, clique em 'Próximo'.`,
+        `Você notou o rastro azul claro? É a trajetória. No canto superior direito, há 'Mostrar Trajetória'. Desmarque e marque para ver o efeito. Reinicie a simulação e veja o círculo perfeito de cima (gire a câmera). Legal, né? Vamos para o último trecho.`,
+        `Parabéns, ${studentName}! Você explorou os conceitos: força magnética, direção (regra da mão direita), movimento circular, raio e influência de B e v. Agora clique no botão 'Iniciar Exercícios' (no painel direito, abaixo das fórmulas). Lá você vai responder questões usando o que aprendeu. A simulação continua disponível. Bons estudos!`
+    ];
+
+    let currentTrack = 0;
+    let speechSynthesis = window.speechSynthesis;
+    let speaking = false;
+
+    function speakTrack(index) {
+        if (speaking) speechSynthesis.cancel();
+        let utterance = new SpeechSynthesisUtterance(tracks[index]);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        utterance.onend = () => {
+            speaking = false;
+            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
+        };
+        utterance.onerror = () => { speaking = false; };
+        speechSynthesis.speak(utterance);
+        speaking = true;
+        document.getElementById('playPauseAudioBtn').innerHTML = '⏸️ Pausar';
+        document.getElementById('trackCounter').innerText = `Trecho ${index+1}/${tracks.length}`;
+    }
+
+    function pauseAudio() {
+        if (speaking) {
+            speechSynthesis.cancel();
+            speaking = false;
+            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
+        }
+    }
+    function resumeAudio() {
+        if (!speaking) speakTrack(currentTrack);
+    }
+    function nextTrack() {
+        if (currentTrack + 1 < tracks.length) {
+            currentTrack++;
+            pauseAudio();
+            speakTrack(currentTrack);
+        } else {
+            alert("Você concluiu todos os trechos! Agora faça os exercícios.");
+        }
+    }
+    function prevTrack() {
+        if (currentTrack > 0) {
+            currentTrack--;
+            pauseAudio();
+            speakTrack(currentTrack);
+        } else {
+            alert("Este é o primeiro trecho.");
+        }
+    }
+
+    const playPauseBtn = document.getElementById('playPauseAudioBtn');
+    playPauseBtn.addEventListener('click', () => {
+        if (speaking) pauseAudio();
+        else resumeAudio();
+    });
+    document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+    document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+
+    function preloadFirstTrack() {
+        document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+    }
+    window.addEventListener('load', () => {
+        initSimulation();
+        preloadFirstTrack();
+    });
+
+    // ==================== SISTEMA DE EXERCÍCIOS (COMPLETO do ForcaMagnetica.html original) ====================
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+
+    function generateDirectionQuestion() {
+        const directions = [
+            { name: "para a direita (eixo x positivo)", vector: new THREE.Vector3(1, 0, 0) },
+            { name: "para a esquerda (eixo x negativo)", vector: new THREE.Vector3(-1, 0, 0) },
+            { name: "para cima (eixo y positivo)", vector: new THREE.Vector3(0, 1, 0) },
+            { name: "para baixo (eixo y negativo)", vector: new THREE.Vector3(0, -1, 0) },
+            { name: "para a frente (eixo z positivo)", vector: new THREE.Vector3(0, 0, 1) },
+            { name: "para trás (eixo z negativo)", vector: new THREE.Vector3(0, 0, -1) }
+        ];
+        const vIndex = Math.floor(Math.random() * directions.length);
+        const bIndex = Math.floor(Math.random() * directions.length);
+        const vDir = directions[vIndex].name;
+        const bDir = directions[bIndex].name;
+        const vVector = directions[vIndex].vector;
+        const bVector = directions[bIndex].vector;
+        const forceVector = new THREE.Vector3().crossVectors(vVector, bVector);
+        let correctDirection;
+        if (forceVector.length() === 0) {
+            correctDirection = "Não há força magnética";
+        } else {
+            const tolerance = 0.1;
+            if (Math.abs(forceVector.x - 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) correctDirection = "Para a direita (eixo x positivo)";
+            else if (Math.abs(forceVector.x + 1) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z) < tolerance) correctDirection = "Para a esquerda (eixo x negativo)";
+            else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y - 1) < tolerance && Math.abs(forceVector.z) < tolerance) correctDirection = "Para cima (eixo y positivo)";
+            else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y + 1) < tolerance && Math.abs(forceVector.z) < tolerance) correctDirection = "Para baixo (eixo y negativo)";
+            else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z - 1) < tolerance) correctDirection = "Para a frente (eixo z positivo)";
+            else if (Math.abs(forceVector.x) < tolerance && Math.abs(forceVector.y) < tolerance && Math.abs(forceVector.z + 1) < tolerance) correctDirection = "Para trás (eixo z negativo)";
+            else correctDirection = "Para a direita (eixo x positivo)";
+        }
+        return { vDir, bDir, correctDirection };
+    }
+
+    function generateOptions(correctValue, unit) {
+        const options = [];
+        let formattedCorrect = formatScientificWith3Digits(correctValue, unit);
+        options.push({ value: correctValue, display: formattedCorrect });
+        for (let i = 0; i < 4; i++) {
+            let optionValue;
+            let attempts = 0;
+            do {
+                const variationType = Math.random();
+                if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                else {
+                    const percentChange = (Math.random() * 60 + 20) / 100;
+                    optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                }
+                if (unit === 'N' || unit === 'm') optionValue = Math.abs(optionValue);
+                attempts++;
+                if (attempts > 20) break;
+            } while (options.some(opt => opt.display === formatScientificWith3Digits(optionValue, unit)));
+            options.push({ value: optionValue, display: formatScientificWith3Digits(optionValue, unit) });
+        }
+        return shuffleArray(options).map(opt => opt.display);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function generateExercises() {
+        exercises = [];
+        for (let i = 0; i < 2; i++) {
+            // Tipo 1: Força
+            let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 6);
+            let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5);
+            let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+            let f = Math.abs(q) * v * b;
+            exercises.push({
+                type: 'calcular_forca',
+                question: `Uma partícula com carga de ${formatScientificWith3Digits(q, 'C')} move-se com velocidade de ${formatScientificWith3Digits(v, 'm/s')} perpendicularmente a um campo magnético de ${formatScientificWith3Digits(b, 'T')}. Qual é a força magnética sobre a partícula?`,
+                answer: formatScientificWith3Digits(f, 'N'),
+                options: generateOptions(f, 'N')
+            });
+            // Tipo 2: Raio
+            let m = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 27);
+            v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5);
+            q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 19);
+            b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+            let r = m * v / (Math.abs(q) * b);
+            exercises.push({
+                type: 'calcular_raio',
+                question: `Uma partícula com massa de ${formatScientificWith3Digits(m, 'kg')} e carga de ${formatScientificWith3Digits(q, 'C')} move-se com velocidade de ${formatScientificWith3Digits(v, 'm/s')} perpendicularmente a um campo magnético de ${formatScientificWith3Digits(b, 'T')}. Qual o raio de sua trajetória circular?`,
+                answer: formatScientificWith3Digits(r, 'm'),
+                options: generateOptions(r, 'm')
+            });
+            // Tipo 3: Direção
+            let { vDir, bDir, correctDirection } = generateDirectionQuestion();
+            exercises.push({
+                type: 'direcao_forca',
+                question: `Uma partícula com carga positiva move-se ${vDir} em uma região onde o campo magnético está orientado ${bDir}. Qual é a direção da força magnética?`,
+                answer: correctDirection,
+                options: shuffleArray([
+                    "Para a direita (eixo x positivo)", "Para a esquerda (eixo x negativo)",
+                    "Para cima (eixo y positivo)", "Para baixo (eixo y negativo)",
+                    "Para a frente (eixo z positivo)", "Para trás (eixo z negativo)",
+                    "Não há força magnética"
+                ])
+            });
+        }
+        exercises = shuffleArray(exercises);
+    }
+
+    function showCurrentExercise() {
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
+                </div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+        container.querySelectorAll('.option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+        if (!selected) {
+            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
+            return;
+        }
+        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+        if (isCorrect) {
+            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
+            exerciseResults.push({ correct: true, skipped: false });
+            currentExerciseAttempts = 0;
+            setTimeout(() => {
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+    }
+
+    function generateNewExerciseOfSameType() {
+        const type = exercises[currentExercise].type;
+        if (type === 'calcular_forca') {
+            let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 6);
+            let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5);
+            let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+            let f = Math.abs(q) * v * b;
+            exercises[currentExercise] = {
+                type: 'calcular_forca',
+                question: `Uma partícula com carga de ${formatScientificWith3Digits(q, 'C')} move-se com velocidade de ${formatScientificWith3Digits(v, 'm/s')} perpendicularmente a um campo magnético de ${formatScientificWith3Digits(b, 'T')}. Qual é a força magnética sobre a partícula?`,
+                answer: formatScientificWith3Digits(f, 'N'),
+                options: generateOptions(f, 'N')
+            };
+        } else if (type === 'calcular_raio') {
+            let m = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 27);
+            let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3) + 5);
+            let q = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 5) - 19);
+            let b = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+            let r = m * v / (Math.abs(q) * b);
+            exercises[currentExercise] = {
+                type: 'calcular_raio',
+                question: `Uma partícula com massa de ${formatScientificWith3Digits(m, 'kg')} e carga de ${formatScientificWith3Digits(q, 'C')} move-se com velocidade de ${formatScientificWith3Digits(v, 'm/s')} perpendicularmente a um campo magnético de ${formatScientificWith3Digits(b, 'T')}. Qual o raio de sua trajetória circular?`,
+                answer: formatScientificWith3Digits(r, 'm'),
+                options: generateOptions(r, 'm')
+            };
+        } else if (type === 'direcao_forca') {
+            let { vDir, bDir, correctDirection } = generateDirectionQuestion();
+            exercises[currentExercise] = {
+                type: 'direcao_forca',
+                question: `Uma partícula com carga positiva move-se ${vDir} em uma região onde o campo magnético está orientado ${bDir}. Qual é a direção da força magnética?`,
+                answer: correctDirection,
+                options: shuffleArray([
+                    "Para a direita (eixo x positivo)", "Para a esquerda (eixo x negativo)",
+                    "Para cima (eixo y positivo)", "Para baixo (eixo y negativo)",
+                    "Para a frente (eixo z positivo)", "Para trás (eixo z negativo)",
+                    "Não há força magnética"
+                ])
+            };
+        }
+    }
+
+    function skipExercise() {
+        if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+            exerciseResults.push({ correct: false, skipped: true });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+    }
+
+    function updateProgressBar() {
+        for (let i = 0; i < 6; i++) {
+            const el = document.getElementById(`progress${i+1}`);
+            el.classList.remove('active', 'completed');
+            if (i === currentExercise) el.classList.add('active');
+            else if (i < currentExercise) el.classList.add('completed');
+        }
+    }
+
+    function showConclusion() {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'block';
+        document.getElementById('submitConclusion').onclick = () => {
+            const text = document.getElementById('conclusionText').value;
+            if (!text.trim()) {
+                alert('Por favor, escreva uma conclusão antes de enviar.');
+                return;
+            }
+            showResults(text);
+        };
+    }
+
+    function showResults(conclusion) {
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(r => r.correct).length;
+        const percent = Math.round((correct / total) * 100);
+        document.getElementById('resultsSummary').innerHTML = `
+            <p>Exercícios respondidos: ${total}</p>
+            <p>Respostas corretas: ${correct}</p>
+            <p>Exercícios pulados: ${skippedQuestions}</p>
+            <p>Nota: ${percent}%</p>
+        `;
+        document.getElementById('finalConclusion').value = conclusion;
+        document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+    }
+
+    function sendResultsToSheet() {
+        const studentName = document.getElementById('studentName').value;
+        const studentGrade = document.getElementById('studentGrade').value;
+        const studentClass = document.getElementById('studentClass').value;
+        const studentEmail = document.getElementById('studentEmail').value;
+        const criticism = document.getElementById('criticismInput').value;
+        const suggestion = document.getElementById('suggestionInput').value;
+        const finalConclusion = document.getElementById('finalConclusion').value;
+        const sendButton = document.getElementById('sendResults');
+        if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        sendButton.disabled = true;
+        sendButton.textContent = 'Enviando...';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(r => r.correct).length;
+        const percent = Math.round((correct / total) * 100);
+        const emailStatus = document.getElementById('emailStatus');
+        emailStatus.style.display = 'block';
+        emailStatus.textContent = 'Enviando dados...';
+        emailStatus.className = 'email-status sending';
+        const dadosCompletos = {
+            timestamp: new Date().toLocaleString('pt-BR'),
+            serie: studentGrade,
+            turma: studentClass,
+            estudante: studentName,
+            simulacao: 'Força Magnética',
+            questoes_puladas: skippedQuestions,
+            acertos_erros: `${correct}/${total - correct}`,
+            nota: percent + '%',
+            conclusao: finalConclusion,
+            criticas: criticism,
+            sugestoes: suggestion,
+            email: studentEmail || '',
+            to_email: "flavio.ambrosio@edu.se.df.gov.br",
+            nome_aluno: studentName,
+            acertos: `${correct}/${total}`,
+            data_envio: new Date().toLocaleString('pt-BR')
+        };
+        const planilhaUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+        fetch(planilhaUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) });
+            })
+            .then(() => {
+                if (studentEmail) {
+                    const alunoData = { ...dadosCompletos, to_email: studentEmail, mensagem: `Confirmação de envio - Força Magnética\nNota: ${percent}%\nAcertos: ${correct}/${total}` };
+                    return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alunoData) });
+                }
+            })
+            .then(() => {
+                emailStatus.textContent = '✅ Dados enviados com sucesso!';
+                emailStatus.className = 'email-status sent';
+                setTimeout(() => { closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000);
+            })
+            .catch(err => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+    }
+
+    function openExercisesModal() {
+        generateExercises();
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        document.getElementById('exercisesModal').style.display = 'flex';
+        document.getElementById('exerciseContainer').style.display = 'block';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+        showCurrentExercise();
+    }
+    function closeExercisesModal() { document.getElementById('exercisesModal').style.display = 'none'; }
+    function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+    function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+    function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+    function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+    document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+    document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+    document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+    document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+    document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+    document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+    document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+    document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+    window.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('exercisesModal')) closeExercisesModal();
+        if (e.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+        if (e.target === document.getElementById('theoryModal')) closeTheoryModal();
+    });
+</script>
+</body>
+</html>
