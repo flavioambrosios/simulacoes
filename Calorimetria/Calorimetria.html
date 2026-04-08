@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercícios Interativos de Calorimetria</title>
     <style>
-        /* (mesmo estilo anterior, mantido por brevidade) */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -105,7 +104,6 @@
             font-weight: bold;
         }
 
-        /* GIF animado no painel direito */
         .gif-container {
             text-align: center;
             margin-bottom: 20px;
@@ -116,7 +114,6 @@
             box-shadow: 0 0 15px rgba(255,204,0,0.5);
         }
 
-        /* Estilos para o modal de exercícios */
         .modal {
             display: none;
             position: fixed;
@@ -290,7 +287,6 @@
             color: white;
         }
 
-        /* Exercícios resolvidos */
         .solved-exercise {
             margin-bottom: 20px;
             padding: 15px;
@@ -316,7 +312,6 @@
             margin-top: 15px;
         }
 
-        /* Formulário de envio */
         .email-form {
             display: flex;
             flex-direction: column;
@@ -429,7 +424,6 @@
             <div class="exercise-panel">
                 <h2 class="panel-title">Instruções</h2>
                 
-                <!-- GIF animado no painel direito -->
                 <div class="gif-container">
                     <img src="tchuf-stop-30.gif" alt="Animação Tchuf Stop">
                 </div>
@@ -499,24 +493,12 @@
                         <label for="studentClass" class="required">Turma:</label>
                         <select id="studentClass" required>
                             <option value="">Selecione sua turma</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="G">G</option>
-                            <option value="H">H</option>
-                            <option value="I">I</option>
-                            <option value="J">J</option>
-                            <option value="K">K</option>
-                            <option value="L">L</option>
-                            <option value="M">M</option>
-                            <option value="N">N</option>
-                            <option value="O">O</option>
-                            <option value="P">P</option>
-                            <option value="Q">Q</option>
-                            <option value="R">R</option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+                            <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+                            <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+                            <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+                            <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+                            <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
                             <option value="S">S</option>
                         </select>
                     </div>
@@ -549,7 +531,7 @@
         </div>
     </div>
 
-    <!-- Modal de Exercícios Resolvidos (atualizado com os três modelos e formatação matemática) -->
+    <!-- Modal de Exercícios Resolvidos (com correção do Exemplo 2 - Gelo em água) -->
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -562,70 +544,43 @@
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Metal aquecido em água</h4>
                     <p><strong>Problema:</strong> Uma peça de ferro de 200 g é aquecida a 250 °C e é colocada em seguida em um recipiente com um litro (1 kg) de água a 25 °C. Depois de algum tempo, qual a temperatura de equilíbrio do sistema? (c<sub>ferro</sub> = 0,11 cal/g°C, c<sub>água</sub> = 1 cal/g°C)</p>
-                    
                     <div class="solution-step"><strong>Calor cedido pelo ferro:</strong> Q<sub>ferro</sub> = m<sub>ferro</sub> · c<sub>ferro</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</div>
                     <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</div>
                     <div class="solution-step"><strong>Equação de troca de calor:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div> 
                     <div class="solution-step">200 · 0,11 · (T<sub>eq</sub> - 250) + 1000 · 1 · (T<sub>eq</sub> - 25) = 0</div>
-                    <div class="solution-step">22 · (T<sub>eq</sub> - 250) + 1000 · (T<sub>eq</sub> - 25) = 0 </p>
-                         22 . T<sub>eq</sub> - 5500 + 1000 . T<sub>eq</sub> - 25000 = 0 </p>
-                         1022 . T<sub>eq</sub> = 30500 </p>
-                         T<sub>eq</sub> ≈ 29,84 °C</div>
+                    <div class="solution-step">22 · (T<sub>eq</sub> - 250) + 1000 · (T<sub>eq</sub> - 25) = 0 → 22T<sub>eq</sub> - 5500 + 1000T<sub>eq</sub> - 25000 = 0 → 1022T<sub>eq</sub> = 30500 → T<sub>eq</sub> ≈ 29,84 °C</div>
                     <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>29,8 °C</strong>.</div>
                 </div>
                 
-                <!-- Exemplo 2: Gelo a temperatura negativa em água -->
+                <!-- Exemplo 2: Gelo em água (CORRIGIDO - agora com a etapa de aquecimento da água proveniente do gelo) -->
                 <div class="solved-exercise">
-                    <h4>Exemplo 2: Gelo em água</h4>
+                    <h4>Exemplo 2: Gelo em água (corrigido)</h4>
                     <p><strong>Problema:</strong> Uma pedra de gelo de 250 g, com temperatura inicial de -10 °C, é colocada em recipiente isolado com 1500 g de água a 25 °C. Calcule a temperatura de equilíbrio do sistema. <br> (c<sub>gelo</sub> = 0,5 cal/g°C, L<sub>fusão</sub> = 80 cal/g, c<sub>água</sub> = 1 cal/g°C)</p>
-                    <div class="solution-step"><strong>Etapas:</strong> O gelo precisa primeiro aquecer até 0 °C, depois derreter, e então a água resultante pode aquecer até a temperatura de equilíbrio.</div>
-                    <div class="solution-step"><strong>Calor para aquecer o gelo até 0 °C:</strong></p>
-                        Q<sub>1</sub> = m<sub>gelo</sub> · c<sub>gelo</sub> · (T<sub>fg</sub> - T<sub>ig</sub>) </p>
-                        Q<sub>1</sub>= 250 · 0,5 · (0-(-10)) = 250 · 0,5 · 10 = 1250 cal</div>                    
-                    <div class="solution-step"><strong>Calor para derreter o gelo:</strong> Q<sub>2</sub> = m<sub>gelo</sub> · L<sub>fusão</sub> = 250 · 80 = 20000 cal</div>
-                    <div class="solution-step"><strong>Calor total recebido para transformar o gelo em água a 0 °C:</strong></p>
-                         Q<sub>recebido</sub> = Q<sub>1</sub> + Q<sub>2</sub> = 21250 cal</div>
-                    <div class="solution-step"><strong>Esse é o cálculo do calor é cedido pela água, que esfria até uma temperatura T (≥0):</strong></p>
-                         Q<sub>cedido</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>) = 1500 · 1 · (T<sub>eq</sub> - 25)</div>
-                    <div class="solution-step"><strong>Equação de troca de calor:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div> 
-                    <div class="solution-step">1500 · ( T<sub>eq</sub> - 25) + 21250 = 0 </p> 
-                        1500 . T<sub>eq</sub> - 37500 + 21250 = 0 </p> 
-                        1500 . T<sub>eq</sub> - 16250 = 0 </p>
-                        1500 . T<sub>eq</sub> = 16250 </p> 
-                        T<sub>eq</sub> = 16250 / 1500 </p>
-                        T<sub>eq</sub> ≈ 10,83 °C</div>
-                    <div class="solution-step"><strong>Como T > 0, todo gelo derreteu e a temperatura final é 10,83 °C.</strong></div>
-                    <div class="solution-step"><strong>Resposta:</strong> Temperatura de equilíbrio ≈ <strong>10,8 °C</strong>.</div>
+                    <div class="solution-step"><strong>1. Aquecimento do gelo de -10°C até 0°C:</strong></p> Q₁ = m<sub>gelo</sub>·c<sub>gelo</sub>·Δθ = 250·0,5·(0 - (-10)) = 250·0,5·10 = <strong>1250 cal</strong></div>
+                    <div class="solution-step"><strong>2. Fusão total do gelo a 0°C:</strong></p> Q₂ = m<sub>gelo</sub>·L<sub>fusão</sub> = 250·80 = <strong>20000 cal</strong></div>
+                    
+                    <div class="solution-step"><strong>3. Aquecimento da água proveniente do gelo derretido (0°C até T<sub>eq</sub>):</strong> </p>Q₃ = m<sub>gelo</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 0) = 250·1·T<sub>eq</sub> = <strong>250·T<sub>eq</sub></strong></div>
+                    <div class="solution-step"><strong>4. Resfriamento da água inicial (25°C até T<sub>eq</sub>):</strong></p> Q<sub>4</sub> = m<sub>água</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 25) = 1500·1·(T<sub>eq</sub> - 25) = <strong>1500·(T<sub>eq</sub> - 25)</strong></div>
+                    <div class="solution-step"><strong>5. Equação de troca de calor :</strong> </p>
+                    Q₁ + Q₂ + Q₃ + Q<sub>4</sub> = 0<br>
+                    21250 + 250·T<sub>eq</sub> + 1500·(T<sub>eq</sub> - 25) = 0</div>
+                    <div class="solution-step"><strong>6. Resolvendo:</strong><br>
+                    21250 + 250T<sub>eq</sub> + 1500T<sub>eq</sub> - 37500 = 0<br>
+                    1750T<sub>eq</sub> - 16250 = 0<br>
+                    1750T<sub>eq</sub> = 16250<br>
+                    T<sub>eq</sub> = 16250 / 1750 = <strong>9,2857... °C</strong></div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>9,29 °C</strong>. (Todo o gelo derrete e a mistura atinge equilíbrio térmico a 9,29°C)</div>
                 </div>
                 
-                <!-- Exemplo 3: Calorímetro com capacidade térmica desconhecida -->
+                <!-- Exemplo 3: Capacidade térmica do calorímetro -->
                 <div class="solved-exercise">
                     <h4>Exemplo 3: Capacidade térmica de um calorímetro</h4>
-                    <p><strong>Problema:</strong> Calcule a capacidade térmica de um calorímetro (C<sub>c) no qual contém 300 ml (300g) de água a 20 °C. Neste calorímetro é colocada uma barra de metal de massa 300 g, calor específico 0,2 cal/g°C, a 300 °C. A temperatura de equilíbrio do sistema é 50 °C. Despreze perdas.</p>
-                    <div class="solution-step"><strong>Dados:</strong> </p> 
-                        m<sub>água</sub> = 300 g, </p>
-                        c<sub>água</sub> = 1 cal/g°C, </p>
-                        T<sub>ia</sub> = 20 °C, </p> 
-                        m<sub>metal</sub> = 300 g, </p>
-                        c<sub>metal</sub> = 0,2 cal/g°C, </p>
-                        T<sub>im</sub> = 300 °C, </p>
-                        T<sub>eq</sub> = 50 °C </p>
-                        Capacidade térmica do calorímetro: C<sub>c</sub></div>
-                    <div class="solution-step"><strong>Calor recebido pela água:</p></strong> </p>
-                        Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</p>
-                        Q<sub>água</sub> = 300 . 1. (50 - 20) = 300 · 30 = 9000 cal</div>
-                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:</strong> </p>
-                        Q<sub>calorímetro</sub> = C<sub>c</sub> · (T<sub>eq</sub> - T<sub>ic</sub>)</p>
-                        Q<sub>calorímetro</sub> = C<sub>c</sub> . (50 - 20) = 30 · C<sub>c</sub></div>
-                    <div class="solution-step"><strong>Calor cedido pelo metal:</strong> </p>
-                        Q<sub>metal</sub> = m<sub>metal</sub> · c<sub>metal</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</p>
-                        Q<sub>metal</sub> = 300 . 0,2 . (50 - 300) = 60 · (-250) = -15000 cal</div>
-                    <div class="solution-step"><strong>Equação de troca de calor:</strong> </p>
-                        Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0 </p> 
-                        9000 - 15000  + 30 . C<sub>c</sub> = 0 </p> 
-                        - 6000  + 30 . C<sub>c</sub> = 0 </p>
-                        30 . C<sub>c</sub> = 6000 </p> 
-                        C<sub>c</sub> = 200 cal/°C</div>
+                    <p><strong>Problema:</strong> Calcule a capacidade térmica de um calorímetro (C<sub>c</sub>) no qual contém 300 ml (300g) de água a 20 °C. Neste calorímetro é colocada uma barra de metal de massa 300 g, calor específico 0,2 cal/g°C, a 300 °C. A temperatura de equilíbrio do sistema é 50 °C. Despreze perdas.</p>
+                    <div class="solution-step"><strong>Dados:</strong> m<sub>água</sub>=300g, c<sub>água</sub>=1 cal/g°C, T<sub>ia</sub>=20°C; m<sub>metal</sub>=300g, c<sub>metal</sub>=0,2 cal/g°C, T<sub>im</sub>=300°C; T<sub>eq</sub>=50°C; C<sub>c</sub> = ?</div>
+                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = 300·1·(50-20) = 9000 cal</div>
+                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:</strong> Q<sub>cal</sub> = C<sub>c</sub>·(50-20) = 30·C<sub>c</sub></div>
+                    <div class="solution-step"><strong>Calor cedido pelo metal:</strong> Q<sub>metal</sub> = 300·0,2·(50-300) = 60·(-250) = -15000 cal</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:</strong> 9000 + 30·C<sub>c</sub> - 15000 = 0 → 30·C<sub>c</sub> = 6000 → C<sub>c</sub> = 200 cal/°C</div>
                     <div class="solution-step"><strong>Resposta:</strong> A capacidade térmica do calorímetro é <strong>200 cal/°C</strong>.</div>
                 </div>
             </div>
@@ -639,20 +594,19 @@
     <script>
         // ========== CONSTANTES FÍSICAS ==========
         const C_AGUA = 1;          // cal/g°C
-        const C_FERRO = 0.11;       // cal/g°C (usado para metais em geral)
+        const C_FERRO = 0.11;       // cal/g°C
         const C_GELO = 0.5;         // cal/g°C
         const L_FUSAO = 80;          // cal/g
 
         // ========== TEMPLATES DE EXERCÍCIOS (3 TIPOS, 6 QUESTÕES) ==========
         const exerciseTemplates = [
-            // Tipo 1: Metal aquecido em água (duas variações)
+            // Tipo 1: Metal aquecido em água
             function() {
                 let m_metal = Math.floor(Math.random() * 200) + 100; // 100-300g
                 let t_metal = Math.floor(Math.random() * 150) + 150; // 150-300°C
-                let m_agua = Math.floor(Math.random() * 800) + 500;  // 500-1300g (≈ml)
+                let m_agua = Math.floor(Math.random() * 800) + 500;  // 500-1300g
                 let t_agua = Math.floor(Math.random() * 15) + 20;    // 20-35°C
-                let c_metal = 0.11; // ferro
-                // Equação: m_metal*c_metal*(T - t_metal) + m_agua*C_AGUA*(T - t_agua) = 0
+                let c_metal = 0.11;
                 let T = (m_metal*c_metal*t_metal + m_agua*C_AGUA*t_agua) / (m_metal*c_metal + m_agua*C_AGUA);
                 T = Math.round(T * 100) / 100;
                 let answerStr = T + "°C";
@@ -691,28 +645,20 @@
                     options: options
                 };
             },
-            // Tipo 2: Gelo a temperatura negativa em água (duas variações)
+            // Tipo 2: Gelo a temperatura negativa em água (cálculo corrigido)
             function() {
                 let m_gelo = Math.floor(Math.random() * 200) + 100; // 100-300g
                 let t_gelo = -Math.floor(Math.random() * 15) - 5;   // -20 a -5°C
                 let m_agua = Math.floor(Math.random() * 1000) + 800; // 800-1800g
                 let t_agua = Math.floor(Math.random() * 15) + 20;    // 20-35°C
-                // Calcular se a água tem calor suficiente para aquecer, derreter e aquecer o gelo
-                // Primeiro, calor para levar gelo a 0°C: Q1 = m_gelo * C_GELO * (0 - t_gelo)
                 let Q1 = m_gelo * C_GELO * (0 - t_gelo);
-                // Calor para derreter gelo: Q2 = m_gelo * L_FUSAO
                 let Q2 = m_gelo * L_FUSAO;
-                // Calor máximo que a água pode ceder até 0°C: Q_max_agua = m_agua * C_AGUA * t_agua
                 let Q_max_agua = m_agua * C_AGUA * t_agua;
                 let T;
                 if (Q1 + Q2 <= Q_max_agua) {
-                    // Todo gelo derrete e a mistura final fica acima de 0°C
-                    // Calor restante para aquecer a água proveniente do gelo: Q_rest = Q_max_agua - (Q1+Q2)
-                    // Massa total de água final: m_total = m_agua + m_gelo
-                    // Aquecimento: Q_rest = m_total * C_AGUA * T  (pois parte de 0°C)
-                    T = (Q_max_agua - Q1 - Q2) / ((m_agua + m_gelo) * C_AGUA);
+                    // Equação completa: m_agua*C_AGUA*(t_agua - T) = Q1+Q2 + m_gelo*C_AGUA*T
+                    T = (m_agua * C_AGUA * t_agua - Q1 - Q2) / ((m_agua + m_gelo) * C_AGUA);
                 } else {
-                    // A água não consegue derreter todo o gelo; temperatura final 0°C com gelo remanescente
                     T = 0;
                 }
                 T = Math.round(T * 100) / 100;
@@ -740,7 +686,7 @@
                 let Q_max_agua = m_agua * C_AGUA * t_agua;
                 let T;
                 if (Q1 + Q2 <= Q_max_agua) {
-                    T = (Q_max_agua - Q1 - Q2) / ((m_agua + m_gelo) * C_AGUA);
+                    T = (m_agua * C_AGUA * t_agua - Q1 - Q2) / ((m_agua + m_gelo) * C_AGUA);
                 } else {
                     T = 0;
                 }
@@ -759,30 +705,23 @@
                     options: options
                 };
             },
-            // Tipo 3: Calorímetro com capacidade térmica desconhecida (corrigido)
+            // Tipo 3: Calorímetro com capacidade térmica desconhecida
             function() {
                 let m_agua = Math.floor(Math.random() * 200) + 200; // 200-400g
                 let t_agua = Math.floor(Math.random() * 10) + 15;   // 15-25°C
                 let m_metal = Math.floor(Math.random() * 200) + 200; // 200-400g
-                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.10 a 0.25
+                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2);
                 c_metal = parseFloat(c_metal);
                 let t_metal = Math.floor(Math.random() * 200) + 200; // 200-400°C
-                // Definir uma capacidade térmica positiva
                 let C = Math.floor(Math.random() * 250) + 50; // 50 a 300 cal/°C
-                // Calcular a temperatura de equilíbrio usando a equação correta
-                // Q_metal + Q_agua + Q_cal = 0
-                // m_metal*c_metal*(T_eq - t_metal) + m_agua*1*(T_eq - t_agua) + C*(T_eq - t_agua) = 0
-                // Isolando T_eq:
                 let numerador = m_metal * c_metal * t_metal + m_agua * t_agua + C * t_agua;
                 let denominador = m_metal * c_metal + m_agua + C;
                 let t_eq = numerador / denominador;
                 t_eq = Math.round(t_eq * 100) / 100;
-                // A resposta correta é C (valor inteiro)
                 let answerStr = C + " cal/°C";
                 let options = [answerStr];
                 while(options.length < 5) {
                     let fake = (C + Math.floor(Math.random() * 100 - 50)) + " cal/°C";
-                    // garantir que fake não seja negativo
                     if (parseInt(fake) < 0) fake = (Math.abs(parseInt(fake)) + 50) + " cal/°C";
                     if(!options.includes(fake) && fake !== answerStr) options.push(fake);
                 }
@@ -798,10 +737,10 @@
                 let m_agua = Math.floor(Math.random() * 250) + 250; // 250-500g
                 let t_agua = Math.floor(Math.random() * 10) + 18;   // 18-28°C
                 let m_metal = Math.floor(Math.random() * 300) + 250; // 250-550g
-                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2); // 0.10 a 0.25
+                let c_metal = (Math.random() * 0.15 + 0.1).toFixed(2);
                 c_metal = parseFloat(c_metal);
                 let t_metal = Math.floor(Math.random() * 250) + 250; // 250-500°C
-                let C = Math.floor(Math.random() * 250) + 50; // 50 a 300 cal/°C
+                let C = Math.floor(Math.random() * 250) + 50;
                 let numerador = m_metal * c_metal * t_metal + m_agua * t_agua + C * t_agua;
                 let denominador = m_metal * c_metal + m_agua + C;
                 let t_eq = numerador / denominador;
@@ -831,16 +770,12 @@
             return arr;
         }
 
-        // Inicializar exercises chamando cada template
         let exercises = exerciseTemplates.map(t => t());
-
-        // ========== VARIÁVEIS DE CONTROLE ==========
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
 
-        // Elementos do DOM
         const exercisesModal = document.getElementById('exercisesModal');
         const solvedExercisesModal = document.getElementById('solvedExercisesModal');
         const exerciseContainer = document.getElementById('exerciseContainer');
@@ -855,14 +790,12 @@
         const submitConclusion = document.getElementById('submitConclusion');
         const sendResultsBtn = document.getElementById('sendResults');
 
-        // ========== FUNÇÕES DOS MODAIS ==========
         function openExercisesModal() {
             exercisesModal.style.display = 'flex';
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
             currentExerciseAttempts = 0;
-            // Reinicializa os exercícios com novos valores
             exercises = exerciseTemplates.map(t => t());
             exerciseContainer.style.display = 'block';
             conclusionContainer.style.display = 'none';
@@ -870,19 +803,10 @@
             showCurrentExercise();
         }
 
-        function closeExercisesModal() {
-            exercisesModal.style.display = 'none';
-        }
+        function closeExercisesModal() { exercisesModal.style.display = 'none'; }
+        function openSolvedExercisesModal() { solvedExercisesModal.style.display = 'flex'; }
+        function closeSolvedExercisesModal() { solvedExercisesModal.style.display = 'none'; }
 
-        function openSolvedExercisesModal() {
-            solvedExercisesModal.style.display = 'flex';
-        }
-
-        function closeSolvedExercisesModal() {
-            solvedExercisesModal.style.display = 'none';
-        }
-
-        // ========== EXIBIR EXERCÍCIO ATUAL ==========
         function showCurrentExercise() {
             const ex = exercises[currentExercise];
             exerciseContainer.innerHTML = `
@@ -890,28 +814,22 @@
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
                     <p>${ex.question}</p>
                     <div class="options">
-                        ${ex.options.map(opt => `
-                            <div class="option" data-value="${opt}">${opt}</div>
-                        `).join('')}
+                        ${ex.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
                     </div>
                     <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
                     <div class="result"></div>
                 </div>
             `;
-
-            // Event listeners para as opções
             exerciseContainer.querySelectorAll('.option').forEach(opt => {
                 opt.addEventListener('click', function() {
                     exerciseContainer.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
-
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             updateProgressBar();
         }
 
-        // ========== VERIFICAR RESPOSTA ==========
         function checkAnswer() {
             const selected = exerciseContainer.querySelector('.option.selected');
             const resultDiv = exerciseContainer.querySelector('.result');
@@ -946,15 +864,14 @@
                     </div>
                 `;
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
-                document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // Gera um novo exercício para o índice atual (mesmo tipo)
+                document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                    // Gera um novo exercício do MESMO TIPO (índice atual) com dados diferentes
                     exercises[currentExercise] = exerciseTemplates[currentExercise]();
                     showCurrentExercise();
                 });
             }
         }
 
-        // ========== PULAR EXERCÍCIO ==========
         function skipExercise() {
             if (confirm("Deseja pular este exercício? Isso contará como erro.")) {
                 exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
@@ -969,9 +886,9 @@
             }
         }
 
-        // ========== PRÓXIMO EXERCÍCIO ==========
         function nextExercise() {
             currentExercise++;
+            currentExerciseAttempts = 0;
             if (currentExercise < exercises.length) {
                 showCurrentExercise();
             } else {
@@ -979,7 +896,6 @@
             }
         }
 
-        // ========== ATUALIZAR BARRA DE PROGRESSO ==========
         function updateProgressBar() {
             for (let i = 0; i < 6; i++) {
                 const item = document.getElementById(`progress${i+1}`);
@@ -989,7 +905,6 @@
             }
         }
 
-        // ========== TELA DE CONCLUSÃO ==========
         function showConclusion() {
             exerciseContainer.style.display = 'none';
             conclusionContainer.style.display = 'block';
@@ -1004,26 +919,21 @@
             showResults(conclusion);
         });
 
-        // ========== TELA DE RESULTADOS ==========
         function showResults(conclusion) {
             conclusionContainer.style.display = 'none';
             resultsContainer.style.display = 'block';
-
             const total = exercises.length;
             const correct = exerciseResults.filter(r => r.correct).length;
             const percent = Math.round((correct / total) * 100);
-
             resultsSummary.innerHTML = `
                 <p>Exercícios respondidos: ${total}</p>
                 <p>Respostas corretas: ${correct}</p>
                 <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${percent}%</p>
             `;
-
             document.getElementById('finalConclusion').value = conclusion;
         }
 
-        // ========== ENVIO DOS RESULTADOS ==========
         function sendResultsToSheet() {
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
@@ -1045,7 +955,6 @@
             const total = exercises.length;
             const correct = exerciseResults.filter(r => r.correct).length;
             const percent = Math.round((correct / total) * 100);
-
             const emailStatus = document.getElementById('emailStatus');
             emailStatus.textContent = 'Enviando dados...';
             emailStatus.className = 'email-status sending';
@@ -1129,15 +1038,12 @@
             });
         }
 
-        // ========== EVENT LISTENERS ==========
         startBtn.addEventListener('click', openExercisesModal);
         solvedBtn.addEventListener('click', openSolvedExercisesModal);
         closeModal.addEventListener('click', closeExercisesModal);
         closeSolved.addEventListener('click', closeSolvedExercisesModal);
         closeSolvedBtn.addEventListener('click', closeSolvedExercisesModal);
         sendResultsBtn.addEventListener('click', sendResultsToSheet);
-
-        // Fechar modais clicando fora
         window.addEventListener('click', function(event) {
             if (event.target === exercisesModal) closeExercisesModal();
             if (event.target === solvedExercisesModal) closeSolvedExercisesModal();
