@@ -1034,36 +1034,36 @@
                 exercises.push({
                     type: 'calcular_fem',
                     question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
-                    answer: ε,
+                    answer: parseFloat(ε),
                     options: generateOptions(parseFloat(ε), 'V')
                 });
                 
                 // Tipo 2: Calcular número de espiras (N = ε / (B × A × ω))
-                ε = (Math.floor(Math.random() * 9) + 1) * 2;
-                b = (Math.floor(Math.random() * 9) + 1) * 10;
-                ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                a = 0.001; // Área fixa
-                n = Math.round(ε / (b * ω * a));
+                let ε2 = (Math.floor(Math.random() * 9) + 1) * 2;
+                let b2 = (Math.floor(Math.random() * 9) + 1) * 10;
+                let ω2 = (Math.floor(Math.random() * 9) + 1) * 10;
+                let a2 = 0.001; // Área fixa
+                let n2 = Math.round(ε2 / (b2 * ω2 * a2));
                 
                 exercises.push({
                     type: 'calcular_espiras',
-                    question: `Para gerar uma força eletromotriz de ${ε} V com campo magnético de ${b} T, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s, quantas espiras são necessárias?`,
-                    answer: n,
-                    options: generateOptions(n, 'espiras')
+                    question: `Para gerar uma força eletromotriz de ${ε2} V com campo magnético de ${b2} T, área de ${a2*10000} cm² e velocidade angular de ${ω2} rad/s, quantas espiras são necessárias?`,
+                    answer: n2,
+                    options: generateOptions(n2, 'espiras')
                 });
                 
                 // Tipo 3: Calcular campo magnético (B = ε / (N × A × ω))
-                ε = (Math.floor(Math.random() * 9) + 1) * 2;
-                n = Math.floor(Math.random() * 9 + 2) * 10;
-                ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                a = 0.001; // Área fixa
-                b = (ε / (n * ω * a)).toFixed(1);
+                let ε3 = (Math.floor(Math.random() * 9) + 1) * 2;
+                let n3 = Math.floor(Math.random() * 9 + 2) * 10;
+                let ω3 = (Math.floor(Math.random() * 9) + 1) * 10;
+                let a3 = 0.001; // Área fixa
+                let b3 = (ε3 / (n3 * ω3 * a3)).toFixed(1);
                 
                 exercises.push({
                     type: 'calcular_campo',
-                    question: `Um gerador com ${n} espiras, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s produz uma força eletromotriz de ${ε} V. Qual a intensidade do campo magnético?`,
-                    answer: b,
-                    options: generateOptions(parseFloat(b), 'T')
+                    question: `Um gerador com ${n3} espiras, área de ${a3*10000} cm² e velocidade angular de ${ω3} rad/s produz uma força eletromotriz de ${ε3} V. Qual a intensidade do campo magnético?`,
+                    answer: parseFloat(b3),
+                    options: generateOptions(parseFloat(b3), 'T')
                 });
             }
             
@@ -1072,66 +1072,50 @@
             addDebugInfo(`Exercícios gerados: ${exercises.length}`);
         }
         
-        // Gerar opções de resposta
+        // Gerar opções de resposta - CORRIGIDO para evitar alternativas iguais
         function generateOptions(correctValue, unit) {
-            const options = [];
-            let attempts = 0;
-            const maxAttempts = 10; // Prevenir loop infinito
-            
-            // Formatar o valor correto
-            let formattedCorrectValue;
-            if (unit === 'V' || unit === 'T') {
-                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
-            } else if (unit === 'espiras') {
-                formattedCorrectValue = correctValue + ' ' + unit;
+            const optionsSet = new Set();
+            // Formata o valor correto de acordo com a unidade
+            let correctDisplay;
+            if (unit === 'espiras') {
+                correctDisplay = Math.round(correctValue) + ' ' + unit;
             } else {
-                formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+                correctDisplay = correctValue.toFixed(2) + ' ' + unit;
             }
+            optionsSet.add(correctDisplay);
             
-            options.push({
-                value: correctValue,
-                display: formattedCorrectValue
-            });
-            
-            // Gerar opções incorretas
-            for (let i = 0; i < 3; i++) {
+            // Gera 3 opções incorretas, garantindo que sejam distintas e diferentes da correta
+            while (optionsSet.size < 4) {
+                let variation;
                 let optionValue;
-                let formattedOption;
-                let unique = false;
+                let optionDisplay;
                 
-                // Garantir que as opções sejam diferentes
-                attempts = 0;
-                do {
-                    const variation = (Math.random() * 0.4 + 0.8);
-                    optionValue = correctValue * variation;
-                    
-                    // Formatar com a mesma precisão
-                    if (unit === 'V' || unit === 'T') {
-                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
-                    } else if (unit === 'espiras') {
-                        optionValue = Math.round(optionValue);
-                        formattedOption = optionValue + ' ' + unit;
-                    } else {
-                        formattedOption = optionValue.toFixed(2) + ' ' + unit;
-                    }
-                    
-                    unique = !options.some(opt => opt.display === formattedOption);
-                    attempts++;
-                    
-                    if (attempts > maxAttempts) {
-                        console.warn("Muitas tentativas para gerar opção única");
-                        break;
-                    }
-                } while (!unique);
-                
-                options.push({
-                    value: optionValue,
-                    display: formattedOption
-                });
+                if (unit === 'espiras') {
+                    // Para número de espiras, variamos em ±20% a ±80%, sempre inteiro
+                    const factor = 0.5 + Math.random() * 1.5; // entre 0.5 e 2.0
+                    let rawValue = correctValue * factor;
+                    // Garante que não seja igual ao correto (evita fator 1.0)
+                    if (Math.abs(factor - 1.0) < 0.05) continue;
+                    optionValue = Math.round(rawValue);
+                    // Evita valores negativos ou zero
+                    if (optionValue <= 0) optionValue = Math.round(correctValue * (0.5 + Math.random()));
+                    if (optionValue <= 0) optionValue = correctValue + Math.floor(Math.random() * 20) + 1;
+                    optionDisplay = optionValue + ' ' + unit;
+                } else {
+                    // Para V ou T, varia entre 50% e 200% do valor correto, evitando muito próximo
+                    let factor;
+                    do {
+                        factor = 0.5 + Math.random() * 1.5;
+                    } while (Math.abs(factor - 1.0) < 0.15); // evita valores muito próximos ao correto
+                    optionValue = correctValue * factor;
+                    optionDisplay = optionValue.toFixed(2) + ' ' + unit;
+                }
+                optionsSet.add(optionDisplay);
             }
             
-            // Embaralhar opções и retornar apenas os valores formatados
-            return shuffleArray(options).map(opt => opt.display);
+            // Converte o Set para array e embaralha
+            let optionsArray = Array.from(optionsSet);
+            return shuffleArray(optionsArray);
         }
         
         // Embaralhar array
@@ -1200,16 +1184,19 @@
             });
             checkButton.disabled = true;
             
-            const selectedValue = parseFloat(selectedOption.dataset.value) || parseInt(selectedOption.dataset.value);
-            const correctValue = parseFloat(exercises[currentExercise].answer) || parseInt(exercises[currentExercise].answer);
+            const selectedText = selectedOption.dataset.value;
+            const correctValue = exercises[currentExercise].answer;
+            const unit = exercises[currentExercise].type === 'calcular_espiras' ? 'espiras' : 
+                        (exercises[currentExercise].type === 'calcular_fem' ? 'V' : 'T');
             
-            // Para valores numéricos, considerar uma margem de erro
-            let isCorrect;
-            if (typeof selectedValue === 'number' && typeof correctValue === 'number') {
-                isCorrect = Math.abs(selectedValue - correctValue) < 0.1;
+            let correctText;
+            if (unit === 'espiras') {
+                correctText = Math.round(correctValue) + ' ' + unit;
             } else {
-                isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer + ' ' + (exercises[currentExercise].type === 'calcular_espiras' ? 'espiras' : '');
+                correctText = correctValue.toFixed(2) + ' ' + unit;
             }
+            
+            const isCorrect = (selectedText === correctText);
             
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!';
@@ -1262,7 +1249,7 @@
                 exercises[currentExercise] = {
                     type: 'calcular_fem',
                     question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
-                    answer: ε,
+                    answer: parseFloat(ε),
                     options: generateOptions(parseFloat(ε), 'V')
                 };
             } else if (currentType === 'calcular_espiras') {
@@ -1288,7 +1275,7 @@
                 exercises[currentExercise] = {
                     type: 'calcular_campo',
                     question: `Um gerador com ${n} espiras, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s produz uma força eletromotriz de ${ε} V. Qual a intensidade do campo magnético?`,
-                    answer: b,
+                    answer: parseFloat(b),
                     options: generateOptions(parseFloat(b), 'T')
                 };
             }
