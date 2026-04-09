@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Força Magnética - Áudio Interativo</title>
+    <title>Simulação de Força Magnética</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <style>
@@ -513,6 +513,16 @@
             line-height: 36px;
         }
         
+        /* Botão reiniciar dentro do modal */
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+        
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
@@ -527,8 +537,8 @@
 <body>
 <div class="container">
     <header>
-        <h1>Simulação de Força Magnética com Áudio Interativo</h1>
-        <p class="subtitle">Prof. Flávio Ambrósio | Aprenda no seu ritmo</p>
+        <h1>Simulação de Força Magnética</h1>
+        <p class="subtitle">Prof. Flávio Ambrósio</p>
     </header>
     <div class="content">
         <div class="simulation-panel">
@@ -604,12 +614,15 @@
     </div>
 </div>
 
-<!-- Modais (idênticos ao original ForcaMagnetica.html) -->
+<!-- Modais -->
 <div id="exercisesModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>Exercícios sobre Força Magnética - NOTAÇÃO CIENTÍFICA</h2>
-            <span class="close">&times;</span>
+            <div>
+                <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                <span class="close">&times;</span>
+            </div>
         </div>
         <div class="progress" id="progressBar">
             <div class="progress-item" id="progress1">1</div>
@@ -658,7 +671,6 @@
     </div>
 </div>
 
-<!-- Modal de Teoria (conteúdo restaurado do original ForcaMagnetica.html) -->
 <div id="theoryModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -733,7 +745,7 @@
 </div>
 
 <script>
-    // ==================== SIMULAÇÃO 3D (idêntica ao original ForcaMagnetica.html) ====================
+    // ==================== SIMULAÇÃO 3D (idêntica ao original) ====================
     let scene, camera, renderer, controls;
     let particle, velocityArrow, forceArrow, fieldArrows = [];
     let chargeType = 'positive';
@@ -926,8 +938,7 @@
         renderer.setSize(width, height);
     }
 
-    // ==================== ÁUDIO INTERATIVO GUIADO (CORRIGIDO) ====================
-    // ==================== ÁUDIO INTERATIVO GUIADO (CORRIGIDO) ====================
+    // ==================== ÁUDIO INTERATIVO GUIADO ====================
     let studentName = localStorage.getItem('studentName');
     if (!studentName) {
         studentName = prompt("🎧 Olá! Qual é o seu nome? (Vou te chamar durante o áudio interativo)");
@@ -935,7 +946,7 @@
         else studentName = "estudante";
     }
 
-    let selectedVoice = null;  // DECLARAÇÃO DA VARIÁVEL
+    let selectedVoice = null;
 
     const tracks = [
         `Olá, ${studentName}! Seja bem-vindo à Simulação de Força Magnética. Coloque o celular na posição paisagem. Você está vendo uma tela com um retângulo escuro à esquerda e vários controles ao lado. No meio, há uma esfera amarela – essa é a partícula carregada. Ao redor dela, setas brancas representam o campo magnético. Há também botões: Iniciar, Pausar, Reiniciar. E mais abaixo, painéis com medições: Força, Raio, Velocidade, Campo. Tudo é interativo. Agora, localize o botão 'Iniciar' com o mouse. Quando achar, clique em 'Próximo trecho'.`,
@@ -1043,22 +1054,27 @@
         document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
     }
 
-    // Carrega a voz antes de qualquer interação
     loadMicrosoftDanielVoice().then(() => {
         console.log("Sistema de voz pronto!");
     });
 
-    window.addEventListener('load', () => {
-        initSimulation();
-        preloadFirstTrack();
-    });
-
-    // ==================== SISTEMA DE EXERCÍCIOS (COMPLETO do ForcaMagnetica.html original) ====================
+    // ==================== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ====================
     let exercises = [];
     let currentExercise = 0;
     let exerciseResults = [];
     let skippedQuestions = 0;
     let currentExerciseAttempts = 0;
+    let conclusionTextSaved = "";
+
+    // Reset completo do estado dos exercícios
+    function resetExerciseState() {
+        exercises = [];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        conclusionTextSaved = "";
+    }
 
     function generateDirectionQuestion() {
         const directions = [
@@ -1167,65 +1183,6 @@
         exercises = shuffleArray(exercises);
     }
 
-    function showCurrentExercise() {
-        const exercise = exercises[currentExercise];
-        const container = document.getElementById('exerciseContainer');
-        container.innerHTML = `
-            <div class="exercise">
-                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
-                <p>${exercise.question}</p>
-                <div class="options">
-                    ${exercise.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
-                </div>
-                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
-                <div class="result"></div>
-            </div>
-        `;
-        container.querySelectorAll('.option').forEach(opt => {
-            opt.addEventListener('click', function() {
-                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-        updateProgressBar();
-    }
-
-    function checkAnswer() {
-        const container = document.getElementById('exerciseContainer');
-        const selected = container.querySelector('.option.selected');
-        const resultDiv = container.querySelector('.result');
-        if (!selected) {
-            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
-            return;
-        }
-        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
-        if (isCorrect) {
-            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
-            exerciseResults.push({ correct: true, skipped: false });
-            currentExerciseAttempts = 0;
-            setTimeout(() => {
-                currentExercise++;
-                if (currentExercise < exercises.length) showCurrentExercise();
-                else showConclusion();
-            }, 1500);
-        } else {
-            currentExerciseAttempts++;
-            resultDiv.innerHTML = `
-                <div class="error">Incorreto. Tente novamente.</div>
-                <div class="button-group">
-                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
-                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
-                </div>
-            `;
-            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
-            document.getElementById('tryAgainBtn').addEventListener('click', () => {
-                generateNewExerciseOfSameType();
-                showCurrentExercise();
-            });
-        }
-    }
-
     function generateNewExerciseOfSameType() {
         const type = exercises[currentExercise].type;
         if (type === 'calcular_forca') {
@@ -1267,9 +1224,69 @@
         }
     }
 
+    function showCurrentExercise() {
+        if (!exercises.length || currentExercise >= exercises.length) return;
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
+                </div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+        container.querySelectorAll('.option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+        if (!selected) {
+            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
+            return;
+        }
+        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+        if (isCorrect) {
+            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
+            exerciseResults.push({ correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+            currentExerciseAttempts = 0;
+            setTimeout(() => {
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+    }
+
     function skipExercise() {
         if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
-            exerciseResults.push({ correct: false, skipped: true });
+            exerciseResults.push({ correct: false, skipped: true, attempts: currentExerciseAttempts });
             skippedQuestions++;
             currentExerciseAttempts = 0;
             currentExercise++;
@@ -1281,23 +1298,31 @@
     function updateProgressBar() {
         for (let i = 0; i < 6; i++) {
             const el = document.getElementById(`progress${i+1}`);
-            el.classList.remove('active', 'completed');
-            if (i === currentExercise) el.classList.add('active');
-            else if (i < currentExercise) el.classList.add('completed');
+            if (el) {
+                el.classList.remove('active', 'completed');
+                if (i === currentExercise) el.classList.add('active');
+                else if (i < currentExercise) el.classList.add('completed');
+            }
         }
     }
 
     function showConclusion() {
         document.getElementById('exerciseContainer').style.display = 'none';
         document.getElementById('conclusionContainer').style.display = 'block';
-        document.getElementById('submitConclusion').onclick = () => {
-            const text = document.getElementById('conclusionText').value;
-            if (!text.trim()) {
+        const conclusionTextarea = document.getElementById('conclusionText');
+        if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+        const submitBtn = document.getElementById('submitConclusion');
+        const newSubmit = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+        newSubmit.addEventListener('click', () => {
+            const text = document.getElementById('conclusionText').value.trim();
+            if (!text) {
                 alert('Por favor, escreva uma conclusão antes de enviar.');
                 return;
             }
+            conclusionTextSaved = text;
             showResults(text);
-        };
+        });
     }
 
     function showResults(conclusion) {
@@ -1313,7 +1338,10 @@
             <p>Nota: ${percent}%</p>
         `;
         document.getElementById('finalConclusion').value = conclusion;
-        document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        const sendBtn = document.getElementById('sendResults');
+        const newSendBtn = sendBtn.cloneNode(true);
+        sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+        newSendBtn.addEventListener('click', sendResultsToSheet);
     }
 
     function sendResultsToSheet() {
@@ -1372,7 +1400,12 @@
             .then(() => {
                 emailStatus.textContent = '✅ Dados enviados com sucesso!';
                 emailStatus.className = 'email-status sent';
-                setTimeout(() => { closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000);
+                setTimeout(() => {
+                    resetExerciseState();
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
             })
             .catch(err => {
                 emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
@@ -1382,24 +1415,62 @@
             });
     }
 
-    function openExercisesModal() {
-        generateExercises();
-        currentExercise = 0;
-        exerciseResults = [];
-        skippedQuestions = 0;
-        currentExerciseAttempts = 0;
-        document.getElementById('exercisesModal').style.display = 'flex';
-        document.getElementById('exerciseContainer').style.display = 'block';
-        document.getElementById('conclusionContainer').style.display = 'none';
-        document.getElementById('resultsContainer').style.display = 'none';
-        showCurrentExercise();
+    function closeExercisesModal() {
+        const conclusionTextarea = document.getElementById('conclusionText');
+        if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') {
+            conclusionTextSaved = conclusionTextarea.value;
+        }
+        document.getElementById('exercisesModal').style.display = 'none';
     }
-    function closeExercisesModal() { document.getElementById('exercisesModal').style.display = 'none'; }
+
+    function resetAndRestartExercises() {
+        if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    }
+
+    function openExercisesModal() {
+        // Se não há exercícios ou já foram concluídos (e não está em resultados/conclusão)
+        if (exercises.length === 0 || (currentExercise >= exercises.length && 
+            document.getElementById('resultsContainer').style.display !== 'block' &&
+            document.getElementById('conclusionContainer').style.display !== 'block')) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        } else {
+            // Retomar do ponto atual
+            if (document.getElementById('resultsContainer').style.display === 'block') {
+                // já está nos resultados
+            } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                document.getElementById('exerciseContainer').style.display = 'none';
+                document.getElementById('conclusionContainer').style.display = 'block';
+                if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+            } else {
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+        document.getElementById('exercisesModal').style.display = 'flex';
+    }
+
     function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
     function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
     function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
     function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
 
+    // Event listeners dos botões principais
     document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
     document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
     document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
@@ -1408,10 +1479,17 @@
     document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
     document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
     document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+    document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
     window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('exercisesModal')) closeExercisesModal();
         if (e.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
         if (e.target === document.getElementById('theoryModal')) closeTheoryModal();
+    });
+
+    // Inicialização geral
+    window.addEventListener('load', () => {
+        initSimulation();
+        preloadFirstTrack();
     });
 </script>
 </body>
