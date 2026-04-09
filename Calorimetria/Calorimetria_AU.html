@@ -154,6 +154,18 @@
             cursor: pointer;
         }
 
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+
         .exercise {
             margin-bottom: 20px;
             padding: 15px;
@@ -490,7 +502,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios de Calorimetria</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -634,7 +649,7 @@
         </div>
     </div>
 
-    <!-- Painel de áudio flutuante (modelo ForcaMagnetica) -->
+    <!-- Painel de áudio flutuante -->
     <div class="audio-controls" id="audioControls">
         <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
         <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
@@ -820,46 +835,35 @@
             return arr;
         }
 
-        let exercises = exerciseTemplates.map(t => t());
+        // ========== VARIÁVEIS DE ESTADO PERSISTENTES ==========
+        let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
 
-        const exercisesModal = document.getElementById('exercisesModal');
-        const solvedExercisesModal = document.getElementById('solvedExercisesModal');
-        const exerciseContainer = document.getElementById('exerciseContainer');
-        const conclusionContainer = document.getElementById('conclusionContainer');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const resultsSummary = document.getElementById('resultsSummary');
-        const startBtn = document.getElementById('startExercisesBtn');
-        const solvedBtn = document.getElementById('solvedExercisesBtn');
-        const closeModal = document.querySelector('#exercisesModal .close');
-        const closeSolved = document.querySelector('#solvedExercisesModal .close');
-        const closeSolvedBtn = document.getElementById('closeSolvedExercises');
-        const submitConclusion = document.getElementById('submitConclusion');
-        const sendResultsBtn = document.getElementById('sendResults');
-
-        function openExercisesModal() {
-            exercisesModal.style.display = 'flex';
+        // Reset completo do estado dos exercícios
+        function resetExerciseState() {
+            exercises = [];
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
             currentExerciseAttempts = 0;
-            exercises = exerciseTemplates.map(t => t());
-            exerciseContainer.style.display = 'block';
-            conclusionContainer.style.display = 'none';
-            resultsContainer.style.display = 'none';
-            showCurrentExercise();
+            conclusionTextSaved = "";
         }
 
-        function closeExercisesModal() { exercisesModal.style.display = 'none'; }
-        function openSolvedExercisesModal() { solvedExercisesModal.style.display = 'flex'; }
-        function closeSolvedExercisesModal() { solvedExercisesModal.style.display = 'none'; }
+        // Gerar novos exercícios (chamado ao iniciar ou reiniciar)
+        function generateFreshExercises() {
+            return exerciseTemplates.map(t => t());
+        }
 
+        // Mostrar o exercício atual
         function showCurrentExercise() {
+            if (!exercises.length || currentExercise >= exercises.length) return;
             const ex = exercises[currentExercise];
-            exerciseContainer.innerHTML = `
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = `
                 <div class="exercise">
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
                     <p>${ex.question}</p>
@@ -870,21 +874,23 @@
                     <div class="result"></div>
                 </div>
             `;
-            exerciseContainer.querySelectorAll('.option').forEach(opt => {
+            container.querySelectorAll('.option').forEach(opt => {
                 opt.addEventListener('click', function() {
-                    exerciseContainer.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
-            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            if (checkBtn) checkBtn.addEventListener('click', checkAnswer);
             updateProgressBar();
         }
 
         function checkAnswer() {
-            const selected = exerciseContainer.querySelector('.option.selected');
-            const resultDiv = exerciseContainer.querySelector('.result');
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
             const checkBtn = document.getElementById('checkAnswerBtn');
-            const options = exerciseContainer.querySelectorAll('.option');
+            const options = container.querySelectorAll('.option');
 
             if (!selected) {
                 resultDiv.textContent = 'Selecione uma opção.';
@@ -948,39 +954,51 @@
         function updateProgressBar() {
             for (let i = 0; i < 6; i++) {
                 const item = document.getElementById(`progress${i+1}`);
-                item.classList.remove('active', 'completed');
-                if (i === currentExercise) item.classList.add('active');
-                else if (i < currentExercise) item.classList.add('completed');
+                if (item) {
+                    item.classList.remove('active', 'completed');
+                    if (i === currentExercise) item.classList.add('active');
+                    else if (i < currentExercise) item.classList.add('completed');
+                }
             }
         }
 
         function showConclusion() {
-            exerciseContainer.style.display = 'none';
-            conclusionContainer.style.display = 'block';
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+            const submitBtn = document.getElementById('submitConclusion');
+            // Remove listener antigo para evitar duplicação
+            const newSubmit = submitBtn.cloneNode(true);
+            submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+            newSubmit.addEventListener('click', function() {
+                const conclusion = document.getElementById('conclusionText').value;
+                if (conclusion.trim() === '') {
+                    alert('Escreva uma conclusão antes de continuar.');
+                    return;
+                }
+                conclusionTextSaved = conclusion;
+                showResults(conclusion);
+            });
         }
 
-        submitConclusion.addEventListener('click', function() {
-            const conclusion = document.getElementById('conclusionText').value;
-            if (conclusion.trim() === '') {
-                alert('Escreva uma conclusão antes de continuar.');
-                return;
-            }
-            showResults(conclusion);
-        });
-
         function showResults(conclusion) {
-            conclusionContainer.style.display = 'none';
-            resultsContainer.style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
             const total = exercises.length;
             const correct = exerciseResults.filter(r => r.correct).length;
             const percent = Math.round((correct / total) * 100);
-            resultsSummary.innerHTML = `
+            document.getElementById('resultsSummary').innerHTML = `
                 <p>Exercícios respondidos: ${total}</p>
                 <p>Respostas corretas: ${correct}</p>
                 <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${percent}%</p>
             `;
             document.getElementById('finalConclusion').value = conclusion;
+            const sendBtn = document.getElementById('sendResults');
+            const newSendBtn = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+            newSendBtn.addEventListener('click', sendResultsToSheet);
         }
 
         function sendResultsToSheet() {
@@ -1073,6 +1091,7 @@
                 emailStatus.textContent = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
                 emailStatus.className = 'email-status sent';
                 setTimeout(() => {
+                    resetExerciseState();  // Limpa o estado após envio bem-sucedido
                     closeExercisesModal();
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
@@ -1087,18 +1106,62 @@
             });
         }
 
-        startBtn.addEventListener('click', openExercisesModal);
-        solvedBtn.addEventListener('click', openSolvedExercisesModal);
-        closeModal.addEventListener('click', closeExercisesModal);
-        closeSolved.addEventListener('click', closeSolvedExercisesModal);
-        closeSolvedBtn.addEventListener('click', closeSolvedExercisesModal);
-        sendResultsBtn.addEventListener('click', sendResultsToSheet);
-        window.addEventListener('click', function(event) {
-            if (event.target === exercisesModal) closeExercisesModal();
-            if (event.target === solvedExercisesModal) closeSolvedExercisesModal();
-        });
+        // ========== FUNÇÕES DE ABRIR/FECHAR MODAL COM PERSISTÊNCIA ==========
+        function openExercisesModal() {
+            // Se não há exercícios ou já foram concluídos (e não está em resultados/conclusão)
+            if (exercises.length === 0 || (currentExercise >= exercises.length && 
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                // Retomar do ponto atual
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                    // já está nos resultados
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+        }
 
-        // ==================== SISTEMA DE ÁUDIO INTERATIVO (baseado no ForcaMagnetica) ====================
+        function closeExercisesModal() {
+            // Salvar conclusão digitada se estiver na tela de conclusão
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = conclusionTextarea.value;
+            }
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+
+        // ========== ÁUDIO INTERATIVO ==========
         let studentName = localStorage.getItem('studentNameCalor');
         if (!studentName) {
             studentName = prompt("🎧 Olá! Qual é o seu nome? (Vou te chamar durante o áudio interativo)");
@@ -1213,6 +1276,20 @@
             }
         }
 
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('startExercisesBtn').addEventListener('click', openExercisesModal);
+        document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+        
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('exercisesModal')) closeExercisesModal();
+            if (event.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+        });
+
+        // Áudio
         const playPauseBtn = document.getElementById('playPauseAudioBtn');
         playPauseBtn.addEventListener('click', () => {
             if (speaking) pauseAudio();
