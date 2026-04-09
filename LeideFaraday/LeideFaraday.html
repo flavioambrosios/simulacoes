@@ -493,6 +493,16 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
+        
+        /* Botão reiniciar dentro do modal */
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
     </style>
 </head>
 <body>
@@ -507,11 +517,10 @@
                 <h2 class="panel-title">Simulação de Gerador Elétrico</h2>
                 <div class="simulation-container">
                     <iframe src="https://phet.colorado.edu/sims/html/generator/latest/generator_all.html?locale=pt_BR"
-                                
-                            width="100%"
-                            height="100%"
-                            style="border: none;"
-                            allowfullscreen>
+                                width="100%"
+                                height="100%"
+                                style="border: none;"
+                                allowfullscreen>
                     </iframe>
                 </div>
                 
@@ -613,7 +622,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios sobre Geradores e Lei de Faraday</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar Exercícios</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -859,42 +871,34 @@
         let loopsInput = 100;
         let emfValue = 2.5;
 
-        // Sistema de exercícios
+        // Sistema de exercícios - estado preservado
         let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";  // para preservar a conclusão digitada
         
         // Debug mode
         let debugMode = false;
 
         // Inicializar a simulação
         function init() {
-            // Atualizar medições iniciais
             updateMeasurements();
-            
-            // Configurar eventos dos controles
             setupEventListeners();
-            
-            // Debug info
             console.log("Simulação inicializada com sucesso");
             addDebugInfo("Simulação inicializada");
         }
         
-        // Adicionar informação de debug
         function addDebugInfo(message) {
             if (!debugMode) return;
-            
             const debugInfo = document.getElementById('debugInfo');
             const timestamp = new Date().toLocaleTimeString();
             debugInfo.innerHTML += `<p>[${timestamp}] ${message}</p>`;
             debugInfo.scrollTop = debugInfo.scrollHeight;
         }
         
-        // Configurar event listeners
         function setupEventListeners() {
-            // Event listeners para controles deslizantes
             document.getElementById('fieldInput').addEventListener('input', function() {
                 fieldInput = parseFloat(this.value);
                 document.getElementById('fieldValue').textContent = fieldInput;
@@ -916,27 +920,27 @@
                 addDebugInfo(`Número de espiras alterado para: ${loopsInput}`);
             });
             
-            // Botão de ajuda
             document.getElementById('helpBtn').addEventListener('click', function() {
                 alert("Como usar:\n\n• Ajuste a intensidade do campo magnético, velocidade de rotação e número de espiras com os controles deslizantes\n• Observe como a força eletromotriz induzida se altera automaticamente\n• Use a Lei de Faraday para verificar os cálculos\n• Clique em 'Iniciar Exercícios' para testar seu conhecimento");
                 addDebugInfo("Ajuda aberta");
             });
             
-            // Botão de debug
             document.getElementById('debugBtn').addEventListener('click', function() {
                 debugMode = !debugMode;
                 document.getElementById('debugPanel').style.display = debugMode ? 'block' : 'none';
                 addDebugInfo(`Modo debug ${debugMode ? 'ativado' : 'desativado'}`);
             });
             
-            // Botões de exercícios
-            // Adicionar listeners apenas se os elementos existirem
             const mainExerciseBtn = document.getElementById('mainExerciseBtn');
             if (mainExerciseBtn) mainExerciseBtn.addEventListener('click', openExercisesModal);
             const solvedExercisesBtn = document.getElementById('solvedExercisesBtn');
             if (solvedExercisesBtn) solvedExercisesBtn.addEventListener('click', openSolvedExercisesModal);
             const theoryBtn = document.getElementById('theoryBtn');
             if (theoryBtn) theoryBtn.addEventListener('click', openTheoryModal);
+            
+            // Botão reiniciar exercícios dentro do modal
+            const restartBtn = document.getElementById('restartExercisesBtn');
+            if (restartBtn) restartBtn.addEventListener('click', resetAndRestartExercises);
             
             // Fechar modais
             const exercisesModalClose = document.querySelector('#exercisesModal .close');
@@ -950,7 +954,6 @@
             const closeTheory = document.getElementById('closeTheory');
             if (closeTheory) closeTheory.addEventListener('click', closeTheoryModal);
             
-            // Clique fora do modal para fechar
             window.addEventListener('click', function(event) {
                 if (event.target == document.getElementById('exercisesModal')) {
                     closeExercisesModal();
@@ -964,48 +967,39 @@
             addDebugInfo("Event listeners configurados");
         }
         
-        // Fechar modal de exercícios
+        // Fechar modal de exercícios - NÃO RESETA O ESTADO
         function closeExercisesModal() {
+            // Salvar conclusão digitada se existir
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextarea) conclusionTextSaved = conclusionTextarea.value;
             document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
-            addDebugInfo("Modal de exercícios fechado");
+            addDebugInfo("Modal de exercícios fechado (progresso mantido)");
         }
         
-        // Fechar modal de exercícios resolvidos
         function closeSolvedExercisesModal() {
             document.getElementById('solvedExercisesModal').style.display = 'none';
             addDebugInfo("Modal de exercícios resolvidos fechado");
         }
         
-        // Fechar modal de teoria
         function closeTheoryModal() {
             document.getElementById('theoryModal').style.display = 'none';
             addDebugInfo("Modal de teoria fechado");
         }
         
-        // Abrir modal de exercícios resolvidos
         function openSolvedExercisesModal() {
             document.getElementById('solvedExercisesModal').style.display = 'flex';
             addDebugInfo("Modal de exercícios resolvidos aberto");
         }
         
-        // Abrir modal de teoria
         function openTheoryModal() {
             document.getElementById('theoryModal').style.display = 'flex';
             addDebugInfo("Modal de teoria aberto");
         }
         
-        // Atualizar medições exibidas
         function updateMeasurements() {
             try {
-                // Calcular FEM usando a Lei de Faraday simplificada: ε = N × B × ω × A (considerando A = 0.001 m²)
-                const area = 0.001; // Área constante da espira em m²
+                const area = 0.001;
                 emfValue = (loopsInput * fieldInput * speedInput * area) / 100;
-                
-                // Atualizar displays
                 document.getElementById('fieldDisplay').textContent = fieldInput.toFixed(0) + ' T';
                 document.getElementById('speedDisplay').textContent = speedInput.toFixed(0) + ' rad/s';
                 document.getElementById('loopsDisplay').textContent = loopsInput.toFixed(0);
@@ -1017,21 +1011,29 @@
             }
         }
         
-        // ========== SISTEMA DE EXERCÍCIOS ==========
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
         
-        // Gerar exercícios sobre a Lei de Faraday
+        // Reset completo do estado dos exercícios
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = "";
+            addDebugInfo("Estado dos exercícios resetado");
+        }
+        
+        // Gerar novos exercícios (chamado ao iniciar ou reiniciar)
         function generateExercises() {
             exercises = [];
-            
-            // Gerar 6 exercícios variados
             for (let i = 0; i < 2; i++) {
-                // Tipo 1: Calcular FEM (ε = N × B × A × ω)
+                // Tipo 1: Calcular FEM
                 let n = Math.floor(Math.random() * 9 + 2) * 10;
                 let b = (Math.floor(Math.random() * 9) + 1) * 10;
                 let ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a = 0.001; // Área fixa
+                let a = 0.001;
                 let ε = (n * b * ω * a).toFixed(2);
-                
                 exercises.push({
                     type: 'calcular_fem',
                     question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
@@ -1039,13 +1041,12 @@
                     options: generateOptions(parseFloat(ε), 'V')
                 });
                 
-                // Tipo 2: Calcular número de espiras (N = ε / (B × A × ω))
+                // Tipo 2: Calcular número de espiras
                 let ε2 = (Math.floor(Math.random() * 9) + 1) * 2;
                 let b2 = (Math.floor(Math.random() * 9) + 1) * 10;
                 let ω2 = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a2 = 0.001; // Área fixa
+                let a2 = 0.001;
                 let n2 = Math.round(ε2 / (b2 * ω2 * a2));
-                
                 exercises.push({
                     type: 'calcular_espiras',
                     question: `Para gerar uma força eletromotriz de ${ε2} V com campo magnético de ${b2} T, área de ${a2*10000} cm² e velocidade angular de ${ω2} rad/s, quantas espiras são necessárias?`,
@@ -1053,13 +1054,12 @@
                     options: generateOptions(n2, 'espiras')
                 });
                 
-                // Tipo 3: Calcular campo magnético (B = ε / (N × A × ω))
+                // Tipo 3: Calcular campo magnético
                 let ε3 = (Math.floor(Math.random() * 9) + 1) * 2;
                 let n3 = Math.floor(Math.random() * 9 + 2) * 10;
                 let ω3 = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a3 = 0.001; // Área fixa
+                let a3 = 0.001;
                 let b3 = (ε3 / (n3 * ω3 * a3)).toFixed(1);
-                
                 exercises.push({
                     type: 'calcular_campo',
                     question: `Um gerador com ${n3} espiras, área de ${a3*10000} cm² e velocidade angular de ${ω3} rad/s produz uma força eletromotriz de ${ε3} V. Qual a intensidade do campo magnético?`,
@@ -1067,16 +1067,12 @@
                     options: generateOptions(parseFloat(b3), 'T')
                 });
             }
-            
-            // Embaralhar exercícios
             exercises = shuffleArray(exercises);
             addDebugInfo(`Exercícios gerados: ${exercises.length}`);
         }
         
-        // Gerar opções de resposta - CORRIGIDO para evitar alternativas iguais
         function generateOptions(correctValue, unit) {
             const optionsSet = new Set();
-            // Formata o valor correto de acordo com a unidade
             let correctDisplay;
             if (unit === 'espiras') {
                 correctDisplay = Math.round(correctValue) + ' ' + unit;
@@ -1084,42 +1080,29 @@
                 correctDisplay = correctValue.toFixed(2) + ' ' + unit;
             }
             optionsSet.add(correctDisplay);
-            
-            // Gera 3 opções incorretas, garantindo que sejam distintas e diferentes da correta
             while (optionsSet.size < 4) {
-                let variation;
-                let optionValue;
                 let optionDisplay;
-                
                 if (unit === 'espiras') {
-                    // Para número de espiras, variamos em ±20% a ±80%, sempre inteiro
-                    const factor = 0.5 + Math.random() * 1.5; // entre 0.5 e 2.0
-                    let rawValue = correctValue * factor;
-                    // Garante que não seja igual ao correto (evita fator 1.0)
+                    let factor = 0.5 + Math.random() * 1.5;
                     if (Math.abs(factor - 1.0) < 0.05) continue;
-                    optionValue = Math.round(rawValue);
-                    // Evita valores negativos ou zero
-                    if (optionValue <= 0) optionValue = Math.round(correctValue * (0.5 + Math.random()));
+                    let rawValue = correctValue * factor;
+                    let optionValue = Math.round(rawValue);
                     if (optionValue <= 0) optionValue = correctValue + Math.floor(Math.random() * 20) + 1;
                     optionDisplay = optionValue + ' ' + unit;
                 } else {
-                    // Para V ou T, varia entre 50% e 200% do valor correto, evitando muito próximo
                     let factor;
                     do {
                         factor = 0.5 + Math.random() * 1.5;
-                    } while (Math.abs(factor - 1.0) < 0.15); // evita valores muito próximos ao correto
-                    optionValue = correctValue * factor;
+                    } while (Math.abs(factor - 1.0) < 0.15);
+                    let optionValue = correctValue * factor;
                     optionDisplay = optionValue.toFixed(2) + ' ' + unit;
                 }
                 optionsSet.add(optionDisplay);
             }
-            
-            // Converte o Set para array e embaralha
             let optionsArray = Array.from(optionsSet);
             return shuffleArray(optionsArray);
         }
         
-        // Embaralhar array
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -1128,11 +1111,10 @@
             return array;
         }
         
-        // Mostrar exercício atual
+        // Mostrar o exercício atual com base no estado
         function showCurrentExercise() {
             const exercise = exercises[currentExercise];
             const container = document.getElementById('exerciseContainer');
-            
             container.innerHTML = `
                 <div class="exercise">
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
@@ -1146,25 +1128,17 @@
                     <div class="result"></div>
                 </div>
             `;
-            
-            // Adicionar event listeners usando delegação
             container.addEventListener('click', function(e) {
                 if (e.target.classList.contains('option')) {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
                     e.target.classList.add('selected');
                 }
             });
-            
-            // Listener específico para o botão de verificação
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-            
-            // Atualizar barra de progresso
             updateProgressBar();
-            
             addDebugInfo(`Exercício ${currentExercise + 1} exibido`);
         }
         
-        // Verificar resposta
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
@@ -1175,36 +1149,23 @@
             if (!selectedOption) {
                 resultDiv.textContent = 'Por favor, selecione uma opção.';
                 resultDiv.className = 'result error';
-                addDebugInfo("Tentativa de verificar sem resposta selecionada");
                 return;
             }
             
-            // Desabilitar opções e botão de verificação
-            options.forEach(opt => {
-                opt.classList.add('disabled');
-            });
+            options.forEach(opt => opt.classList.add('disabled'));
             checkButton.disabled = true;
             
             const selectedText = selectedOption.dataset.value;
             const correctValue = exercises[currentExercise].answer;
             const unit = exercises[currentExercise].type === 'calcular_espiras' ? 'espiras' : 
                         (exercises[currentExercise].type === 'calcular_fem' ? 'V' : 'T');
-            
-            let correctText;
-            if (unit === 'espiras') {
-                correctText = Math.round(correctValue) + ' ' + unit;
-            } else {
-                correctText = correctValue.toFixed(2) + ' ' + unit;
-            }
-            
+            let correctText = (unit === 'espiras') ? Math.round(correctValue) + ' ' + unit : correctValue.toFixed(2) + ' ' + unit;
             const isCorrect = (selectedText === correctText);
             
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!';
                 resultDiv.className = 'result success';
                 selectedOption.classList.add('correct');
-                
-                // Registrar resultado e avançar após delay
                 exerciseResults.push({ 
                     exercise: currentExercise, 
                     correct: true, 
@@ -1223,30 +1184,23 @@
                     <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
                 </div>
                 `;
-                
-                // Adicionar event listeners aos novos botões
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
-                
                 addDebugInfo(`Resposta incorreta no exercício ${currentExercise + 1}, tentativa ${currentExerciseAttempts}`);
             }
         }
         
-        // Gerar novo exercício do mesmo tipo
         function generateNewExerciseOfSameType() {
             const currentType = exercises[currentExercise].type;
-            
             if (currentType === 'calcular_fem') {
                 let n = Math.floor(Math.random() * 9 + 2) * 10;
                 let b = (Math.floor(Math.random() * 9) + 1) * 10;
                 let ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a = 0.001; // Área fixa
+                let a = 0.001;
                 let ε = (n * b * ω * a).toFixed(2);
-                
                 exercises[currentExercise] = {
                     type: 'calcular_fem',
                     question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
@@ -1257,9 +1211,8 @@
                 let ε = (Math.floor(Math.random() * 9) + 1) * 2;
                 let b = (Math.floor(Math.random() * 9) + 1) * 10;
                 let ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a = 0.001; // Área fixa
+                let a = 0.001;
                 let n = Math.round(ε / (b * ω * a));
-                
                 exercises[currentExercise] = {
                     type: 'calcular_espiras',
                     question: `Para gerar uma força eletromotriz de ${ε} V com campo magnético de ${b} T, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s, quantas espiras são necessárias?`,
@@ -1270,9 +1223,8 @@
                 let ε = (Math.floor(Math.random() * 9) + 1) * 2;
                 let n = Math.floor(Math.random() * 9 + 2) * 10;
                 let ω = (Math.floor(Math.random() * 9) + 1) * 10;
-                let a = 0.001; // Área fixa
+                let a = 0.001;
                 let b = (ε / (n * ω * a)).toFixed(1);
-                
                 exercises[currentExercise] = {
                     type: 'calcular_campo',
                     question: `Um gerador com ${n} espiras, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s produz uma força eletromotriz de ${ε} V. Qual a intensidade do campo magnético?`,
@@ -1280,11 +1232,9 @@
                     options: generateOptions(parseFloat(b), 'T')
                 };
             }
-            
             addDebugInfo(`Novo exercício gerado do tipo: ${currentType}`);
         }
         
-        // Pular exercício
         function skipExercise() {
             if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
                 exerciseResults.push({
@@ -1293,25 +1243,20 @@
                     skipped: true,
                     attempts: currentExerciseAttempts
                 });
-                
                 skippedQuestions++;
                 currentExerciseAttempts = 0;
                 currentExercise++;
-                
                 if (currentExercise < exercises.length) {
                     showCurrentExercise();
                 } else {
                     showConclusion();
                 }
-                
                 addDebugInfo(`Exercício ${currentExercise} pulado`);
             }   
         }
         
-        // Avançar para o próximo exercício
         function nextExercise() {
             currentExercise++;
-            
             if (currentExercise < exercises.length) {
                 showCurrentExercise();
             } else {
@@ -1319,12 +1264,10 @@
             }
         }
         
-        // Atualizar barra de progresso
         function updateProgressBar() {
             for (let i = 0; i < 6; i++) {
                 const progressItem = document.getElementById(`progress${i+1}`);
                 progressItem.classList.remove('active', 'completed');
-                
                 if (i === currentExercise) {
                     progressItem.classList.add('active');
                 } else if (i < currentExercise) {
@@ -1333,48 +1276,39 @@
             }
         }
         
-        // Mostrar tela de conclusão
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
-            
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
             document.getElementById('submitConclusion').addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
-                
                 showResults(conclusionText);
             });
-            
             addDebugInfo("Tela de conclusão exibida");
         }
         
-        // Mostrar resultados finais
         function showResults(conclusion) {
             document.getElementById('conclusionContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
-            
             const totalExercises = exercises.length;
             const correctAnswers = exerciseResults.filter(r => r.correct).length;
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
             document.getElementById('resultsSummary').innerHTML = `
                 <p>Exercícios respondidos: ${totalExercises}</p>
                 <p>Respostas corretas: ${correctAnswers}</p>
                 <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${scorePercentage}%</p>
             `;
-            
             document.getElementById('finalConclusion').value = conclusion;
-            
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
-            
             addDebugInfo(`Resultados exibidos: ${correctAnswers}/${totalExercises} acertos (${scorePercentage}%)`);
         }
         
-        // Função para enviar dados para a planilha do Google
         function sendResultsToSheet() {
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
@@ -1418,17 +1352,16 @@
             fetch(scriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
             .then(() => {
                 emailStatus.textContent = 'Dados enviados com sucesso!';
                 emailStatus.className = 'email-status sent';
                 addDebugInfo("Dados enviados com sucesso");
-                
+                // Após envio, resetar estado e fechar modal
                 setTimeout(() => {
+                    resetExerciseState();
                     closeExercisesModal();
                 }, 3000);
             })
@@ -1440,18 +1373,56 @@
             });
         }
         
-        // Abrir modal de exercícios
-        function openExercisesModal() {
-            generateExercises();
-            document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            showCurrentExercise();
-            addDebugInfo("Modal de exercícios aberto");
+        // Reiniciar exercícios do zero (botão "Reiniciar Exercícios")
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                // Resetar visibilidade dos containers
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+                addDebugInfo("Exercícios reiniciados pelo usuário");
+            }
         }
         
-        // Inicializar a simulação quando a página carregar
+        // Abrir modal de exercícios - com retomada de progresso
+        function openExercisesModal() {
+            // Se não há exercícios ou já foram concluídos (currentExercise >= exercises.length e não está em conclusão/enviado), gerar novos
+            if (exercises.length === 0 || (currentExercise >= exercises.length && 
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                // Retomar do ponto atual: restaurar a tela correta
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                    // Já estava nos resultados, manter assim
+                    // Mas precisamos recarregar os dados da conclusão? Os resultados já estão na tela.
+                    // Não precisa recarregar, apenas exibir o modal.
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    // Está em um exercício específico
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();  // recria o exercício atual
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+            addDebugInfo("Modal de exercícios aberto (progresso mantido)");
+        }
+        
         window.addEventListener('load', init);
     </script>
 </body>
