@@ -216,6 +216,17 @@
             font-weight: bold;
             cursor: pointer;
         }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
         .exercise {
             margin-bottom: 15px;
             padding: 10px;
@@ -576,91 +587,68 @@
     </div>
 </div>
 
-<!-- Modais (mesmos do original) -->
-<div id="exercisesModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Exercícios sobre Lei de Ampere</h2><span class="close">&times;</span></div><div class="progress" id="progressBar"><div class="progress-item" id="progress1">1</div><div class="progress-item" id="progress2">2</div><div class="progress-item" id="progress3">3</div><div class="progress-item" id="progress4">4</div><div class="progress-item" id="progress5">5</div><div class="progress-item" id="progress6">6</div>
-</div><div id="exerciseContainer"></div>
-<div id="conclusionContainer" style="display:none;">
-    <h3>Conclusão de Estudo</h3>
-    <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."
-            style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-    <button id="submitConclusion" class="check-btn">Enviar Conclusão</button></div><div id="resultsContainer" style="display:none;"><h3>Resultados</h3><div id="resultsSummary"></div><h3>Enviar Resultados</h3><div class="email-form"><div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div><div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione</option><option>1º ano</option><option>2º ano</option><option>3º ano</option></select></div><div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div><div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail"></div><div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div><div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div><div class="form-row"><label class="required">Conclusão final:</label><textarea id="finalConclusion" rows="4" required></textarea></div><div id="emailStatus" class="email-status"></div><button id="sendResults" class="check-btn">Enviar Resultados</button></div>
-    <br></br>
-    <label for="finalConclusion" class="">Parabéns por concluir a atividade!</label></p>
-</div></div></div>
-
-<div id="solvedExercisesModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Exercícios Resolvidos - Lei de Ampere</h2><span class="close">&times;</span></div><div id="solvedExercisesContainer"><div class="solved-exercise"><h4>Exemplo 1: Cálculo do Campo Magnético</h4><p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância?</p><div class="solution-step"><strong>Fórmula:</strong> B = (μ₀·i)/(2πd)</div><div class="solution-step"><strong>Cálculo:</strong> B = (4π×10⁻⁷ × 5) / (2π × 0,1) = 1,0×10⁻⁵ T</div><div class="solution-step"><strong>Resposta:</strong> 10 μT</div></div><div class="solved-exercise"><h4>Exemplo 2: Cálculo da Corrente</h4><p><strong>Problema:</strong> A 0,2 m de um fio, B = 2×10⁻⁶ T. Qual a corrente?</p><div class="solution-step"><strong>Isolando i:</strong> i = (B·2πd)/μ₀</div><div class="solution-step"><strong>Cálculo:</strong> i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷) = 2 A</div><div class="solution-step"><strong>Resposta:</strong> 2 A</div></div><div class="solved-exercise"><h4>Exemplo 3: Direção do Campo</h4><p><strong>Problema:</strong> Corrente no sentido +Z. Qual a direção do campo no ponto (0, 0.1, 0)?</p><div class="solution-step"><strong>Regra da mão direita:</strong> Polegar para cima, dedos curvam no sentido anti-horário.</div><div class="solution-step"><strong>Resposta:</strong> Campo no sentido negativo do eixo X.</div></div></div><div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div></div></div>
-
-    <!-- Modal de Teoria -->
-    <div id="theoryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Teoria - Lei de Ampere</h2>
+<!-- Modal de Exercícios -->
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios sobre Lei de Ampere</h2>
+            <div>
+                <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
                 <span class="close">&times;</span>
             </div>
-            
-            <div class="theory-content">
-                <div class="theory-section">
-                    <h3>Lei de Ampere para Fios Retilíneos</h3>
-                    <p>A Lei de Ampere relaciona a corrente elétrica que percorre um condutor com o campo magnético que ela gera ao seu redor. Para um fio retilíneo infinito, o campo magnético é dado por:</p>
-                    
-                    <div class="theory-formula">B = (μ₀ · i) / (2πd)</div>
-                    
-                    <p>Onde:</p>
-                    <ul>
-                        <li><span class="highlight">B</span> = Campo magnético (Tesla)</li>
-                        <li><span class="highlight">μ₀</span> = Permeabilidade do vácuo (4π×10⁻⁷ T·m/A)</li>
-                        <li><span class="highlight">i</span> = Corrente elétrica (Amperes)</li>
-                        <li><span class="highlight">d</span> = Distância perpendicular ao fio (metros)</li>
-                    </ul>
-                    
-                    <p>O campo magnético diminui com o inverso da distância ao fio e é perpendicular tanto ao fio quanto à direção radial.</p>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Direção do Campo Magnético - Regra da Mão Direita</h3>
-                    <p>Para determinar a direção do campo magnético ao redor de um fio retilíneo:</p>
-                    
-                    <ul>
-                        <li>Segure o fio com a mão direita</li>
-                        <li>Aponte o polegar no sentido da corrente elétrica</li>
-                        <li>Os dedos curvados indicam o sentido das linhas de campo magnético</li>
-                    </ul>
-                    
-                    <p>Para corrente positiva no eixo Z, o campo magnético circula no sentido anti-horário no plano XY.</p>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Propriedades do Campo Magnético</h3>
-                    <p>O campo magnético gerado por um fio retilíneo possui as seguintes características:</p>
-                    
-                    <ul>
-                        <li>É tangente a círculos concêntricos ao fio</li>
-                        <li>Sua intensidade é inversamente proporcional à distância do fio</li>
-                        <li>É diretamente proporcional à corrente elétrica</li>
-                        <li>O sentido depende do sentido da corrente (regra da mão direita)</li>
-                        <li>É nulo em pontos ao longo do fio (d = 0)</li>
-                    </ul>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Aplicações Práticas</h3>
-                    <p>A Lei de Ampere é fundamental para:</p>
-                    
-                    <ul>
-                        <li>Projeto de eletroímãs e solenoides</li>
-                        <li>Cálculo de forças entre condutores paralelos</li>
-                        <li>Proteção contra campos magnéticos em equipamentos</li>
-                        <li>Medição de correntes elétricas (amperímetros)</li>
-                        <li>Transformadores e indutores</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="buttons-container">
-                <button id="closeTheory" class="check-btn">Fechar</button>
+        </div>
+        <div class="progress" id="progressBar">
+            <div class="progress-item" id="progress1">1</div>
+            <div class="progress-item" id="progress2">2</div>
+            <div class="progress-item" id="progress3">3</div>
+            <div class="progress-item" id="progress4">4</div>
+            <div class="progress-item" id="progress5">5</div>
+            <div class="progress-item" id="progress6">6</div>
+        </div>
+        <div id="exerciseContainer"></div>
+        <div id="conclusionContainer" style="display:none;">
+            <h3>Conclusão de Estudo</h3>
+            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."
+                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+        </div>
+        <div id="resultsContainer" style="display:none;">
+            <h3>Resultados</h3>
+            <div id="resultsSummary"></div>
+            <h3>Enviar Resultados</h3>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione</option><option>1º ano</option><option>2º ano</option><option>3º ano</option></select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão final:</label><textarea id="finalConclusion" rows="4" required></textarea></div>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="check-btn">Enviar Resultados</button>
             </div>
         </div>
     </div>
+</div>
+
+<div id="solvedExercisesModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Exercícios Resolvidos - Lei de Ampere</h2><span class="close">&times;</span></div><div id="solvedExercisesContainer"><div class="solved-exercise"><h4>Exemplo 1: Cálculo do Campo Magnético</h4><p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância?</p><div class="solution-step"><strong>Fórmula:</strong> B = (μ₀·i)/(2πd)</div><div class="solution-step"><strong>Cálculo:</strong> B = (4π×10⁻⁷ × 5) / (2π × 0,1) = 1,0×10⁻⁵ T</div><div class="solution-step"><strong>Resposta:</strong> 10 μT</div></div><div class="solved-exercise"><h4>Exemplo 2: Cálculo da Corrente</h4><p><strong>Problema:</strong> A 0,2 m de um fio, B = 2×10⁻⁶ T. Qual a corrente?</p><div class="solution-step"><strong>Isolando i:</strong> i = (B·2πd)/μ₀</div><div class="solution-step"><strong>Cálculo:</strong> i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷) = 2 A</div><div class="solution-step"><strong>Resposta:</strong> 2 A</div></div><div class="solved-exercise"><h4>Exemplo 3: Direção do Campo</h4><p><strong>Problema:</strong> Corrente no sentido +Z. Qual a direção do campo no ponto (0, 0.1, 0)?</p><div class="solution-step"><strong>Regra da mão direita:</strong> Polegar para cima, dedos curvam no sentido anti-horário.</div><div class="solution-step"><strong>Resposta:</strong> Campo no sentido negativo do eixo X.</div></div></div><div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div></div></div>
+
+<!-- Modal de Teoria -->
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Lei de Ampere</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="theory-content">
+            <div class="theory-section"><h3>Lei de Ampere para Fios Retilíneos</h3><p>A Lei de Ampere relaciona a corrente elétrica que percorre um condutor com o campo magnético que ela gera ao seu redor. Para um fio retilíneo infinito, o campo magnético é dado por:</p><div class="theory-formula">B = (μ₀ · i) / (2πd)</div><p>Onde:</p><ul><li><span class="highlight">B</span> = Campo magnético (Tesla)</li><li><span class="highlight">μ₀</span> = Permeabilidade do vácuo (4π×10⁻⁷ T·m/A)</li><li><span class="highlight">i</span> = Corrente elétrica (Amperes)</li><li><span class="highlight">d</span> = Distância perpendicular ao fio (metros)</li></ul><p>O campo magnético diminui com o inverso da distância ao fio e é perpendicular tanto ao fio quanto à direção radial.</p></div>
+            <div class="theory-section"><h3>Direção do Campo Magnético - Regra da Mão Direita</h3><p>Para determinar a direção do campo magnético ao redor de um fio retilíneo:</p><ul><li>Segure o fio com a mão direita</li><li>Aponte o polegar no sentido da corrente elétrica</li><li>Os dedos curvados indicam o sentido das linhas de campo magnético</li></ul><p>Para corrente positiva no eixo Z, o campo magnético circula no sentido anti-horário no plano XY.</p></div>
+            <div class="theory-section"><h3>Propriedades do Campo Magnético</h3><p>O campo magnético gerado por um fio retilíneo possui as seguintes características:</p><ul><li>É tangente a círculos concêntricos ao fio</li><li>Sua intensidade é inversamente proporcional à distância do fio</li><li>É diretamente proporcional à corrente elétrica</li><li>O sentido depende do sentido da corrente (regra da mão direita)</li><li>É nulo em pontos ao longo do fio (d = 0)</li></ul></div>
+            <div class="theory-section"><h3>Aplicações Práticas</h3><p>A Lei de Ampere é fundamental para:</p><ul><li>Projeto de eletroímãs e solenoides</li><li>Cálculo de forças entre condutores paralelos</li><li>Proteção contra campos magnéticos em equipamentos</li><li>Medição de correntes elétricas (amperímetros)</li><li>Transformadores e indutores</li></ul></div>
+        </div>
+        <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
+    </div>
+</div>
 
 <!-- Painel de áudio interativo -->
 <div class="audio-controls" id="audioControls">
@@ -949,24 +937,30 @@
     document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
     document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
 
-    // Não inicia automaticamente; aguarda o primeiro clique do usuário
-    // Mas podemos deixar o primeiro trecho carregado, sem falar
     function preloadFirstTrack() {
-        // Apenas para mostrar o contador, sem falar
         document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
     }
     window.addEventListener('load', () => {
         initSimulation();
         preloadFirstTrack();
-        // O áudio só começará quando o usuário clicar em "Iniciar"
     });
 
-    // ==================== SISTEMA DE EXERCÍCIOS (COMPLETO DO ORIGINAL) ====================
+    // ==================== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ====================
     let exercises = [];
     let currentExercise = 0;
     let exerciseResults = [];
     let skippedQuestions = 0;
     let currentExerciseAttempts = 0;
+    let conclusionTextSaved = "";
+
+    function resetExerciseState() {
+        exercises = [];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        conclusionTextSaved = "";
+    }
 
     function generateExercises() {
         exercises = [];
@@ -1034,65 +1028,6 @@
         return array;
     }
 
-    function showCurrentExercise() {
-        const exercise = exercises[currentExercise];
-        const container = document.getElementById('exerciseContainer');
-        container.innerHTML = `
-            <div class="exercise">
-                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
-                <p>${exercise.question}</p>
-                <div class="options">
-                    ${exercise.options.map((opt, idx) => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
-                </div>
-                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
-                <div class="result"></div>
-            </div>
-        `;
-        container.querySelectorAll('.option').forEach(opt => {
-            opt.addEventListener('click', function() {
-                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-        updateProgressBar();
-    }
-
-    function checkAnswer() {
-        const container = document.getElementById('exerciseContainer');
-        const selected = container.querySelector('.option.selected');
-        const resultDiv = container.querySelector('.result');
-        if (!selected) {
-            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
-            return;
-        }
-        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
-        if (isCorrect) {
-            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
-            exerciseResults.push({ correct: true, skipped: false });
-            currentExerciseAttempts = 0;
-            setTimeout(() => {
-                currentExercise++;
-                if (currentExercise < exercises.length) showCurrentExercise();
-                else showConclusion();
-            }, 1500);
-        } else {
-            currentExerciseAttempts++;
-            resultDiv.innerHTML = `
-                <div class="error">Incorreto. Tente novamente.</div>
-                <div class="button-group">
-                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
-                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
-                </div>
-            `;
-            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
-            document.getElementById('tryAgainBtn').addEventListener('click', () => {
-                generateNewExerciseOfSameType();
-                showCurrentExercise();
-            });
-        }
-    }
-
     function generateNewExerciseOfSameType() {
         const type = exercises[currentExercise].type;
         if (type === 'campo') {
@@ -1128,9 +1063,68 @@
         }
     }
 
+    function showCurrentExercise() {
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map((opt, idx) => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
+                </div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+        container.querySelectorAll('.option').forEach(opt => {
+            opt.addEventListener('click', function() {
+                container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+        if (!selected) {
+            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
+            return;
+        }
+        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+        if (isCorrect) {
+            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
+            exerciseResults.push({ correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+            currentExerciseAttempts = 0;
+            setTimeout(() => {
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+    }
+
     function skipExercise() {
         if (confirm("Deseja pular este exercício? Um erro será registrado.")) {
-            exerciseResults.push({ correct: false, skipped: true });
+            exerciseResults.push({ correct: false, skipped: true, attempts: currentExerciseAttempts });
             skippedQuestions++;
             currentExerciseAttempts = 0;
             currentExercise++;
@@ -1151,14 +1145,20 @@
     function showConclusion() {
         document.getElementById('exerciseContainer').style.display = 'none';
         document.getElementById('conclusionContainer').style.display = 'block';
-        document.getElementById('submitConclusion').onclick = () => {
+        const textarea = document.getElementById('conclusionText');
+        if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+        const submit = document.getElementById('submitConclusion');
+        const newSubmit = submit.cloneNode(true);
+        submit.parentNode.replaceChild(newSubmit, submit);
+        newSubmit.addEventListener('click', () => {
             const text = document.getElementById('conclusionText').value;
             if (!text.trim()) {
                 alert('Por favor, escreva uma conclusão.');
                 return;
             }
+            conclusionTextSaved = text;
             showResults(text);
-        };
+        });
     }
 
     function showResults(conclusion) {
@@ -1174,7 +1174,10 @@
             <p>Nota: ${percent}%</p>
         `;
         document.getElementById('finalConclusion').value = conclusion;
-        document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        const sendBtn = document.getElementById('sendResults');
+        const newSend = sendBtn.cloneNode(true);
+        sendBtn.parentNode.replaceChild(newSend, sendBtn);
+        newSend.addEventListener('click', sendResultsToSheet);
     }
 
     function sendResultsToSheet() {
@@ -1230,7 +1233,12 @@
             .then(() => {
                 emailStatus.textContent = '✅ Dados enviados com sucesso!';
                 emailStatus.className = 'email-status sent';
-                setTimeout(() => { closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000);
+                setTimeout(() => {
+                    resetExerciseState();
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
             })
             .catch(err => {
                 emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
@@ -1240,19 +1248,54 @@
             });
     }
 
-    function openExercisesModal() {
-        generateExercises();
-        currentExercise = 0;
-        exerciseResults = [];
-        skippedQuestions = 0;
-        currentExerciseAttempts = 0;
-        document.getElementById('exercisesModal').style.display = 'flex';
-        document.getElementById('exerciseContainer').style.display = 'block';
-        document.getElementById('conclusionContainer').style.display = 'none';
-        document.getElementById('resultsContainer').style.display = 'none';
-        showCurrentExercise();
+    function closeExercisesModal() {
+        const textarea = document.getElementById('conclusionText');
+        if (textarea && document.getElementById('conclusionContainer').style.display === 'block') {
+            conclusionTextSaved = textarea.value;
+        }
+        document.getElementById('exercisesModal').style.display = 'none';
     }
-    function closeExercisesModal() { document.getElementById('exercisesModal').style.display = 'none'; }
+
+    function resetAndRestartExercises() {
+        if (confirm("Deseja reiniciar todos os exercícios? Seu progresso será perdido.")) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    }
+
+    function openExercisesModal() {
+        if (exercises.length === 0 || (currentExercise >= exercises.length && 
+            document.getElementById('resultsContainer').style.display !== 'block' &&
+            document.getElementById('conclusionContainer').style.display !== 'block')) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        } else {
+            if (document.getElementById('resultsContainer').style.display === 'block') {
+                // já está nos resultados
+            } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                document.getElementById('exerciseContainer').style.display = 'none';
+                document.getElementById('conclusionContainer').style.display = 'block';
+                if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+            } else {
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+        document.getElementById('exercisesModal').style.display = 'flex';
+    }
+
     function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
     function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
     function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
@@ -1266,6 +1309,7 @@
     document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
     document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
     document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+    document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
     window.addEventListener('click', (e) => {
         if (e.target === document.getElementById('exercisesModal')) closeExercisesModal();
         if (e.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
