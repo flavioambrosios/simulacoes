@@ -205,6 +205,17 @@
             font-weight: bold;
             cursor: pointer;
         }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
         .exercise {
             margin-bottom: 15px;
             padding: 10px;
@@ -615,7 +626,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios sobre a Lei de Ohm - NOTAÇÃO CIENTÍFICA</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -856,191 +870,82 @@
     </div>
 
     <script>
-        // Variáveis globais
+        // ========== VARIÁVEIS GLOBAIS ==========
         let voltageInput = 12;
         let resistanceInput = 10;
         let currentValue = 1.2;
         let powerValue = 14.4;
 
-        // Sistema de exercícios
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
         let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
 
-        // Função para formatar números em notação científica com 3 algarismos significativos
+        // ========== FUNÇÕES AUXILIARES ==========
         function formatScientificWith3Digits(value, unit = '') {
             if (value === 0) return '0.00 ' + unit;
-            
-            // Para valores muito pequenos ou grandes, usar notação científica
             if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
-                // Converter para notação científica com 3 algarismos significativos
                 const exponent = Math.floor(Math.log10(Math.abs(value)));
                 const mantissa = value / Math.pow(10, exponent);
-                
-                // Arredondar para 3 algarismos significativos
                 const roundedMantissa = Math.round(mantissa * 100) / 100;
-                
-                // Garantir que temos exatamente 3 algarismos significativos
                 let mantissaStr = roundedMantissa.toFixed(2);
-                
-                // Se após arredondamento tivermos 10.00, ajustar
-                if (mantissaStr === '10.00') {
-                    mantissaStr = '1.00';
-                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
-                }
-                
+                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit; }
                 return mantissaStr + '×10^' + exponent + ' ' + unit;
             }
-            
-            // Para valores intermediários, usar formato decimal com 3 algarismos significativos
-            // Encontrar o número de casas decimais necessárias
             const integerPart = Math.floor(Math.abs(value));
-            let decimalPlaces;
-            
-            if (integerPart === 0) {
-                // Número entre 0 e 1
-                const firstNonZero = -Math.floor(Math.log10(value));
-                decimalPlaces = firstNonZero + 2;
-            } else if (integerPart < 10) {
-                // Número com 1 dígito inteiro
-                decimalPlaces = 2;
-            } else if (integerPart < 100) {
-                // Número com 2 dígitos inteiros
-                decimalPlaces = 1;
-            } else {
-                // Número com 3 dígitos inteiros
-                decimalPlaces = 0;
-            }
-            
+            let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
             return value.toFixed(decimalPlaces) + ' ' + unit;
         }
         
-        // Atualizar a função formatScientific existente para usar a nova formatação
         function formatScientific(value, unit = '') {
             return formatScientificWith3Digits(value, unit);
         }
 
-        // Inicializar a simulação
-        function init() {
-            // Atualizar medições iniciais
-            updateMeasurements();
-            
-            // Configurar eventos dos controles
-            setupEventListeners();
-            
-            // Configurar eventos dos botões de exercícios
-            setupExerciseEventListeners();
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
         }
-        
-        // Configurar event listeners
-        function setupEventListeners() {
-            document.getElementById('voltageInput').addEventListener('input', function() {
-                voltageInput = parseFloat(this.value);
-                document.getElementById('voltageValue').textContent = voltageInput;
-                updateMeasurements();
-            });
-            
-            document.getElementById('resistanceInput').addEventListener('input', function() {
-                resistanceInput = parseFloat(this.value);
-                document.getElementById('resistanceValue').textContent = resistanceInput;
-                updateMeasurements();
-            });
-            
-            document.getElementById('helpBtn').addEventListener('click', function() {
-                alert("Como usar:\n\n• Ajuste a voltagem e resistência com os controles deslizantes\n• Observe como a corrente elétrica se altera automaticamente\n• Use a fórmula V = R × i para verificar os cálculos\n• Clique em 'Iniciar Exercícios' para testar seu conhecimento");
-            });
+
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let formattedCorrect = formatScientificWith3Digits(correctValue, unit);
+            options.push({ value: correctValue, display: formattedCorrect });
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                    else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                    else {
+                        const percentChange = (Math.random() * 60 + 20) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    if (unit === 'V' || unit === 'Ω' || unit === 'A' || unit === 'W') optionValue = Math.abs(optionValue);
+                    attempts++;
+                    if (attempts > 20) break;
+                } while (options.some(opt => opt.display === formatScientificWith3Digits(optionValue, unit)));
+                options.push({ value: optionValue, display: formatScientificWith3Digits(optionValue, unit) });
+            }
+            return shuffleArray(options).map(opt => opt.display);
         }
-        
-        // Configurar eventos dos botões de exercícios
-        function setupExerciseEventListeners() {
-            // Botões de exercícios
-            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
-            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
-            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
-            
-            // Fechar modais
-            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
-            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
-            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
-            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
-            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
-            
-            // Clique fora do modal para fechar
-            window.addEventListener('click', function(event) {
-                if (event.target == document.getElementById('exercisesModal')) {
-                    closeExercisesModal();
-                } else if (event.target == document.getElementById('solvedExercisesModal')) {
-                    closeSolvedExercisesModal();
-                } else if (event.target == document.getElementById('theoryModal')) {
-                    closeTheoryModal();
-                }
-            });
-        }
-        
-        // Atualizar medições exibidas
-        function updateMeasurements() {
-            // Calcular corrente usando a Lei de Ohm: i = V / R
-            currentValue = voltageInput / resistanceInput;
-            
-            // Calcular potência: P = V × i
-            powerValue = voltageInput * currentValue;
-            
-            // Atualizar displays
-            document.getElementById('voltageDisplay').textContent = voltageInput.toFixed(1) + ' V';
-            document.getElementById('resistanceDisplay').textContent = resistanceInput.toFixed(1) + ' Ω';
-            document.getElementById('currentDisplay').textContent = currentValue.toFixed(2) + ' A';
-            document.getElementById('powerDisplay').textContent = powerValue.toFixed(2) + ' W';
-            document.getElementById('currentValue').textContent = currentValue.toFixed(2);
-        }
-        
-        // Fechar modal de exercícios
-        function closeExercisesModal() {
-            document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
-        }
-        
-        // Fechar modal de exercícios resolvidos
-        function closeSolvedExercisesModal() {
-            document.getElementById('solvedExercisesModal').style.display = 'none';
-        }
-        
-        // Fechar modal de teoria
-        function closeTheoryModal() {
-            document.getElementById('theoryModal').style.display = 'none';
-        }
-        
-        // Abrir modal de exercícios resolvidos
-        function openSolvedExercisesModal() {
-            document.getElementById('solvedExercisesModal').style.display = 'flex';
-        }
-        
-        // Abrir modal de teoria
-        function openTheoryModal() {
-            document.getElementById('theoryModal').style.display = 'flex';
-        }
-        
-        // ========== SISTEMA DE EXERCÍCIOS - NOTAÇÃO CIENTÍFICA ==========
-        
-        // Gerar exercícios sobre a Lei de Ohm
+
+        // ========== GERAR EXERCÍCIOS ==========
         function generateExercises() {
             exercises = [];
-            
-            // Gerar 6 exercícios variados
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Calcular tensão (V = R × i)
-                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3)); // Ω (valores variados)
-                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // A (valores variados)
+                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3));
+                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
                 let v = r * i_val;
-                
-                // Formatar com 3 algarismos significativos
                 let rFormatted = formatScientificWith3Digits(r, 'Ω');
                 let iFormatted = formatScientificWith3Digits(i_val, 'A');
-                
                 exercises.push({
                     type: 'calcular_tensao',
                     question: `Se uma resistência de ${rFormatted} é percorrida por uma corrente de ${iFormatted}, qual é a tensão aplicada?`,
@@ -1049,14 +954,11 @@
                 });
                 
                 // Tipo 2: Calcular resistência (R = V / i)
-                v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2)); // V (valores variados)
-                i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // A (valores variados)
+                v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2));
+                i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
                 r = v / i_val;
-                
-                // Formatar com 3 algarismos significativos
                 let vFormatted = formatScientificWith3Digits(v, 'V');
                 iFormatted = formatScientificWith3Digits(i_val, 'A');
-                
                 exercises.push({
                     type: 'calcular_resistencia',
                     question: `Se uma tensão de ${vFormatted} produz uma corrente de ${iFormatted}, qual é o valor da resistência?`,
@@ -1065,327 +967,187 @@
                 });
                 
                 // Tipo 3: Calcular corrente (i = V / R)
-                v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2)); // V (valores variados)
-                r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3)); // Ω (valores variados)
+                v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2));
+                r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3));
                 i_val = v / r;
-                
-                // Formatar com 3 algarismos significativos
                 vFormatted = formatScientificWith3Digits(v, 'V');
-                rFormatted = formatScientificWith3Digits(r, 'Ω');
-                
+                let rFormatted2 = formatScientificWith3Digits(r, 'Ω');
                 exercises.push({
                     type: 'calcular_corrente',
-                    question: `Se uma tensão de ${vFormatted} é aplicada a uma resistência de ${rFormatted}, qual é a corrente elétrica resultante?`,
+                    question: `Se uma tensão de ${vFormatted} é aplicada a uma resistência de ${rFormatted2}, qual é a corrente elétrica resultante?`,
                     answer: formatScientificWith3Digits(i_val, 'A'),
                     options: generateOptions(i_val, 'A')
                 });
             }
-            
-            // Embaralhar exercícios
             exercises = shuffleArray(exercises);
         }
-        
-        // Gerar opções de resposta com notação científica
-        function generateOptions(correctValue, unit) {
-            const options = [];
-            let attempts = 0;
-            const maxAttempts = 20;
-            
-            // Formatar o valor correto
-            let formattedCorrectValue = formatScientificWith3Digits(correctValue, unit);
-            
-            options.push({
-                value: correctValue,
-                display: formattedCorrectValue
-            });
-            
-            // Gerar 4 opções incorretas (total de 5 alternativas)
-            for (let i = 0; i < 4; i++) {
-                let optionValue;
-                let formattedOption;
-                let unique = false;
-                
-                // Garantir que as opções sejam diferentes
-                attempts = 0;
-                do {
-                    // Usar variações mais diversificadas
-                    const variationType = Math.random();
-                    if (variationType < 0.3) {
-                        // Multiplicador aleatório
-                        optionValue = correctValue * (Math.random() * 1.5 + 0.5);
-                    } else if (variationType < 0.6) {
-                        // Divisor aleatório
-                        optionValue = correctValue / (Math.random() * 1.5 + 0.5);
-                    } else {
-                        // Soma/subtração de porcentagem
-                        const percentChange = (Math.random() * 60 + 20) / 100;
-                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
-                    }
-                    
-                    // Garantir que o valor seja positivo para grandezas físicas
-                    if (unit === 'V' || unit === 'Ω' || unit === 'A') {
-                        optionValue = Math.abs(optionValue);
-                    }
-                    
-                    // Formatar com notação científica
-                    formattedOption = formatScientificWith3Digits(optionValue, unit);
-                    
-                    unique = !options.some(opt => opt.display === formattedOption);
-                    attempts++;
-                    
-                    if (attempts > maxAttempts) {
-                        // Forçar uma opção única adicionando um identificador
-                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
-                        unique = true;
-                    }
-                } while (!unique);
-                
-                options.push({
-                    value: optionValue,
-                    display: formattedOption
-                });
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            if (currentType === 'calcular_tensao') {
+                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3));
+                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+                let v = r * i_val;
+                exercises[currentExercise] = {
+                    type: 'calcular_tensao',
+                    question: `Se uma resistência de ${formatScientificWith3Digits(r, 'Ω')} é percorrida por uma corrente de ${formatScientificWith3Digits(i_val, 'A')}, qual é a tensão aplicada?`,
+                    answer: formatScientificWith3Digits(v, 'V'),
+                    options: generateOptions(v, 'V')
+                };
+            } else if (currentType === 'calcular_resistencia') {
+                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2));
+                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2));
+                let r = v / i_val;
+                exercises[currentExercise] = {
+                    type: 'calcular_resistencia',
+                    question: `Se uma tensão de ${formatScientificWith3Digits(v, 'V')} produz uma corrente de ${formatScientificWith3Digits(i_val, 'A')}, qual é o valor da resistência?`,
+                    answer: formatScientificWith3Digits(r, 'Ω'),
+                    options: generateOptions(r, 'Ω')
+                };
+            } else if (currentType === 'calcular_corrente') {
+                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2));
+                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3));
+                let i_val = v / r;
+                exercises[currentExercise] = {
+                    type: 'calcular_corrente',
+                    question: `Se uma tensão de ${formatScientificWith3Digits(v, 'V')} é aplicada a uma resistência de ${formatScientificWith3Digits(r, 'Ω')}, qual é a corrente elétrica resultante?`,
+                    answer: formatScientificWith3Digits(i_val, 'A'),
+                    options: generateOptions(i_val, 'A')
+                };
             }
-            
-            // Embaralhar opções e retornar apenas os valores formatados
-            return shuffleArray(options).map(opt => opt.display);
         }
-        
-        // Embaralhar array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        // Mostrar exercício atual
+
+        // ========== EXIBIR EXERCÍCIOS ==========
         function showCurrentExercise() {
             const exercise = exercises[currentExercise];
             const container = document.getElementById('exerciseContainer');
-            
             container.innerHTML = `
                 <div class="exercise">
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
                     <p>${exercise.question}</p>
                     <div class="options">
-                        ${exercise.options.map((option, index) => `
-                            <div class="option" data-value="${option}">${option}</div>
-                        `).join('')}
+                        ${exercise.options.map((option, index) => `<div class="option" data-value="${option}">${option}</div>`).join('')}
                     </div>
                     <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
                     <div class="result"></div>
                 </div>
             `;
-            
-            // Adicionar event listeners usando delegação
             container.addEventListener('click', function(e) {
                 if (e.target.classList.contains('option')) {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
                     e.target.classList.add('selected');
                 }
             });
-            
-            // Listener específico para o botão de verificação
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-            
-            // Atualizar barra de progresso
             updateProgressBar();
         }
-        
-        // Verificar resposta
+
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
-            const selectedOption = container.querySelector('.option.selected');
+            const selected = container.querySelector('.option.selected');
             const resultDiv = container.querySelector('.result');
-            const checkButton = document.getElementById('checkAnswerBtn');
+            const checkBtn = document.getElementById('checkAnswerBtn');
             const options = container.querySelectorAll('.option');
             
-            if (!selectedOption) {
+            if (!selected) {
                 resultDiv.textContent = 'Por favor, selecione uma opção.';
                 resultDiv.className = 'result error';
                 return;
             }
             
-            // Desabilitar opções e botão de verificação
-            options.forEach(opt => {
-                opt.classList.add('disabled');
-            });
-            checkButton.disabled = true;
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkBtn.disabled = true;
             
-            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
             
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!';
                 resultDiv.className = 'result success';
-                selectedOption.classList.add('correct');
-                
-                // Registrar resultado e avançar após delay
-                exerciseResults.push({ 
-                    exercise: currentExercise, 
-                    correct: true, 
-                    skipped: false,
-                    attempts: currentExerciseAttempts + 1
-                });
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
                 currentExerciseAttempts = 0;
                 setTimeout(nextExercise, 1500);
             } else {
                 currentExerciseAttempts++;
                 resultDiv.innerHTML = `
-                <div class="error">Incorreto. Tente novamente.</div>
-                <div class="button-group">
-                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
-                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
-                </div>
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
                 `;
-                
-                // Adicionar event listeners aos novos botões
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
             }
         }
-        
-        // Gerar novo exercício do mesmo tipo
-        function generateNewExerciseOfSameType() {
-            const currentType = exercises[currentExercise].type;
-            
-            if (currentType === 'calcular_tensao') {
-                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3)); // Ω (valores variados)
-                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // A (valores variados)
-                let v = r * i_val;
-                
-                // Formatar com 3 algarismos significativos
-                let rFormatted = formatScientificWith3Digits(r, 'Ω');
-                let iFormatted = formatScientificWith3Digits(i_val, 'A');
-                
-                exercises[currentExercise] = {
-                    type: 'calcular_tensao',
-                    question: `Se uma resistência de ${rFormatted} é percorrida por uma corrente de ${iFormatted}, qual é a tensão aplicada?`,
-                    answer: formatScientificWith3Digits(v, 'V'),
-                    options: generateOptions(v, 'V')
-                };
-            } else if (currentType === 'calcular_resistencia') {
-                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2)); // V (valores variados)
-                let i_val = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, -Math.floor(Math.random() * 2)); // A (valores variados)
-                let r = v / i_val;
-                
-                // Formatar com 3 algarismos significativos
-                let vFormatted = formatScientificWith3Digits(v, 'V');
-                let iFormatted = formatScientificWith3Digits(i_val, 'A');
-                
-                exercises[currentExercise] = {
-                    type: 'calcular_resistencia',
-                    question: `Se uma tensão de ${vFormatted} produz uma corrente de ${iFormatted}, qual é o valor da resistência?`,
-                    answer: formatScientificWith3Digits(r, 'Ω'),
-                    options: generateOptions(r, 'Ω')
-                };
-            } else if (currentType === 'calcular_corrente') {
-                let v = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 2)); // V (valores variados)
-                let r = (Math.floor(Math.random() * 9) + 1) * Math.pow(10, Math.floor(Math.random() * 3)); // Ω (valores variados)
-                let i_val = v / r;
-                
-                // Formatar com 3 algarismos significativos
-                let vFormatted = formatScientificWith3Digits(v, 'V');
-                let rFormatted = formatScientificWith3Digits(r, 'Ω');
-                
-                exercises[currentExercise] = {
-                    type: 'calcular_corrente',
-                    question: `Se uma tensão de ${vFormatted} é aplicada a uma resistência de ${rFormatted}, qual é a corrente elétrica resultante?`,
-                    answer: formatScientificWith3Digits(i_val, 'A'),
-                    options: generateOptions(i_val, 'A')
-                };
-            }
-        }
-        
-        // Pular exercício
+
         function skipExercise() {
             if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
-                exerciseResults.push({
-                    exercise: currentExercise,
-                    correct: false,
-                    skipped: true,
-                    attempts: currentExerciseAttempts
-                });
-                
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
                 skippedQuestions++;
                 currentExerciseAttempts = 0;
                 currentExercise++;
-                
-                if (currentExercise < exercises.length) {
-                    showCurrentExercise();
-                } else {
-                    showConclusion();
-                }
-            }   
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
         }
-        
-        // Avançar para o próximo exercício
+
         function nextExercise() {
             currentExercise++;
-            
-            if (currentExercise < exercises.length) {
-                showCurrentExercise();
-            } else {
-                showConclusion();
-            }
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
         }
-        
-        // Atualizar barra de progresso
+
         function updateProgressBar() {
             for (let i = 0; i < 6; i++) {
-                const progressItem = document.getElementById(`progress${i+1}`);
-                progressItem.classList.remove('active', 'completed');
-                
-                if (i === currentExercise) {
-                    progressItem.classList.add('active');
-                } else if (i < currentExercise) {
-                    progressItem.classList.add('completed');
-                }
+                const item = document.getElementById(`progress${i+1}`);
+                item.classList.remove('active', 'completed');
+                if (i === currentExercise) item.classList.add('active');
+                else if (i < currentExercise) item.classList.add('completed');
             }
         }
-        
-        // Mostrar tela de conclusão
+
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
-                const conclusionText = document.getElementById('conclusionText').value;
-                if (conclusionText.trim() === '') {
+            const textarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+            const submit = document.getElementById('submitConclusion');
+            const newSubmit = submit.cloneNode(true);
+            submit.parentNode.replaceChild(newSubmit, submit);
+            newSubmit.addEventListener('click', function() {
+                const text = document.getElementById('conclusionText').value;
+                if (text.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
-                
-                showResults(conclusionText);
+                conclusionTextSaved = text;
+                showResults(text);
             });
         }
-        
-        // Mostrar resultados finais
+
         function showResults(conclusion) {
             document.getElementById('conclusionContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'block';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
             document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercícios respondidos: ${totalExercises}</p>
-                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios respondidos: ${total}</p>
+                <p>Respostas corretas: ${correct}</p>
                 <p>Exercícios pulados: ${skippedQuestions}</p>
-                <p>Nota: ${scorePercentage}%</p>
+                <p>Nota: ${percent}%</p>
             `;
-            
             document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+            const sendBtn = document.getElementById('sendResults');
+            const newSend = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSend, sendBtn);
+            newSend.addEventListener('click', sendResultsToSheet);
         }
-        
-        // Função otimizada para enviar dados e email
+
         function sendResultsToSheet() {
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
@@ -1401,113 +1163,84 @@
                 return;
             }
             
-            // Desabilita o botão para evitar múltiplos cliques
             sendButton.disabled = true;
             sendButton.textContent = 'Enviando...';
             
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
             const emailStatus = document.getElementById('emailStatus');
+            emailStatus.style.display = 'block';
             emailStatus.textContent = 'Enviando dados...';
             emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
             
-            // Dados únicos que servem para AMBOS os propósitos
             const dadosCompletos = {
-                // Para a planilha
                 timestamp: new Date().toLocaleString('pt-BR'),
                 serie: studentGrade,
                 turma: studentClass,
                 estudante: studentName,
                 simulacao: 'Lei de Ohm',
                 questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
+                acertos_erros: `${correct}/${total - correct}`,
+                nota: percent + '%',
                 conclusao: finalConclusion,
                 criticas: criticism,
                 sugestoes: suggestion,
                 email: studentEmail || '',
-                
-                // Para o email (campos adicionais)
                 to_email: "flavio.ambrosio@edu.se.df.gov.br",
                 nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
+                acertos: `${correct}/${total}`,
                 data_envio: new Date().toLocaleString('pt-BR')
             };
 
             const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
             const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
 
-            // Primeiro: enviar para a planilha
             fetch(planilhaScriptUrl, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dadosCompletos)
             })
             .then(() => {
                 emailStatus.textContent = 'Dados salvos! Enviando email...';
-                
-                // Enviar email para o professor
                 return fetch(emailScriptUrl, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dadosCompletos)
                 });
             })
             .then(() => {
-                // Se o aluno forneceu email, enviar cópia
                 if (studentEmail) {
                     const emailDataAluno = {
                         to_email: studentEmail,
-                        nome_aluno: studentName || 'Não informado',
-                        serie: studentGrade || 'Não informado',
-                        turma: studentClass || 'Não informado',
-                        nota: scorePercentage + '%' || '0%',
-                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                        questoes_puladas: skippedQuestions || 0,
-                        conclusao: finalConclusion || 'Não informado',
+                        nome_aluno: studentName,
+                        serie: studentGrade,
+                        turma: studentClass,
+                        nota: percent + '%',
+                        acertos: `${correct}/${total}`,
+                        questoes_puladas: skippedQuestions,
+                        conclusao: finalConclusion,
                         data_envio: new Date().toLocaleString('pt-BR'),
                         simulacao: 'Lei de Ohm',
-                        mensagem: `Confirmação de Envio - Simulação da Lei de Ohm'
-
-            Prezado(a) ${studentName},
-
-            Confirmamos o recebimento dos seus resultados:
-
-            📊 SEUS RESULTADOS:
-            • Nota: ${scorePercentage}%
-            • Acertos: ${correctAnswers} de ${totalExercises} questões
-            • Questões Puladas: ${skippedQuestions}
-
-            Data: ${new Date().toLocaleString('pt-BR')}
-
-            Atenciosamente,
-            Sistema de Simulações Físicas`
+                        mensagem: `Confirmação de Envio - Simulação da Lei de Ohm\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\n📊 SEUS RESULTADOS:\n• Nota: ${percent}%\n• Acertos: ${correct} de ${total} questões\n• Questões Puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
                     };
-                    
                     return fetch(emailScriptUrl, {
                         method: 'POST',
                         mode: 'no-cors',
-                        headers: {'Content-Type': 'application/json'},
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(emailDataAluno)
                     });
                 }
             })
             .then(() => {
-                const mensagemSucesso = studentEmail 
-                    ? '✅ Dados salvos e emails enviados!' 
-                    : '✅ Dados salvos e email enviado ao professor!';
-                
+                const mensagemSucesso = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
                 emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
-                
                 setTimeout(() => {
+                    resetExerciseState();
                     closeExercisesModal();
-                    // Reativa o botão após fechar o modal
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
                 }, 3000);
@@ -1516,25 +1249,121 @@
                 emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
                 emailStatus.className = 'email-status error-status';
                 console.error('Erro:', error);
-                
-                // Reativa o botão em caso de erro
                 sendButton.disabled = false;
                 sendButton.textContent = 'Enviar Resultados';
             });
         }
-        
-        // Abrir modal de exercícios
+
+        // ========== RESET E PERSISTÊNCIA ==========
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = "";
+        }
+
+        function closeExercisesModal() {
+            const textarea = document.getElementById('conclusionText');
+            if (textarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = textarea.value;
+            }
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
         function openExercisesModal() {
-            generateExercises();
+            if (exercises.length === 0 || (currentExercise >= exercises.length && 
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                    // já está nos resultados
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
             document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            showCurrentExercise();
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+        // ========== SIMULAÇÃO (original) ==========
+        function initSimulation() {
+            updateMeasurements();
+            setupEventListeners();
         }
         
-        // Inicializar a simulação quando a página carregar
-        window.addEventListener('load', init);
+        function updateMeasurements() {
+            currentValue = voltageInput / resistanceInput;
+            powerValue = voltageInput * currentValue;
+            document.getElementById('voltageDisplay').textContent = voltageInput.toFixed(1) + ' V';
+            document.getElementById('resistanceDisplay').textContent = resistanceInput.toFixed(1) + ' Ω';
+            document.getElementById('currentDisplay').textContent = currentValue.toFixed(2) + ' A';
+            document.getElementById('powerDisplay').textContent = powerValue.toFixed(2) + ' W';
+            document.getElementById('currentValue').textContent = currentValue.toFixed(2);
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('voltageInput').addEventListener('input', function() {
+                voltageInput = parseFloat(this.value);
+                document.getElementById('voltageValue').textContent = voltageInput;
+                updateMeasurements();
+            });
+            document.getElementById('resistanceInput').addEventListener('input', function() {
+                resistanceInput = parseFloat(this.value);
+                document.getElementById('resistanceValue').textContent = resistanceInput;
+                updateMeasurements();
+            });
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar:\n\n• Ajuste a voltagem e resistência com os controles deslizantes\n• Observe como a corrente elétrica se altera automaticamente\n• Use a fórmula V = R × i para verificar os cálculos\n• Clique em 'Iniciar Exercícios' para testar seu conhecimento");
+            });
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
+                else if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+                else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
+            });
+        }
+        
+        window.addEventListener('load', initSimulation);
     </script>
 </body>
 </html>
