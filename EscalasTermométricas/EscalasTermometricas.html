@@ -258,6 +258,17 @@
             font-weight: bold;
             cursor: pointer;
         }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
         .exercise {
             margin-bottom: 15px;
             padding: 10px;
@@ -660,7 +671,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios sobre Conversão de Escalas Termométricas</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -672,89 +686,27 @@
                 <div class="progress-item" id="progress6">6</div>
             </div>
             
-            <div id="exerciseContainer">
-                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
-            </div>
-            
+            <div id="exerciseContainer"></div>
             <div id="conclusionContainer" style="display: none;">
                 <h3>Conclusão de Estudo</h3>
                 <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
-                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
                 <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
-            
             <div id="resultsContainer" style="display: none;">
                 <h3>Resultados dos Exercícios</h3>
                 <div id="resultsSummary"></div>
-                
                 <h3>Enviar Resultados</h3>
                 <p>Preencha os dados abaixo para enviar seus resultados:</p>
-                
                 <div class="email-form">
-                    <div class="form-row">
-                        <label for="studentName" class="required">Nome Completo:</label>
-                        <input type="text" id="studentName" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentGrade" class="required">Série:</label>
-                        <select id="studentGrade" required>
-                            <option value="">Selecione sua série</option>
-                            <option value="1o ano">1º ano</option>
-                            <option value="2o ano">2º ano</option>
-                            <option value="3o ano">3º ano</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentClass" class="required">Turma:</label>
-                        <select id="studentClass" required>
-                            <option value="">Selecione sua turma</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="G">G</option>
-                            <option value="H">H</option>
-                            <option value="I">I</option>
-                            <option value="J">J</option>
-                            <option value="K">K</option>
-                            <option value="L">L</option>
-                            <option value="M">M</option>
-                            <option value="N">N</option>
-                            <option value="O">O</option>
-                            <option value="P">P</option>
-                            <option value="Q">Q</option>
-                            <option value="R">R</option>
-                            <option value="S">S</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentEmail">E-mail para cópia:</label>
-                        <input type="email" id="studentEmail" placeholder="seu@email.com">
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="criticismInput">Críticas:</label>
-                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="suggestionInput">Sugestões:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
-                    </div>
-                    
+                    <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                    <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione sua série</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                    <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione sua turma</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option></select></div>
+                    <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                    <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea></div>
+                    <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea></div>
+                    <div class="form-row"><label class="required">Conclusão sobre o exercício:</label><textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea></div>
                     <div id="emailStatus" class="email-status"></div>
-                    
                     <button id="sendResults" class="check-btn">Enviar Resultados</button>
                 </div>
             </div>
@@ -764,750 +716,501 @@
     <!-- Modal de Exercícios Resolvidos -->
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercícios Resolvidos - Conversão de Escalas Termométricas</h2>
-                <span class="close">&times;</span>
-            </div>
-            
+            <div class="modal-header"><h2>Exercícios Resolvidos - Conversão de Escalas Termométricas</h2><span class="close">&times;</span></div>
             <div id="solvedExercivesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Celsius para Fahrenheit</h4>
-                    <p><strong>Problema:</strong> Converta 25°C para a escala Fahrenheit.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> °F = (9/5 × °C) + 32</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Multiplicar por 9/5: 25 × 9/5 = 45</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Adicionar 32: 45 + 32 = 77</div>
-                    <div class="solution-step"><strong>Resposta:</strong> 25°C = 77°F</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Fahrenheit para Celsius</h4>
-                    <p><strong>Problema:</strong> Converta 98.6°F (temperatura corporal) para a escala Celsius.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> °C = 5/9 × (°F - 32)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Subtrair 32: 98.6 - 32 = 66.6</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Multiplicar por 5/9: 66.6 × 5/9 = 37</div>
-                    <div class="solution-step"><strong>Resposta:</strong> 98.6°F = 37°C</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Celsius para Kelvin</h4>
-                    <p><strong>Problema:</strong> Converta 100°C (ponto de ebulição da água) para a escala Kelvin.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> K = °C + 273.00</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Adicionar 273.00: 100 + 273.00 = 373.00</div>
-                    <div class="solution-step"><strong>Resposta:</strong> 100°C = 373.00 K</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 4: Kelvin para Fahrenheit</h4>
-                    <p><strong>Problema:</strong> Converta 310.00 K (temperatura corporal) para a escala Fahrenheit.</p>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter Kelvin para Celsius: °C = K - 273.00 = 310.00 - 273.00 = 37</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Converter Celsius para Fahrenheit: °F = (9/5 × 37) + 32 = 66.6 + 32 = 98.6</div>
-                    <div class="solution-step"><strong>Resposta:</strong> 310.00 K = 98.6°F</div>
-                </div>
+                <div class="solved-exercise"><h4>Exemplo 1: Celsius para Fahrenheit</h4><p><strong>Problema:</strong> Converta 25°C para a escala Fahrenheit.</p><div class="solution-step"><strong>Fórmula:</strong> °F = (9/5 × °C) + 32</div><div class="solution-step"><strong>Passo 1:</strong> Multiplicar por 9/5: 25 × 9/5 = 45</div><div class="solution-step"><strong>Passo 2:</strong> Adicionar 32: 45 + 32 = 77</div><div class="solution-step"><strong>Resposta:</strong> 25°C = 77°F</div></div>
+                <div class="solved-exercise"><h4>Exemplo 2: Fahrenheit para Celsius</h4><p><strong>Problema:</strong> Converta 98.6°F (temperatura corporal) para a escala Celsius.</p><div class="solution-step"><strong>Fórmula:</strong> °C = 5/9 × (°F - 32)</div><div class="solution-step"><strong>Passo 1:</strong> Subtrair 32: 98.6 - 32 = 66.6</div><div class="solution-step"><strong>Passo 2:</strong> Multiplicar por 5/9: 66.6 × 5/9 = 37</div><div class="solution-step"><strong>Resposta:</strong> 98.6°F = 37°C</div></div>
+                <div class="solved-exercise"><h4>Exemplo 3: Celsius para Kelvin</h4><p><strong>Problema:</strong> Converta 100°C (ponto de ebulição da água) para a escala Kelvin.</p><div class="solution-step"><strong>Fórmula:</strong> K = °C + 273.00</div><div class="solution-step"><strong>Passo 1:</strong> Adicionar 273.00: 100 + 273.00 = 373.00</div><div class="solution-step"><strong>Resposta:</strong> 100°C = 373.00 K</div></div>
+                <div class="solved-exercise"><h4>Exemplo 4: Kelvin para Fahrenheit</h4><p><strong>Problema:</strong> Converta 310.00 K (temperatura corporal) para a escala Fahrenheit.</p><div class="solution-step"><strong>Passo 1:</strong> Converter Kelvin para Celsius: °C = K - 273.00 = 310.00 - 273.00 = 37</div><div class="solution-step"><strong>Passo 2:</strong> Converter Celsius para Fahrenheit: °F = (9/5 × 37) + 32 = 66.6 + 32 = 98.6</div><div class="solution-step"><strong>Resposta:</strong> 310.00 K = 98.6°F</div></div>
             </div>
-            
-            <div class="buttons-container">
-                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
-            </div>
+            <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
         </div>
     </div>
 
     <!-- Modal de Teoria -->
     <div id="theoryModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Teoria - Escalas Termométricas</h2>
-                <span class="close">&times;</span>
-            </div>
-            
+            <div class="modal-header"><h2>Teoria - Escalas Termométricas</h2><span class="close">&times;</span></div>
             <div class="theory-content">
-                <div class="theory-section">
-                    <h3>O que são Escalas Termométricas?</h3>
-                    <p>Escalas termométricas são sistemas de medição de temperatura. As três escalas mais comuns são Celsius, Fahrenheit e Kelvin, cada uma com suas aplicações e origens históricas.</p>
-                    
-                    <div class="theory-formula">Temperatura é uma medida da energia cinética média das partículas</div>
-                    
-                    <p>Onde:</p>
-                    <ul>
-                        <li><span class="highlight">Celsius (°C)</span>: Escala usada na maioria dos países, baseada nos pontos de fusão (0°C) e ebulição (100°C) da água.</li>
-                        <li><span class="highlight">Fahrenheit (°F)</span>: Escala usada principalmente nos Estados Unidos, proposta por Daniel Fahrenheit em 1724.</li>
-                        <li><span class="highlight">Kelvin (K)</span>: Escala absoluta usada em ciência, onde 0 K é o zero absoluto (-273.00°C).</li>
-                    </ul>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Fórmulas de Conversão</h3>
-                    
-                    <div class="theory-formula">Celsius para Kelvin: K = °C + 273.00</div>
-                    <div class="theory-formula">Kelvin para Celsius: °C = K - 273.00</div>
-                    <div class="theory-formula">Celsius para Fahrenheit: °F = (9/5 × °C) + 32</div>
-                    <div class="theory-formula">Fahrenheit para Celsius: °C = 5/9 × (°F - 32)</div>
-                    <div class="theory-formula">Fahrenheit para Kelvin: K = 5/9 × (°F - 32) + 273.00</div>
-                    
-                    <p>Estas fórmulas permitem converter temperaturas entre as diferentes escalas.</p>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Pontos de Referência Importantes</h3>
-                    <ul>
-                        <li><span class="highlight">Zero Absoluto</span>: -273.00°C / 0 K / -459.40°F - A temperatura mais baixa possível, onde as partículas param de se mover.</li>
-                        <li><span class="highlight">Ponto de Fusão da Água</span>: 0°C / 273.00 K / 32°F</li>
-                        <li><span class="highlight">Temperatura Ambiente</span>: 20-25°C / 293.00-298.00 K / 68-77°F</li>
-                        <li><span class="highlight">Temperatura Corporal Humana</span>: 37°C / 310.00 K / 98.6°F</li>
-                        <li><span class="highlight">Ponto de Ebulição da Água</span>: 100°C / 373.00 K / 212°F</li>
-                    </ul>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>História e Aplicações</h3>
-                    <p><strong>Celsius:</strong> Proposta por Anders Celsius em 1742. Inicialmente tinha 0°C para ebulição e 100°C para fusão, mas foi invertida após sua morte.</p>
-                    <p><strong>Fahrenheit:</strong> Proposta por Daniel Fahrenheit. Ele usou como referência uma mistura de gelo, água e sal (0°F) e a temperatura do corpo humano (96°F).</p>
-                    <p><strong>Kelvin:</strong> Proposta por Lord Kelvin em 1848. É a escala usada no Sistema Internacional de Unidades (SI) para medições científicas.</p>
-                </div>
+                <div class="theory-section"><h3>O que são Escalas Termométricas?</h3><p>Escalas termométricas são sistemas de medição de temperatura. As três escalas mais comuns são Celsius, Fahrenheit e Kelvin, cada uma com suas aplicações e origens históricas.</p><div class="theory-formula">Temperatura é uma medida da energia cinética média das partículas</div><p>Onde:</p><ul><li><span class="highlight">Celsius (°C)</span>: Escala usada na maioria dos países, baseada nos pontos de fusão (0°C) e ebulição (100°C) da água.</li><li><span class="highlight">Fahrenheit (°F)</span>: Escala usada principalmente nos Estados Unidos, proposta por Daniel Fahrenheit em 1724.</li><li><span class="highlight">Kelvin (K)</span>: Escala absoluta usada em ciência, onde 0 K é o zero absoluto (-273.00°C).</li></ul></div>
+                <div class="theory-section"><h3>Fórmulas de Conversão</h3><div class="theory-formula">Celsius para Kelvin: K = °C + 273.00</div><div class="theory-formula">Kelvin para Celsius: °C = K - 273.00</div><div class="theory-formula">Celsius para Fahrenheit: °F = (9/5 × °C) + 32</div><div class="theory-formula">Fahrenheit para Celsius: °C = 5/9 × (°F - 32)</div><div class="theory-formula">Fahrenheit para Kelvin: K = 5/9 × (°F - 32) + 273.00</div><p>Estas fórmulas permitem converter temperaturas entre as diferentes escalas.</p></div>
+                <div class="theory-section"><h3>Pontos de Referência Importantes</h3><ul><li><span class="highlight">Zero Absoluto</span>: -273.00°C / 0 K / -459.40°F - A temperatura mais baixa possível, onde as partículas param de se mover.</li><li><span class="highlight">Ponto de Fusão da Água</span>: 0°C / 273.00 K / 32°F</li><li><span class="highlight">Temperatura Ambiente</span>: 20-25°C / 293.00-298.00 K / 68-77°F</li><li><span class="highlight">Temperatura Corporal Humana</span>: 37°C / 310.00 K / 98.6°F</li><li><span class="highlight">Ponto de Ebulição da Água</span>: 100°C / 373.00 K / 212°F</li></ul></div>
+                <div class="theory-section"><h3>História e Aplicações</h3><p><strong>Celsius:</strong> Proposta por Anders Celsius em 1742. Inicialmente tinha 0°C para ebulição e 100°C para fusão, mas foi invertida após sua morte.</p><p><strong>Fahrenheit:</strong> Proposta por Daniel Fahrenheit. Ele usou como referência uma mistura de gelo, água e sal (0°F) e a temperatura do corpo humano (96°F).</p><p><strong>Kelvin:</strong> Proposta por Lord Kelvin em 1848. É a escala usada no Sistema Internacional de Unidades (SI) para medições científicas.</p></div>
             </div>
-            
-            <div class="buttons-container">
-                <button id="closeTheory" class="check-btn">Fechar</button>
-            </div>
+            <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
         </div>
     </div>
 
     <!-- Modal de Gráficos -->
     <div id="graphsModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Gráficos - Relação entre Escalas Termométricas</h2>
-                <span class="close">&times;</span>
-            </div>
-            
-            <div class="graph-panel">
-                <h3>Gráfico: Celsius vs Fahrenheit</h3>
-                <canvas id="celsiusFahrenheitGraph" class="graph-canvas"></canvas>
-            </div>
-            <div class="graph-panel">
-                <h3>Gráfico: Celsius vs Kelvin</h3>
-                <canvas id="celsiusKelvinGraph" class="graph-canvas"></canvas>
-            </div>
-            <div class="graph-panel">
-                <h3>Gráfico: Fahrenheit vs Kelvin</h3>
-                <canvas id="fahrenheitKelvinGraph" class="graph-canvas"></canvas>
-            </div>
-            
-            <div class="buttons-container">
-                <button id="closeGraphs" class="check-btn">Fechar</button>
-            </div>
+            <div class="modal-header"><h2>Gráficos - Relação entre Escalas Termométricas</h2><span class="close">&times;</span></div>
+            <div class="graph-panel"><h3>Gráfico: Celsius vs Fahrenheit</h3><canvas id="celsiusFahrenheitGraph" class="graph-canvas"></canvas></div>
+            <div class="graph-panel"><h3>Gráfico: Celsius vs Kelvin</h3><canvas id="celsiusKelvinGraph" class="graph-canvas"></canvas></div>
+            <div class="graph-panel"><h3>Gráfico: Fahrenheit vs Kelvin</h3><canvas id="fahrenheitKelvinGraph" class="graph-canvas"></canvas></div>
+            <div class="buttons-container"><button id="closeGraphs" class="check-btn">Fechar</button></div>
         </div>
     </div>
 
     <script>
-        // ========== CONSTANTES E VARIÁVEIS GLOBAIS ==========
-        
-        // Pontos de referência (zero absoluto agora é -273.00)
-        const REFERENCE_POINTS = {
-            absoluteZero: { celsius: -273.00, kelvin: 0, fahrenheit: -459.40 },
-            waterFreezing: { celsius: 0, kelvin: 273.00, fahrenheit: 32 },
-            waterBoiling: { celsius: 100, kelvin: 373.00, fahrenheit: 212 },
-            humanBody: { celsius: 37, kelvin: 310.00, fahrenheit: 98.6 },
-            roomTemp: { celsius: 25, kelvin: 298.00, fahrenheit: 77 }
-        };
+        // ========== CONSTANTES E FUNÇÕES DE CONVERSÃO ==========
+        function celsiusToKelvin(c) { return c + 273.00; }
+        function kelvinToCelsius(k) { return k - 273.00; }
+        function celsiusToFahrenheit(c) { return (c * 9/5) + 32; }
+        function fahrenheitToCelsius(f) { return (f - 32) * 5/9; }
+        function fahrenheitToKelvin(f) { return (f - 32) * 5/9 + 273.00; }
+        function kelvinToFahrenheit(k) { return (k - 273.00) * 9/5 + 32; }
 
-        // Elementos do DOM
+        // ========== ELEMENTOS DA SIMULAÇÃO ==========
         const canvas = document.getElementById('simulationCanvas');
         const ctx = canvas.getContext('2d');
-        
-        // Elementos dos gráficos
-        const celsiusFahrenheitGraph = document.getElementById('celsiusFahrenheitGraph');
-        const celsiusKelvinGraph = document.getElementById('celsiusKelvinGraph');
-        const fahrenheitKelvinGraph = document.getElementById('fahrenheitKelvinGraph');
-        const celsiusFahrenheitCtx = celsiusFahrenheitGraph.getContext('2d');
-        const celsiusKelvinCtx = celsiusKelvinGraph.getContext('2d');
-        const fahrenheitKelvinCtx = fahrenheitKelvinGraph.getContext('2d');
-        
-        // Controles
         const temperatureScale = document.getElementById('temperatureScale');
         const temperatureValue = document.getElementById('temperatureValue');
         const temperatureDisplay = document.getElementById('temperatureDisplay');
-        
-        // Valores de medição
-        const celsiusValue = document.getElementById('celsiusValue');
-        const kelvinValue = document.getElementById('kelvinValue');
-        const fahrenheitValue = document.getElementById('fahrenheitValue');
-        const boilingValue = document.getElementById('boilingValue');
-        const freezingValue = document.getElementById('freezingValue');
-        const absoluteZeroValue = document.getElementById('absoluteZeroValue');
+        const celsiusValueSpan = document.getElementById('celsiusValue');
+        const kelvinValueSpan = document.getElementById('kelvinValue');
+        const fahrenheitValueSpan = document.getElementById('fahrenheitValue');
+        const boilingSpan = document.getElementById('boilingValue');
+        const freezingSpan = document.getElementById('freezingValue');
+        const absoluteZeroSpan = document.getElementById('absoluteZeroValue');
 
-        // Variáveis da simulação
-        let currentTemperature = {
-            celsius: 0,
-            kelvin: 273.00,
-            fahrenheit: 32
-        };
-        
-        // Variáveis para dados dos gráficos
-        let celsiusFahrenheitData = [];
-        let celsiusKelvinData = [];
-        let fahrenheitKelvinData = [];
+        let currentTemperature = { celsius: 0, kelvin: 273.00, fahrenheit: 32 };
+        let graphData = { cf: [], ck: [], fk: [] };
 
-        // Sistema de exercícios
+        // ========== FUNÇÕES DA SIMULAÇÃO ==========
+        function updateTemperatureRange() {
+            const scale = temperatureScale.value;
+            if (scale === 'celsius') { temperatureValue.min = -273; temperatureValue.max = 500; temperatureValue.value = 0; }
+            else if (scale === 'kelvin') { temperatureValue.min = 0; temperatureValue.max = 800; temperatureValue.value = 273; }
+            else { temperatureValue.min = -459; temperatureValue.max = 1000; temperatureValue.value = 32; }
+            temperatureDisplay.textContent = temperatureValue.value;
+            updateAllTemperatures();
+        }
+
+        function updateAllTemperatures() {
+            const inputVal = parseFloat(temperatureValue.value);
+            const scale = temperatureScale.value;
+            if (scale === 'celsius') {
+                currentTemperature.celsius = inputVal;
+                currentTemperature.kelvin = celsiusToKelvin(inputVal);
+                currentTemperature.fahrenheit = celsiusToFahrenheit(inputVal);
+            } else if (scale === 'kelvin') {
+                currentTemperature.kelvin = inputVal;
+                currentTemperature.celsius = kelvinToCelsius(inputVal);
+                currentTemperature.fahrenheit = kelvinToFahrenheit(inputVal);
+            } else {
+                currentTemperature.fahrenheit = inputVal;
+                currentTemperature.celsius = fahrenheitToCelsius(inputVal);
+                currentTemperature.kelvin = fahrenheitToKelvin(inputVal);
+            }
+            updateDisplays();
+            updateGraphData();
+        }
+
+        function updateDisplays() {
+            celsiusValueSpan.textContent = currentTemperature.celsius.toFixed(2) + " °C";
+            kelvinValueSpan.textContent = currentTemperature.kelvin.toFixed(2) + " K";
+            fahrenheitValueSpan.textContent = currentTemperature.fahrenheit.toFixed(2) + " °F";
+            boilingSpan.textContent = `100 °C / ${celsiusToKelvin(100).toFixed(2)} K / ${celsiusToFahrenheit(100).toFixed(2)} °F`;
+            freezingSpan.textContent = `0 °C / ${celsiusToKelvin(0).toFixed(2)} K / ${celsiusToFahrenheit(0).toFixed(2)} °F`;
+            absoluteZeroSpan.textContent = `-273.00 °C / 0 K / ${celsiusToFahrenheit(-273.00).toFixed(2)} °F`;
+        }
+
+        function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+
+        function drawThermometer(x, y, width, height, value, min, max, label, color) {
+            const tubeW = 20, tubeH = height - 40;
+            const tubeX = x + (width - tubeW)/2, tubeY = y + 20;
+            const norm = (value - min) / (max - min);
+            const mercuryH = norm * tubeH;
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillRect(tubeX, tubeY, tubeW, tubeH);
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(tubeX + 5, tubeY + tubeH - mercuryH, tubeW - 10, mercuryH);
+            ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+            ctx.strokeRect(tubeX, tubeY, tubeW, tubeH);
+            const bulbR = tubeW * 1.2;
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(tubeX + tubeW/2, tubeY + tubeH + bulbR - 10, bulbR, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            for (let i=0; i<=5; i++) {
+                const markY = tubeY + tubeH - (i/5)*tubeH;
+                const markVal = min + (i/5)*(max-min);
+                ctx.beginPath(); ctx.moveTo(tubeX-5, markY); ctx.lineTo(tubeX, markY); ctx.stroke();
+                ctx.fillText(markVal.toFixed(0), tubeX-15, markY+3);
+            }
+            ctx.fillStyle = color;
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText(value.toFixed(1), tubeX + tubeW/2, tubeY - 5);
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(label, tubeX + tubeW/2, tubeY + tubeH + bulbR*2);
+        }
+
+        function drawBackground() {
+            const w = canvas.width, h = canvas.height;
+            const grad = ctx.createLinearGradient(0,0,w,h);
+            grad.addColorStop(0,'#1a2a6c'); grad.addColorStop(0.5,'#b21f1f'); grad.addColorStop(1,'#fdbb2d');
+            ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = 'rgba(255,255,255,0.9)';
+            ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+            ctx.fillText('Escalas Termométricas', w/2, 40);
+            ctx.font = '14px Arial';
+            ctx.fillText('Converta entre Celsius, Kelvin e Fahrenheit', w/2, 70);
+        }
+
+        function drawThermometers() {
+            const w = canvas.width, h = canvas.height;
+            const thW = 80, thH = 250;
+            const startX = w*0.1, spacing = (w*0.8)/3;
+            drawThermometer(startX, h-thH-50, thW, thH, currentTemperature.celsius, -273, 500, 'Celsius', '#3498db');
+            drawThermometer(startX+spacing, h-thH-50, thW, thH, currentTemperature.kelvin, 0, 800, 'Kelvin', '#e74c3c');
+            drawThermometer(startX+spacing*2, h-thH-50, thW, thH, currentTemperature.fahrenheit, -459, 1000, 'Fahrenheit', '#2ecc71');
+        }
+
+        function animate() { drawBackground(); drawThermometers(); requestAnimationFrame(animate); }
+
+        // ========== GRÁFICOS ==========
+        const cfCanvas = document.getElementById('celsiusFahrenheitGraph');
+        const ckCanvas = document.getElementById('celsiusKelvinGraph');
+        const fkCanvas = document.getElementById('fahrenheitKelvinGraph');
+        let cfCtx, ckCtx, fkCtx;
+
+        function resizeGraphs() {
+            cfCanvas.width = cfCanvas.offsetWidth; cfCanvas.height = cfCanvas.offsetHeight;
+            ckCanvas.width = ckCanvas.offsetWidth; ckCanvas.height = ckCanvas.offsetHeight;
+            fkCanvas.width = fkCanvas.offsetWidth; fkCanvas.height = fkCanvas.offsetHeight;
+            cfCtx = cfCanvas.getContext('2d'); ckCtx = ckCanvas.getContext('2d'); fkCtx = fkCanvas.getContext('2d');
+            drawAllGraphs();
+        }
+
+        function updateGraphData() {
+            graphData.cf.push({ celsius: currentTemperature.celsius, fahrenheit: currentTemperature.fahrenheit });
+            graphData.ck.push({ celsius: currentTemperature.celsius, kelvin: currentTemperature.kelvin });
+            graphData.fk.push({ fahrenheit: currentTemperature.fahrenheit, kelvin: currentTemperature.kelvin });
+            if (graphData.cf.length > 50) { graphData.cf.shift(); graphData.ck.shift(); graphData.fk.shift(); }
+            drawAllGraphs();
+        }
+
+        function drawAxes(ctx, w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel) {
+            ctx.fillStyle = '#f8f9fa'; ctx.fillRect(0,0,w,h);
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
+            const xZero = pad + ((0-xMin)/(xMax-xMin))*(w-2*pad);
+            const yZero = h-pad - ((0-yMin)/(yMax-yMin))*(h-2*pad);
+            ctx.beginPath(); ctx.moveTo(pad, yZero); ctx.lineTo(w-pad, yZero); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(xZero, pad); ctx.lineTo(xZero, h-pad); ctx.stroke();
+            ctx.fillStyle = '#333'; ctx.font = '14px Arial'; ctx.textAlign = 'center';
+            ctx.fillText(xLabel, w/2, yZero-10);
+            ctx.save(); ctx.translate(xZero+15, h/2); ctx.rotate(-Math.PI/2); ctx.fillText(yLabel,0,0); ctx.restore();
+            return { xZero, yZero };
+        }
+
+        function drawCelsiusFahrenheitGraph() {
+            if (!cfCtx) return;
+            const w = cfCanvas.width, h = cfCanvas.height, pad = 50;
+            if (graphData.cf.length === 0) {
+                cfCtx.fillStyle = '#666'; cfCtx.font='14px Arial'; cfCtx.textAlign='center';
+                cfCtx.fillText('Ajuste a temperatura para ver dados', w/2, h/2); return;
+            }
+            const cVals = graphData.cf.map(p=>p.celsius);
+            const fVals = graphData.cf.map(p=>p.fahrenheit);
+            const minC = Math.min(-100, ...cVals), maxC = Math.max(100, ...cVals);
+            const minF = Math.min(-148, ...fVals), maxF = Math.max(212, ...fVals);
+            drawAxes(cfCtx, w, h, pad, minC, maxC, minF, maxF, 'Celsius (°C)', 'Fahrenheit (°F)');
+            cfCtx.strokeStyle = '#3498db'; cfCtx.lineWidth = 2;
+            cfCtx.beginPath();
+            for (let c=minC; c<=maxC; c+=(maxC-minC)/20) {
+                let f = celsiusToFahrenheit(c);
+                let x = pad + (c-minC)/(maxC-minC)*(w-2*pad);
+                let y = h-pad - (f-minF)/(maxF-minF)*(h-2*pad);
+                if (c===minC) cfCtx.moveTo(x,y); else cfCtx.lineTo(x,y);
+            }
+            cfCtx.stroke();
+            graphData.cf.forEach(p => {
+                let x = pad + (p.celsius-minC)/(maxC-minC)*(w-2*pad);
+                let y = h-pad - (p.fahrenheit-minF)/(maxF-minF)*(h-2*pad);
+                cfCtx.fillStyle = '#e74c3c'; cfCtx.beginPath(); cfCtx.arc(x,y,4,0,Math.PI*2); cfCtx.fill();
+            });
+        }
+
+        function drawCelsiusKelvinGraph() {
+            if (!ckCtx) return;
+            const w = ckCanvas.width, h = ckCanvas.height, pad = 50;
+            if (graphData.ck.length === 0) { ckCtx.fillStyle='#666'; ckCtx.fillText('Ajuste a temperatura', w/2, h/2); return; }
+            const cVals = graphData.ck.map(p=>p.celsius);
+            const kVals = graphData.ck.map(p=>p.kelvin);
+            const minC = Math.min(-100, ...cVals), maxC = Math.max(100, ...cVals);
+            const minK = Math.min(173, ...kVals), maxK = Math.max(373, ...kVals);
+            drawAxes(ckCtx, w, h, pad, minC, maxC, minK, maxK, 'Celsius (°C)', 'Kelvin (K)');
+            ckCtx.strokeStyle = '#2ecc71'; ckCtx.lineWidth = 2;
+            ckCtx.beginPath();
+            for (let c=minC; c<=maxC; c+=(maxC-minC)/20) {
+                let k = celsiusToKelvin(c);
+                let x = pad + (c-minC)/(maxC-minC)*(w-2*pad);
+                let y = h-pad - (k-minK)/(maxK-minK)*(h-2*pad);
+                if (c===minC) ckCtx.moveTo(x,y); else ckCtx.lineTo(x,y);
+            }
+            ckCtx.stroke();
+            graphData.ck.forEach(p => {
+                let x = pad + (p.celsius-minC)/(maxC-minC)*(w-2*pad);
+                let y = h-pad - (p.kelvin-minK)/(maxK-minK)*(h-2*pad);
+                ckCtx.fillStyle = '#e74c3c'; ckCtx.beginPath(); ckCtx.arc(x,y,4,0,Math.PI*2); ckCtx.fill();
+            });
+        }
+
+        function drawFahrenheitKelvinGraph() {
+            if (!fkCtx) return;
+            const w = fkCanvas.width, h = fkCanvas.height, pad = 50;
+            if (graphData.fk.length === 0) { fkCtx.fillStyle='#666'; fkCtx.fillText('Ajuste a temperatura', w/2, h/2); return; }
+            const fVals = graphData.fk.map(p=>p.fahrenheit);
+            const kVals = graphData.fk.map(p=>p.kelvin);
+            const minF = Math.min(-148, ...fVals), maxF = Math.max(212, ...fVals);
+            const minK = Math.min(173, ...kVals), maxK = Math.max(373, ...kVals);
+            drawAxes(fkCtx, w, h, pad, minF, maxF, minK, maxK, 'Fahrenheit (°F)', 'Kelvin (K)');
+            fkCtx.strokeStyle = '#9b59b6'; fkCtx.lineWidth = 2;
+            fkCtx.beginPath();
+            for (let f=minF; f<=maxF; f+=(maxF-minF)/20) {
+                let k = fahrenheitToKelvin(f);
+                let x = pad + (f-minF)/(maxF-minF)*(w-2*pad);
+                let y = h-pad - (k-minK)/(maxK-minK)*(h-2*pad);
+                if (f===minF) fkCtx.moveTo(x,y); else fkCtx.lineTo(x,y);
+            }
+            fkCtx.stroke();
+            graphData.fk.forEach(p => {
+                let x = pad + (p.fahrenheit-minF)/(maxF-minF)*(w-2*pad);
+                let y = h-pad - (p.kelvin-minK)/(maxK-minK)*(h-2*pad);
+                fkCtx.fillStyle = '#e74c3c'; fkCtx.beginPath(); fkCtx.arc(x,y,4,0,Math.PI*2); fkCtx.fill();
+            });
+        }
+
+        function drawAllGraphs() { drawCelsiusFahrenheitGraph(); drawCelsiusKelvinGraph(); drawFahrenheitKelvinGraph(); }
+
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
         let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
 
-        // ========== FUNÇÕES DE CONVERSÃO COM 273.00 ==========
-        function celsiusToKelvin(celsius) {
-            return celsius + 273.00;
+        function resetExerciseState() {
+            exercises = []; currentExercise = 0; exerciseResults = []; skippedQuestions = 0; currentExerciseAttempts = 0; conclusionTextSaved = "";
         }
-        
-        function kelvinToCelsius(kelvin) {
-            return kelvin - 273.00;
-        }
-        
-        function celsiusToFahrenheit(celsius) {
-            return (celsius * 9/5) + 32;
-        }
-        
-        function fahrenheitToCelsius(fahrenheit) {
-            return (fahrenheit - 32) * 5/9;
-        }
-        
-        function fahrenheitToKelvin(fahrenheit) {
-            return (fahrenheit - 32) * 5/9 + 273.00;
-        }
-        
-        function kelvinToFahrenheit(kelvin) {
-            return (kelvin - 273.00) * 9/5 + 32;
-        }
-        
-        // ========== FUNÇÕES DA SIMULAÇÃO ==========
 
-        // Ajustar tamanho do canvas
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+        function shuffleArray(arr) { for (let i=arr.length-1; i>0; i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+        function generateOptions(correctVal, unit) {
+            let opts = [correctVal];
+            for (let i=0; i<4; i++) {
+                let variation = (Math.random() * 20 + 5) * (Math.random()>0.5?1:-1);
+                let optVal = correctVal + variation;
+                if (unit === 'K') optVal = Math.max(0, optVal);
+                opts.push(optVal);
+            }
+            opts = shuffleArray(opts);
+            return opts.map(v => unit === 'K' ? v.toFixed(2) + ' ' + unit : v.toFixed(1) + ' ' + unit);
         }
-        
-        // Inicialização
-        window.addEventListener('load', () => {
-            resizeCanvas();
-            updateDisplayValues();
-            setupEventListeners();
-            setupExerciseEventListeners();
-            resizeGraphs();
-            animate();
-            
-            // Atualizar valores iniciais
-            updateAllTemperatures();
-        });
-        
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Event listeners para controles
+
+        function generateExercises() {
+            exercises = [];
+            const types = ['celsius_to_fahrenheit','fahrenheit_to_celsius','celsius_to_kelvin','kelvin_to_celsius','fahrenheit_to_kelvin','kelvin_to_fahrenheit'];
+            for (let i=0; i<6; i++) {
+                let type = types[i];
+                let val, answer, opts;
+                switch(type) {
+                    case 'celsius_to_fahrenheit':
+                        let c = Math.floor(Math.random()*100)-50;
+                        let f = celsiusToFahrenheit(c);
+                        exercises.push({ type, question: `Converta ${c}°C para a escala Fahrenheit.`, answer: f.toFixed(1) + " °F", options: generateOptions(f, '°F') });
+                        break;
+                    case 'fahrenheit_to_celsius':
+                        let f2 = Math.floor(Math.random()*200)-50;
+                        let c2 = fahrenheitToCelsius(f2);
+                        exercises.push({ type, question: `Converta ${f2}°F para a escala Celsius.`, answer: c2.toFixed(1) + " °C", options: generateOptions(c2, '°C') });
+                        break;
+                    case 'celsius_to_kelvin':
+                        let c3 = Math.floor(Math.random()*100)-50;
+                        let k3 = celsiusToKelvin(c3);
+                        exercises.push({ type, question: `Converta ${c3}°C para a escala Kelvin.`, answer: k3.toFixed(2) + " K", options: generateOptions(k3, 'K') });
+                        break;
+                    case 'kelvin_to_celsius':
+                        let k4 = Math.floor(Math.random()*200)+173;
+                        let c4 = kelvinToCelsius(k4);
+                        exercises.push({ type, question: `Converta ${k4} K para a escala Celsius.`, answer: c4.toFixed(1) + " °C", options: generateOptions(c4, '°C') });
+                        break;
+                    case 'fahrenheit_to_kelvin':
+                        let f5 = Math.floor(Math.random()*200)-50;
+                        let k5 = fahrenheitToKelvin(f5);
+                        exercises.push({ type, question: `Converta ${f5}°F para a escala Kelvin.`, answer: k5.toFixed(2) + " K", options: generateOptions(k5, 'K') });
+                        break;
+                    case 'kelvin_to_fahrenheit':
+                        let k6 = Math.floor(Math.random()*200)+173;
+                        let f6 = kelvinToFahrenheit(k6);
+                        exercises.push({ type, question: `Converta ${k6} K para a escala Fahrenheit.`, answer: f6.toFixed(1) + " °F", options: generateOptions(f6, '°F') });
+                        break;
+                }
+            }
+        }
+
+        function generateNewExerciseOfSameType() {
+            let type = exercises[currentExercise].type;
+            let val, answer, opts;
+            switch(type) {
+                case 'celsius_to_fahrenheit': let c = Math.floor(Math.random()*100)-50; let f = celsiusToFahrenheit(c); answer = f.toFixed(1)+" °F"; opts = generateOptions(f,'°F'); exercises[currentExercise] = { type, question:`Converta ${c}°C para Fahrenheit.`, answer, options:opts }; break;
+                case 'fahrenheit_to_celsius': let f2 = Math.floor(Math.random()*200)-50; let c2 = fahrenheitToCelsius(f2); answer = c2.toFixed(1)+" °C"; opts = generateOptions(c2,'°C'); exercises[currentExercise] = { type, question:`Converta ${f2}°F para Celsius.`, answer, options:opts }; break;
+                case 'celsius_to_kelvin': let c3 = Math.floor(Math.random()*100)-50; let k3 = celsiusToKelvin(c3); answer = k3.toFixed(2)+" K"; opts = generateOptions(k3,'K'); exercises[currentExercise] = { type, question:`Converta ${c3}°C para Kelvin.`, answer, options:opts }; break;
+                case 'kelvin_to_celsius': let k4 = Math.floor(Math.random()*200)+173; let c4 = kelvinToCelsius(k4); answer = c4.toFixed(1)+" °C"; opts = generateOptions(c4,'°C'); exercises[currentExercise] = { type, question:`Converta ${k4} K para Celsius.`, answer, options:opts }; break;
+                case 'fahrenheit_to_kelvin': let f5 = Math.floor(Math.random()*200)-50; let k5 = fahrenheitToKelvin(f5); answer = k5.toFixed(2)+" K"; opts = generateOptions(k5,'K'); exercises[currentExercise] = { type, question:`Converta ${f5}°F para Kelvin.`, answer, options:opts }; break;
+                case 'kelvin_to_fahrenheit': let k6 = Math.floor(Math.random()*200)+173; let f6 = kelvinToFahrenheit(k6); answer = f6.toFixed(1)+" °F"; opts = generateOptions(f6,'°F'); exercises[currentExercise] = { type, question:`Converta ${k6} K para Fahrenheit.`, answer, options:opts }; break;
+            }
+        }
+
+        function showCurrentExercise() {
+            let ex = exercises[currentExercise];
+            document.getElementById('exerciseContainer').innerHTML = `
+                <div class="exercise"><h3>Exercício ${currentExercise+1} de ${exercises.length}</h3>
+                <p>${ex.question}</p><div class="options">${ex.options.map(opt=>`<div class="option" data-value="${opt}">${opt}</div>`).join('')}</div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button><div class="result"></div></div>`;
+            document.getElementById('exerciseContainer').addEventListener('click',function(e){if(e.target.classList.contains('option')){this.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));e.target.classList.add('selected');}});
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            let container = document.getElementById('exerciseContainer');
+            let selected = container.querySelector('.option.selected');
+            let resultDiv = container.querySelector('.result');
+            if (!selected) { resultDiv.textContent = 'Selecione uma opção.'; resultDiv.className='result error'; return; }
+            let isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!'; resultDiv.className='result success';
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts+1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `<div class="error">Incorreto. Tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>`;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', () => { generateNewExerciseOfSameType(); showCurrentExercise(); });
+            }
+        }
+
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++; currentExerciseAttempts = 0; currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion();
+            }
+        }
+        function nextExercise() { currentExercise++; if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion(); }
+        function updateProgressBar() { for (let i=0;i<6;i++) { let p=document.getElementById(`progress${i+1}`); p.classList.remove('active','completed'); if (i===currentExercise) p.classList.add('active'); else if (i<currentExercise) p.classList.add('completed'); } }
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            let textarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+            let submit = document.getElementById('submitConclusion');
+            let newSubmit = submit.cloneNode(true);
+            submit.parentNode.replaceChild(newSubmit, submit);
+            newSubmit.addEventListener('click', () => { let text = document.getElementById('conclusionText').value.trim(); if (!text) alert('Escreva uma conclusão.'); else { conclusionTextSaved = text; showResults(text); } });
+        }
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            let total = exercises.length, correct = exerciseResults.filter(r=>r.correct).length, percent = Math.round((correct/total)*100);
+            document.getElementById('resultsSummary').innerHTML = `<p>Exercícios respondidos: ${total}</p><p>Respostas corretas: ${correct}</p><p>Exercícios pulados: ${skippedQuestions}</p><p>Nota: ${percent}%</p>`;
+            document.getElementById('finalConclusion').value = conclusion;
+            let sendBtn = document.getElementById('sendResults');
+            let newSend = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSend, sendBtn);
+            newSend.addEventListener('click', sendResultsToSheet);
+        }
+
+        function sendResultsToSheet() {
+            let name = document.getElementById('studentName').value;
+            let grade = document.getElementById('studentGrade').value;
+            let turma = document.getElementById('studentClass').value;
+            let email = document.getElementById('studentEmail').value;
+            let criticism = document.getElementById('criticismInput').value;
+            let suggestion = document.getElementById('suggestionInput').value;
+            let concl = document.getElementById('finalConclusion').value;
+            let sendBtn = document.getElementById('sendResults');
+            if (!name || !grade || !turma || !concl) { alert('Preencha os campos obrigatórios.'); return; }
+            sendBtn.disabled = true; sendBtn.textContent = 'Enviando...';
+            let total = exercises.length, correct = exerciseResults.filter(r=>r.correct).length, percent = Math.round((correct/total)*100);
+            let dados = { timestamp: new Date().toLocaleString('pt-BR'), serie: grade, turma, estudante: name, simulacao: 'Conversão de Escalas Termométricas', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: concl, criticas: criticism, sugestoes: suggestion, email: email||'', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: name, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            let scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            let emailScript = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            let status = document.getElementById('emailStatus');
+            status.style.display = 'block'; status.textContent = 'Enviando dados...'; status.className = 'email-status sending';
+            fetch(scriptUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(dados) })
+                .then(() => { status.textContent = 'Dados salvos! Enviando email...'; return fetch(emailScript, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(dados) }); })
+                .then(() => { if (email) { let alunoData = {...dados, to_email: email, mensagem: `Confirmação - Escalas Termométricas\nNota: ${percent}%\nAcertos: ${correct}/${total}`}; return fetch(emailScript, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(alunoData) }); } })
+                .then(() => { status.textContent = email ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!'; status.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendBtn.disabled = false; sendBtn.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(err => { status.textContent = '❌ Erro ao enviar. Tente novamente.'; status.className = 'email-status error-status'; sendBtn.disabled = false; sendBtn.textContent = 'Enviar Resultados'; });
+        }
+
+        function closeExercisesModal() {
+            let textarea = document.getElementById('conclusionText');
+            if (textarea && document.getElementById('conclusionContainer').style.display === 'block') conclusionTextSaved = textarea.value;
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso será perdido.")) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+        function openExercisesModal() {
+            if (exercises.length === 0 || (currentExercise >= exercises.length && document.getElementById('resultsContainer').style.display !== 'block' && document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                if (document.getElementById('resultsContainer').style.display === 'block') { /* manter */ }
+                else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+        function openGraphsModal() { resizeGraphs(); drawAllGraphs(); document.getElementById('graphsModal').style.display = 'flex'; }
+        function closeGraphsModal() { document.getElementById('graphsModal').style.display = 'none'; }
+
+        // ========== EVENT LISTENERS ==========
         function setupEventListeners() {
-            temperatureScale.addEventListener('change', () => {
-                updateTemperatureRange();
-                updateDisplayValues();
-                updateAllTemperatures();
-            });
-            
-            temperatureValue.addEventListener('input', () => {
-                const temp = parseFloat(temperatureValue.value);
-                temperatureDisplay.textContent = temp.toFixed(1);
-                updateAllTemperatures();
-            });
-            
-            document.getElementById('resetBtn').addEventListener('click', () => {
-                temperatureValue.value = 0;
-                temperatureDisplay.textContent = "0.0";
-                updateAllTemperatures();
-            });
-            
-            document.getElementById('helpBtn').addEventListener('click', () => {
-                alert("Como usar:\n\n• Selecione a escala de entrada (Celsius, Kelvin ou Fahrenheit)\n• Ajuste o valor da temperatura usando o controle deslizante\n• Observe as conversões automáticas para as outras escalas\n• Use os botões Reiniciar para voltar a temperatura a 0°C\n• Use os botões de exercícios para testar seu conhecimento");
-            });
-            
+            temperatureScale.addEventListener('change', updateTemperatureRange);
+            temperatureValue.addEventListener('input', () => { temperatureDisplay.textContent = temperatureValue.value; updateAllTemperatures(); });
+            document.getElementById('resetBtn').addEventListener('click', () => { temperatureValue.value = 0; temperatureDisplay.textContent = '0.0'; updateAllTemperatures(); });
+            document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar:\n\n• Selecione a escala de entrada\n• Ajuste o valor da temperatura\n• Observe as conversões automáticas\n• Use os botões de exercícios para testar seu conhecimento"));
             document.getElementById('graphsBtn').addEventListener('click', openGraphsModal);
-        }
-        
-        // Atualizar a faixa do controle deslizante baseado na escala selecionada
-        function updateTemperatureRange() {
-            const scale = temperatureScale.value;
-            
-            switch(scale) {
-                case 'celsius':
-                    temperatureValue.min = -273;
-                    temperatureValue.max = 500;
-                    temperatureValue.value = 0;
-                    break;
-                case 'kelvin':
-                    temperatureValue.min = 0;
-                    temperatureValue.max = 800;
-                    temperatureValue.value = 273;
-                    break;
-                case 'fahrenheit':
-                    temperatureValue.min = -459;
-                    temperatureValue.max = 1000;
-                    temperatureValue.value = 32;
-                    break;
-            }
-            
-            temperatureDisplay.textContent = temperatureValue.value;
-        }
-        
-        // Atualizar todos os valores de temperatura
-        function updateAllTemperatures() {
-            const inputValue = parseFloat(temperatureValue.value);
-            const scale = temperatureScale.value;
-            
-            // Converter para todas as escalas
-            switch(scale) {
-                case 'celsius':
-                    currentTemperature.celsius = inputValue;
-                    currentTemperature.kelvin = celsiusToKelvin(inputValue);
-                    currentTemperature.fahrenheit = celsiusToFahrenheit(inputValue);
-                    break;
-                case 'kelvin':
-                    currentTemperature.kelvin = inputValue;
-                    currentTemperature.celsius = kelvinToCelsius(inputValue);
-                    currentTemperature.fahrenheit = kelvinToFahrenheit(inputValue);
-                    break;
-                case 'fahrenheit':
-                    currentTemperature.fahrenheit = inputValue;
-                    currentTemperature.celsius = fahrenheitToCelsius(inputValue);
-                    currentTemperature.kelvin = fahrenheitToKelvin(inputValue);
-                    break;
-            }
-            
-            // Atualizar displays
-            updateDisplayValues();
-            
-            // Atualizar dados dos gráficos
-            updateGraphData();
-        }
-        
-        // Atualizar displays
-        function updateDisplayValues() {
-            celsiusValue.textContent = currentTemperature.celsius.toFixed(2) + " °C";
-            kelvinValue.textContent = currentTemperature.kelvin.toFixed(2) + " K";
-            fahrenheitValue.textContent = currentTemperature.fahrenheit.toFixed(2) + " °F";
-            
-            boilingValue.textContent = `100 °C / ${celsiusToKelvin(100).toFixed(2)} K / ${celsiusToFahrenheit(100).toFixed(2)} °F`;
-            freezingValue.textContent = `0 °C / ${celsiusToKelvin(0).toFixed(2)} K / ${celsiusToFahrenheit(0).toFixed(2)} °F`;
-            absoluteZeroValue.textContent = `-273.00 °C / 0 K / ${celsiusToFahrenheit(-273.00).toFixed(2)} °F`;
-        }
-        
-        // Animação principal
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBackground();
-            drawThermometers();
-            requestAnimationFrame(animate);
-        }
-        
-        // Desenhar fundo
-        function drawBackground() {
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            const gradient = ctx.createLinearGradient(0, 0, width, height);
-            gradient.addColorStop(0, '#1a2a6c');
-            gradient.addColorStop(0.5, '#b21f1f');
-            gradient.addColorStop(1, '#fdbb2d');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.font = 'bold 24px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Escalas Termométricas', width / 2, 40);
-            
-            ctx.font = '14px Arial';
-            ctx.fillText('Converta entre Celsius, Kelvin e Fahrenheit', width / 2, 70);
-        }
-        
-        // Desenhar termômetros
-        function drawThermometers() {
-            const width = canvas.width;
-            const height = canvas.height;
-            
-            const thermometerWidth = 80;
-            const thermometerHeight = 250;
-            const startX = width * 0.1;
-            const spacing = (width * 0.8) / 3;
-            
-            drawThermometer(startX, height - thermometerHeight - 50, thermometerWidth, thermometerHeight, 
-                          currentTemperature.celsius, -273.00, 500, 'Celsius', '#3498db');
-            drawThermometer(startX + spacing, height - thermometerHeight - 50, thermometerWidth, thermometerHeight, 
-                          currentTemperature.kelvin, 0, 800, 'Kelvin', '#e74c3c');
-            drawThermometer(startX + spacing * 2, height - thermometerHeight - 50, thermometerWidth, thermometerHeight, 
-                          currentTemperature.fahrenheit, -459.40, 1000, 'Fahrenheit', '#2ecc71');
-        }
-        
-        // Desenhar um termômetro individual
-        function drawThermometer(x, y, width, height, value, min, max, label, color) {
-            const tubeWidth = 20;
-            const tubeHeight = height - 40;
-            const tubeX = x + (width - tubeWidth) / 2;
-            const tubeY = y + 20;
-            
-            const normalizedValue = Math.max(min, Math.min(max, value));
-            const mercuryHeight = ((normalizedValue - min) / (max - min)) * tubeHeight;
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(tubeX, tubeY, tubeWidth, tubeHeight);
-            
-            const mercuryGradient = ctx.createLinearGradient(tubeX, tubeY + tubeHeight, tubeX, tubeY + tubeHeight - mercuryHeight);
-            mercuryGradient.addColorStop(0, '#ff0000');
-            mercuryGradient.addColorStop(1, '#ff4500');
-            ctx.fillStyle = mercuryGradient;
-            ctx.fillRect(tubeX, tubeY + tubeHeight - mercuryHeight, tubeWidth, mercuryHeight);
-            
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(tubeX, tubeY, tubeWidth, tubeHeight);
-            
-            const bulbRadius = tubeWidth * 1.2;
-            const bulbX = tubeX + tubeWidth / 2;
-            const bulbY = tubeY + tubeHeight + bulbRadius - 10;
-            
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.arc(bulbX, bulbY, bulbRadius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            
-            const marks = 5;
-            for (let i = 0; i <= marks; i++) {
-                const markY = tubeY + tubeHeight - (i / marks) * tubeHeight;
-                const markValue = min + (i / marks) * (max - min);
-                ctx.beginPath();
-                ctx.moveTo(tubeX - 5, markY);
-                ctx.lineTo(tubeX, markY);
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-                ctx.fillText(markValue.toFixed(0), tubeX - 15, markY + 3);
-            }
-            
-            if (label === 'Celsius') {
-                const zeroY = tubeY + tubeHeight - ((0 - min) / (max - min)) * tubeHeight;
-                ctx.beginPath();
-                ctx.moveTo(tubeX - 10, zeroY);
-                ctx.lineTo(tubeX, zeroY);
-                ctx.strokeStyle = '#ffcc00';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.fillStyle = '#ffcc00';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText('0°C', tubeX - 25, zeroY + 3);
-                
-                const hundredY = tubeY + tubeHeight - ((100 - min) / (max - min)) * tubeHeight;
-                ctx.beginPath();
-                ctx.moveTo(tubeX - 10, hundredY);
-                ctx.lineTo(tubeX, hundredY);
-                ctx.strokeStyle = '#ffcc00';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.fillStyle = '#ffcc00';
-                ctx.font = 'bold 12px Arial';
-                ctx.fillText('100°C', tubeX - 30, hundredY + 3);
-            }
-            
-            ctx.fillStyle = color;
-            ctx.font = 'bold 16px Arial';
-            ctx.fillText(value.toFixed(1), tubeX + tubeWidth / 2, tubeY - 5);
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-            ctx.font = 'bold 14px Arial';
-            ctx.fillText(label, tubeX + tubeWidth / 2, tubeY + tubeHeight + bulbRadius * 2);
-        }
-        
-        // ========== SISTEMA DE GRÁFICOS ==========
-        function resizeGraphs() {
-            celsiusFahrenheitGraph.width = celsiusFahrenheitGraph.offsetWidth;
-            celsiusFahrenheitGraph.height = celsiusFahrenheitGraph.offsetHeight;
-            celsiusKelvinGraph.width = celsiusKelvinGraph.offsetWidth;
-            celsiusKelvinGraph.height = celsiusKelvinGraph.offsetHeight;
-            fahrenheitKelvinGraph.width = fahrenheitKelvinGraph.offsetWidth;
-            fahrenheitKelvinGraph.height = fahrenheitKelvinGraph.offsetHeight;
-            drawGraphs();
-        }
-        
-        function updateGraphData() {
-            celsiusFahrenheitData.push({ celsius: currentTemperature.celsius, fahrenheit: currentTemperature.fahrenheit });
-            celsiusKelvinData.push({ celsius: currentTemperature.celsius, kelvin: currentTemperature.kelvin });
-            fahrenheitKelvinData.push({ fahrenheit: currentTemperature.fahrenheit, kelvin: currentTemperature.kelvin });
-            if (celsiusFahrenheitData.length > 50) {
-                celsiusFahrenheitData.shift();
-                celsiusKelvinData.shift();
-                fahrenheitKelvinData.shift();
-            }
-            drawGraphs();
-        }
-        
-        function drawGraphs() {
-            drawCelsiusFahrenheitGraph();
-            drawCelsiusKelvinGraph();
-            drawFahrenheitKelvinGraph();
-        }
-        
-        function drawAxesWithOrigin(ctx, width, height, padding, xMin, xMax, yMin, yMax, xLabel, yLabel) {
-            const xZero = padding + ((0 - xMin) / (xMax - xMin)) * (width - 2 * padding);
-            const yZero = height - padding - ((0 - yMin) / (yMax - yMin)) * (height - 2 * padding);
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(padding, yZero);
-            ctx.lineTo(width - padding, yZero);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(xZero, padding);
-            ctx.lineTo(xZero, height - padding);
-            ctx.stroke();
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(xLabel, width / 2, yZero - 10);
-            ctx.save();
-            ctx.translate(xZero + 15, height / 2);
-            ctx.rotate(-Math.PI / 2);
-            ctx.fillText(yLabel, 0, 0);
-            ctx.restore();
-            return { xZero, yZero };
-        }
-        
-        function drawCelsiusFahrenheitGraph() {
-            const width = celsiusFahrenheitGraph.width;
-            const height = celsiusFahrenheitGraph.height;
-            const padding = 50;
-            celsiusFahrenheitCtx.clearRect(0, 0, width, height);
-            celsiusFahrenheitCtx.fillStyle = '#f8f9fa';
-            celsiusFahrenheitCtx.fillRect(0, 0, width, height);
-            if (celsiusFahrenheitData.length === 0) {
-                celsiusFahrenheitCtx.fillStyle = '#666';
-                celsiusFahrenheitCtx.font = '14px Arial';
-                celsiusFahrenheitCtx.textAlign = 'center';
-                celsiusFahrenheitCtx.fillText('Ajuste a temperatura para ver dados', width / 2, height / 2);
-                return;
-            }
-            const celsiusValues = celsiusFahrenheitData.map(p => p.celsius);
-            const fahrenheitValues = celsiusFahrenheitData.map(p => p.fahrenheit);
-            const minCelsius = Math.min(-100, ...celsiusValues);
-            const maxCelsius = Math.max(100, ...celsiusValues);
-            const minFahrenheit = Math.min(-148, ...fahrenheitValues);
-            const maxFahrenheit = Math.max(212, ...fahrenheitValues);
-            const { xZero, yZero } = drawAxesWithOrigin(celsiusFahrenheitCtx, width, height, padding, minCelsius, maxCelsius, minFahrenheit, maxFahrenheit, 'Celsius (°C)', 'Fahrenheit (°F)');
-            celsiusFahrenheitCtx.strokeStyle = '#3498db';
-            celsiusFahrenheitCtx.lineWidth = 2;
-            celsiusFahrenheitCtx.beginPath();
-            for (let c = minCelsius; c <= maxCelsius; c += (maxCelsius - minCelsius) / 20) {
-                const f = celsiusToFahrenheit(c);
-                const x = padding + (c - minCelsius) / (maxCelsius - minCelsius) * (width - 2 * padding);
-                const y = height - padding - (f - minFahrenheit) / (maxFahrenheit - minFahrenheit) * (height - 2 * padding);
-                if (c === minCelsius) celsiusFahrenheitCtx.moveTo(x, y);
-                else celsiusFahrenheitCtx.lineTo(x, y);
-            }
-            celsiusFahrenheitCtx.stroke();
-            celsiusFahrenheitData.forEach(point => {
-                const x = padding + (point.celsius - minCelsius) / (maxCelsius - minCelsius) * (width - 2 * padding);
-                const y = height - padding - (point.fahrenheit - minFahrenheit) / (maxFahrenheit - minFahrenheit) * (height - 2 * padding);
-                celsiusFahrenheitCtx.fillStyle = '#e74c3c';
-                celsiusFahrenheitCtx.beginPath();
-                celsiusFahrenheitCtx.arc(x, y, 4, 0, Math.PI * 2);
-                celsiusFahrenheitCtx.fill();
-                celsiusFahrenheitCtx.strokeStyle = '#c0392b';
-                celsiusFahrenheitCtx.lineWidth = 1;
-                celsiusFahrenheitCtx.stroke();
-            });
-            celsiusFahrenheitCtx.strokeStyle = '#e0e0e0';
-            celsiusFahrenheitCtx.lineWidth = 0.5;
-            const xSteps = 5;
-            for (let i = 0; i <= xSteps; i++) {
-                const x = padding + (i / xSteps) * (width - 2 * padding);
-                celsiusFahrenheitCtx.beginPath();
-                celsiusFahrenheitCtx.moveTo(x, padding);
-                celsiusFahrenheitCtx.lineTo(x, height - padding);
-                celsiusFahrenheitCtx.stroke();
-                const celsiusValue = minCelsius + (i / xSteps) * (maxCelsius - minCelsius);
-                celsiusFahrenheitCtx.fillStyle = '#333';
-                celsiusFahrenheitCtx.font = '12px Arial';
-                celsiusFahrenheitCtx.textAlign = 'center';
-                celsiusFahrenheitCtx.fillText(celsiusValue.toFixed(0) + '°C', x, yZero + 20);
-            }
-            const ySteps = 5;
-            for (let i = 0; i <= ySteps; i++) {
-                const y = height - padding - (i / ySteps) * (height - 2 * padding);
-                celsiusFahrenheitCtx.beginPath();
-                celsiusFahrenheitCtx.moveTo(padding, y);
-                celsiusFahrenheitCtx.lineTo(width - padding, y);
-                celsiusFahrenheitCtx.stroke();
-                const fahrenheitValue = minFahrenheit + (i / ySteps) * (maxFahrenheit - minFahrenheit);
-                celsiusFahrenheitCtx.fillStyle = '#333';
-                celsiusFahrenheitCtx.font = '12px Arial';
-                celsiusFahrenheitCtx.textAlign = 'right';
-                celsiusFahrenheitCtx.fillText(fahrenheitValue.toFixed(0) + '°F', xZero - 5, y + 4);
-            }
-        }
-        
-        function drawCelsiusKelvinGraph() {
-            const width = celsiusKelvinGraph.width;
-            const height = celsiusKelvinGraph.height;
-            const padding = 50;
-            celsiusKelvinCtx.clearRect(0, 0, width, height);
-            celsiusKelvinCtx.fillStyle = '#f8f9fa';
-            celsiusKelvinCtx.fillRect(0, 0, width, height);
-            if (celsiusKelvinData.length === 0) {
-                celsiusKelvinCtx.fillStyle = '#666';
-                celsiusKelvinCtx.font = '14px Arial';
-                celsiusKelvinCtx.textAlign = 'center';
-                celsiusKelvinCtx.fillText('Ajuste a temperatura para ver dados', width / 2, height / 2);
-                return;
-            }
-            const celsiusValues = celsiusKelvinData.map(p => p.celsius);
-            const kelvinValues = celsiusKelvinData.map(p => p.kelvin);
-            const minCelsius = Math.min(-100, ...celsiusValues);
-            const maxCelsius = Math.max(100, ...celsiusValues);
-            const minKelvin = Math.min(173.00, ...kelvinValues);
-            const maxKelvin = Math.max(373.00, ...kelvinValues);
-            const { xZero, yZero } = drawAxesWithOrigin(celsiusKelvinCtx, width, height, padding, minCelsius, maxCelsius, minKelvin, maxKelvin, 'Celsius (°C)', 'Kelvin (K)');
-            celsiusKelvinCtx.strokeStyle = '#2ecc71';
-            celsiusKelvinCtx.lineWidth = 2;
-            celsiusKelvinCtx.beginPath();
-            for (let c = minCelsius; c <= maxCelsius; c += (maxCelsius - minCelsius) / 20) {
-                const k = celsiusToKelvin(c);
-                const x = padding + (c - minCelsius) / (maxCelsius - minCelsius) * (width - 2 * padding);
-                const y = height - padding - (k - minKelvin) / (maxKelvin - minKelvin) * (height - 2 * padding);
-                if (c === minCelsius) celsiusKelvinCtx.moveTo(x, y);
-                else celsiusKelvinCtx.lineTo(x, y);
-            }
-            celsiusKelvinCtx.stroke();
-            celsiusKelvinData.forEach(point => {
-                const x = padding + (point.celsius - minCelsius) / (maxCelsius - minCelsius) * (width - 2 * padding);
-                const y = height - padding - (point.kelvin - minKelvin) / (maxKelvin - minKelvin) * (height - 2 * padding);
-                celsiusKelvinCtx.fillStyle = '#e74c3c';
-                celsiusKelvinCtx.beginPath();
-                celsiusKelvinCtx.arc(x, y, 4, 0, Math.PI * 2);
-                celsiusKelvinCtx.fill();
-                celsiusKelvinCtx.strokeStyle = '#c0392b';
-                celsiusKelvinCtx.lineWidth = 1;
-                celsiusKelvinCtx.stroke();
-            });
-            celsiusKelvinCtx.strokeStyle = '#e0e0e0';
-            celsiusKelvinCtx.lineWidth = 0.5;
-            const xSteps = 5;
-            for (let i = 0; i <= xSteps; i++) {
-                const x = padding + (i / xSteps) * (width - 2 * padding);
-                celsiusKelvinCtx.beginPath();
-                celsiusKelvinCtx.moveTo(x, padding);
-                celsiusKelvinCtx.lineTo(x, height - padding);
-                celsiusKelvinCtx.stroke();
-                const celsiusValue = minCelsius + (i / xSteps) * (maxCelsius - minCelsius);
-                celsiusKelvinCtx.fillStyle = '#333';
-                celsiusKelvinCtx.font = '12px Arial';
-                celsiusKelvinCtx.textAlign = 'center';
-                celsiusKelvinCtx.fillText(celsiusValue.toFixed(0) + '°C', x, yZero + 20);
-            }
-            const ySteps = 5;
-            for (let i = 0; i <= ySteps; i++) {
-                const y = height - padding - (i / ySteps) * (height - 2 * padding);
-                celsiusKelvinCtx.beginPath();
-                celsiusKelvinCtx.moveTo(padding, y);
-                celsiusKelvinCtx.lineTo(width - padding, y);
-                celsiusKelvinCtx.stroke();
-                const kelvinValue = minKelvin + (i / ySteps) * (maxKelvin - minKelvin);
-                celsiusKelvinCtx.fillStyle = '#333';
-                celsiusKelvinCtx.font = '12px Arial';
-                celsiusKelvinCtx.textAlign = 'right';
-                celsiusKelvinCtx.fillText(kelvinValue.toFixed(0) + 'K', xZero - 5, y + 4);
-            }
-        }
-        
-        function drawFahrenheitKelvinGraph() {
-            const width = fahrenheitKelvinGraph.width;
-            const height = fahrenheitKelvinGraph.height;
-            const padding = 50;
-            fahrenheitKelvinCtx.clearRect(0, 0, width, height);
-            fahrenheitKelvinCtx.fillStyle = '#f8f9fa';
-            fahrenheitKelvinCtx.fillRect(0, 0, width, height);
-            if (fahrenheitKelvinData.length === 0) {
-                fahrenheitKelvinCtx.fillStyle = '#666';
-                fahrenheitKelvinCtx.font = '14px Arial';
-                fahrenheitKelvinCtx.textAlign = 'center';
-                fahrenheitKelvinCtx.fillText('Ajuste a temperatura para ver dados', width / 2, height / 2);
-                return;
-            }
-            const fahrenheitValues = fahrenheitKelvinData.map(p => p.fahrenheit);
-            const kelvinValues = fahrenheitKelvinData.map(p => p.kelvin);
-            const minFahrenheit = Math.min(-148, ...fahrenheitValues);
-            const maxFahrenheit = Math.max(212, ...fahrenheitValues);
-            const minKelvin = Math.min(173.00, ...kelvinValues);
-            const maxKelvin = Math.max(373.00, ...kelvinValues);
-            const { xZero, yZero } = drawAxesWithOrigin(fahrenheitKelvinCtx, width, height, padding, minFahrenheit, maxFahrenheit, minKelvin, maxKelvin, 'Fahrenheit (°F)', 'Kelvin (K)');
-            fahrenheitKelvinCtx.strokeStyle = '#9b59b6';
-            fahrenheitKelvinCtx.lineWidth = 2;
-            fahrenheitKelvinCtx.beginPath();
-            for (let f = minFahrenheit; f <= maxFahrenheit; f += (maxFahrenheit - minFahrenheit) / 20) {
-                const k = fahrenheitToKelvin(f);
-                const x = padding + (f - minFahrenheit) / (maxFahrenheit - minFahrenheit) * (width - 2 * padding);
-                const y = height - padding - (k - minKelvin) / (maxKelvin - minKelvin) * (height - 2 * padding);
-                if (f === minFahrenheit) fahrenheitKelvinCtx.moveTo(x, y);
-                else fahrenheitKelvinCtx.lineTo(x, y);
-            }
-            fahrenheitKelvinCtx.stroke();
-            fahrenheitKelvinData.forEach(point => {
-                const x = padding + (point.fahrenheit - minFahrenheit) / (maxFahrenheit - minFahrenheit) * (width - 2 * padding);
-                const y = height - padding - (point.kelvin - minKelvin) / (maxKelvin - minKelvin) * (height - 2 * padding);
-                fahrenheitKelvinCtx.fillStyle = '#e74c3c';
-                fahrenheitKelvinCtx.beginPath();
-                fahrenheitKelvinCtx.arc(x, y, 4, 0, Math.PI * 2);
-                fahrenheitKelvinCtx.fill();
-                fahrenheitKelvinCtx.strokeStyle = '#c0392b';
-                fahrenheitKelvinCtx.lineWidth = 1;
-                fahrenheitKelvinCtx.stroke();
-            });
-            fahrenheitKelvinCtx.strokeStyle = '#e0e0e0';
-            fahrenheitKelvinCtx.lineWidth = 0.5;
-            const xSteps = 5;
-            for (let i = 0; i <= xSteps; i++) {
-                const x = padding + (i / xSteps) * (width - 2 * padding);
-                fahrenheitKelvinCtx.beginPath();
-                fahrenheitKelvinCtx.moveTo(x, padding);
-                fahrenheitKelvinCtx.lineTo(x, height - padding);
-                fahrenheitKelvinCtx.stroke();
-                const fahrenheitValue = minFahrenheit + (i / xSteps) * (maxFahrenheit - minFahrenheit);
-                fahrenheitKelvinCtx.fillStyle = '#333';
-                fahrenheitKelvinCtx.font = '12px Arial';
-                fahrenheitKelvinCtx.textAlign = 'center';
-                fahrenheitKelvinCtx.fillText(fahrenheitValue.toFixed(0) + '°F', x, yZero + 20);
-            }
-            const ySteps = 5;
-            for (let i = 0; i <= ySteps; i++) {
-                const y = height - padding - (i / ySteps) * (height - 2 * padding);
-                fahrenheitKelvinCtx.beginPath();
-                fahrenheitKelvinCtx.moveTo(padding, y);
-                fahrenheitKelvinCtx.lineTo(width - padding, y);
-                fahrenheitKelvinCtx.stroke();
-                const kelvinValue = minKelvin + (i / ySteps) * (maxKelvin - minKelvin);
-                fahrenheitKelvinCtx.fillStyle = '#333';
-                fahrenheitKelvinCtx.font = '12px Arial';
-                fahrenheitKelvinCtx.textAlign = 'right';
-                fahrenheitKelvinCtx.fillText(kelvinValue.toFixed(0) + 'K', xZero - 5, y + 4);
-            }
-        }
-
-        // ========== SISTEMA DE EXERCÍCIOS ==========
-        // (As funções de exercícios permanecem inalteradas, pois já usam as funções de conversão atualizadas)
-        function setupExerciseEventListeners() {
             document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
             document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
             document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
-            
             document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
             document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
             document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
@@ -1515,392 +1218,18 @@
             document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
             document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
             document.getElementById('closeGraphs').addEventListener('click', closeGraphsModal);
-            
-            window.addEventListener('click', function(event) {
-                if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
-                else if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
-                else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
-                else if (event.target == document.getElementById('graphsModal')) closeGraphsModal();
-            });
+            document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+            window.addEventListener('click', (e) => { if (e.target == document.getElementById('exercisesModal')) closeExercisesModal(); else if (e.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal(); else if (e.target == document.getElementById('theoryModal')) closeTheoryModal(); else if (e.target == document.getElementById('graphsModal')) closeGraphsModal(); });
         }
-        
-        function closeExercisesModal() {
-            document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
-        }
-        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
-        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
-        function closeGraphsModal() { document.getElementById('graphsModal').style.display = 'none'; }
-        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
-        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
-        function openGraphsModal() { document.getElementById('graphsModal').style.display = 'flex'; resizeGraphs(); drawGraphs(); }
-        
-        function generateExercises() {
-            exercises = [];
-            const exerciseTypes = ['celsius_to_fahrenheit', 'fahrenheit_to_celsius', 'celsius_to_kelvin', 'kelvin_to_celsius', 'fahrenheit_to_kelvin', 'kelvin_to_fahrenheit'];
-            for (let i = 0; i < 6; i++) {
-                const type = exerciseTypes[i];
-                let question, answer, options;
-                switch(type) {
-                    case 'celsius_to_fahrenheit':
-                        const celsius1 = Math.floor(Math.random() * 100) - 50;
-                        const fahrenheit1 = celsiusToFahrenheit(celsius1);
-                        question = `Converta ${celsius1}°C para a escala Fahrenheit.`;
-                        answer = fahrenheit1.toFixed(1) + " °F";
-                        options = generateTemperatureOptions(fahrenheit1, '°F');
-                        break;
-                    case 'fahrenheit_to_celsius':
-                        const fahrenheit2 = Math.floor(Math.random() * 200) - 50;
-                        const celsius2 = fahrenheitToCelsius(fahrenheit2);
-                        question = `Converta ${fahrenheit2}°F para a escala Celsius.`;
-                        answer = celsius2.toFixed(1) + " °C";
-                        options = generateTemperatureOptions(celsius2, '°C');
-                        break;
-                    case 'celsius_to_kelvin':
-                        const celsius3 = Math.floor(Math.random() * 100) - 50;
-                        const kelvin3 = celsiusToKelvin(celsius3);
-                        question = `Converta ${celsius3}°C para a escala Kelvin.`;
-                        answer = kelvin3.toFixed(2) + " K";
-                        options = generateTemperatureOptions(kelvin3, 'K');
-                        break;
-                    case 'kelvin_to_celsius':
-                        const kelvin4 = Math.floor(Math.random() * 200) + 173; // 173 a 373
-                        const celsius4 = kelvinToCelsius(kelvin4);
-                        question = `Converta ${kelvin4} K para a escala Celsius.`;
-                        answer = celsius4.toFixed(1) + " °C";
-                        options = generateTemperatureOptions(celsius4, '°C');
-                        break;
-                    case 'fahrenheit_to_kelvin':
-                        const fahrenheit5 = Math.floor(Math.random() * 200) - 50;
-                        const kelvin5 = fahrenheitToKelvin(fahrenheit5);
-                        question = `Converta ${fahrenheit5}°F para a escala Kelvin.`;
-                        answer = kelvin5.toFixed(2) + " K";
-                        options = generateTemperatureOptions(kelvin5, 'K');
-                        break;
-                    case 'kelvin_to_fahrenheit':
-                        const kelvin6 = Math.floor(Math.random() * 200) + 173;
-                        const fahrenheit6 = kelvinToFahrenheit(kelvin6);
-                        question = `Converta ${kelvin6} K para a escala Fahrenheit.`;
-                        answer = fahrenheit6.toFixed(1) + " °F";
-                        options = generateTemperatureOptions(fahrenheit6, '°F');
-                        break;
-                }
-                exercises.push({ type, question, answer, options });
-            }
-        }
-        
-        function generateTemperatureOptions(correctValue, unit) {
-            let correctFormatted;
-            if (unit === 'K') correctFormatted = correctValue.toFixed(2) + " " + unit;
-            else correctFormatted = correctValue.toFixed(1) + " " + unit;
-            const options = [correctFormatted];
-            for (let i = 0; i < 4; i++) {
-                let optionValue;
-                if (unit === '°C' || unit === '°F') {
-                    const variation = (Math.random() * 15 + 5) * (Math.random() > 0.5 ? 1 : -1);
-                    optionValue = correctValue + variation;
-                } else {
-                    const variation = (Math.random() * 20 + 10) * (Math.random() > 0.5 ? 1 : -1);
-                    optionValue = Math.max(0, correctValue + variation);
-                }
-                let formattedOption;
-                if (unit === 'K') formattedOption = optionValue.toFixed(2) + " " + unit;
-                else formattedOption = optionValue.toFixed(1) + " " + unit;
-                options.push(formattedOption);
-            }
-            return shuffleArray(options);
-        }
-        
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        function showCurrentExercise() {
-            const exercise = exercises[currentExercise];
-            const container = document.getElementById('exerciseContainer');
-            container.innerHTML = `
-                <div class="exercise">
-                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
-                    <p>${exercise.question}</p>
-                    <div class="options">
-                        ${exercise.options.map(option => `<div class="option" data-value="${option}">${option}</div>`).join('')}
-                    </div>
-                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
-                    <div class="result"></div>
-                </div>
-            `;
-            container.addEventListener('click', function(e) {
-                if (e.target.classList.contains('option')) {
-                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                }
-            });
-            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-            updateProgressBar();
-        }
-        
-        function checkAnswer() {
-            const container = document.getElementById('exerciseContainer');
-            const selectedOption = container.querySelector('.option.selected');
-            const resultDiv = container.querySelector('.result');
-            const checkButton = document.getElementById('checkAnswerBtn');
-            const options = container.querySelectorAll('.option');
-            if (!selectedOption) {
-                resultDiv.textContent = 'Por favor, selecione uma opção.';
-                resultDiv.className = 'result error';
-                return;
-            }
-            options.forEach(opt => opt.classList.add('disabled'));
-            checkButton.disabled = true;
-            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
-            if (isCorrect) {
-                resultDiv.textContent = 'Correto! Parabéns!';
-                resultDiv.className = 'result success';
-                selectedOption.classList.add('correct');
-                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
-                currentExerciseAttempts = 0;
-                setTimeout(nextExercise, 1500);
-            } else {
-                currentExerciseAttempts++;
-                resultDiv.innerHTML = `
-                <div class="error">Incorreto. Tente novamente.</div>
-                <div class="button-group">
-                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
-                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
-                </div>
-                `;
-                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
-                document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    generateNewExerciseOfSameType();
-                    showCurrentExercise();
-                });
-            }
-        }
-        
-        function generateNewExerciseOfSameType() {
-            const currentType = exercises[currentExercise].type;
-            let question, answer, options;
-            switch(currentType) {
-                case 'celsius_to_fahrenheit':
-                    const celsius1 = Math.floor(Math.random() * 100) - 50;
-                    const fahrenheit1 = celsiusToFahrenheit(celsius1);
-                    question = `Converta ${celsius1}°C para a escala Fahrenheit.`;
-                    answer = fahrenheit1.toFixed(1) + " °F";
-                    options = generateTemperatureOptions(fahrenheit1, '°F');
-                    break;
-                case 'fahrenheit_to_celsius':
-                    const fahrenheit2 = Math.floor(Math.random() * 200) - 50;
-                    const celsius2 = fahrenheitToCelsius(fahrenheit2);
-                    question = `Converta ${fahrenheit2}°F para a escala Celsius.`;
-                    answer = celsius2.toFixed(1) + " °C";
-                    options = generateTemperatureOptions(celsius2, '°C');
-                    break;
-                case 'celsius_to_kelvin':
-                    const celsius3 = Math.floor(Math.random() * 100) - 50;
-                    const kelvin3 = celsiusToKelvin(celsius3);
-                    question = `Converta ${celsius3}°C para a escala Kelvin.`;
-                    answer = kelvin3.toFixed(2) + " K";
-                    options = generateTemperatureOptions(kelvin3, 'K');
-                    break;
-                case 'kelvin_to_celsius':
-                    const kelvin4 = Math.floor(Math.random() * 200) + 173;
-                    const celsius4 = kelvinToCelsius(kelvin4);
-                    question = `Converta ${kelvin4} K para a escala Celsius.`;
-                    answer = celsius4.toFixed(1) + " °C";
-                    options = generateTemperatureOptions(celsius4, '°C');
-                    break;
-                case 'fahrenheit_to_kelvin':
-                    const fahrenheit5 = Math.floor(Math.random() * 200) - 50;
-                    const kelvin5 = fahrenheitToKelvin(fahrenheit5);
-                    question = `Converta ${fahrenheit5}°F para a escala Kelvin.`;
-                    answer = kelvin5.toFixed(2) + " K";
-                    options = generateTemperatureOptions(kelvin5, 'K');
-                    break;
-                case 'kelvin_to_fahrenheit':
-                    const kelvin6 = Math.floor(Math.random() * 200) + 173;
-                    const fahrenheit6 = kelvinToFahrenheit(kelvin6);
-                    question = `Converta ${kelvin6} K para a escala Fahrenheit.`;
-                    answer = fahrenheit6.toFixed(1) + " °F";
-                    options = generateTemperatureOptions(fahrenheit6, '°F');
-                    break;
-            }
-            exercises[currentExercise] = { type: currentType, question, answer, options };
-        }
-        
-        function skipExercise() {
-            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
-                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
-                skippedQuestions++;
-                currentExerciseAttempts = 0;
-                currentExercise++;
-                if (currentExercise < exercises.length) showCurrentExercise();
-                else showConclusion();
-            }
-        }
-        
-        function nextExercise() {
-            currentExercise++;
-            if (currentExercise < exercises.length) showCurrentExercise();
-            else showConclusion();
-        }
-        
-        function updateProgressBar() {
-            for (let i = 0; i < 6; i++) {
-                const progressItem = document.getElementById(`progress${i+1}`);
-                progressItem.classList.remove('active', 'completed');
-                if (i === currentExercise) progressItem.classList.add('active');
-                else if (i < currentExercise) progressItem.classList.add('completed');
-            }
-        }
-        
-        function showConclusion() {
-            document.getElementById('exerciseContainer').style.display = 'none';
-            document.getElementById('conclusionContainer').style.display = 'block';
-            document.getElementById('submitConclusion').addEventListener('click', function() {
-                const conclusionText = document.getElementById('conclusionText').value;
-                if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusão antes de enviar.');
-                    return;
-                }
-                showResults(conclusionText);
-            });
-        }
-        
-        function showResults(conclusion) {
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercícios respondidos: ${totalExercises}</p>
-                <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercícios pulados: ${skippedQuestions}</p>
-                <p>Nota: ${scorePercentage}%</p>
-            `;
-            document.getElementById('finalConclusion').value = conclusion;
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
-        }
-        
-        function sendResultsToSheet() {
-            const studentName = document.getElementById('studentName').value;
-            const studentGrade = document.getElementById('studentGrade').value;
-            const studentClass = document.getElementById('studentClass').value;
-            const studentEmail = document.getElementById('studentEmail').value;
-            const criticism = document.getElementById('criticismInput').value;
-            const suggestion = document.getElementById('suggestionInput').value;
-            const finalConclusion = document.getElementById('finalConclusion').value;
-            const sendButton = document.getElementById('sendResults');
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-            
-            const dadosCompletos = {
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Conversão de Escalas Termométricas',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
-            
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-            
-            fetch(planilhaScriptUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosCompletos) })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                return fetch(emailScriptUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dadosCompletos) });
-            })
-            .then(() => {
-                if (studentEmail) {
-                    const emailDataAluno = {
-                        to_email: studentEmail,
-                        nome_aluno: studentName || 'Não informado',
-                        serie: studentGrade || 'Não informado',
-                        turma: studentClass || 'Não informado',
-                        nota: scorePercentage + '%' || '0%',
-                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                        questoes_puladas: skippedQuestions || 0,
-                        conclusao: finalConclusion || 'Não informado',
-                        data_envio: new Date().toLocaleString('pt-BR'),
-                        simulacao: 'Conversão de Escalas Termométricas',
-                        mensagem: `Confirmação de Envio - Simulação de Conversão de Escalas Termométricas'
 
-Prezado(a) ${studentName},
-
-Confirmamos o recebimento dos seus resultados:
-
-📊 SEUS RESULTADOS:
-• Nota: ${scorePercentage}%
-• Acertos: ${correctAnswers} de ${totalExercises} questões
-• Questões Puladas: ${skippedQuestions}
-
-Data: ${new Date().toLocaleString('pt-BR')}
-
-Atenciosamente,
-Sistema de Simulações Físicas`
-                    };
-                    return fetch(emailScriptUrl, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(emailDataAluno) });
-                }
-            })
-            .then(() => {
-                const mensagemSucesso = studentEmail ? '✅ Dados salvos e emails enviados!' : '✅ Dados salvos e email enviado ao professor!';
-                emailStatus.textContent = mensagemSucesso;
-                emailStatus.className = 'email-status sent';
-                setTimeout(() => {
-                    closeExercisesModal();
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(error => {
-                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
-                emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
-        }
-        
-        function openExercisesModal() {
-            generateExercises();
-            document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            showCurrentExercise();
-        }
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            updateTemperatureRange();
+            setupEventListeners();
+            animate();
+            resizeGraphs();
+        });
+        window.addEventListener('resize', () => { resizeCanvas(); resizeGraphs(); });
     </script>
 </body>
 </html>
