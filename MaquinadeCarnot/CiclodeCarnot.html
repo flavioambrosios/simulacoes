@@ -578,14 +578,7 @@
                     <span class="close">&times;</span>
                 </div>
             </div>
-            <div class="progress" id="progressBar">
-                <div class="progress-item" id="progress1">1</div>
-                <div class="progress-item" id="progress2">2</div>
-                <div class="progress-item" id="progress3">3</div>
-                <div class="progress-item" id="progress4">4</div>
-                <div class="progress-item" id="progress5">5</div>
-                <div class="progress-item" id="progress6">6</div>
-            </div>
+            <div class="progress" id="progressBar"></div>
             <div id="exerciseContainer"></div>
             <div id="conclusionContainer" style="display: none;">
                 <h3>Conclusão de Estudo</h3>
@@ -714,21 +707,38 @@
             exercises.push({ type: 'teorica_segunda_lei', question: `A Segunda Lei da Termodinâmica estabelece que:`, answer: 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', options: ['A energia total do universo está diminuindo', 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', 'Todas as máquinas térmicas têm rendimento de 100%', 'O calor flui naturalmente de objetos frios para objetos quentes'] });
             exercises.push({ type: 'teorica_carnot', question: `O rendimento de uma máquina de Carnot depende:`, answer: 'Apenas das temperaturas das fontes quente e fria', options: ['Do tipo de substância de trabalho utilizada', 'Apenas das temperaturas das fontes quente e fria', 'Do volume do sistema', 'Da pressão máxima atingida durante o ciclo'] });
             exercises = shuffleArray(exercises);
+            renderProgressBar();
         }
 
         function generateOptions(correctValue, unit) {
-            let opts = [{ value: correctValue, display: unit === '%' ? correctValue.toFixed(1) + ' ' + unit : (unit === 'J' ? correctValue.toFixed(0) + ' ' + unit : correctValue) }];
+            const formatValue = (value) => {
+                if (unit === '%') return Number(value).toFixed(1);
+                if (unit === 'J') return String(Math.round(value));
+                return String(value);
+            };
+
+            let opts = [{
+                value: formatValue(correctValue),
+                display: unit === '%' ? Number(correctValue).toFixed(1) + ' ' + unit : (unit === 'J' ? Math.round(correctValue) + ' ' + unit : correctValue)
+            }];
+
             for (let i = 0; i < 4; i++) {
                 let factor = 0.5 + Math.random() * 1.5;
                 let optVal = correctValue * factor;
-                if (unit === '%') opts.push({ value: optVal, display: optVal.toFixed(1) + ' ' + unit });
-                else if (unit === 'J') opts.push({ value: optVal, display: Math.round(optVal) + ' ' + unit });
-                else opts.push({ value: optVal, display: optVal });
+                if (unit === '%') opts.push({ value: formatValue(optVal), display: optVal.toFixed(1) + ' ' + unit });
+                else if (unit === 'J') opts.push({ value: formatValue(optVal), display: Math.round(optVal) + ' ' + unit });
+                else opts.push({ value: formatValue(optVal), display: optVal });
             }
-            return shuffleArray(opts).map(o => o.display);
+
+            return shuffleArray(opts);
         }
 
         function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = exercises.map((_, index) => `<div class="progress-item" id="progress${index + 1}">${index + 1}</div>`).join('');
+        }
 
         function showCurrentExercise() {
             const ex = exercises[currentExercise];
@@ -736,12 +746,16 @@
                 <div class="exercise">
                     <h3>Exercício ${currentExercise+1} de ${exercises.length}</h3>
                     <p>${ex.question}</p>
-                    <div class="options">${ex.options.map(opt => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}</div>
+                    <div class="options">${ex.options.map(opt => {
+                        const optionValue = typeof opt === 'string' ? opt : opt.value;
+                        const optionDisplay = typeof opt === 'string' ? opt : opt.display;
+                        return `<div class="option" data-value="${optionValue}">${optionDisplay}</div>`;
+                    }).join('')}</div>
                     <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
                     <div class="result"></div>
                 </div>
             `;
-            document.getElementById('exerciseContainer').addEventListener('click', function(e) { if (e.target.classList.contains('option')) { this.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected')); e.target.classList.add('selected'); } });
+            document.getElementById('exerciseContainer').onclick = function(e) { if (e.target.classList.contains('option')) { this.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected')); e.target.classList.add('selected'); } };
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             updateProgressBar();
         }
@@ -750,9 +764,8 @@
             const container = document.getElementById('exerciseContainer');
             const selected = container.querySelector('.option.selected');
             const resultDiv = container.querySelector('.result');
-            const checkBtn = document.getElementById('checkAnswerBtn');
             if (!selected) { resultDiv.textContent = 'Selecione uma opção.'; resultDiv.className = 'result error'; return; }
-            const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+            const isCorrect = selected.dataset.value.trim() === String(exercises[currentExercise].answer).trim();
             if (isCorrect) {
                 resultDiv.textContent = 'Correto! Parabéns!'; resultDiv.className = 'result success';
                 selected.classList.add('correct');
@@ -793,7 +806,15 @@
         }
 
         function nextExercise() { currentExercise++; if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion(); }
-        function updateProgressBar() { for (let i = 0; i < 6; i++) { let p = document.getElementById(`progress${i+1}`); p.classList.remove('active','completed'); if (i === currentExercise) p.classList.add('active'); else if (i < currentExercise) p.classList.add('completed'); } }
+        function updateProgressBar() {
+            for (let i = 0; i < exercises.length; i++) {
+                let p = document.getElementById(`progress${i+1}`);
+                if (!p) continue;
+                p.classList.remove('active','completed');
+                if (i === currentExercise) p.classList.add('active');
+                else if (i < currentExercise) p.classList.add('completed');
+            }
+        }
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
