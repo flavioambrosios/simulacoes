@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação - Campo Magnético em Solenoide</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #renderer-container {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .yellow { background: #ffcc00; }
+        .cyan { background: #00ffff; }
+        
+        .coordinate-system {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 10;
+        }
+        
+        /* Modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação - Campo Magnético em Solenoide</h1>
+            <p class="subtitle">Visualização 3D do campo interno uniforme - Aprenda com exercícios</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Visualização 3D - Solenoide e Campo Magnético</h2>
+                <div class="simulation-container">
+                    <div id="renderer-container"></div>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="fieldVectorsBtn" class="active">Vetores de Campo Interno</button>
+                    <button id="externalFieldBtn">Linhas de Campo Externo</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color red"></div>
+                        <span>Corrente (sentido horário)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <span>Corrente (sentido anti-horário)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>Campo magnético interno</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cyan"></div>
+                        <span>Linhas de campo externo</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="currentSlider">Corrente Elétrica (i):</label>
+                    <input type="range" id="currentSlider" min="-5" max="5" value="2" step="0.1">
+                    <div class="value-display"><span id="currentValue">2.0</span> A</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="turnsSlider">Número de Espiras (N):</label>
+                    <input type="range" id="turnsSlider" min="50" max="500" value="200" step="10">
+                    <div class="value-display"><span id="turnsValue">200</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="lengthSlider">Comprimento (L):</label>
+                    <input type="range" id="lengthSlider" min="0.1" max="1.0" value="0.5" step="0.05">
+                    <div class="value-display"><span id="lengthValue">0.50</span> m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Densidade de Espiras (η = N/L):</label>
+                    <div class="value-display"><span id="densityValue">400.0</span> espiras/m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label>Campo Magnético (B):</label>
+                    <div class="value-display"><span id="fieldValue">1.01×10^-3</span> T</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Campo no Interior do Solenoide</h3>
+                    <p>B = μ₀ · (N/L) · i</p>
+                    <p>μ₀ = 4π×10⁻⁷ T·m/A</p>
+                    <p>B = μ₀ · η · i</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Corrente (i)</div>
+                        <div class="measurement-value" id="currentDisplay">2.0 A</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Nº de Espiras (N)</div>
+                        <div class="measurement-value" id="turnsDisplay">200</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento (L)</div>
+                        <div class="measurement-value" id="lengthDisplay">0.50 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Densidade (η)</div>
+                        <div class="measurement-value" id="densityDisplay">400.0 m⁻¹</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Campo Magnético (B)</div>
+                        <div class="measurement-value" id="fieldDisplay">1.01×10^-3 T</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Solenoide</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Solenoide</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo do Campo Magnético</h4>
+                    <p><strong>Problema:</strong> Um solenoide com 200 espiras e comprimento de 0,5 m é percorrido por uma corrente de 2 A. Qual a intensidade do campo magnético no seu interior?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> B = μ₀ · (N/L) · i</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> μ₀ = 4π×10⁻⁷ T·m/A</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> N/L = 200 / 0,5 = 400 espiras/m</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> B = (4π×10⁻⁷) · 400 · 2</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> B = 4π×10⁻⁷ · 800 = 3200π×10⁻⁷</div>
+                    <div class="solution-step"><strong>Passo 5:</strong> B ≈ 1,0053×10⁻³ T = 1,01 mT</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Cálculo da Corrente</h4>
+                    <p><strong>Problema:</strong> O campo magnético no interior de um solenoide é de 2,5×10⁻³ T. O solenoide tem 300 espiras e comprimento de 0,4 m. Qual a corrente elétrica?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> i = B / (μ₀ · (N/L))</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> N/L = 300 / 0,4 = 750 espiras/m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> μ₀ · (N/L) = 4π×10⁻⁷ · 750 = 3000π×10⁻⁷ ≈ 9,4248×10⁻⁴ T/A</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> i = 2,5×10⁻³ / (9,4248×10⁻⁴) ≈ 2,65 A</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Número de Espiras</h4>
+                    <p><strong>Problema:</strong> Um solenoide de comprimento 0,3 m, ao ser percorrido por uma corrente de 1,5 A, gera um campo de 1,2×10⁻³ T. Quantas espiras ele possui?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> N = (B · L) / (μ₀ · i)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> B · L = 1,2×10⁻³ · 0,3 = 3,6×10⁻⁴ T·m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> μ₀ · i = 4π×10⁻⁷ · 1,5 = 6π×10⁻⁷ ≈ 1,884×10⁻⁶ T·m/A</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> N = 3,6×10⁻⁴ / 1,884×10⁻⁶ ≈ 191 espiras</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Campo Magnético em Solenoide</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Campo Magnético no Interior de um Solenoide</h3>
+                    <p>Um solenoide é uma bobina longa formada por várias espiras circulares igualmente espaçadas. Quando percorrido por uma corrente elétrica, gera um campo magnético aproximadamente uniforme em seu interior.</p>
+                    
+                    <div class="theory-formula">B = μ₀ · (N/L) · i = μ₀ · η · i</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">B</span> = Campo magnético interno (Tesla)</li>
+                        <li><span class="highlight">μ₀</span> = Permeabilidade do vácuo (4π×10⁻⁷ T·m/A)</li>
+                        <li><span class="highlight">N</span> = Número total de espiras</li>
+                        <li><span class="highlight">L</span> = Comprimento do solenoide (metros)</li>
+                        <li><span class="highlight">η</span> = Densidade linear de espiras (espiras/m)</li>
+                        <li><span class="highlight">i</span> = Corrente elétrica (Amperes)</li>
+                    </ul>
+                    
+                    <p>O campo é diretamente proporcional à corrente e à densidade de espiras.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Direção do Campo - Regra da Mão Direita</h3>
+                    <p>Para determinar a direção do campo magnético no interior do solenoide:</p>
+                    
+                    <ul>
+                        <li>Envolva o solenoide com a mão direita, com os dedos no sentido da corrente nas espiras.</li>
+                        <li>O polegar estendido indica o sentido do campo magnético interno.</li>
+                    </ul>
+                    
+                    <p>Se a corrente vista de cima for no sentido anti-horário, o campo aponta para cima (positivo). Se for horário, o campo aponta para baixo (negativo).</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Características do Campo</h3>
+                    <ul>
+                        <li>No interior ideal, o campo é <strong>uniforme</strong> (mesma intensidade e direção em todos os pontos).</li>
+                        <li>As linhas de campo são paralelas ao eixo do solenoide.</li>
+                        <li>Externamente, o campo é fraco e se assemelha ao de um ímã em forma de barra.</li>
+                        <li>O campo não depende do diâmetro do solenoide (para solenoides longos).</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações</h3>
+                    <ul>
+                        <li>Eletroímãs</li>
+                        <li>Válvulas solenoides (controle de fluidos)</li>
+                        <li>Ressonância magnética</li>
+                        <li>Indutores e transformadores</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let scene, camera, renderer, controls;
+        let solenoidGroup, fieldVectors = [], externalFieldLines = [];
+        let current = 2.0;          // Amperes
+        let numTurns = 200;          // N
+        let length = 0.5;            // metros
+        let showFieldVectors = true;
+        let showExternalField = false;
+        const mu0 = 4 * Math.PI * 1e-7; // Permeabilidade do vácuo
+
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        // Função para formatar números em notação científica com 3 algarismos significativos
+        function formatScientificWith3Digits(value, unit = '') {
+            if (value === 0) return '0.00 ' + unit;
+            
+            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+                const exponent = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exponent);
+                const roundedMantissa = Math.round(mantissa * 100) / 100;
+                let mantissaStr = roundedMantissa.toFixed(2);
+                if (mantissaStr === '10.00') {
+                    mantissaStr = '1.00';
+                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
+                }
+                return mantissaStr + '×10^' + exponent + ' ' + unit;
+            }
+            
+            const integerPart = Math.floor(Math.abs(value));
+            let decimalPlaces;
+            if (integerPart === 0) {
+                const firstNonZero = -Math.floor(Math.log10(value));
+                decimalPlaces = firstNonZero + 2;
+            } else if (integerPart < 10) {
+                decimalPlaces = 2;
+            } else if (integerPart < 100) {
+                decimalPlaces = 1;
+            } else {
+                decimalPlaces = 0;
+            }
+            return value.toFixed(decimalPlaces) + ' ' + unit;
+        }
+        
+        function formatScientific(value, unit = '') {
+            return formatScientificWith3Digits(value, unit);
+        }
+
+        // Inicializar a cena Three.js
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000011);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(4, 3, 5);
+            camera.lookAt(0, 0, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            updateRendererSize();
+            document.getElementById('renderer-container').appendChild(renderer.domElement);
+            
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.1;
+            
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const axesHelper = new THREE.AxesHelper(2);
+            scene.add(axesHelper);
+            
+            createSolenoid();
+            createFieldVectors();
+            createExternalFieldLines();
+            
+            window.addEventListener('resize', onWindowResize);
+            
+            animate();
+            
+            updateMeasurements();
+            
+            setupEventListeners();
+            setupExerciseEventListeners();
+        }
+        
+        function updateRendererSize() {
+            const container = document.getElementById('renderer-container');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+        
+        // Criar a representação do solenoide (anéis + cilindro transparente)
+        function createSolenoid() {
+            if (solenoidGroup) scene.remove(solenoidGroup);
+            solenoidGroup = new THREE.Group();
+            
+            const radius = 1.0;
+            const solenoidLength = 3.0; // comprimento visual fixo
+            const numRings = 20; // número de anéis visuais (representam as espiras)
+            
+            // Cilindro transparente para indicar o volume interno
+            const cylinderGeo = new THREE.CylinderGeometry(radius, radius, solenoidLength, 32, 1);
+            const cylinderMat = new THREE.MeshPhongMaterial({ color: 0x3366ff, transparent: true, opacity: 0.15 });
+            const cylinder = new THREE.Mesh(cylinderGeo, cylinderMat);
+            cylinder.rotation.x = Math.PI / 2; // alinhar com eixo Z
+            solenoidGroup.add(cylinder);
+            
+            // Anéis (espiras)
+            for (let i = 0; i < numRings; i++) {
+                const z = (i / (numRings - 1) - 0.5) * solenoidLength;
+                const ringGeo = new THREE.TorusGeometry(radius, 0.05, 16, 32);
+                const ringMat = new THREE.MeshPhongMaterial({ 
+                    color: current >= 0 ? 0xff3333 : 0x3366ff,
+                    emissive: current >= 0 ? 0x330000 : 0x001133
+                });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2; // deitar no plano XY
+                ring.position.z = z;
+                solenoidGroup.add(ring);
+            }
+            
+            // Seta indicadora do sentido da corrente (em uma das extremidades)
+            const arrowDir = current >= 0 ? 1 : -1;
+            const arrowGeo = new THREE.ConeGeometry(0.15, 0.4, 16);
+            const arrowMat = new THREE.MeshBasicMaterial({ color: current >= 0 ? 0xff0000 : 0x0066ff });
+            const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+            arrow.position.set(0, 0, arrowDir * 1.8);
+            arrow.rotation.x = Math.PI / 2;
+            if (current < 0) arrow.rotation.x = -Math.PI / 2;
+            solenoidGroup.add(arrow);
+            
+            scene.add(solenoidGroup);
+        }
+        
+        // Criar vetores de campo magnético interno
+        function createFieldVectors() {
+            fieldVectors.forEach(v => scene.remove(v));
+            fieldVectors = [];
+            
+            const radius = 0.8; // dentro do solenoide
+            const solenoidLength = 3.0;
+            const numLayers = 3; // camadas em z
+            const numPerLayer = 4; // vetores por camada
+            
+            const B = calculateField();
+            const fieldDirection = current >= 0 ? 1 : -1;
+            const vectorScale = 0.5 * Math.abs(B) / 1e-3; // escala visual (B típico ~ 1e-3 T)
+            
+            for (let layer = 0; layer < numLayers; layer++) {
+                const z = (layer / (numLayers - 1) - 0.5) * solenoidLength * 0.8; // evita extremidades
+                for (let i = 0; i < numPerLayer; i++) {
+                    const angle = (i / numPerLayer) * Math.PI * 2;
+                    const x = Math.cos(angle) * radius * 0.7;
+                    const y = Math.sin(angle) * radius * 0.7;
+                    
+                    const arrow = createArrow(new THREE.Vector3(0, 0, fieldDirection), vectorScale, 0x00ff00, new THREE.Vector3(x, y, z));
+                    scene.add(arrow);
+                    fieldVectors.push(arrow);
+                }
+            }
+            
+            setFieldVectorsVisibility(showFieldVectors);
+        }
+        
+        // Criar linhas de campo externo (simulando um ímã)
+        function createExternalFieldLines() {
+            externalFieldLines.forEach(l => scene.remove(l));
+            externalFieldLines = [];
+            
+            const solenoidLength = 3.0;
+            const radius = 1.2;
+            
+            // Criar algumas curvas saindo do topo e voltando à base
+            const colors = [0x00ffff, 0x00cccc];
+            for (let side = -1; side <= 1; side += 2) {
+                for (let i = 0; i < 3; i++) {
+                    const angle = (i / 3) * Math.PI * 2;
+                    const startX = Math.cos(angle) * radius * 0.8;
+                    const startY = Math.sin(angle) * radius * 0.8;
+                    const startZ = side * solenoidLength / 2;
+                    
+                    const endX = startX * 0.5;
+                    const endY = startY * 0.5;
+                    const endZ = -side * solenoidLength / 2;
+                    
+                    const midX = (startX + endX) * 2;
+                    const midY = (startY + endY) * 2;
+                    const midZ = 0;
+                    
+                    const curve = new THREE.QuadraticBezierCurve3(
+                        new THREE.Vector3(startX, startY, startZ),
+                        new THREE.Vector3(midX, midY, midZ),
+                        new THREE.Vector3(endX, endY, endZ)
+                    );
+                    
+                    const points = curve.getPoints(30);
+                    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+                    const lineMat = new THREE.LineBasicMaterial({ color: colors[i % colors.length] });
+                    const line = new THREE.Line(lineGeo, lineMat);
+                    scene.add(line);
+                    externalFieldLines.push(line);
+                }
+            }
+            
+            setExternalFieldVisibility(showExternalField);
+        }
+        
+        function createArrow(direction, length, color, position) {
+            const arrowGroup = new THREE.Group();
+            
+            const bodyLength = length * 0.7;
+            const bodyGeo = new THREE.CylinderGeometry(0.05, 0.05, bodyLength, 6);
+            const bodyMat = new THREE.MeshBasicMaterial({ color: color });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.z = bodyLength / 2;
+            arrowGroup.add(body);
+            
+            const headLength = length * 0.3;
+            const headGeo = new THREE.ConeGeometry(0.1, headLength, 8);
+            const headMat = new THREE.MeshBasicMaterial({ color: color });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.z = bodyLength + headLength / 2;
+            arrowGroup.add(head);
+            
+            // Rotacionar para a direção desejada (assumindo que direction é (0,0,±1))
+            if (direction.z < 0) {
+                arrowGroup.rotation.z = Math.PI;
+            }
+            
+            arrowGroup.position.copy(position);
+            return arrowGroup;
+        }
+        
+        function calculateField() {
+            const eta = numTurns / length;
+            return mu0 * eta * Math.abs(current);
+        }
+        
+        function updateSimulation() {
+            if (solenoidGroup) scene.remove(solenoidGroup);
+            createSolenoid();
+            
+            fieldVectors.forEach(v => scene.remove(v));
+            createFieldVectors();
+            
+            externalFieldLines.forEach(l => scene.remove(l));
+            createExternalFieldLines();
+            
+            updateMeasurements();
+        }
+        
+        function setFieldVectorsVisibility(visible) {
+            fieldVectors.forEach(v => v.visible = visible);
+        }
+        
+        function setExternalFieldVisibility(visible) {
+            externalFieldLines.forEach(l => l.visible = visible);
+        }
+        
+        function updateMeasurements() {
+            const eta = numTurns / length;
+            const B = calculateField();
+            
+            document.getElementById('currentValue').textContent = current.toFixed(1);
+            document.getElementById('turnsValue').textContent = numTurns;
+            document.getElementById('lengthValue').textContent = length.toFixed(2);
+            document.getElementById('densityValue').textContent = eta.toFixed(1);
+            document.getElementById('fieldValue').textContent = formatScientific(B, 'T');
+            
+            document.getElementById('currentDisplay').textContent = current.toFixed(1) + ' A';
+            document.getElementById('turnsDisplay').textContent = numTurns;
+            document.getElementById('lengthDisplay').textContent = length.toFixed(2) + ' m';
+            document.getElementById('densityDisplay').textContent = eta.toFixed(1) + ' m⁻¹';
+            document.getElementById('fieldDisplay').textContent = formatScientific(B, 'T');
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            updateRendererSize();
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('currentSlider').addEventListener('input', function() {
+                current = parseFloat(this.value);
+                document.getElementById('currentValue').textContent = current.toFixed(1);
+                updateSimulation();
+            });
+            
+            document.getElementById('turnsSlider').addEventListener('input', function() {
+                numTurns = parseInt(this.value);
+                document.getElementById('turnsValue').textContent = numTurns;
+                updateSimulation();
+            });
+            
+            document.getElementById('lengthSlider').addEventListener('input', function() {
+                length = parseFloat(this.value);
+                document.getElementById('lengthValue').textContent = length.toFixed(2);
+                updateSimulation();
+            });
+            
+            document.getElementById('fieldVectorsBtn').addEventListener('click', function() {
+                showFieldVectors = !showFieldVectors;
+                setFieldVectorsVisibility(showFieldVectors);
+                this.classList.toggle('active', showFieldVectors);
+            });
+            
+            document.getElementById('externalFieldBtn').addEventListener('click', function() {
+                showExternalField = !showExternalField;
+                setExternalFieldVisibility(showExternalField);
+                this.classList.toggle('active', showExternalField);
+            });
+            
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar:\n\n• Arraste para rotacionar a cena\n• Use a roda do mouse para zoom\n• O solenoide está alinhado ao eixo Z\n• Vetores verdes representam o campo interno (uniforme)\n• Linhas ciano são linhas de campo externo (aproximação)\n\nRegra da Mão Direita:\n• Dedos no sentido da corrente (anéis vermelhos/azuis)\n• Polegar indica o sentido do campo interno");
+            });
+        }
+        
+        function setupExerciseEventListeners() {
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
+                else if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+                else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
+            });
+        }
+        
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS - SOLENOIDE ==========
+        
+        function generateExercises() {
+            exercises = [];
+            
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular campo B
+                let N = Math.floor(Math.random() * 400) + 100; // 100-500
+                let L = (Math.floor(Math.random() * 9) + 2) / 10; // 0.2-1.0
+                let I = (Math.floor(Math.random() * 9) + 1) / 2; // 0.5-5.0
+                let B = mu0 * (N / L) * I;
+                
+                exercises.push({
+                    type: 'campo',
+                    question: `Um solenoide com ${N} espiras e comprimento de ${L.toFixed(1)} m é percorrido por uma corrente de ${I.toFixed(1)} A. Qual a intensidade do campo magnético no seu interior?`,
+                    answer: formatScientificWith3Digits(B, 'T'),
+                    options: generateOptions(B, 'T')
+                });
+                
+                // Tipo 2: Calcular corrente I
+                N = Math.floor(Math.random() * 400) + 100;
+                L = (Math.floor(Math.random() * 9) + 2) / 10;
+                B = (Math.floor(Math.random() * 9) + 1) * 1e-3; // 1-9 mT
+                I = B / (mu0 * (N / L));
+                
+                exercises.push({
+                    type: 'corrente',
+                    question: `O campo magnético no interior de um solenoide é de ${formatScientificWith3Digits(B, 'T')}. O solenoide tem ${N} espiras e comprimento de ${L.toFixed(1)} m. Qual a corrente elétrica?`,
+                    answer: formatScientificWith3Digits(I, 'A'),
+                    options: generateOptions(I, 'A')
+                });
+                
+                // Tipo 3: Calcular número de espiras N
+                L = (Math.floor(Math.random() * 9) + 2) / 10;
+                I = (Math.floor(Math.random() * 9) + 1) / 2;
+                B = (Math.floor(Math.random() * 9) + 1) * 1e-3;
+                N = (B * L) / (mu0 * I);
+                
+                exercises.push({
+                    type: 'espiras',
+                    question: `Um solenoide de comprimento ${L.toFixed(1)} m, ao ser percorrido por uma corrente de ${I.toFixed(1)} A, gera um campo de ${formatScientificWith3Digits(B, 'T')}. Quantas espiras ele possui?`,
+                    answer: Math.round(N).toString(), // número inteiro de espiras
+                    options: generateOptions(N, '', true) // como string, sem unidade
+                });
+            }
+            
+            exercises = shuffleArray(exercises);
+        }
+        
+        function generateOptions(correctValue, unit = '', isInteger = false) {
+            const options = [];
+            let formattedCorrect = isInteger ? Math.round(correctValue).toString() : formatScientificWith3Digits(correctValue, unit);
+            options.push({ value: correctValue, display: formattedCorrect });
+            
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                let attempts = 0;
+                while (!unique && attempts < 20) {
+                    if (isInteger) {
+                        // Para número de espiras, variar em torno do valor inteiro
+                        optionValue = Math.round(correctValue * (0.7 + Math.random() * 0.6));
+                        if (optionValue < 10) optionValue = correctValue + (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                        formattedOption = optionValue.toString();
+                    } else {
+                        const variationType = Math.random();
+                        if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                        else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                        else optionValue = correctValue * (1 + (Math.random() * 0.6 + 0.2) * (Math.random() > 0.5 ? 1 : -1));
+                        
+                        if (unit === 'T' || unit === 'm' || unit === 'A') optionValue = Math.abs(optionValue);
+                        formattedOption = formatScientificWith3Digits(optionValue, unit);
+                    }
+                    
+                    unique = !options.some(opt => opt.display === formattedOption);
+                    attempts++;
+                }
+                options.push({ value: optionValue, display: formattedOption });
+            }
+            
+            return shuffleArray(options).map(opt => opt.display);
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+        
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'campo') {
+                let N = Math.floor(Math.random() * 400) + 100;
+                let L = (Math.floor(Math.random() * 9) + 2) / 10;
+                let I = (Math.floor(Math.random() * 9) + 1) / 2;
+                let B = mu0 * (N / L) * I;
+                
+                exercises[currentExercise] = {
+                    type: 'campo',
+                    question: `Um solenoide com ${N} espiras e comprimento de ${L.toFixed(1)} m é percorrido por uma corrente de ${I.toFixed(1)} A. Qual a intensidade do campo magnético no seu interior?`,
+                    answer: formatScientificWith3Digits(B, 'T'),
+                    options: generateOptions(B, 'T')
+                };
+            } else if (currentType === 'corrente') {
+                let N = Math.floor(Math.random() * 400) + 100;
+                let L = (Math.floor(Math.random() * 9) + 2) / 10;
+                let B = (Math.floor(Math.random() * 9) + 1) * 1e-3;
+                let I = B / (mu0 * (N / L));
+                
+                exercises[currentExercise] = {
+                    type: 'corrente',
+                    question: `O campo magnético no interior de um solenoide é de ${formatScientificWith3Digits(B, 'T')}. O solenoide tem ${N} espiras e comprimento de ${L.toFixed(1)} m. Qual a corrente elétrica?`,
+                    answer: formatScientificWith3Digits(I, 'A'),
+                    options: generateOptions(I, 'A')
+                };
+            } else if (currentType === 'espiras') {
+                let L = (Math.floor(Math.random() * 9) + 2) / 10;
+                let I = (Math.floor(Math.random() * 9) + 1) / 2;
+                let B = (Math.floor(Math.random() * 9) + 1) * 1e-3;
+                let N = (B * L) / (mu0 * I);
+                
+                exercises[currentExercise] = {
+                    type: 'espiras',
+                    question: `Um solenoide de comprimento ${L.toFixed(1)} m, ao ser percorrido por uma corrente de ${I.toFixed(1)} A, gera um campo de ${formatScientificWith3Digits(B, 'T')}. Quantas espiras ele possui?`,
+                    answer: Math.round(N).toString(),
+                    options: generateOptions(N, '', true)
+                };
+            }
+        }
+        
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }   
+        }
+        
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+        
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                if (i === currentExercise) progressItem.classList.add('active');
+                else if (i < currentExercise) progressItem.classList.add('completed');
+            }
+        }
+        
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            });
+        }
+        
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Solenoide',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Solenoide',
+                        mensagem: `Confirmação de Envio - Simulação Solenoide
+
+Prezado(a) ${studentName},
+
+Confirmamos o recebimento dos seus resultados:
+
+📊 SEUS RESULTADOS:
+• Nota: ${scorePercentage}%
+• Acertos: ${correctAnswers} de ${totalExercises} questões
+• Questões Puladas: ${skippedQuestions}
+
+Data: ${new Date().toLocaleString('pt-BR')}
+
+Atenciosamente,
+Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

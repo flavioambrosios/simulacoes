@@ -50,6 +50,12 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
+        .subtitle {
+            color: #ffe082;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
         .content {
             display: flex;
             flex-wrap: wrap;
@@ -69,10 +75,12 @@
         .simulation-container {
             width: 100%;
             height: 500px;
-            background: #000;
-            border-radius: 8px;
+            background: linear-gradient(180deg, #11263b, #09131f);
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05), 0 10px 25px rgba(0, 0, 0, 0.35);
         }
 
         #simulationCanvas {
@@ -156,6 +164,18 @@
             text-align: center;
         }
 
+        .teacher-tip {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            background: rgba(255, 204, 0, 0.12);
+            border-left: 4px solid #ffcc00;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            text-align: left;
+        }
+
         .measurement-panel {
             width: 100%;
             background: rgba(0, 0, 0, 0.6);
@@ -230,13 +250,15 @@
             padding: 15px;
         }
         .modal-content {
-            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            background: linear-gradient(135deg, #223b5a, #32527c, #3d6796);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 14px;
             width: 100%;
             max-width: 800px;
             max-height: 85vh;
             overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
         }
         .modal-header {
             display: flex;
@@ -264,53 +286,69 @@
             background: #c82333;
         }
         .exercise {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            margin-bottom: 18px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            border-left: 5px solid #ffcc00;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
         }
         .exercise h3 {
-            color: #ffcc00;
+            color: #ffdd66;
             margin-bottom: 10px;
             text-align: center;
+            font-size: 1.2rem;
         }
         .exercise p {
+            margin-bottom: 12px;
+            text-align: left;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .exercise-intro {
             margin-bottom: 10px;
-            text-align: center;
+            color: #fff3bf;
+            font-size: 0.95rem;
+            text-align: left;
         }
         .options {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 8px;
-            margin: 10px 0;
+            gap: 10px;
+            margin: 12px 0;
             width: 100%;
         }
         .option {
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
-            text-align: center;
+            transition: all 0.3s;
+            text-align: left;
             min-height: 50px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            border: 1px solid transparent;
+            font-weight: 600;
         }
         .option:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateX(3px);
         }
         .selected {
-            background: rgba(255, 204, 0, 0.3);
+            background: rgba(255, 204, 0, 0.26);
             border: 1px solid #ffcc00;
         }
         .correct {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid #00ff00;
+            background: rgba(40, 167, 69, 0.25);
+            border: 1px solid #7CFC98;
         }
         .incorrect {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
+            background: rgba(220, 53, 69, 0.25);
+            border: 1px solid #ff8a8a;
         }
         .disabled {
             pointer-events: none;
@@ -320,12 +358,13 @@
             width: 100%;
             margin-top: 10px;
             padding: 12px;
-            background: #ffcc00;
+            background: linear-gradient(135deg, #ffcc00, #ffd84d);
             color: #000;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
         }
         .check-btn:disabled {
             background: #cccccc;
@@ -338,43 +377,49 @@
             background: #6c757d;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
         }
         .result {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 5px;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
         }
         .success {
-            background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
+            background: rgba(40, 167, 69, 0.22);
+            color: #baffc9;
         }
         .error {
-            background: rgba(255, 0, 0, 0.2);
-            color: #ff0000;
+            background: rgba(220, 53, 69, 0.22);
+            color: #ffd1d1;
         }
         .progress {
             display: flex;
             justify-content: space-between;
+            gap: 6px;
             margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         .progress-item {
             flex: 1;
+            min-width: 40px;
             text-align: center;
             padding: 8px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            border-radius: 20px;
             margin: 0 2px;
+            font-weight: bold;
         }
         .progress-item.active {
-            background: rgba(255, 204, 0, 0.3);
+            background: rgba(255, 204, 0, 0.35);
+            color: #fff;
+            border: 1px solid #ffcc00;
         }
         .progress-item.completed {
-            background: rgba(0, 255, 0, 0.2);
+            background: rgba(40, 167, 69, 0.28);
         }
         .button-group {
             display: flex;
@@ -527,6 +572,8 @@
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 12px;
+            border-left: 4px solid #ffcc00;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
         }
         .example-item p {
             margin: 5px 0;
@@ -643,6 +690,9 @@
                     <p>Linear: ΔL = L₀ × α × ΔT</p>
                     <p>Superficial: ΔA = A₀ × 2α × ΔT</p>
                     <p>Volumétrica: ΔV = V₀ × 3α × ΔT</p>
+                    <div class="teacher-tip">
+                        <strong>Dica:</strong> nos exercícios de área, use <strong>β = 2α</strong>. Nos de volume, use <strong>γ = 3α</strong>.
+                    </div>
                 </div>
                 <div class="exercise-buttons">
                     <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
@@ -706,7 +756,7 @@
                 <div class="solved-exercise"><h4>Exemplo 3: Dilatação Volumétrica</h4><p><strong>Problema:</strong> Um cubo de aço de volume 1 m³ a 30°C é aquecido a 130°C. Qual será seu novo volume? (α = 1.2×10⁻⁵ °C⁻¹)</p><div class="solution-step"><strong>Fórmula:</strong> ΔV = V₀ × γ × ΔT, onde γ = 3α</div><div class="solution-step"><strong>Passo 1:</strong> Calcular γ = 3 × 1.2×10⁻⁵ = 3.6×10⁻⁵ °C⁻¹</div><div class="solution-step"><strong>Passo 2:</strong> Calcular ΔT = 130°C - 30°C = 100°C</div><div class="solution-step"><strong>Passo 3:</strong> Calcular ΔV = 1 × 3.6×10⁻⁵ × 100 = 0.0036 m³</div><div class="solution-step"><strong>Passo 4:</strong> Calcular V = V₀ + ΔV = 1 + 0.0036 = 1.0036 m³</div><div class="solution-step"><strong>Resposta:</strong> O novo volume é 1.0036 m³</div></div>
                 <div class="solved-exercise"><h4>Exemplo 4: Determinando o coeficiente de dilatação linear (α)</h4><p><strong>Problema:</strong> Uma barra metálica de 1,5 m de comprimento a 20°C sofre um acréscimo de comprimento de 0,0027 m quando aquecida a 80°C. Determine o coeficiente de dilatação linear do material.</p><div class="solution-step"><strong>Fórmula:</strong> α = ΔL / (L₀ × ΔT)</div><div class="solution-step"><strong>Passo 1:</strong> Calcular ΔT = 80°C - 20°C = 60°C</div><div class="solution-step"><strong>Passo 2:</strong> α = 0,0027 / (1,5 × 60) = 0,0027 / 90 = 3,0×10⁻⁵ °C⁻¹</div><div class="solution-step"><strong>Resposta:</strong> O coeficiente de dilatação linear é 3,0×10⁻⁵ °C⁻¹.</div></div>
                 <div class="solved-exercise"><h4>Exemplo 5: Determinando o coeficiente de dilatação superficial (β)</h4><p><strong>Problema:</strong> Uma chapa de zinco tem área 0,5 m² a 10°C. Quando aquecida a 110°C, sua área aumenta para 0,5009 m². Calcule β e, em seguida, α (coeficiente linear) do material.</p><div class="solution-step"><strong>Fórmula:</strong> β = ΔA / (A₀ × ΔT) e α = β / 2</div><div class="solution-step"><strong>Passo 1:</strong> ΔA = 0,5009 - 0,5 = 0,0009 m²</div><div class="solution-step"><strong>Passo 2:</strong> ΔT = 110°C - 10°C = 100°C</div><div class="solution-step"><strong>Passo 3:</strong> β = 0,0009 / (0,5 × 100) = 0,0009 / 50 = 1,8×10⁻⁵ °C⁻¹</div><div class="solution-step"><strong>Passo 4:</strong> α = β / 2 = 9,0×10⁻⁶ °C⁻¹</div><div class="solution-step"><strong>Resposta:</strong> β = 1,8×10⁻⁵ °C⁻¹ e α = 9,0×10⁻⁶ °C⁻¹.</div></div>
-                <div class="solved-exercise"><h4>Exemplo 6: Determinando o coeficiente de dilatação volumétrica (γ)</h4><p><strong>Problema:</strong> Um recipiente de vidro de volume 200 cm³ a 15°C está completamente cheio de um líquido. Ao aquecer o conjunto a 95°C, observa-se que 3,2 cm³ do líquido transbordam. Sabendo que o líquido tem γ = 1,2×10⁻³ °C⁻¹, calcule o coeficiente de dilatação volumétrica do vidro.</p><div class="solution-step"><strong>Raciocínio:</strong> O volume aparente transbordado é igual à diferença entre a dilatação real do líquido e a dilatação do recipiente.</div><div class="solution-step"><strong>Passo 1:</strong> ΔT = 95°C - 15°C = 80°C</div><div class="solution-step"><strong>Passo 2:</strong> Dilatação real do líquido: ΔV_líq = V₀ × γ_líq × ΔT = 200 × 1,2×10⁻³ × 80 = 19,2 cm³</div><div class="solution-step"><strong>Passo 3:</strong> O volume transbordado (ΔV_ap) = 3,2 cm³ = ΔV_líq - ΔV_recipiente</div><div class="solution-step"><strong>Passo 4:</strong> ΔV_recipiente = ΔV_líq - ΔV_ap = 19,2 - 3,2 = 16,0 cm³</div><div class="solution-step"><strong>Passo 5:</strong> γ_vidro = ΔV_recipiente / (V₀ × ΔT) = 16,0 / (200 × 80) = 16,0 / 16000 = 1,0×10⁻³ °C⁻¹</div><div class="solution-step"><strong>Resposta:</strong> O coeficiente de dilatação volumétrica do vidro é 1,0×10⁻³ °C⁻¹.</div></div>
+                <div class="solved-exercise"><h4>Exemplo 6: Determinando o coeficiente de dilatação volumétrica (γ)</h4><p><strong>Problema:</strong> Um recipiente de vidro de volume 200 cm³ a 15°C está completamente cheio de um líquido. Ao aquecer o conjunto a 95°C, observa-se que 1,52 cm³ do líquido transbordam. Sabendo que o líquido tem γ = 1,2×10⁻⁴ °C⁻¹, calcule o coeficiente de dilatação volumétrica do vidro.</p><div class="solution-step"><strong>Raciocínio:</strong> O volume aparente transbordado é igual à diferença entre a dilatação real do líquido e a dilatação do recipiente.</div><div class="solution-step"><strong>Passo 1:</strong> ΔT = 95°C - 15°C = 80°C</div><div class="solution-step"><strong>Passo 2:</strong> Dilatação real do líquido: ΔV_líq = V₀ × γ_líq × ΔT = 200 × 1,2×10⁻⁴ × 80 = 1,92 cm³</div><div class="solution-step"><strong>Passo 3:</strong> O volume transbordado (ΔV_ap) = 1,52 cm³ = ΔV_líq - ΔV_recipiente</div><div class="solution-step"><strong>Passo 4:</strong> ΔV_recipiente = ΔV_líq - ΔV_ap = 1,92 - 1,52 = 0,40 cm³</div><div class="solution-step"><strong>Passo 5:</strong> γ_vidro = ΔV_recipiente / (V₀ × ΔT) = 0,40 / (200 × 80) = 0,40 / 16000 = 2,5×10⁻⁵ °C⁻¹</div><div class="solution-step"><strong>Resposta:</strong> O coeficiente de dilatação volumétrica do vidro é 2,5×10⁻⁵ °C⁻¹.</div></div>
                 <div class="solved-exercise"><h4>Exemplo 7: Determinando a variação de temperatura a partir da dilatação</h4><p><strong>Problema:</strong> Uma barra de aço (α = 1,2×10⁻⁵ °C⁻¹) de 2,0 m de comprimento sofre uma dilatação de 0,0024 m. Qual foi a variação de temperatura?</p><div class="solution-step"><strong>Fórmula:</strong> ΔT = ΔL / (L₀ × α)</div><div class="solution-step"><strong>Passo 1:</strong> ΔT = 0,0024 / (2,0 × 1,2×10⁻⁵) = 0,0024 / (2,4×10⁻⁵) = 100 °C</div><div class="solution-step"><strong>Resposta:</strong> A variação de temperatura foi de 100 °C.</div></div>
             </div>
             <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
@@ -846,35 +896,132 @@
         }
 
         function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-        function getTemperatureColor(temp) { const norm = (temp + 50) / 350; const hue = 240 - (norm * 240); return `hsl(${hue}, 70%, 50%)`; }
+        function getTemperatureColor(temp) {
+            const norm = (temp + 50) / 350;
+            const hue = 220 - (norm * 220);
+            return `hsl(${hue}, 85%, 58%)`;
+        }
+
+        function drawBackgroundGrid() {
+            const width = canvas.width, height = canvas.height;
+            const bg = ctx.createLinearGradient(0, 0, 0, height);
+            bg.addColorStop(0, '#17324d');
+            bg.addColorStop(1, '#0b1522');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(40, height * 0.78);
+            ctx.lineTo(width - 180, height * 0.78);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawArrow(x1, y1, x2, y2, color = '#ffcc00', label = '') {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const headLength = 10;
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - headLength * Math.cos(angle - Math.PI / 6), y2 - headLength * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - headLength * Math.cos(angle + Math.PI / 6), y2 - headLength * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+            if (label) {
+                ctx.font = 'bold 13px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(label, (x1 + x2) / 2, (y1 + y2) / 2 - 8);
+            }
+            ctx.restore();
+        }
+
+        function drawBadge(text, x, y) {
+            ctx.save();
+            ctx.font = 'bold 13px Arial';
+            const width = ctx.measureText(text).width + 20;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+            ctx.strokeStyle = 'rgba(255, 204, 0, 0.7)';
+            ctx.lineWidth = 1;
+            ctx.fillRect(x - width / 2, y - 16, width, 24);
+            ctx.strokeRect(x - width / 2, y - 16, width, 24);
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, x, y + 2);
+            ctx.restore();
+        }
 
         function drawThermometer(x, y, temp) {
-            const tubeW = 40, tubeH = 200, bulbR = 25;
-            const norm = (temp + 50) / 350;
+            const tubeW = 28, tubeH = 210, bulbR = 22;
+            const norm = Math.max(0, Math.min(1, (temp + 50) / 350));
             const mercuryH = norm * tubeH;
-            ctx.fillStyle = '#e74c3c';
-            ctx.beginPath(); ctx.arc(x, y + tubeH, bulbR, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#bdc3c7';
-            ctx.fillRect(x - tubeW/2, y, tubeW, tubeH);
-            ctx.fillStyle = '#e74c3c';
-            ctx.fillRect(x - tubeW/2 + 5, y + tubeH - mercuryH, tubeW - 10, mercuryH);
-            ctx.fillStyle = '#2c3e50';
+            ctx.save();
+            ctx.fillStyle = 'rgba(255,255,255,0.18)';
+            ctx.fillRect(x - tubeW / 2, y, tubeW, tubeH);
+            ctx.strokeStyle = '#dfe6e9';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x - tubeW / 2, y, tubeW, tubeH);
+            ctx.beginPath();
+            ctx.arc(x, y + tubeH, bulbR, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.18)';
+            ctx.fill();
+            ctx.stroke();
+
+            const mercury = ctx.createLinearGradient(0, y + tubeH, 0, y);
+            mercury.addColorStop(0, '#ff4d4d');
+            mercury.addColorStop(1, '#ffd166');
+            ctx.fillStyle = mercury;
+            ctx.fillRect(x - tubeW / 2 + 4, y + tubeH - mercuryH, tubeW - 8, mercuryH);
+            ctx.beginPath();
+            ctx.arc(x, y + tubeH, bulbR - 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+            ctx.lineWidth = 1;
+            ctx.fillStyle = '#dfe6e9';
             ctx.font = '12px Arial';
             ctx.textAlign = 'right';
             for (let t = -50; t <= 300; t += 50) {
                 const posY = y + tubeH - ((t + 50) / 350) * tubeH;
-                ctx.beginPath(); ctx.moveTo(x - tubeW/2 - 5, posY); ctx.lineTo(x - tubeW/2, posY); ctx.stroke();
-                ctx.fillText(`${t}°C`, x - tubeW/2 - 10, posY + 4);
+                ctx.beginPath();
+                ctx.moveTo(x - tubeW / 2 - 6, posY);
+                ctx.lineTo(x - tubeW / 2, posY);
+                ctx.stroke();
+                ctx.fillText(`${t}°C`, x - tubeW / 2 - 10, posY + 4);
             }
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 16px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`${temp}°C`, x, y - 20);
+            drawBadge(`${temp} °C`, x, y - 24);
+            ctx.restore();
         }
 
         function drawLegend(x, y) {
-            ctx.fillStyle = 'rgba(0,0,0,0.7)';
-            ctx.fillRect(x, y, 140, 90);
+            ctx.save();
+            ctx.fillStyle = 'rgba(0,0,0,0.65)';
+            ctx.fillRect(x, y, 165, 110);
+            ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+            ctx.strokeRect(x, y, 165, 110);
             ctx.fillStyle = '#ffcc00';
             ctx.font = 'bold 14px Arial';
             ctx.textAlign = 'left';
@@ -884,40 +1031,42 @@
             ctx.fillText(`Material: ${currentMaterial.name}`, x + 10, y + 40);
             ctx.fillText(`α = ${toScientific(currentMaterial.alpha, "°C⁻¹")}`, x + 10, y + 60);
             ctx.fillText(`Temperatura: ${currentTemp}°C`, x + 10, y + 80);
+            ctx.fillText('Tracejado = forma inicial', x + 10, y + 100);
+            ctx.restore();
         }
 
         function drawLinear() {
             const width = canvas.width, height = canvas.height;
             const deltaT = currentTemp - baseTemp;
             const deltaL = currentLength * currentMaterial.alpha * deltaT;
-            const barX = width * 0.1, barY = height * 0.4;
-            const barWidth = currentLength * 100;
-            const currentBarWidth = barWidth + (deltaL * 100);
-            const barColor = getTemperatureColor(currentTemp);
-            ctx.fillStyle = barColor;
-            ctx.fillRect(barX, barY, currentBarWidth, 30);
-            ctx.strokeStyle = '#ecf0f1';
+            const barX = width * 0.1, barY = height * 0.52;
+            const initialWidth = currentLength * 100;
+            const finalWidth = initialWidth + (deltaL * 100);
+            const barHeight = 34;
+
+            ctx.save();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.55)';
             ctx.lineWidth = 2;
-            ctx.strokeRect(barX, barY, currentBarWidth, 30);
-            ctx.fillStyle = '#ecf0f1';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, barX + barWidth / 2, barY - 10);
-            ctx.beginPath();
-            ctx.moveTo(barX, barY - 5); ctx.lineTo(barX, barY - 15);
-            ctx.lineTo(barX + barWidth, barY - 15); ctx.lineTo(barX + barWidth, barY - 5);
-            ctx.stroke();
-            if (Math.abs(deltaL) > 0.001) {
-                ctx.fillStyle = '#ffcc00';
-                ctx.fillText(`ΔL = ${deltaL.toFixed(4)} m`, barX + barWidth + deltaL * 50, barY + 55);
-                ctx.beginPath();
-                ctx.moveTo(barX + barWidth, barY + 35);
-                ctx.lineTo(barX + barWidth, barY + 45);
-                ctx.lineTo(barX + currentBarWidth, barY + 45);
-                ctx.lineTo(barX + currentBarWidth, barY + 35);
-                ctx.strokeStyle = '#ffcc00';
-                ctx.stroke();
-            }
+            ctx.strokeRect(barX, barY, initialWidth, barHeight);
+            ctx.setLineDash([]);
+
+            const grad = ctx.createLinearGradient(barX, barY, barX, barY + barHeight);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(1, getTemperatureColor(currentTemp));
+            ctx.fillStyle = grad;
+            ctx.fillRect(barX, barY, finalWidth, barHeight);
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.strokeRect(barX, barY, finalWidth, barHeight);
+
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath(); ctx.arc(barX, barY + barHeight / 2, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(barX + finalWidth, barY + barHeight / 2, 4, 0, Math.PI * 2); ctx.fill();
+
+            drawBadge(`L₀ = ${currentLength.toFixed(2)} m`, barX + initialWidth / 2, barY - 18);
+            drawArrow(barX + initialWidth, barY + 60, barX + finalWidth, barY + 60, '#ffcc00', `ΔL = ${deltaL.toFixed(4)} m`);
+            drawBadge(`${deltaT >= 0 ? 'Aquecimento' : 'Resfriamento'}: ΔT = ${deltaT} °C`, barX + Math.max(initialWidth, finalWidth) / 2, barY + 100);
+            ctx.restore();
         }
 
         function drawSurface() {
@@ -928,21 +1077,26 @@
             const area = currentLength * currentLength;
             const deltaArea = area * 2 * currentMaterial.alpha * deltaT;
             const newSide = Math.sqrt(area + deltaArea) * 100;
-            ctx.strokeStyle = '#aaa';
-            ctx.setLineDash([5,5]);
+            const newX = (width - newSide) / 2, newY = (height - newSide) / 2;
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+            ctx.setLineDash([6, 4]);
+            ctx.lineWidth = 2;
             ctx.strokeRect(x, y, side, side);
             ctx.setLineDash([]);
-            const newX = (width - newSide) / 2, newY = (height - newSide) / 2;
-            const color = getTemperatureColor(currentTemp);
-            ctx.fillStyle = color;
+
+            const fill = ctx.createLinearGradient(newX, newY, newX + newSide, newY + newSide);
+            fill.addColorStop(0, 'rgba(255,255,255,0.85)');
+            fill.addColorStop(1, getTemperatureColor(currentTemp));
+            ctx.fillStyle = fill;
             ctx.fillRect(newX, newY, newSide, newSide);
             ctx.strokeStyle = '#ecf0f1';
             ctx.strokeRect(newX, newY, newSide, newSide);
-            ctx.fillStyle = '#ecf0f1';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, width/2, y - 10);
-            ctx.fillText(`ΔA = ${deltaArea.toFixed(5)} m²`, width/2, newY + newSide + 20);
+
+            drawBadge(`L₀ = ${currentLength.toFixed(2)} m`, width / 2, y - 18);
+            drawArrow(width / 2 + side / 2 + 20, y + side / 2, width / 2 + newSide / 2 + 20, newY + newSide / 2, '#ffcc00', `ΔA = ${deltaArea.toFixed(5)} m²`);
+            ctx.restore();
         }
 
         function drawVolumetric() {
@@ -955,53 +1109,61 @@
             const scale = 70;
             const sidePx = currentLength * scale;
             const newSidePx = newSide * scale;
-            const centerX = width / 2, centerY = height / 2 + 20;
+            const centerX = width / 2, centerY = height / 2 + 25;
             const offsetX = 30, offsetY = 20;
-            function drawCube(edgePx, x0, y0, fillColor, strokeColor, isDashed = false) {
-                const front = [{x:x0,y:y0},{x:x0+edgePx,y:y0},{x:x0+edgePx,y:y0+edgePx},{x:x0,y:y0+edgePx}];
-                const top = [{x:x0+offsetX,y:y0-offsetY},{x:x0+edgePx+offsetX,y:y0-offsetY},{x:x0+edgePx+offsetX,y:y0+edgePx-offsetY},{x:x0+offsetX,y:y0+edgePx-offsetY}];
-                const side = [{x:x0+edgePx,y:y0},{x:x0+edgePx+offsetX,y:y0-offsetY},{x:x0+edgePx+offsetX,y:y0+edgePx-offsetY},{x:x0+edgePx,y:y0+edgePx}];
-                if (isDashed) ctx.setLineDash([5,5]);
-                else ctx.setLineDash([]);
-                ctx.fillStyle = isDashed ? 'rgba(255,255,255,0.05)' : fillColor;
-                ctx.beginPath(); front.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.fill();
-                ctx.beginPath(); top.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.fill();
-                ctx.beginPath(); side.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.fill();
-                ctx.strokeStyle = strokeColor; ctx.lineWidth = 2;
-                ctx.beginPath(); front.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.closePath(); ctx.stroke();
-                ctx.beginPath(); top.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.closePath(); ctx.stroke();
-                ctx.beginPath(); side.forEach(p=>ctx.lineTo(p.x,p.y)); ctx.closePath(); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x0+offsetX,y0-offsetY); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x0,y0+edgePx); ctx.lineTo(x0+offsetX,y0+edgePx-offsetY); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(x0+offsetX,y0-offsetY); ctx.lineTo(x0+offsetX,y0+edgePx-offsetY); ctx.stroke();
-                ctx.setLineDash([]);
+
+            function drawPolygon(points, fillColor, strokeColor, dashed = false) {
+                ctx.save();
+                ctx.setLineDash(dashed ? [6, 4] : []);
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+                ctx.closePath();
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
             }
-            const initialX = centerX - sidePx/2, initialY = centerY - sidePx/2;
-            drawCube(sidePx, initialX, initialY, 'rgba(255,255,255,0.1)', '#aaa', true);
-            const newX = centerX - newSidePx/2, newY = centerY - newSidePx/2;
-            drawCube(newSidePx, newX, newY, getTemperatureColor(currentTemp), '#ecf0f1', false);
-            ctx.fillStyle = '#ecf0f1';
-            ctx.font = '14px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText(`L₀ = ${currentLength.toFixed(1)} m`, centerX, initialY - 20);
-            ctx.fillText(`ΔV = ${deltaVolume.toFixed(5)} m³`, centerX, newY + newSidePx + 30);
+
+            function drawCube(edgePx, x0, y0, isDashed = false) {
+                const front = [{x:x0,y:y0},{x:x0+edgePx,y:y0},{x:x0+edgePx,y:y0+edgePx},{x:x0,y:y0+edgePx}];
+                const top = [{x:x0,y:y0},{x:x0+offsetX,y:y0-offsetY},{x:x0+edgePx+offsetX,y:y0-offsetY},{x:x0+edgePx,y:y0}];
+                const side = [{x:x0+edgePx,y:y0},{x:x0+edgePx+offsetX,y:y0-offsetY},{x:x0+edgePx+offsetX,y:y0+edgePx-offsetY},{x:x0+edgePx,y:y0+edgePx}];
+                if (isDashed) {
+                    drawPolygon(top, 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.45)', true);
+                    drawPolygon(side, 'rgba(255,255,255,0.03)', 'rgba(255,255,255,0.45)', true);
+                    drawPolygon(front, 'rgba(255,255,255,0.04)', 'rgba(255,255,255,0.45)', true);
+                } else {
+                    drawPolygon(top, 'rgba(255,255,255,0.32)', '#ecf0f1');
+                    drawPolygon(side, 'rgba(0,0,0,0.18)', '#ecf0f1');
+                    drawPolygon(front, getTemperatureColor(currentTemp), '#ecf0f1');
+                }
+            }
+
+            const initialX = centerX - sidePx / 2, initialY = centerY - sidePx / 2;
+            const newX = centerX - newSidePx / 2, newY = centerY - newSidePx / 2;
+            drawCube(sidePx, initialX, initialY, true);
+            drawCube(newSidePx, newX, newY, false);
+            drawBadge(`L₀ = ${currentLength.toFixed(2)} m`, centerX, initialY - 28);
+            drawBadge(`ΔV = ${deltaVolume.toFixed(5)} m³`, centerX, newY + newSidePx + 38);
         }
 
         function drawComponents() {
             const width = canvas.width, height = canvas.height;
-            ctx.clearRect(0,0,width,height);
-            ctx.fillStyle = '#2c3e50';
-            ctx.fillRect(0,0,width,height);
+            ctx.clearRect(0, 0, width, height);
+            drawBackgroundGrid();
             ctx.fillStyle = '#ecf0f1';
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(`${currentMaterial.name} - Dilatação ${dilationTypeSelect.value === 'linear' ? 'Linear' : dilationTypeSelect.value === 'superficial' ? 'Superficial' : 'Volumétrica'}`, width/2, 30);
+            ctx.fillText(`${currentMaterial.name} - Dilatação ${dilationTypeSelect.value === 'linear' ? 'Linear' : dilationTypeSelect.value === 'superficial' ? 'Superficial' : 'Volumétrica'}`, width / 2, 30);
             const type = dilationTypeSelect.value;
             if (type === 'linear') drawLinear();
             else if (type === 'superficial') drawSurface();
             else drawVolumetric();
             drawThermometer(width - 100, 100, currentTemp);
-            drawLegend(width - 150, height - 100);
+            drawLegend(width - 180, height - 130);
         }
 
         function animate() { drawComponents(); requestAnimationFrame(animate); }
@@ -1043,13 +1205,13 @@
                 let T0 = Math.floor(Math.random() * 20) + 10;
                 let T1 = T0 + Math.floor(Math.random() * 100) + 50;
                 let deltaL = L0 * alpha * (T1-T0);
-                exercises.push({ type:'dilatacao_linear', question:`Uma barra de comprimento inicial ${L0.toFixed(2)} m a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação no comprimento?`, answer:toScientific(parseFloat(deltaL.toPrecision(4)),'m'), options:generateOptions(parseFloat(deltaL.toPrecision(4)),'m') });
+                exercises.push({ type:'dilatacao_linear', question:`Uma barra de comprimento inicial ${L0.toFixed(2)} m, à temperatura de ${T0}°C, é aquecida até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, qual é a dilatação linear ΔL da barra?`, answer:toScientific(parseFloat(deltaL.toPrecision(4)),'m'), options:generateOptions(parseFloat(deltaL.toPrecision(4)),'m') });
                 let A0 = (Math.floor(Math.random() * 5) + 1);
                 let deltaA = A0 * 2 * alpha * (T1-T0);
-                exercises.push({ type:'dilatacao_superficial', question:`Uma placa de área inicial ${A0.toFixed(1)} m² a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação na área?`, answer:toScientific(parseFloat(deltaA.toPrecision(4)),'m²'), options:generateOptions(parseFloat(deltaA.toPrecision(4)),'m²') });
+                exercises.push({ type:'dilatacao_superficial', question:`Uma placa tem área inicial de ${A0.toFixed(1)} m², à temperatura de ${T0}°C, e é aquecida até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, determine a dilatação superficial ΔA. Lembre-se de que β = 2α.`, answer:toScientific(parseFloat(deltaA.toPrecision(4)),'m²'), options:generateOptions(parseFloat(deltaA.toPrecision(4)),'m²') });
                 let V0 = (Math.floor(Math.random() * 5) + 1);
                 let deltaV = V0 * 3 * alpha * (T1-T0);
-                exercises.push({ type:'dilatacao_volumetrica', question:`Um cubo de volume inicial ${V0.toFixed(1)} m³ a ${T0}°C é aquecido a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação no volume?`, answer:toScientific(parseFloat(deltaV.toPrecision(4)),'m³'), options:generateOptions(parseFloat(deltaV.toPrecision(4)),'m³') });
+                exercises.push({ type:'dilatacao_volumetrica', question:`Um cubo tem volume inicial de ${V0.toFixed(1)} m³, à temperatura de ${T0}°C, e é aquecido até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, determine a dilatação volumétrica ΔV. Lembre-se de que γ = 3α.`, answer:toScientific(parseFloat(deltaV.toPrecision(4)),'m³'), options:generateOptions(parseFloat(deltaV.toPrecision(4)),'m³') });
             }
             exercises = shuffleArray(exercises);
         }
@@ -1062,24 +1224,25 @@
             if (type === 'dilatacao_linear') {
                 let L0 = (Math.floor(Math.random()*5)+1)*0.5;
                 let deltaL = L0 * alpha * deltaT;
-                exercises[currentExercise] = { type, question:`Uma barra de comprimento inicial ${L0.toFixed(2)} m a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação no comprimento?`, answer:toScientific(parseFloat(deltaL.toPrecision(4)),'m'), options:generateOptions(parseFloat(deltaL.toPrecision(4)),'m') };
+                exercises[currentExercise] = { type, question:`Uma barra de comprimento inicial ${L0.toFixed(2)} m, à temperatura de ${T0}°C, é aquecida até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, qual é a dilatação linear ΔL da barra?`, answer:toScientific(parseFloat(deltaL.toPrecision(4)),'m'), options:generateOptions(parseFloat(deltaL.toPrecision(4)),'m') };
             } else if (type === 'dilatacao_superficial') {
                 let A0 = (Math.floor(Math.random()*5)+1);
                 let deltaA = A0 * 2 * alpha * deltaT;
-                exercises[currentExercise] = { type, question:`Uma placa de área inicial ${A0.toFixed(1)} m² a ${T0}°C é aquecida a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação na área?`, answer:toScientific(parseFloat(deltaA.toPrecision(4)),'m²'), options:generateOptions(parseFloat(deltaA.toPrecision(4)),'m²') };
+                exercises[currentExercise] = { type, question:`Uma placa tem área inicial de ${A0.toFixed(1)} m², à temperatura de ${T0}°C, e é aquecida até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, determine a dilatação superficial ΔA. Lembre-se de que β = 2α.`, answer:toScientific(parseFloat(deltaA.toPrecision(4)),'m²'), options:generateOptions(parseFloat(deltaA.toPrecision(4)),'m²') };
             } else {
                 let V0 = (Math.floor(Math.random()*5)+1);
                 let deltaV = V0 * 3 * alpha * deltaT;
-                exercises[currentExercise] = { type, question:`Um cubo de volume inicial ${V0.toFixed(1)} m³ a ${T0}°C é aquecido a ${T1}°C. Se o coeficiente de dilatação linear é ${toScientific(alpha,"°C⁻¹")}, qual é a variação no volume?`, answer:toScientific(parseFloat(deltaV.toPrecision(4)),'m³'), options:generateOptions(parseFloat(deltaV.toPrecision(4)),'m³') };
+                exercises[currentExercise] = { type, question:`Um cubo tem volume inicial de ${V0.toFixed(1)} m³, à temperatura de ${T0}°C, e é aquecido até ${T1}°C. Sabendo que α = ${toScientific(alpha,"°C⁻¹")}, determine a dilatação volumétrica ΔV. Lembre-se de que γ = 3α.`, answer:toScientific(parseFloat(deltaV.toPrecision(4)),'m³'), options:generateOptions(parseFloat(deltaV.toPrecision(4)),'m³') };
             }
         }
 
         function showCurrentExercise() {
             const ex = exercises[currentExercise];
             document.getElementById('exerciseContainer').innerHTML = `
-                <div class="exercise"><h3>Exercício ${currentExercise+1} de ${exercises.length}</h3>
+                <div class="exercise"><h3>Atividade ${currentExercise+1} de ${exercises.length}</h3>
+                <div class="exercise-intro">Leia com atenção e marque a alternativa que melhor responde ao problema.</div>
                 <p>${ex.question}</p><div class="options">${ex.options.map(opt=>`<div class="option" data-value="${opt}">${opt}</div>`).join('')}</div>
-                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button><div class="result"></div></div>`;
+                <button class="check-btn" id="checkAnswerBtn">Conferir Resposta</button><div class="result"></div></div>`;
             document.getElementById('exerciseContainer').addEventListener('click',function(e){if(e.target.classList.contains('option')){this.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));e.target.classList.add('selected');}});
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             updateProgressBar();
@@ -1092,14 +1255,14 @@
             if (!selected) { resultDiv.textContent = 'Selecione uma opção.'; resultDiv.className='result error'; return; }
             const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
             if (isCorrect) {
-                resultDiv.textContent = 'Correto! Parabéns!'; resultDiv.className='result success';
+                resultDiv.textContent = 'Muito bem! Resposta correta.'; resultDiv.className='result success';
                 selected.classList.add('correct');
                 exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts+1 });
                 currentExerciseAttempts = 0;
                 setTimeout(nextExercise, 1500);
             } else {
                 currentExerciseAttempts++;
-                resultDiv.innerHTML = `<div class="error">Incorreto. Tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>`;
+                resultDiv.innerHTML = `<div class="error">Ainda não foi desta vez. Revise os dados e tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>`;
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', () => { generateNewExerciseOfSameType(); showCurrentExercise(); });
             }
@@ -1212,7 +1375,7 @@
             temperature.addEventListener('input', () => { currentTemp = parseInt(temperature.value); temperatureDisplay.textContent = currentTemp+' °C'; updateTempMarker(); updateMeasurements(); });
             dilationTypeSelect.addEventListener('change', () => { updateMeasurements(); });
             document.getElementById('resetBtn').addEventListener('click', () => { currentTemp = 20; temperature.value = 20; temperatureDisplay.textContent = '20 °C'; updateTempMarker(); updateMeasurements(); });
-            document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar:\n\n• Selecione o tipo de material\n• Ajuste o comprimento inicial (lado)\n• Ajuste a temperatura\n• Selecione o tipo de dilatação (linear, superficial ou volumétrica)\n• Observe a representação visual e as medições\n• Use os botões de exercícios para testar seu conhecimento"));
+            document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar esta simulação:\n\n• Escolha o material\n• Ajuste o comprimento inicial\n• Mude a temperatura\n• Selecione o tipo de dilatação\n• Observe a figura e os valores mostrados\n\nDica importante:\n• Para área, use β = 2α\n• Para volume, use γ = 3α\n\nDepois, use os exercícios para praticar."));
             document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
             document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
             document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
