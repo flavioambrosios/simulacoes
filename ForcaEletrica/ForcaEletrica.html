@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação: Lei de Coulomb e Campo Elétrico</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --metal-color: #bdc3c7;
+            --light-color: #f1c40f;
+            --electron-color: #e74c3c;
+            --panel-bg: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #simulationCanvas {
+            width: 100%;
+            height: 100%;
+            background-color: #2c3e50;
+            border-radius: 8px;
+        }
+
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #ffdd55;
+        }
+
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .exercise-btn {
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        /* Estilos para gráficos */
+        .graph-panel {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .graph-panel h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .graph-canvas {
+            width: 100%;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+        }
+        
+        /* Estilos para o controle de velocidade */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .speed-btn {
+            padding: 8px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+        }
+        
+        .speed-btn:hover {
+            background: #2980b9;
+        }
+        
+        .speed-display {
+            flex: 2;
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação: Lei de Coulomb e Campo Elétrico</h1>
+            <p class="subtitle">Explore a força entre cargas, o campo elétrico e a Lei de Gauss</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação de Cargas Elétricas</h2>
+                <div class="simulation-container">
+                    <canvas id="simulationCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                    <button id="graphsBtn">Gráficos</button>
+                </div>
+                
+                <div class="measurement-panel">
+                    <h2 class="panel-title">Medições</h2>
+                    <div class="measurement-grid">
+                        <div class="measurement-item">
+                            <div class="measurement-label">Força Eletrostática (F)</div>
+                            <div class="measurement-value" id="forceValue">0.00 N</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Campo Elétrico (E)</div>
+                            <div class="measurement-value" id="fieldValue">0.00 N/C</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Fluxo (Gauss)</div>
+                            <div class="measurement-value" id="fluxValue">0.00 N·m²/C</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Carga Q</div>
+                            <div class="measurement-value" id="chargeQValue">1.00 μC</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Carga q</div>
+                            <div class="measurement-value" id="chargeqValue">1.00 μC</div>
+                        </div>
+                        <div class="measurement-item">
+                            <div class="measurement-label">Distância</div>
+                            <div class="measurement-value" id="distanceValue">5.0 cm</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="chargeQ">Carga Q (μC):</label>
+                    <input type="range" id="chargeQ" min="-10" max="10" value="1" step="0.5">
+                    <div class="value-display"><span id="chargeQDisplay">+1.0 μC</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="chargeq">Carga q (μC):</label>
+                    <input type="range" id="chargeq" min="-10" max="10" value="1" step="0.5">
+                    <div class="value-display"><span id="chargeqDisplay">+1.0 μC</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="distance">Distância (cm):</label>
+                    <input type="range" id="distance" min="1" max="20" value="5" step="0.5">
+                    <div class="value-display"><span id="distanceDisplay">5.0 cm</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="permittivity">Permissividade Relativa (ε<sub>r</sub>):</label>
+                    <input type="range" id="permittivity" min="1" max="10" value="1" step="0.1">
+                    <div class="value-display"><span id="permittivityDisplay">1.0</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="gaussianSurface">Mostrar superfície gaussiana:</label>
+                    <select id="gaussianSurface">
+                        <option value="none">Nenhuma</option>
+                        <option value="sphere">Esfera (raio 3 cm)</option>
+                        <option value="cube">Cubo (aresta 3 cm)</option>
+                    </select>
+                </div>
+                
+                <!-- Velocidade de animação (mantida para consistência) -->
+                <div class="control-group">
+                    <label for="animationSpeed">Velocidade de Animação:</label>
+                    <input type="range" id="animationSpeed" min="1.0" max="10" value="5.0" step="1.0">
+                    <div class="speed-control">
+                        <button id="decreaseSpeed" class="speed-btn">-</button>
+                        <div class="speed-display" id="speedValue">1.0x</div>
+                        <button id="increaseSpeed" class="speed-btn">+</button>
+                    </div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Coulomb</h3>
+                    <p>F = k·|Q·q| / d²</p>
+                    <p>k = 9×10⁹ N·m²/C² (vácuo)</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Campo Elétrico</h3>
+                    <p>E = F / q</p>
+                    <p>ou E = k·|Q| / d² (carga pontual)</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Gauss</h3>
+                    <p>Φ = E·A = Q<sub>int</sub> / ε₀</p>
+                    <p>ε₀ = 8,85×10⁻¹² C²/N·m²</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios - Lei de Coulomb e Campo Elétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Lei de Coulomb e Campo Elétrico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo da Força Eletrostática</h4>
+                    <p><strong>Problema:</strong> Duas cargas puntiformes Q = +2 μC e q = +3 μC estão separadas por 10 cm no vácuo. Calcule a força entre elas.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> F = k·|Q·q| / d²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter unidades: Q = 2×10⁻⁶ C, q = 3×10⁻⁶ C, d = 0,1 m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> F = (9×10⁹) · (2×10⁻⁶ · 3×10⁻⁶) / (0,1)² = (9×10⁹)·(6×10⁻¹²) / 0,01 = 5,4×10⁻² / 0,01 = 5,4 N</div>
+                    <div class="solution-step"><strong>Resposta:</strong> 5,4 N (repulsiva)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Campo Elétrico gerado por uma carga</h4>
+                    <p><strong>Problema:</strong> Determine o campo elétrico a 20 cm de uma carga Q = -4 μC no vácuo.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> E = k·|Q| / d²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter: Q = 4×10⁻⁶ C, d = 0,2 m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> E = (9×10⁹)·(4×10⁻⁶) / (0,2)² = (36×10³) / 0,04 = 9×10⁵ N/C</div>
+                    <div class="solution-step"><strong>Resposta:</strong> 9×10⁵ N/C (direção radial, apontando para a carga por ser negativa)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Fluxo elétrico (Lei de Gauss)</h4>
+                    <p><strong>Problema:</strong> Uma carga de +5 μC está no interior de uma superfície esférica de raio 10 cm. Calcule o fluxo elétrico através da superfície.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> Φ = Q<sub>int</sub> / ε₀</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Q = 5×10⁻⁶ C, ε₀ = 8,85×10⁻¹²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Φ = 5×10⁻⁶ / 8,85×10⁻¹² ≈ 5,65×10⁵ N·m²/C</div>
+                    <div class="solution-step"><strong>Resposta:</strong> 5,65×10⁵ N·m²/C</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Lei de Coulomb, Campo Elétrico e Lei de Gauss</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Lei de Coulomb</h3>
+                    <p>A força eletrostática entre duas cargas puntiformes é diretamente proporcional ao produto dos módulos das cargas e inversamente proporcional ao quadrado da distância entre elas.</p>
+                    <div class="theory-formula">F = k₀ · |Q·q| / d²</div>
+                    <p>k₀ = 9,0 × 10⁹ N·m²/C² (constante eletrostática do vácuo).</p>
+                    <p>A força é repulsiva para cargas de mesmo sinal e atrativa para sinais opostos.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Campo Elétrico</h3>
+                    <p>O campo elétrico em um ponto é a força por unidade de carga que atuaria sobre uma carga de prova colocada nesse ponto.</p>
+                    <div class="theory-formula">E = F / q</div>
+                    <p>Para uma carga puntiforme Q, o campo a uma distância d é:</p>
+                    <div class="theory-formula">E = k₀ · |Q| / d²</div>
+                    <p>O campo é radial: afasta-se de cargas positivas e aproxima-se de cargas negativas.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Gauss</h3>
+                    <p>O fluxo elétrico através de uma superfície fechada é igual à carga interna dividida pela permissividade elétrica do vácuo.</p>
+                    <div class="theory-formula">Φ = ∮ E · dA = Q<sub>int</sub> / ε₀</div>
+                    <p>ε₀ = 8,85 × 10⁻¹² C²/N·m².</p>
+                    <p>Para uma superfície esférica de raio r envolvendo uma carga Q, o campo é constante e a área é 4πr², resultando em E·4πr² = Q/ε₀.</p>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Gráficos -->
+    <div id="graphsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gráficos - Lei de Coulomb</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="graph-panel">
+                <h3>Gráfico: Força × Distância</h3>
+                <canvas id="forceDistanceGraph" class="graph-canvas"></canvas>
+            </div>
+            <div class="graph-panel">
+                <h3>Gráfico: Campo × Distância</h3>
+                <canvas id="fieldDistanceGraph" class="graph-canvas"></canvas>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeGraphs" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== CONSTANTES E VARIÁVEIS GLOBAIS ==========
+        
+        const K0 = 9e9;                     // N·m²/C²
+        const EPS0 = 8.85e-12;               // C²/N·m²
+        
+        // Elementos do DOM
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Gráficos
+        const forceDistanceGraph = document.getElementById('forceDistanceGraph');
+        const fieldDistanceGraph = document.getElementById('fieldDistanceGraph');
+        const forceDistanceCtx = forceDistanceGraph.getContext('2d');
+        const fieldDistanceCtx = fieldDistanceGraph.getContext('2d');
+        
+        // Controles
+        const chargeQ = document.getElementById('chargeQ');
+        const chargeQDisplay = document.getElementById('chargeQDisplay');
+        const chargeq = document.getElementById('chargeq');
+        const chargeqDisplay = document.getElementById('chargeqDisplay');
+        const distance = document.getElementById('distance');
+        const distanceDisplay = document.getElementById('distanceDisplay');
+        const permittivity = document.getElementById('permittivity');
+        const permittivityDisplay = document.getElementById('permittivityDisplay');
+        const gaussianSurface = document.getElementById('gaussianSurface');
+        
+        // Velocidade (inútil aqui, mas mantida)
+        const animationSpeed = document.getElementById('animationSpeed');
+        const speedValue = document.getElementById('speedValue');
+        const decreaseSpeedBtn = document.getElementById('decreaseSpeed');
+        const increaseSpeedBtn = document.getElementById('increaseSpeed');
+        
+        // Medições
+        const forceValue = document.getElementById('forceValue');
+        const fieldValue = document.getElementById('fieldValue');
+        const fluxValue = document.getElementById('fluxValue');
+        const chargeQValue = document.getElementById('chargeQValue');
+        const chargeqValue = document.getElementById('chargeqValue');
+        const distanceValue = document.getElementById('distanceValue');
+        
+        // Variáveis da simulação
+        let isRunning = true; // Sempre rodando
+        let animationSpeedFactor = 1.0;
+        
+        // Dados para os gráficos
+        let forceDistanceData = [];
+        let fieldDistanceData = [];
+        
+        // Sistema de exercícios (mesmo do modelo)
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        
+        // ========== FUNÇÕES DE INICIALIZAÇÃO ==========
+        
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            setupEventListeners();
+            setupExerciseEventListeners();
+            resizeGraphs();
+            animate();
+            updateMeasurements();
+        });
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // ========== EVENT LISTENERS ==========
+        
+        function setupEventListeners() {
+            chargeQ.addEventListener('input', () => {
+                const val = parseFloat(chargeQ.value);
+                chargeQDisplay.textContent = (val > 0 ? '+' : '') + val.toFixed(1) + ' μC';
+                updateMeasurements();
+            });
+            
+            chargeq.addEventListener('input', () => {
+                const val = parseFloat(chargeq.value);
+                chargeqDisplay.textContent = (val > 0 ? '+' : '') + val.toFixed(1) + ' μC';
+                updateMeasurements();
+            });
+            
+            distance.addEventListener('input', () => {
+                const val = parseFloat(distance.value);
+                distanceDisplay.textContent = val.toFixed(1) + ' cm';
+                updateMeasurements();
+            });
+            
+            permittivity.addEventListener('input', () => {
+                permittivityDisplay.textContent = parseFloat(permittivity.value).toFixed(1);
+                updateMeasurements();
+            });
+            
+            gaussianSurface.addEventListener('change', updateMeasurements);
+            
+            animationSpeed.addEventListener('input', () => {
+                animationSpeedFactor = parseFloat(animationSpeed.value);
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            decreaseSpeedBtn.addEventListener('click', () => {
+                animationSpeedFactor = Math.max(0.1, animationSpeedFactor - 0.1);
+                animationSpeed.value = animationSpeedFactor;
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            increaseSpeedBtn.addEventListener('click', () => {
+                animationSpeedFactor = Math.min(3.0, animationSpeedFactor + 0.1);
+                animationSpeed.value = animationSpeedFactor;
+                speedValue.textContent = animationSpeedFactor.toFixed(1) + 'x';
+            });
+            
+            document.getElementById('startBtn').addEventListener('click', () => { isRunning = true; });
+            document.getElementById('pauseBtn').addEventListener('click', () => { isRunning = false; });
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                // Reset dos dados dos gráficos
+                forceDistanceData = [];
+                fieldDistanceData = [];
+                drawGraphs();
+            });
+            
+            document.getElementById('helpBtn').addEventListener('click', () => {
+                alert("Como usar:\n\n• Ajuste os valores das cargas (Q e q) e a distância.\n• Observe a força, o campo elétrico e o fluxo (se uma superfície gaussiana for selecionada).\n• Os gráficos mostram a relação com a distância.\n• Use os botões de exercícios para testar seu conhecimento.");
+            });
+            
+            document.getElementById('graphsBtn').addEventListener('click', openGraphsModal);
+        }
+        
+        // ========== CÁLCULOS E ATUALIZAÇÕES ==========
+        
+        function updateMeasurements() {
+            const Q = parseFloat(chargeQ.value) * 1e-6;      // C
+            const q = parseFloat(chargeq.value) * 1e-6;      // C
+            const d = parseFloat(distance.value) * 0.01;      // m
+            const eps_r = parseFloat(permittivity.value);
+            const k = K0 / eps_r;                              // N·m²/C² no meio
+            
+            // Força (módulo)
+            const force = k * Math.abs(Q * q) / (d * d);
+            forceValue.textContent = toScientific(force, 'N');
+            
+            // Campo elétrico no ponto onde está a carga q (devido a Q)
+            const field = k * Math.abs(Q) / (d * d);
+            fieldValue.textContent = toScientific(field, 'N/C');
+            
+            // Fluxo (se superfície gaussiana selecionada)
+            const surfaceType = gaussianSurface.value;
+            let flux = 0;
+            if (surfaceType !== 'none') {
+                // Consideramos que a superfície envolve a carga Q (no centro)
+                flux = Math.abs(Q) / EPS0;   // Fluxo total (módulo)
+            }
+            fluxValue.textContent = toScientific(flux, 'N·m²/C');
+            
+            // Exibir valores das cargas e distância (já em μC e cm)
+            chargeQValue.textContent = (Q*1e6).toFixed(1) + ' μC';
+            chargeqValue.textContent = (q*1e6).toFixed(1) + ' μC';
+            distanceValue.textContent = (d*100).toFixed(1) + ' cm';
+            
+            // Adicionar pontos aos gráficos
+            addForceDistanceDataPoint(d, force);
+            addFieldDistanceDataPoint(d, field);
+            
+            drawGraphs();
+        }
+        
+        // ========== NOTAÇÃO CIENTÍFICA ==========
+        
+        function toScientific(value, unit = "") {
+            if (value === 0) return `0.00 ${unit}`.trim();
+            
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const coefficient = value / Math.pow(10, exponent);
+            const roundedCoefficient = Math.round(coefficient * 100) / 100;
+            
+            const superscripts = {
+                '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+                '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹'
+            };
+            
+            const exponentStr = exponent.toString();
+            let superscript = '';
+            for (let char of exponentStr) {
+                superscript += superscripts[char] || char;
+            }
+            
+            return `${roundedCoefficient.toPrecision(3)}×10${superscript} ${unit}`.trim();
+        }
+        
+        // ========== SIMULAÇÃO VISUAL ==========
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (isRunning) {
+                // Atualiza a cena (apenas desenho estático, sem movimento)
+            }
+            
+            drawScene();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function drawScene() {
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            // Fundo
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Desenhar eixos coordenados (linhas suaves)
+            ctx.strokeStyle = '#ffffff40';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(w/2, 0);
+            ctx.lineTo(w/2, h);
+            ctx.moveTo(0, h/2);
+            ctx.lineTo(w, h/2);
+            ctx.stroke();
+            
+            // Obter valores atuais
+            const Q = parseFloat(chargeQ.value);                // μC
+            const q = parseFloat(chargeq.value);                // μC
+            const d_cm = parseFloat(distance.value);            // cm
+            
+            // Converter distância para pixels (escala: 1 cm = 20 pixels)
+            const scale = 20; // pixels por cm
+            const d_px = d_cm * scale;
+            
+            // Posição da carga Q (fixa no centro)
+            const centerX = w / 2;
+            const centerY = h / 2;
+            
+            // Posição da carga q (à direita de Q, na horizontal)
+            const qX = centerX + d_px;
+            const qY = centerY;
+            
+            // Desenhar linha pontilhada entre as cargas
+            ctx.strokeStyle = '#ffffff80';
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(qX, qY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Desenhar carga Q
+            ctx.fillStyle = Q > 0 ? '#e74c3c' : '#3498db';  // vermelho = positiva, azul = negativa
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 15, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Q', centerX, centerY);
+            
+            // Desenhar carga q
+            ctx.fillStyle = q > 0 ? '#e74c3c' : '#3498db';
+            ctx.beginPath();
+            ctx.arc(qX, qY, 12, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.fillStyle = 'white';
+            ctx.fillText('q', qX, qY);
+            
+            // Desenhar vetor força (opcional)
+            if (Q * q > 0) { // repulsão
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(qX, qY);
+                ctx.lineTo(qX + 30, qY);
+                ctx.stroke();
+            } else if (Q * q < 0) { // atração
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(qX, qY);
+                ctx.lineTo(centerX, centerY);
+                ctx.stroke();
+            }
+            
+            // Desenhar superfície gaussiana, se selecionada
+            const surfaceType = gaussianSurface.value;
+            if (surfaceType !== 'none') {
+                ctx.strokeStyle = '#ffcc00';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 3]);
+                
+                if (surfaceType === 'sphere') {
+                    // Esfera de raio 3 cm (60 pixels) em torno de Q
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 60, 0, 2*Math.PI);
+                    ctx.stroke();
+                } else if (surfaceType === 'cube') {
+                    // Cubo (aresta 3 cm = 60 pixels) centrado em Q
+                    ctx.strokeRect(centerX-30, centerY-30, 60, 60);
+                }
+                ctx.setLineDash([]);
+            }
+        }
+        
+        // ========== GRÁFICOS ==========
+        
+        function resizeGraphs() {
+            forceDistanceGraph.width = forceDistanceGraph.offsetWidth;
+            forceDistanceGraph.height = forceDistanceGraph.offsetHeight;
+            fieldDistanceGraph.width = fieldDistanceGraph.offsetWidth;
+            fieldDistanceGraph.height = fieldDistanceGraph.offsetHeight;
+            drawGraphs();
+        }
+        
+        function addForceDistanceDataPoint(d, force) {
+            // Evitar duplicatas muito próximas
+            if (forceDistanceData.some(p => Math.abs(p.d - d) < 0.001)) return;
+            forceDistanceData.push({ d, force });
+            if (forceDistanceData.length > 20) forceDistanceData.shift();
+        }
+        
+        function addFieldDistanceDataPoint(d, field) {
+            if (fieldDistanceData.some(p => Math.abs(p.d - d) < 0.001)) return;
+            fieldDistanceData.push({ d, field });
+            if (fieldDistanceData.length > 20) fieldDistanceData.shift();
+        }
+        
+        function drawGraphs() {
+            drawForceDistanceGraph();
+            drawFieldDistanceGraph();
+        }
+        
+        function drawForceDistanceGraph() {
+            const width = forceDistanceGraph.width;
+            const height = forceDistanceGraph.height;
+            const padding = 50;
+            const ctx = forceDistanceCtx;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Eixos
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Distância (m)', width/2, height-10);
+            ctx.save();
+            ctx.translate(15, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Força (N)', 0, 0);
+            ctx.restore();
+            
+            if (forceDistanceData.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Ajuste os parâmetros para gerar dados', width/2, height/2);
+                return;
+            }
+            
+            const minD = Math.min(...forceDistanceData.map(p => p.d));
+            const maxD = Math.max(...forceDistanceData.map(p => p.d));
+            const minF = 0;
+            const maxF = Math.max(1e-6, ...forceDistanceData.map(p => p.force));
+            
+            // Grade
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (i/5)*(width-2*padding);
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height-padding);
+                ctx.stroke();
+                
+                const y = height-padding - (i/5)*(height-2*padding);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width-padding, y);
+                ctx.stroke();
+            }
+            
+            // Pontos
+            forceDistanceData.forEach(point => {
+                const x = padding + (point.d - minD)/(maxD-minD)*(width-2*padding);
+                const y = height-padding - (point.force - minF)/(maxF-minF)*(height-2*padding);
+                
+                ctx.fillStyle = '#3498db';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#2980b9';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+        
+        function drawFieldDistanceGraph() {
+            const width = fieldDistanceGraph.width;
+            const height = fieldDistanceGraph.height;
+            const padding = 50;
+            const ctx = fieldDistanceCtx;
+            
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height-padding);
+            ctx.lineTo(width-padding, height-padding);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Distância (m)', width/2, height-10);
+            ctx.save();
+            ctx.translate(15, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText('Campo Elétrico (N/C)', 0, 0);
+            ctx.restore();
+            
+            if (fieldDistanceData.length === 0) {
+                ctx.fillStyle = '#666';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Ajuste os parâmetros para gerar dados', width/2, height/2);
+                return;
+            }
+            
+            const minD = Math.min(...fieldDistanceData.map(p => p.d));
+            const maxD = Math.max(...fieldDistanceData.map(p => p.d));
+            const minE = 0;
+            const maxE = Math.max(1e-6, ...fieldDistanceData.map(p => p.field));
+            
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (i/5)*(width-2*padding);
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height-padding);
+                ctx.stroke();
+                
+                const y = height-padding - (i/5)*(height-2*padding);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width-padding, y);
+                ctx.stroke();
+            }
+            
+            fieldDistanceData.forEach(point => {
+                const x = padding + (point.d - minD)/(maxD-minD)*(width-2*padding);
+                const y = height-padding - (point.field - minE)/(maxE-minE)*(height-2*padding);
+                
+                ctx.fillStyle = '#2ecc71';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#27ae60';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS (ADAPTADO) ==========
+        
+        function setupExerciseEventListeners() {
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.querySelector('#graphsModal .close').addEventListener('click', closeGraphsModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeGraphs').addEventListener('click', closeGraphsModal);
+            
+            window.addEventListener('click', (event) => {
+                if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
+                if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+                if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
+                if (event.target == document.getElementById('graphsModal')) closeGraphsModal();
+            });
+        }
+        
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        function closeGraphsModal() {
+            document.getElementById('graphsModal').style.display = 'none';
+        }
+        
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        function openGraphsModal() {
+            document.getElementById('graphsModal').style.display = 'flex';
+            resizeGraphs();
+            drawGraphs();
+        }
+        
+        // Gerar exercícios qualitativos/teóricos
+        function generateExercises() {
+            exercises = [
+                {
+                    type: 'qualitative',
+                    question: 'Se a distância entre duas cargas puntiformes for duplicada, o que acontece com a força eletrostática entre elas?',
+                    answer: 'Ela se reduz a um quarto do valor original',
+                    options: [
+                        'Ela se reduz a um quarto do valor original',
+                        'Ela dobra de valor',
+                        'Ela permanece a mesma',
+                        'Ela se reduz à metade',
+                        'Ela quadruplica'
+                    ]
+                },
+                {
+                    type: 'qualitative',
+                    question: 'O campo elétrico gerado por uma carga pontual positiva em um ponto do espaço:',
+                    answer: 'Tem direção radial afastando-se da carga',
+                    options: [
+                        'Tem direção radial afastando-se da carga',
+                        'Tem direção radial aproximando-se da carga',
+                        'É sempre nulo',
+                        'Depende do sinal de uma carga de prova',
+                        'É tangente às linhas de campo'
+                    ]
+                },
+                {
+                    type: 'qualitative',
+                    question: 'De acordo com a Lei de Gauss, o fluxo elétrico através de uma superfície fechada que não envolve carga elétrica é:',
+                    answer: 'Nulo',
+                    options: [
+                        'Nulo',
+                        'Proporcional à área da superfície',
+                        'Inversamente proporcional à distância',
+                        'Máximo',
+                        'Indeterminado'
+                    ]
+                },
+                {
+                    type: 'qualitative',
+                    question: 'Duas cargas de mesmo sinal se:',
+                    answer: 'Repelem',
+                    options: [
+                        'Repelem',
+                        'A traem',
+                        'Induzem campo nulo',
+                        'Não interagem',
+                        'Depende do meio'
+                    ]
+                },
+                {
+                    type: 'qualitative',
+                    question: 'A constante eletrostática k no vácuo vale aproximadamente:',
+                    answer: '9 × 10⁹ N·m²/C²',
+                    options: [
+                        '9 × 10⁹ N·m²/C²',
+                        '8,85 × 10⁻¹² C²/N·m²',
+                        '1,6 × 10⁻¹⁹ C',
+                        '6,67 × 10⁻¹¹ N·m²/kg²',
+                        '3 × 10⁸ m/s'
+                    ]
+                },
+                {
+                    type: 'qualitative',
+                    question: 'Se uma carga de prova positiva é colocada em um ponto onde o campo elétrico aponta para o leste, a força sobre ela será:',
+                    answer: 'Para o leste',
+                    options: [
+                        'Para o leste',
+                        'Para o oeste',
+                        'Nula',
+                        'Para o norte',
+                        'Para o sul'
+                    ]
+                }
+            ];
+        }
+        
+        // Funções de navegação dos exercícios (idênticas ao modelo original)
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+        
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts+1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                    // Regenera exercício do mesmo tipo? Para qualitativos, mantém o mesmo.
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
+        }
+        
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+        
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const el = document.getElementById(`progress${i+1}`);
+                el.classList.remove('active', 'completed');
+                if (i === currentExercise) el.classList.add('active');
+                else if (i < currentExercise) el.classList.add('completed');
+            }
+        }
+        
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            });
+        }
+        
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct/total)*100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${total}</p>
+                <p>Respostas corretas: ${correct}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${percent}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Lei de Coulomb e Campo Elétrico',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+            
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName,
+                        serie: studentGrade,
+                        turma: studentClass,
+                        nota: scorePercentage + '%',
+                        acertos: `${correctAnswers}/${totalExercises}`,
+                        questoes_puladas: skippedQuestions,
+                        conclusao: finalConclusion,
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Lei de Coulomb e Campo Elétrico',
+                        mensagem: `Confirmação de Envio - Simulação de Eletrostática
+
+Prezado(a) ${studentName},
+
+Confirmamos o recebimento dos seus resultados:
+
+📊 SEUS RESULTADOS:
+• Nota: ${scorePercentage}%
+• Acertos: ${correctAnswers} de ${totalExercises} questões
+• Questões Puladas: ${skippedQuestions}
+
+Data: ${new Date().toLocaleString('pt-BR')}
+
+Atenciosamente,
+Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail ? '✅ Dados salvos e emails enviados!' : '✅ Dados salvos e email enviado ao professor!';
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    </script>
+</body>
+</html>
