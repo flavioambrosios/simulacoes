@@ -53,10 +53,12 @@
         .simulation-container {
             width: 100%;
             height: 500px;
-            background: #000;
-            border-radius: 8px;
+            background: radial-gradient(circle at top, #16314d, #08111d 70%);
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.05), 0 10px 24px rgba(0, 0, 0, 0.35);
         }
         #renderer-container {
             width: 100%;
@@ -226,6 +228,17 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
         }
         .exercise {
             margin-bottom: 15px;
@@ -426,6 +439,7 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
+            position: relative;
         }
         .solved-exercise h4 {
             color: #ffcc00;
@@ -436,6 +450,24 @@
             margin-bottom: 8px;
             padding-left: 15px;
             border-left: 3px solid #ffcc00;
+        }
+        .audio-example-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        .audio-example-btn:hover {
+            background: #2980b9;
+        }
+        .audio-example-btn.playing {
+            background: #e67e22;
+        }
+        .audio-example-btn.playing:hover {
+            background: #d35400;
         }
         .buttons-container {
             display: flex;
@@ -448,6 +480,60 @@
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
+        }
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid #ffcc00;
+            align-items: center;
+        }
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-selector label {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .voice-selector select {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid #ffcc00;
+            border-radius: 18px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            max-width: 210px;
+        }
+        .voice-selector select option {
+            color: #000;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.05rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
         }
         
         /* Teoria */
@@ -500,6 +586,27 @@
                 flex: 1;
                 width: 100%;
             }
+            .audio-controls {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                border-radius: 18px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .audio-example-btn {
+                position: static;
+                display: inline-block;
+                margin-bottom: 10px;
+            }
+            .voice-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            .voice-selector select {
+                max-width: 100%;
+                flex: 1;
+            }
         }
     </style>
 </head>
@@ -507,7 +614,7 @@
     <div class="container">
         <header>
             <h1>Simulação - Campo Magnético em Solenoide</h1>
-            <p class="subtitle">Visualização 3D do campo interno uniforme - Aprenda com exercícios</p>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
         <div class="content">
@@ -518,27 +625,27 @@
                 </div>
                 
                 <div class="visualization-toggle">
-                    <button id="fieldVectorsBtn" class="active">Vetores de Campo Interno</button>
-                    <button id="externalFieldBtn">Linhas de Campo Externo</button>
+                    <button id="fieldVectorsBtn" class="active">Linhas de Campo</button>
+                    <button id="coilVisibilityBtn" class="active">Ocultar Bobina</button>
                     <button id="helpBtn">Ajuda</button>
                 </div>
                 
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color red"></div>
-                        <span>Corrente (sentido horário)</span>
+                        <span>Corrente positiva nas espiras</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color blue"></div>
-                        <span>Corrente (sentido anti-horário)</span>
+                        <span>Corrente negativa nas espiras</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color green"></div>
-                        <span>Campo magnético interno</span>
+                        <span>Linhas de campo com direção</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color cyan"></div>
-                        <span>Linhas de campo externo</span>
+                        <div class="legend-color yellow"></div>
+                        <span>Polos N e S</span>
                     </div>
                 </div>
             </div>
@@ -621,7 +728,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios sobre Solenoide</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -733,6 +843,7 @@
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Cálculo do Campo Magnético</h4>
+                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> Um solenoide com 200 espiras e comprimento de 0,5 m é percorrido por uma corrente de 2 A. Qual a intensidade do campo magnético no seu interior?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> B = μ₀ · (N/L) · i</div>
                     <div class="solution-step"><strong>Passo 1:</strong> μ₀ = 4π×10⁻⁷ T·m/A</div>
@@ -744,6 +855,7 @@
                 
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Cálculo da Corrente</h4>
+                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> O campo magnético no interior de um solenoide é de 2,5×10⁻³ T. O solenoide tem 300 espiras e comprimento de 0,4 m. Qual a corrente elétrica?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> i = B / (μ₀ · (N/L))</div>
                     <div class="solution-step"><strong>Passo 1:</strong> N/L = 300 / 0,4 = 750 espiras/m</div>
@@ -753,6 +865,7 @@
                 
                 <div class="solved-exercise">
                     <h4>Exemplo 3: Número de Espiras</h4>
+                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> Um solenoide de comprimento 0,3 m, ao ser percorrido por uma corrente de 1,5 A, gera um campo de 1,2×10⁻³ T. Quantas espiras ele possui?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> N = (B · L) / (μ₀ · i)</div>
                     <div class="solution-step"><strong>Passo 1:</strong> B · L = 1,2×10⁻³ · 0,3 = 3,6×10⁻⁴ T·m</div>
@@ -834,15 +947,28 @@
         </div>
     </div>
 
+    <div class="audio-controls" id="audioControls">
+        <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+        <button id="playPauseAudioBtn" title="Iniciar ou pausar">▶️ Iniciar</button>
+        <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+        <span id="trackCounter">Trecho 1/7</span>
+        <div class="voice-selector">
+            <label for="voiceSelect">Voz:</label>
+            <select id="voiceSelect" aria-label="Selecionar voz do áudio">
+                <option value="">Carregando vozes...</option>
+            </select>
+        </div>
+    </div>
+
     <script>
         // Variáveis globais
         let scene, camera, renderer, controls;
-        let solenoidGroup, fieldVectors = [], externalFieldLines = [];
+        let solenoidGroup, fieldVectors = [];
         let current = 2.0;          // Amperes
         let numTurns = 200;          // N
         let length = 0.5;            // metros
         let showFieldVectors = true;
-        let showExternalField = false;
+        let showCoil = true;
         const mu0 = 4 * Math.PI * 1e-7; // Permeabilidade do vácuo
 
         // Sistema de exercícios
@@ -851,6 +977,313 @@
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = '';
+        let studentName = localStorage.getItem('studentNameSolenoide') || '';
+        let savedVoicePreference = localStorage.getItem('voicePreferenceSolenoide') || '';
+        let selectedVoice = null;
+        let currentTrack = 0;
+        let speaking = false;
+        let audioPaused = false;
+        let currentSpeechSource = null;
+        let activeExampleButton = null;
+        let speechSessionId = 0;
+        const synth = window.speechSynthesis;
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Um solenoide com 200 espiras e comprimento de 0 vírgula 5 metro é percorrido por uma corrente de 2 ampères. Usamos a fórmula B igual a mi zero vezes N sobre L vezes i. Primeiro calculamos N sobre L, que é 200 dividido por 0 vírgula 5, resultando em 400 espiras por metro. Depois substituímos na fórmula: 4 pi vezes 10 elevado a menos 7, vezes 400, vezes 2. Isso resulta em aproximadamente 1 vírgula 01 vezes 10 elevado a menos 3 tesla. Portanto, o campo magnético interno é cerca de 1 vírgula 01 mili tesla.',
+            '2': 'Exemplo 2. O campo magnético interno é 2 vírgula 5 vezes 10 elevado a menos 3 tesla. O solenoide tem 300 espiras e comprimento de 0 vírgula 4 metro. Queremos a corrente. Reorganizamos a fórmula para i igual a B dividido por mi zero vezes N sobre L. Calculamos N sobre L: 300 dividido por 0 vírgula 4, que dá 750 espiras por metro. Depois calculamos mi zero vezes N sobre L e obtemos aproximadamente 9 vírgula 42 vezes 10 elevado a menos 4 tesla por ampère. Por fim, dividimos o campo por esse valor e chegamos a aproximadamente 2 vírgula 65 ampères.',
+            '3': 'Exemplo 3. Um solenoide de comprimento 0 vírgula 3 metro, percorrido por uma corrente de 1 vírgula 5 ampère, gera um campo de 1 vírgula 2 vezes 10 elevado a menos 3 tesla. Queremos o número de espiras. Usamos N igual a B vezes L dividido por mi zero vezes i. Calculamos primeiro B vezes L: 1 vírgula 2 vezes 10 elevado a menos 3, vezes 0 vírgula 3, resultando em 3 vírgula 6 vezes 10 elevado a menos 4. Depois calculamos mi zero vezes i, obtendo aproximadamente 1 vírgula 884 vezes 10 elevado a menos 6. Dividindo, encontramos cerca de 191 espiras.'
+        };
+        const tracks = [
+            () => `Olá${studentName ? ', ' + studentName : ''}. Esta simulação mostra o campo magnético produzido por um solenoide. Você pode alterar a corrente elétrica, o número de espiras e o comprimento para observar o efeito no campo.`,
+            () => 'No painel de controles, a corrente elétrica altera a intensidade do campo. Quanto maior a corrente, maior o campo magnético produzido no interior do solenoide.',
+            () => 'O número de espiras também influencia diretamente o campo. Quando aumentamos a quantidade de espiras no mesmo comprimento, a densidade de espiras cresce e o campo interno se torna mais intenso.',
+            () => 'O comprimento do solenoide altera a densidade de espiras e também o formato visual das linhas de campo. Solenoides mais longos tendem a apresentar linhas mais alongadas.',
+            () => 'As linhas verdes indicam o campo magnético. As pequenas setas mostram o sentido do campo. Os marcadores N e S indicam os polos magnéticos associados ao sentido da corrente.',
+            () => 'Use a regra da mão direita: enrole os dedos no sentido da corrente nas espiras. O polegar aponta o sentido do campo interno e do polo norte do solenoide.',
+            () => 'Quando quiser praticar, abra os exercícios. Você pode responder, reiniciar e depois enviar os resultados. Nos exercícios resolvidos, há botões azuis para ouvir cada resolução passo a passo.'
+        ];
+
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = '';
+        }
+
+        function ensureStudentName() {
+            if (!studentName) {
+                const promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                studentName = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameSolenoide', studentName);
+            }
+        }
+
+        function getVoiceKey(voice) {
+            return `${voice.name}__${voice.lang}`;
+        }
+
+        function getPreferredVoices(voices) {
+            const portugueseVoices = voices.filter(voice => /^pt(-|$)/i.test(voice.lang));
+            return portugueseVoices.length ? portugueseVoices : voices;
+        }
+
+        function populateVoiceSelector(voices) {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            const availableVoices = getPreferredVoices(voices);
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = getVoiceKey(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+
+            if (!availableVoices.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma voz encontrada';
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                selectedVoice = null;
+                return;
+            }
+
+            voiceSelect.disabled = false;
+
+            const preferredVoiceNames = [
+                'Microsoft Daniel',
+                'Daniel',
+                'Microsoft Antonio',
+                'Antonio',
+                'Microsoft Duarte',
+                'Duarte'
+            ];
+
+            const savedVoice = availableVoices.find(voice => getVoiceKey(voice) === savedVoicePreference);
+            const preferredVoice = availableVoices.find(voice =>
+                voice.lang === 'pt-BR' &&
+                preferredVoiceNames.some(name => voice.name.includes(name))
+            );
+
+            selectedVoice = savedVoice || preferredVoice || availableVoices[0] || null;
+            voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+        }
+
+        function setupVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            voiceSelect.addEventListener('change', function() {
+                const voices = getPreferredVoices(synth ? synth.getVoices() : []);
+                selectedVoice = voices.find(voice => getVoiceKey(voice) === this.value) || null;
+                savedVoicePreference = selectedVoice ? getVoiceKey(selectedVoice) : '';
+                localStorage.setItem('voicePreferenceSolenoide', savedVoicePreference);
+            });
+        }
+
+        function loadPreferredVoice() {
+            return new Promise((resolve) => {
+                if (!synth) {
+                    resolve(false);
+                    return;
+                }
+
+                const pickVoice = () => {
+                    const voices = synth.getVoices();
+                    populateVoiceSelector(voices);
+                    resolve(!!selectedVoice);
+                };
+
+                if (synth.getVoices().length) pickVoice();
+                else synth.onvoiceschanged = pickVoice;
+            });
+        }
+
+        function buildTrackText(index) {
+            return tracks[index]();
+        }
+
+        function setMainAudioButtonState(state) {
+            const button = document.getElementById('playPauseAudioBtn');
+            if (!button) return;
+
+            if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+            else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+            else button.innerHTML = '▶️ Iniciar';
+        }
+
+        function setExampleButtonState(button, state) {
+            if (!button) return;
+
+            if (state === 'playing') {
+                button.innerHTML = '⏸️ Pausar resolução';
+                button.classList.add('playing');
+            } else if (state === 'paused') {
+                button.innerHTML = '▶️ Continuar resolução';
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = '🔊 Ouvir resolução';
+                button.classList.remove('playing');
+            }
+        }
+
+        function clearExampleAudioState() {
+            if (activeExampleButton) {
+                setExampleButtonState(activeExampleButton, 'idle');
+                activeExampleButton = null;
+            }
+        }
+
+        function resetAudioUi() {
+            setMainAudioButtonState('idle');
+            clearExampleAudioState();
+        }
+
+        function finishSpeech(sessionId) {
+            if (sessionId !== speechSessionId) return;
+
+            speaking = false;
+            audioPaused = false;
+            currentSpeechSource = null;
+            resetAudioUi();
+        }
+
+        function speakText(text) {
+            if (!synth) {
+                alert('Este navegador não oferece suporte à fala sintetizada.');
+                return;
+            }
+
+            if (synth.speaking || synth.pending || synth.paused) {
+                speechSessionId++;
+                synth.cancel();
+            }
+
+            const sessionId = ++speechSessionId;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            utterance.onend = () => finishSpeech(sessionId);
+            utterance.onerror = () => finishSpeech(sessionId);
+            synth.speak(utterance);
+            speaking = true;
+            audioPaused = false;
+        }
+
+        function speakTrack(index) {
+            ensureStudentName();
+            currentSpeechSource = 'track';
+            clearExampleAudioState();
+            const text = buildTrackText(index);
+            setMainAudioButtonState('playing');
+            speakText(text);
+            if (speaking) {
+                document.getElementById('trackCounter').innerText = `Trecho ${index + 1}/${tracks.length}`;
+            }
+        }
+
+        function pauseAudio() {
+            if (synth && speaking && !audioPaused) {
+                synth.pause();
+                audioPaused = true;
+                if (currentSpeechSource === 'track') {
+                    setMainAudioButtonState('paused');
+                } else if (currentSpeechSource === 'example') {
+                    setExampleButtonState(activeExampleButton, 'paused');
+                }
+            }
+        }
+
+        function resumeAudio() {
+            if (currentSpeechSource === 'track' && speaking && audioPaused && synth) {
+                synth.resume();
+                audioPaused = false;
+                setMainAudioButtonState('playing');
+                return;
+            }
+
+            if (!speaking || currentSpeechSource !== 'track') speakTrack(currentTrack);
+        }
+
+        function toggleExampleAudio(button) {
+            ensureStudentName();
+            const text = exampleNarrations[button.getAttribute('data-example')];
+            if (!text) return;
+
+            if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+                if (audioPaused && synth) {
+                    synth.resume();
+                    audioPaused = false;
+                    setExampleButtonState(button, 'playing');
+                } else {
+                    pauseAudio();
+                }
+                return;
+            }
+
+            currentSpeechSource = 'example';
+            clearExampleAudioState();
+            activeExampleButton = button;
+            setMainAudioButtonState('idle');
+            setExampleButtonState(button, 'playing');
+            speakText(text);
+        }
+
+        function nextTrack() {
+            if (currentTrack + 1 < tracks.length) {
+                currentTrack++;
+                if (synth && (synth.speaking || synth.pending || synth.paused)) {
+                    speechSessionId++;
+                    synth.cancel();
+                }
+                speaking = false;
+                audioPaused = false;
+                speakTrack(currentTrack);
+            } else {
+                alert('Você concluiu todos os trechos de áudio desta simulação.');
+            }
+        }
+
+        function prevTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                if (synth && (synth.speaking || synth.pending || synth.paused)) {
+                    speechSessionId++;
+                    synth.cancel();
+                }
+                speaking = false;
+                audioPaused = false;
+                speakTrack(currentTrack);
+            } else {
+                alert('Este é o primeiro trecho de áudio.');
+            }
+        }
+
+        function setupAudioEventListeners() {
+            const playPauseButton = document.getElementById('playPauseAudioBtn');
+            playPauseButton.addEventListener('click', function() {
+                if (currentSpeechSource === 'track' && speaking) {
+                    if (audioPaused) resumeAudio();
+                    else pauseAudio();
+                }
+                else resumeAudio();
+            });
+
+            document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+            document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+
+            document.querySelectorAll('.audio-example-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleExampleAudio(this);
+                });
+            });
+        }
 
         // Função para formatar números em notação científica com 3 algarismos significativos
         function formatScientificWith3Digits(value, unit = '') {
@@ -887,36 +1320,82 @@
             return formatScientificWith3Digits(value, unit);
         }
 
+        function getVisualSolenoidLength() {
+            return 1.6 + ((length - 0.1) / 0.9) * 2.6;
+        }
+
+        function createTextSprite(text, backgroundColor = '#ffcc00', textColor = '#000000') {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 128;
+            const context = canvas.getContext('2d');
+            context.fillStyle = backgroundColor;
+            context.fillRect(24, 24, 208, 80);
+            context.strokeStyle = 'rgba(255,255,255,0.8)';
+            context.lineWidth = 4;
+            context.strokeRect(24, 24, 208, 80);
+            context.fillStyle = textColor;
+            context.font = 'bold 56px Segoe UI';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(text, 128, 64);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(0.8, 0.4, 1);
+            return sprite;
+        }
+
         // Inicializar a cena Three.js
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000011);
+            scene.background = new THREE.Color(0x07111f);
+            scene.fog = new THREE.Fog(0x07111f, 8, 18);
             
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(4, 3, 5);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(5.8, 3.8, 6.5);
             camera.lookAt(0, 0, 0);
             
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setPixelRatio(window.devicePixelRatio || 1);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             updateRendererSize();
             document.getElementById('renderer-container').appendChild(renderer.domElement);
             
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.dampingFactor = 0.1;
+            controls.dampingFactor = 0.08;
+            controls.minDistance = 4;
+            controls.maxDistance = 12;
+            controls.target.set(0, 0, 0);
             
-            const ambientLight = new THREE.AmbientLight(0x404040);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
             scene.add(ambientLight);
             
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            directionalLight.position.set(1, 1, 1);
-            scene.add(directionalLight);
+            const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+            keyLight.position.set(6, 6, 4);
+            keyLight.castShadow = true;
+            scene.add(keyLight);
             
-            const axesHelper = new THREE.AxesHelper(2);
+            const fillLight = new THREE.PointLight(0x66bbff, 0.8, 30);
+            fillLight.position.set(-5, 2, 3);
+            scene.add(fillLight);
+            
+            const rimLight = new THREE.PointLight(0xffaa66, 0.5, 20);
+            rimLight.position.set(0, -4, -5);
+            scene.add(rimLight);
+
+            const gridHelper = new THREE.GridHelper(10, 20, 0x4477aa, 0x1c3550);
+            gridHelper.position.y = -1.8;
+            scene.add(gridHelper);
+            
+            const axesHelper = new THREE.AxesHelper(2.2);
+            axesHelper.position.set(-3.2, -1.4, -2.2);
             scene.add(axesHelper);
             
             createSolenoid();
             createFieldVectors();
-            createExternalFieldLines();
             
             window.addEventListener('resize', onWindowResize);
             
@@ -926,6 +1405,11 @@
             
             setupEventListeners();
             setupExerciseEventListeners();
+            setupAudioEventListeners();
+            setupVoiceSelector();
+            loadPreferredVoice().then(() => {
+                document.getElementById('trackCounter').innerText = `Trecho ${currentTrack + 1}/${tracks.length}`;
+            });
         }
         
         function updateRendererSize() {
@@ -937,144 +1421,186 @@
             camera.updateProjectionMatrix();
         }
         
-        // Criar a representação do solenoide (anéis + cilindro transparente)
+        // Criar a representação do solenoide (hélice 3D + núcleo transparente)
         function createSolenoid() {
             if (solenoidGroup) scene.remove(solenoidGroup);
             solenoidGroup = new THREE.Group();
             
             const radius = 1.0;
-            const solenoidLength = 3.0; // comprimento visual fixo
-            const numRings = 20; // número de anéis visuais (representam as espiras)
+            const solenoidLength = getVisualSolenoidLength();
+            const turnsVisual = Math.min(42, Math.max(12, Math.round(numTurns / 12)));
+            const helixSegments = turnsVisual * 28;
+            const wireColor = current >= 0 ? 0xff6b4a : 0x4aa3ff;
+            const emissiveColor = current >= 0 ? 0x662211 : 0x112244;
+            const fieldDirection = current >= 0 ? 1 : -1;
             
-            // Cilindro transparente para indicar o volume interno
-            const cylinderGeo = new THREE.CylinderGeometry(radius, radius, solenoidLength, 32, 1);
-            const cylinderMat = new THREE.MeshPhongMaterial({ color: 0x3366ff, transparent: true, opacity: 0.15 });
-            const cylinder = new THREE.Mesh(cylinderGeo, cylinderMat);
-            cylinder.rotation.x = Math.PI / 2; // alinhar com eixo Z
-            solenoidGroup.add(cylinder);
-            
-            // Anéis (espiras)
-            for (let i = 0; i < numRings; i++) {
-                const z = (i / (numRings - 1) - 0.5) * solenoidLength;
-                const ringGeo = new THREE.TorusGeometry(radius, 0.05, 16, 32);
-                const ringMat = new THREE.MeshPhongMaterial({ 
-                    color: current >= 0 ? 0xff3333 : 0x3366ff,
-                    emissive: current >= 0 ? 0x330000 : 0x001133
-                });
-                const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.rotation.x = Math.PI / 2; // deitar no plano XY
-                ring.position.z = z;
-                solenoidGroup.add(ring);
+            const coreGeo = new THREE.CylinderGeometry(radius * 0.82, radius * 0.82, solenoidLength, 48, 1, true);
+            const coreMat = new THREE.MeshPhysicalMaterial({
+                color: 0x6fb6ff,
+                transparent: true,
+                opacity: 0.10,
+                roughness: 0.2,
+                metalness: 0.1,
+                clearcoat: 1,
+                side: THREE.DoubleSide
+            });
+            const core = new THREE.Mesh(coreGeo, coreMat);
+            core.rotation.x = Math.PI / 2;
+            solenoidGroup.add(core);
+
+            const glowRadius = Math.min(0.34, 0.16 + calculateField() * 110);
+            const glowGeo = new THREE.CylinderGeometry(glowRadius, glowRadius, solenoidLength * 0.9, 32);
+            const glowMat = new THREE.MeshBasicMaterial({ color: 0x33ff99, transparent: true, opacity: 0.10 });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.rotation.x = Math.PI / 2;
+            solenoidGroup.add(glow);
+
+            const helixPoints = [];
+            const turnDirection = current >= 0 ? 1 : -1;
+            for (let i = 0; i <= helixSegments; i++) {
+                const t = i / helixSegments;
+                const angle = turnDirection * t * Math.PI * 2 * turnsVisual;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                const z = (t - 0.5) * solenoidLength;
+                helixPoints.push(new THREE.Vector3(x, y, z));
             }
-            
-            // Seta indicadora do sentido da corrente (em uma das extremidades)
-            const arrowDir = current >= 0 ? 1 : -1;
-            const arrowGeo = new THREE.ConeGeometry(0.15, 0.4, 16);
-            const arrowMat = new THREE.MeshBasicMaterial({ color: current >= 0 ? 0xff0000 : 0x0066ff });
-            const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-            arrow.position.set(0, 0, arrowDir * 1.8);
-            arrow.rotation.x = Math.PI / 2;
-            if (current < 0) arrow.rotation.x = -Math.PI / 2;
-            solenoidGroup.add(arrow);
-            
+            const helixCurve = new THREE.CatmullRomCurve3(helixPoints);
+            const wireGeo = new THREE.TubeGeometry(helixCurve, helixSegments, 0.05, 14, false);
+            const wireMat = new THREE.MeshStandardMaterial({
+                color: wireColor,
+                emissive: emissiveColor,
+                emissiveIntensity: 0.55,
+                metalness: 0.55,
+                roughness: 0.32
+            });
+            const coil = new THREE.Mesh(wireGeo, wireMat);
+            coil.castShadow = true;
+            coil.receiveShadow = true;
+            solenoidGroup.add(coil);
+
+            const terminalMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.25 });
+            const terminalGeo = new THREE.SphereGeometry(0.10, 16, 16);
+            const terminal1 = new THREE.Mesh(terminalGeo, terminalMat);
+            terminal1.position.set(radius, 0, -solenoidLength / 2);
+            const terminal2 = new THREE.Mesh(terminalGeo, terminalMat);
+            terminal2.position.set(radius, 0, solenoidLength / 2);
+            solenoidGroup.add(terminal1);
+            solenoidGroup.add(terminal2);
+
+            const leadLength = 1.2;
+            const leadGeo = new THREE.CylinderGeometry(0.025, 0.025, leadLength, 10);
+            const leadMat = new THREE.MeshStandardMaterial({ color: 0xe2c266, metalness: 0.75, roughness: 0.28 });
+            const inputLead = new THREE.Mesh(leadGeo, leadMat);
+            inputLead.rotation.z = Math.PI / 2;
+            inputLead.position.set(radius + leadLength / 2, 0, -solenoidLength / 2);
+            const outputLead = new THREE.Mesh(leadGeo, leadMat);
+            outputLead.rotation.z = Math.PI / 2;
+            outputLead.position.set(radius + leadLength / 2, 0, solenoidLength / 2);
+            solenoidGroup.add(inputLead);
+            solenoidGroup.add(outputLead);
+
+            const inputDir = new THREE.Vector3(current >= 0 ? -1 : 1, 0, 0);
+            const outputDir = new THREE.Vector3(current >= 0 ? 1 : -1, 0, 0);
+            const inputArrow = new THREE.ArrowHelper(inputDir, new THREE.Vector3(radius + 0.9, 0.18, -solenoidLength / 2), 0.55, wireColor, 0.14, 0.08);
+            const outputArrow = new THREE.ArrowHelper(outputDir, new THREE.Vector3(radius + 0.35, 0.18, solenoidLength / 2), 0.55, wireColor, 0.14, 0.08);
+            solenoidGroup.add(inputArrow);
+            solenoidGroup.add(outputArrow);
+
+            const currentLabel = createTextSprite('i', current >= 0 ? '#ff8844' : '#55aaff', '#000000');
+            currentLabel.position.set(radius + leadLength + 0.15, 0.58, 0);
+            solenoidGroup.add(currentLabel);
+
+            const northZ = fieldDirection * solenoidLength / 2;
+            const southZ = -fieldDirection * solenoidLength / 2;
+            const northLabel = createTextSprite('N', '#ffcc00', '#000000');
+            northLabel.position.set(0, 1.25, northZ + 0.25 * fieldDirection);
+            const southLabel = createTextSprite('S', '#99ddff', '#001122');
+            southLabel.position.set(0, 1.25, southZ - 0.25 * fieldDirection);
+            solenoidGroup.add(northLabel);
+            solenoidGroup.add(southLabel);
+
             scene.add(solenoidGroup);
+            setCoilVisibility(showCoil);
         }
         
-        // Criar vetores de campo magnético interno
+        // Criar linhas de campo em forma de elipses, alongadas conforme o comprimento do solenoide
         function createFieldVectors() {
             fieldVectors.forEach(v => scene.remove(v));
             fieldVectors = [];
             
-            const radius = 0.8; // dentro do solenoide
-            const solenoidLength = 3.0;
-            const numLayers = 3; // camadas em z
-            const numPerLayer = 4; // vetores por camada
-            
-            const B = calculateField();
+            const solenoidLength = getVisualSolenoidLength();
             const fieldDirection = current >= 0 ? 1 : -1;
-            const vectorScale = 0.5 * Math.abs(B) / 1e-3; // escala visual (B típico ~ 1e-3 T)
+            const eta = numTurns / length;
+            const densityFactor = Math.max(0.25, Math.min(1, eta / 1200));
+            const uniformityFactor = Math.max(0.2, Math.min(1, length / 0.8));
+            const lineCount = 4 + Math.round(densityFactor * 3);
+            const lengthFactor = Math.max(0, Math.min(1, (solenoidLength - 1.6) / 2.6));
+            const majorAxisBase = solenoidLength * 0.52 + 0.18;
             
-            for (let layer = 0; layer < numLayers; layer++) {
-                const z = (layer / (numLayers - 1) - 0.5) * solenoidLength * 0.8; // evita extremidades
-                for (let i = 0; i < numPerLayer; i++) {
-                    const angle = (i / numPerLayer) * Math.PI * 2;
-                    const x = Math.cos(angle) * radius * 0.7;
-                    const y = Math.sin(angle) * radius * 0.7;
-                    
-                    const arrow = createArrow(new THREE.Vector3(0, 0, fieldDirection), vectorScale, 0x00ff00, new THREE.Vector3(x, y, z));
+            for (let i = 0; i < lineCount; i++) {
+                const angle = (i / lineCount) * Math.PI * 2;
+                const radialDirection = new THREE.Vector3(Math.cos(angle), Math.sin(angle), 0);
+                const radialOffset = 1.00 + i * 0.15;
+                const minorAxis = (0.55 + i * 0.13) * (1 - 0.22 * lengthFactor) + 0.06 * (1 - uniformityFactor);
+                const majorAxis = majorAxisBase + i * 0.08;
+                const pointCount = 220;
+                const ellipsePoints = [];
+
+                for (let step = 0; step < pointCount; step++) {
+                    const t = step / pointCount;
+                    const phi = fieldDirection > 0
+                        ? (Math.PI / 2) - t * Math.PI * 2
+                        : (Math.PI / 2) + t * Math.PI * 2;
+                    const radialDistance = radialOffset + minorAxis * Math.cos(phi);
+                    const z = majorAxis * Math.sin(phi);
+                    const point = radialDirection.clone().multiplyScalar(radialDistance);
+                    point.z = z;
+                    ellipsePoints.push(point);
+                }
+
+                const curve = new THREE.CatmullRomCurve3(ellipsePoints, true);
+                const points = curve.getPoints(220);
+                const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+                const lineMat = new THREE.LineBasicMaterial({ color: 0x33ff99, transparent: true, opacity: 0.88 });
+                const line = new THREE.LineLoop(lineGeo, lineMat);
+                scene.add(line);
+                fieldVectors.push(line);
+
+                [0.12, 0.36, 0.62, 0.86].forEach(t => {
+                    const pos = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+                    const arrow = createArrow(tangent, 0.18, 0x8affc9, pos);
                     scene.add(arrow);
                     fieldVectors.push(arrow);
-                }
+                });
             }
             
             setFieldVectorsVisibility(showFieldVectors);
         }
         
-        // Criar linhas de campo externo (simulando um ímã)
-        function createExternalFieldLines() {
-            externalFieldLines.forEach(l => scene.remove(l));
-            externalFieldLines = [];
-            
-            const solenoidLength = 3.0;
-            const radius = 1.2;
-            
-            // Criar algumas curvas saindo do topo e voltando à base
-            const colors = [0x00ffff, 0x00cccc];
-            for (let side = -1; side <= 1; side += 2) {
-                for (let i = 0; i < 3; i++) {
-                    const angle = (i / 3) * Math.PI * 2;
-                    const startX = Math.cos(angle) * radius * 0.8;
-                    const startY = Math.sin(angle) * radius * 0.8;
-                    const startZ = side * solenoidLength / 2;
-                    
-                    const endX = startX * 0.5;
-                    const endY = startY * 0.5;
-                    const endZ = -side * solenoidLength / 2;
-                    
-                    const midX = (startX + endX) * 2;
-                    const midY = (startY + endY) * 2;
-                    const midZ = 0;
-                    
-                    const curve = new THREE.QuadraticBezierCurve3(
-                        new THREE.Vector3(startX, startY, startZ),
-                        new THREE.Vector3(midX, midY, midZ),
-                        new THREE.Vector3(endX, endY, endZ)
-                    );
-                    
-                    const points = curve.getPoints(30);
-                    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-                    const lineMat = new THREE.LineBasicMaterial({ color: colors[i % colors.length] });
-                    const line = new THREE.Line(lineGeo, lineMat);
-                    scene.add(line);
-                    externalFieldLines.push(line);
-                }
-            }
-            
-            setExternalFieldVisibility(showExternalField);
-        }
-        
         function createArrow(direction, length, color, position) {
             const arrowGroup = new THREE.Group();
+            const dir = direction.clone().normalize();
             
-            const bodyLength = length * 0.7;
-            const bodyGeo = new THREE.CylinderGeometry(0.05, 0.05, bodyLength, 6);
+            const bodyLength = length * 0.72;
+            const bodyGeo = new THREE.CylinderGeometry(0.010, 0.010, bodyLength, 10);
             const bodyMat = new THREE.MeshBasicMaterial({ color: color });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.rotation.x = Math.PI / 2;
             body.position.z = bodyLength / 2;
             arrowGroup.add(body);
             
-            const headLength = length * 0.3;
-            const headGeo = new THREE.ConeGeometry(0.1, headLength, 8);
+            const headLength = length * 0.28;
+            const headGeo = new THREE.ConeGeometry(0.025, headLength, 12);
             const headMat = new THREE.MeshBasicMaterial({ color: color });
             const head = new THREE.Mesh(headGeo, headMat);
+            head.rotation.x = Math.PI / 2;
             head.position.z = bodyLength + headLength / 2;
             arrowGroup.add(head);
             
-            // Rotacionar para a direção desejada (assumindo que direction é (0,0,±1))
-            if (direction.z < 0) {
-                arrowGroup.rotation.z = Math.PI;
-            }
-            
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir);
+            arrowGroup.quaternion.copy(quaternion);
             arrowGroup.position.copy(position);
             return arrowGroup;
         }
@@ -1091,9 +1617,6 @@
             fieldVectors.forEach(v => scene.remove(v));
             createFieldVectors();
             
-            externalFieldLines.forEach(l => scene.remove(l));
-            createExternalFieldLines();
-            
             updateMeasurements();
         }
         
@@ -1101,8 +1624,9 @@
             fieldVectors.forEach(v => v.visible = visible);
         }
         
-        function setExternalFieldVisibility(visible) {
-            externalFieldLines.forEach(l => l.visible = visible);
+        function setCoilVisibility(visible) {
+            showCoil = visible;
+            if (solenoidGroup) solenoidGroup.visible = visible;
         }
         
         function updateMeasurements() {
@@ -1156,15 +1680,16 @@
                 setFieldVectorsVisibility(showFieldVectors);
                 this.classList.toggle('active', showFieldVectors);
             });
-            
-            document.getElementById('externalFieldBtn').addEventListener('click', function() {
-                showExternalField = !showExternalField;
-                setExternalFieldVisibility(showExternalField);
-                this.classList.toggle('active', showExternalField);
+
+            document.getElementById('coilVisibilityBtn').addEventListener('click', function() {
+                showCoil = !showCoil;
+                setCoilVisibility(showCoil);
+                this.classList.toggle('active', showCoil);
+                this.textContent = showCoil ? 'Ocultar Bobina' : 'Mostrar Bobina';
             });
             
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert("Como usar:\n\n• Arraste para rotacionar a cena\n• Use a roda do mouse para zoom\n• O solenoide está alinhado ao eixo Z\n• Vetores verdes representam o campo interno (uniforme)\n• Linhas ciano são linhas de campo externo (aproximação)\n\nRegra da Mão Direita:\n• Dedos no sentido da corrente (anéis vermelhos/azuis)\n• Polegar indica o sentido do campo interno");
+                alert("Como usar:\n\n• Arraste para rotacionar a cena em 3D\n• Use a roda do mouse para dar zoom\n• As linhas verdes mostram o campo magnético de forma contínua, por dentro e por fora da bobina\n• As pequenas setas nas linhas indicam a direção do campo magnético\n• Os fios retos nas extremidades ajudam a perceber a entrada e a saída da corrente\n• As letras N e S indicam os polos magnéticos\n• O botão Ocultar Bobina ajuda a enxergar melhor o campo\n\nRegra da mão direita:\n• Enrole os dedos da mão direita no sentido da corrente\n• O polegar aponta para o polo norte e para o sentido do campo interno");
             });
         }
         
@@ -1172,6 +1697,7 @@
             document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
             document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
             document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
             
             document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
             document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
@@ -1187,11 +1713,11 @@
         }
         
         function closeExercisesModal() {
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = conclusionTextarea.value;
+            }
             document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
         }
         
         function closeSolvedExercisesModal() {
@@ -1258,6 +1784,11 @@
             
             exercises = shuffleArray(exercises);
         }
+
+        function generateFreshExercises() {
+            generateExercises();
+            return exercises;
+        }
         
         function generateOptions(correctValue, unit = '', isInteger = false) {
             const options = [];
@@ -1303,6 +1834,7 @@
         }
         
         function showCurrentExercise() {
+            if (!exercises.length || currentExercise >= exercises.length) return;
             const exercise = exercises[currentExercise];
             const container = document.getElementById('exerciseContainer');
             
@@ -1319,15 +1851,16 @@
                     <div class="result"></div>
                 </div>
             `;
-            
-            container.addEventListener('click', function(e) {
-                if (e.target.classList.contains('option')) {
+
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                }
+                    this.classList.add('selected');
+                });
             });
-            
-            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            if (checkBtn) checkBtn.addEventListener('click', checkAnswer);
             updateProgressBar();
         }
         
@@ -1441,6 +1974,7 @@
         
         function nextExercise() {
             currentExercise++;
+            currentExerciseAttempts = 0;
             if (currentExercise < exercises.length) showCurrentExercise();
             else showConclusion();
         }
@@ -1457,13 +1991,20 @@
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
+
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+
+            const submitButton = document.getElementById('submitConclusion');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+            newSubmitButton.addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
+                conclusionTextSaved = conclusionText;
                 showResults(conclusionText);
             });
         }
@@ -1484,8 +2025,11 @@
             `;
             
             document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+
+            const sendButton = document.getElementById('sendResults');
+            const newSendButton = sendButton.cloneNode(true);
+            sendButton.parentNode.replaceChild(newSendButton, sendButton);
+            newSendButton.addEventListener('click', sendResultsToSheet);
         }
         
         function sendResultsToSheet() {
@@ -1600,6 +2144,7 @@ Sistema de Simulações Físicas`
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
+                    resetExerciseState();
                     closeExercisesModal();
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
@@ -1615,12 +2160,42 @@ Sistema de Simulações Físicas`
         }
         
         function openExercisesModal() {
-            generateExercises();
+            if (exercises.length === 0 || (currentExercise >= exercises.length &&
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
             document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
-            showCurrentExercise();
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
         }
         
         window.addEventListener('load', init);
