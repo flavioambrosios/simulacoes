@@ -195,7 +195,7 @@
         }
         .modal-content {
             background: linear-gradient(135deg, #2c3e50, #4a6491);
-            padding: 20px;
+            padding: 20px 20px 120px;
             border-radius: 10px;
             width: 100%;
             max-width: 800px;
@@ -419,6 +419,24 @@
             margin-bottom: 20px;
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
+        .audio-example-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        .audio-example-btn:hover {
+            background: #2980b9;
+        }
+        .audio-example-btn.playing {
+            background: #e67e22;
+        }
+        .audio-example-btn.playing:hover {
+            background: #d35400;
+        }
             border-radius: 8px;
         }
         .solved-exercise h4 {
@@ -496,6 +514,31 @@
             z-index: 2000;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
             border: 1px solid #ffcc00;
+            align-items: center;
+        }
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-selector label {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .voice-selector select {
+            width: auto;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid #ffcc00;
+            border-radius: 18px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            max-width: 210px;
+        }
+        .voice-selector select option {
+            color: #000;
         }
         .audio-controls button {
             background: #ffcc00;
@@ -521,6 +564,26 @@
             .simulation-panel, .controls-panel {
                 flex: 1;
                 width: 100%;
+            }
+            .modal-content {
+                max-height: calc(100vh - 30px);
+                padding-bottom: 180px;
+            }
+            .audio-controls {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                border-radius: 18px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .voice-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            .voice-selector select {
+                max-width: 100%;
+                flex: 1;
             }
         }
     </style>
@@ -631,7 +694,42 @@
     </div>
 </div>
 
-<div id="solvedExercisesModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Exercícios Resolvidos - Lei de Ampere</h2><span class="close">&times;</span></div><div id="solvedExercisesContainer"><div class="solved-exercise"><h4>Exemplo 1: Cálculo do Campo Magnético</h4><p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância?</p><div class="solution-step"><strong>Fórmula:</strong> B = (μ₀·i)/(2πd)</div><div class="solution-step"><strong>Cálculo:</strong> B = (4π×10⁻⁷ × 5) / (2π × 0,1) = 1,0×10⁻⁵ T</div><div class="solution-step"><strong>Resposta:</strong> 10 μT</div></div><div class="solved-exercise"><h4>Exemplo 2: Cálculo da Corrente</h4><p><strong>Problema:</strong> A 0,2 m de um fio, B = 2×10⁻⁶ T. Qual a corrente?</p><div class="solution-step"><strong>Isolando i:</strong> i = (B·2πd)/μ₀</div><div class="solution-step"><strong>Cálculo:</strong> i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷) = 2 A</div><div class="solution-step"><strong>Resposta:</strong> 2 A</div></div><div class="solved-exercise"><h4>Exemplo 3: Direção do Campo</h4><p><strong>Problema:</strong> Corrente no sentido +Z. Qual a direção do campo no ponto (0, 0.1, 0)?</p><div class="solution-step"><strong>Regra da mão direita:</strong> Polegar para cima, dedos curvam no sentido anti-horário.</div><div class="solution-step"><strong>Resposta:</strong> Campo no sentido negativo do eixo X.</div></div></div><div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div></div></div>
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios Resolvidos - Lei de Ampere</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div id="solvedExercisesContainer">
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Cálculo do Campo Magnético</h4>
+                <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância?</p>
+                <div class="solution-step"><strong>Fórmula:</strong> B = (μ₀·i)/(2πd)</div>
+                <div class="solution-step"><strong>Cálculo:</strong> B = (4π×10⁻⁷ × 5) / (2π × 0,1) = 1,0×10⁻⁵ T</div>
+                <div class="solution-step"><strong>Resposta:</strong> 10 μT</div>
+            </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Cálculo da Corrente</h4>
+                <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> A 0,2 m de um fio, B = 2×10⁻⁶ T. Qual a corrente?</p>
+                <div class="solution-step"><strong>Isolando i:</strong> i = (B·2πd)/μ₀</div>
+                <div class="solution-step"><strong>Cálculo:</strong> i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷) = 2 A</div>
+                <div class="solution-step"><strong>Resposta:</strong> 2 A</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Direção do Campo</h4>
+                <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Corrente no sentido +Z. Qual a direção do campo no ponto (0, 0.1, 0)?</p>
+                <div class="solution-step"><strong>Regra da mão direita:</strong> Polegar para cima, dedos curvam no sentido anti-horário.</div>
+                <div class="solution-step"><strong>Resposta:</strong> Campo no sentido negativo do eixo X.</div>
+            </div>
+        </div>
+        <div class="buttons-container">
+            <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal de Teoria -->
 <div id="theoryModal" class="modal">
@@ -656,6 +754,12 @@
     <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
     <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
     <span id="trackCounter">Trecho 0/8</span>
+    <div class="voice-selector">
+        <label for="voiceSelect">Voz:</label>
+        <select id="voiceSelect" aria-label="Selecionar voz do áudio">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
 </div>
 
 <script>
@@ -861,7 +965,7 @@
         document.getElementById('helpBtn').addEventListener('click', () => alert("Use o mouse para girar a cena. Ajuste a corrente e veja o campo magnético mudar."));
     }
 
-    // ==================== ÁUDIO INTERATIVO GUIADO (CORRIGIDO) ====================
+    // ==================== ÁUDIO INTERATIVO ====================
     let studentName = localStorage.getItem('studentNameAmpere');
     if (!studentName) {
         studentName = prompt("🎧 Olá! Qual é o seu nome? (Vou te chamar durante o áudio interativo)");
@@ -869,6 +973,8 @@
         else studentName = "estudante";
     }
 
+    let selectedVoice = null;
+    let savedVoicePreference = localStorage.getItem('voicePreferenceAmpere') || '';
     const tracks = [
         `Olá, ${studentName}! Bem-vindo à simulação da Lei de Ampère. Você está vendo um fio vermelho no centro (eixo Z) e várias linhas verdes ao redor; – elas representam a simetria circular do campo magnético. No painel direito, há um controle deslizante para a corrente elétrica. Agora, localize o botão "Iniciar Exercícios"; "ver exercícios resolvidos"; "teoria"; os controles de visualização "Linhas de Campo" e "Vetores de Campo". Clique em cada um dos botões para se familiarizar com a tela e depois clique em "Próximo trecho".`,
         `Vamos começar. Use o mouse para girar a cena até que a visualização fique compreensível pra você. A corrente positiva está representada pela seta vermelha. Clique no botão "vetores de campo" para visualizar o campo magnético vetorial ao redor do fio, você pode clicar também no botão "linhas de campo", para retirar a visualização das linhas e os vetores de campo ficarem mais evidentes. Agora, aumente a corrente para o máximo (10 Ampères). Observe que as linhas e vetores ficam mais intensos. Diminua para -5 Ampères (corrente negativa). O que mudou? O sentido dos vetores inverteram. Pause o áudio e explore. Depois, clique em "Próximo".`,
@@ -883,46 +989,246 @@
     let currentTrack = 0;
     let speechSynthesis = window.speechSynthesis;
     let speaking = false;
+    let audioPaused = false;
+    let currentSpeechSource = null;
+    let activeExampleButton = null;
+    let speechSessionId = 0;
+    const exampleNarrations = {
+        "1": "Exemplo 1. Um fio reto é percorrido por uma corrente de 5 amperes. Queremos o campo magnético a 0,1 metro do fio. Aplicamos a fórmula B igual a mi zero vezes i dividido por 2 pi vezes d. Substituindo os valores: 4 pi vezes 10 elevado a menos 7, vezes 5, dividido por 2 pi vezes 0,1. O resultado é 1,0 vezes 10 elevado a menos 5 tesla, que corresponde a 10 microtesla.",
+        "2": "Exemplo 2. A 0,2 metro de um fio, o campo magnético medido é 2 vezes 10 elevado a menos 6 tesla. Queremos descobrir a corrente. Isolamos i na fórmula, ficando i igual a B vezes 2 pi d dividido por mi zero. Substituindo os valores, obtemos 2 amperes.",
+        "3": "Exemplo 3. A corrente está no sentido positivo do eixo z. Queremos a direção do campo no ponto zero, zero vírgula 1, zero. Pela regra da mão direita, apontamos o polegar para cima, no sentido da corrente. Os dedos curvados mostram o campo circulando no sentido anti-horário. Nesse ponto específico, o campo aponta para o sentido negativo do eixo x."
+    };
 
-    function speakTrack(index) {
-        if (speaking) speechSynthesis.cancel();
-        let utterance = new SpeechSynthesisUtterance(tracks[index]);
+    function getVoiceKey(voice) {
+        return `${voice.name}__${voice.lang}`;
+    }
+
+    function getPreferredVoices(voices) {
+        const portugueseVoices = voices.filter(voice => /^pt(-|$)/i.test(voice.lang));
+        return portugueseVoices.length ? portugueseVoices : voices;
+    }
+
+    function setMainAudioButtonState(state) {
+        const button = document.getElementById('playPauseAudioBtn');
+        if (!button) return;
+
+        if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+        else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+        else button.innerHTML = '▶️ Iniciar';
+    }
+
+    function setExampleButtonState(button, state) {
+        if (!button) return;
+
+        if (state === 'playing') {
+            button.innerHTML = '⏸️ Pausar resolução';
+            button.classList.add('playing');
+        } else if (state === 'paused') {
+            button.innerHTML = '▶️ Continuar resolução';
+            button.classList.add('playing');
+        } else {
+            button.innerHTML = '🔊 Ouvir resolução';
+            button.classList.remove('playing');
+        }
+    }
+
+    function clearExampleAudioState() {
+        if (activeExampleButton) {
+            setExampleButtonState(activeExampleButton, 'idle');
+            activeExampleButton = null;
+        }
+    }
+
+    function resetAudioUi() {
+        setMainAudioButtonState('idle');
+        clearExampleAudioState();
+    }
+
+    function finishSpeech(sessionId) {
+        if (sessionId !== speechSessionId) return;
+
+        speaking = false;
+        audioPaused = false;
+        currentSpeechSource = null;
+        resetAudioUi();
+    }
+
+    function populateVoiceSelector(voices) {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+
+        const availableVoices = getPreferredVoices(voices);
+        voiceSelect.innerHTML = '';
+
+        availableVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = getVoiceKey(voice);
+            option.textContent = `${voice.name} (${voice.lang})`;
+            voiceSelect.appendChild(option);
+        });
+
+        if (!availableVoices.length) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma voz encontrada';
+            voiceSelect.appendChild(option);
+            voiceSelect.disabled = true;
+            selectedVoice = null;
+            return;
+        }
+
+        voiceSelect.disabled = false;
+
+        const preferredVoiceNames = [
+            'Microsoft Daniel',
+            'Daniel',
+            'Microsoft Antonio',
+            'Antonio',
+            'Microsoft Duarte',
+            'Duarte'
+        ];
+
+        const savedVoice = availableVoices.find(voice => getVoiceKey(voice) === savedVoicePreference);
+        const preferredVoice = availableVoices.find(voice =>
+            voice.lang === 'pt-BR' &&
+            preferredVoiceNames.some(name => voice.name.includes(name))
+        );
+
+        selectedVoice = savedVoice || preferredVoice || availableVoices[0] || null;
+        voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+    }
+
+    function setupVoiceSelector() {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+
+        voiceSelect.addEventListener('change', function() {
+            const voices = getPreferredVoices(speechSynthesis ? speechSynthesis.getVoices() : []);
+            selectedVoice = voices.find(voice => getVoiceKey(voice) === this.value) || null;
+            savedVoicePreference = selectedVoice ? getVoiceKey(selectedVoice) : '';
+            localStorage.setItem('voicePreferenceAmpere', savedVoicePreference);
+        });
+    }
+
+    function loadPreferredVoice() {
+        return new Promise((resolve) => {
+            const tryGetVoice = () => {
+                const voices = speechSynthesis.getVoices();
+                populateVoiceSelector(voices);
+                resolve(!!selectedVoice);
+            };
+
+            if (speechSynthesis.getVoices().length) {
+                tryGetVoice();
+            } else {
+                speechSynthesis.onvoiceschanged = tryGetVoice;
+            }
+        });
+    }
+
+    function speakText(text) {
+        if (!speechSynthesis) {
+            alert('Este navegador não oferece suporte à fala sintetizada.');
+            return;
+        }
+
+        if (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused) {
+            speechSessionId++;
+            speechSynthesis.cancel();
+        }
+
+        const sessionId = ++speechSessionId;
+        const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'pt-BR';
         utterance.rate = 0.9;
-        utterance.onend = () => {
-            speaking = false;
-            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
-        };
-        utterance.onerror = () => { speaking = false; };
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.onend = () => finishSpeech(sessionId);
+        utterance.onerror = () => finishSpeech(sessionId);
         speechSynthesis.speak(utterance);
         speaking = true;
-        document.getElementById('playPauseAudioBtn').innerHTML = '⏸️ Pausar';
-        document.getElementById('trackCounter').innerText = `Trecho ${index+1}/${tracks.length}`;
+        audioPaused = false;
+    }
+
+    function speakTrack(index) {
+        currentSpeechSource = 'track';
+        clearExampleAudioState();
+        setMainAudioButtonState('playing');
+        speakText(tracks[index]);
+        if (speaking) {
+            document.getElementById('trackCounter').innerText = `Trecho ${index+1}/${tracks.length}`;
+        }
     }
 
     function pauseAudio() {
-        if (speaking) {
-            speechSynthesis.cancel();
-            speaking = false;
-            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
+        if (speechSynthesis && speaking && !audioPaused) {
+            speechSynthesis.pause();
+            audioPaused = true;
+            if (currentSpeechSource === 'track') {
+                setMainAudioButtonState('paused');
+            } else if (currentSpeechSource === 'example') {
+                setExampleButtonState(activeExampleButton, 'paused');
+            }
         }
     }
+
     function resumeAudio() {
-        if (!speaking) speakTrack(currentTrack);
+        if (currentSpeechSource === 'track' && speaking && audioPaused && speechSynthesis) {
+            speechSynthesis.resume();
+            audioPaused = false;
+            setMainAudioButtonState('playing');
+            return;
+        }
+
+        if (!speaking || currentSpeechSource !== 'track') speakTrack(currentTrack);
     }
+
+    function toggleExampleAudio(button) {
+        const text = exampleNarrations[button.getAttribute('data-example')];
+        if (!text) return;
+
+        if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+            if (audioPaused && speechSynthesis) {
+                speechSynthesis.resume();
+                audioPaused = false;
+                setExampleButtonState(button, 'playing');
+            } else {
+                pauseAudio();
+            }
+            return;
+        }
+
+        currentSpeechSource = 'example';
+        clearExampleAudioState();
+        activeExampleButton = button;
+        setMainAudioButtonState('idle');
+        setExampleButtonState(button, 'playing');
+        speakText(text);
+    }
+
     function nextTrack() {
         if (currentTrack + 1 < tracks.length) {
             currentTrack++;
-            pauseAudio();
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
             speakTrack(currentTrack);
         } else {
             alert("Você concluiu todos os trechos! Agora faça os exercícios.");
         }
     }
+
     function prevTrack() {
         if (currentTrack > 0) {
             currentTrack--;
-            pauseAudio();
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
             speakTrack(currentTrack);
         } else {
             alert("Este é o primeiro trecho.");
@@ -931,18 +1237,28 @@
 
     const playPauseBtn = document.getElementById('playPauseAudioBtn');
     playPauseBtn.addEventListener('click', () => {
-        if (speaking) pauseAudio();
-        else resumeAudio();
+        if (currentSpeechSource === 'track' && speaking) {
+            if (audioPaused) resumeAudio();
+            else pauseAudio();
+        } else {
+            resumeAudio();
+        }
     });
     document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
     document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+    setupVoiceSelector();
 
-    function preloadFirstTrack() {
-        document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
-    }
+    document.querySelectorAll('.audio-example-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleExampleAudio(btn);
+        });
+    });
+
     window.addEventListener('load', () => {
         initSimulation();
-        preloadFirstTrack();
+        loadPreferredVoice().then(() => {
+            document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+        });
     });
 
     // ==================== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ====================
