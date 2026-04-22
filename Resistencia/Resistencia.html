@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação: A Resistência em um Fio - NOTAÇÃO CIENTÍFICA</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 8px;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .orange { background: #ff7700; }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação: A Resistência em um Fio - NOTAÇÃO CIENTÍFICA</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação Interativa</h2>
+                <iframe src="https://phet.colorado.edu/sims/html/resistance-in-a-wire/latest/resistance-in-a-wire_pt_BR.html"
+                        class="simulation-iframe"
+                        allowfullscreen>
+                </iframe>
+                
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Informações Teóricas</h2>
+                
+                <div class="formula-box">
+                    <h3>Fórmula da Resistência</h3>
+                    <p>R = ρ × L / A</p>
+                    <p>Onde:</p>
+                    <p>R = Resistência (Ω)</p>
+                    <p>ρ = Resistividade do material (Ω·m)</p>
+                    <p>L = Comprimento do fio (m)</p>
+                    <p>A = Área da seção transversal (m²)</p>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Fatores que Afetam a Resistência</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Comprimento do fio: Resistência é diretamente proporcional ao comprimento</li>
+                        <li>Área transversal: Resistência é inversamente proporcional à área</li>
+                        <li>Material: Cada material tem uma resistividade específica</li>
+                        <li>Temperatura: A resistência geralmente aumenta com a temperatura</li>
+                    </ul>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Valores Típicos de Resistividade</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Prata: 1.59 × 10⁻⁸ Ω·m</li>
+                        <li>Cobre: 1.68 × 10⁻⁸ Ω·m</li>
+                        <li>Ouro: 2.44 × 10⁻⁸ Ω·m</li>
+                        <li>Alumínio: 2.82 × 10⁻⁸ Ω·m</li>
+                        <li>Tungstênio: 5.60 × 10⁻⁸ Ω·m</li>
+                        <li>Ferro: 1.00 × 10⁻⁷ Ω·m</li>
+                    </ul>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Exemplos Práticos</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (1m, 1mm²)</div>
+                        <div class="measurement-value">0.017 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Alumínio (1m, 1mm²)</div>
+                        <div class="measurement-value">0.028 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Ferro (1m, 1mm²)</div>
+                        <div class="measurement-value">0.100 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (10m, 1mm²)</div>
+                        <div class="measurement-value">0.170 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (1m, 2mm²)</div>
+                        <div class="measurement-value">0.008 Ω</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Resistência em Fios - NOTAÇÃO CIENTÍFICA</h2>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Resistência em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo da Resistência</h4>
+                    <p><strong>Problema:</strong> Um fio de cobre (ρ = 1.68×10⁻⁸ Ω·m) tem 2 m de comprimento e área transversal de 0.5 mm². Qual é sua resistência?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> R = ρ × L / A</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 0.5 mm² = 0.5×10⁻⁶ m² = 5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: R = (1.68×10⁻⁸) × 2 / (5×10⁻⁷)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: R = (3.36×10⁻⁸) / (5×10⁻⁷) = 0.0672 Ω</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R = 0.0672 Ω</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Cálculo do Comprimento</h4>
+                    <p><strong>Problema:</strong> Um fio de alumínio (ρ = 2.82×10⁻⁸ Ω·m) com área transversal de 1 mm² tem resistência de 0.5 Ω. Qual é seu comprimento?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> L = R × A / ρ</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 1 mm² = 1×10⁻⁶ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: L = 0.5 × (1×10⁻⁶) / (2.82×10⁻⁸)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: L = (5×10⁻⁷) / (2.82×10⁻⁸) = 17.73 m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> L ≈ 17.73 m</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Cálculo da Área Transversal</h4>
+                    <p><strong>Problema:</strong> Um fio de ferro (ρ = 1.00×10⁻⁷ Ω·m) com 5 m de comprimento tem resistência de 2 Ω. Qual é sua área transversal?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> A = ρ × L / R</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: A = (1.00×10⁻⁷) × 5 / 2</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: A = (5×10⁻⁷) / 2 = 2.5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Converter para mm²: A = 2.5×10⁻⁷ m² = 0.25 mm²</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A = 0.25 mm²</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Resistência Elétrica em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Resistência Elétrica</h3>
+                    <p>A resistência elétrica é uma propriedade dos materiais que mede a oposição à passagem de corrente elétrica. Em condutores, essa resistência depende das características físicas do material e de suas dimensões.</p>
+                    
+                    <div class="theory-formula">R = ρ × L / A</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">R</span> = Resistência elétrica (Ohms - Ω)</li>
+                        <li><span class="highlight">ρ</span> = Resistividade do material (Ω·m)</li>
+                        <li><span class="highlight">L</span> = Comprimento do condutor (metros)</li>
+                        <li><span class="highlight">A</span> = Área da seção transversal (m²)</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Fatores que Influenciam a Resistência</h3>
+                    <p>A resistência de um condutor depende de vários fatores:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Comprimento (L):</span> A resistência é diretamente proporcional ao comprimento do fio. Quanto maior o fio, maior a resistência.</li>
+                        <li><span class="highlight">Área transversal (A):</span> A resistência é inversamente proporcional à área da seção transversal. Fios mais grossos têm menor resistência.</li>
+                        <li><span class="highlight">Material (ρ):</span> Cada material tem uma resistividade específica. Materiais como prata e cobre têm baixa resistividade, enquanto materiais como ferro e tungstênio têm maior resistividade.</li>
+                        <li><span class="highlight">Temperatura:</span> Para a maioria dos metais, a resistência aumenta com a temperatura devido ao aumento das vibrações da rede cristalina.</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Resistividade de Materiais Comuns</h3>
+                    <p>Valores típicos de resistividade a 20°C:</p>
+                    
+                    <ul>
+                        <li>Prata: 1.59 × 10⁻⁸ Ω·m</li>
+                        <li>Cobre: 1.68 × 10⁻⁸ Ω·m</li>
+                        <li>Ouro: 2.44 × 10⁻⁸ Ω·m</li>
+                        <li>Alumínio: 2.82 × 10⁻⁸ Ω·m</li>
+                        <li>Tungstênio: 5.60 × 10⁻⁸ Ω·m</li>
+                        <li>Ferro: 1.00 × 10⁻⁷ Ω·m</li>
+                        <li>Constantan: 4.90 × 10⁻⁷ Ω·m</li>
+                        <li>Carbono: 3.50 × 10⁻⁵ Ω·m</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O conhecimento da resistência elétrica é fundamental para:</p>
+                    
+                    <ul>
+                        <li>Projetar circuitos elétricos e eletrônicos</li>
+                        <li>Selecionar cabos adequados para instalações elétricas</li>
+                        <li>Projetar elementos de aquecimento (resistências)</li>
+                        <li>Construir sensores de temperatura (termistores)</li>
+                        <li>Desenvolver dispositivos de proteção contra sobrecargas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
+
+        // ========== FUNÇÕES AUXILIARES ==========
+        function formatScientificWith3Digits(value, unit = '') {
+            if (value === 0) return '0.00 ' + unit;
+            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+                const exponent = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exponent);
+                const roundedMantissa = Math.round(mantissa * 100) / 100;
+                let mantissaStr = roundedMantissa.toFixed(2);
+                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit; }
+                return mantissaStr + '×10^' + exponent + ' ' + unit;
+            }
+            const integerPart = Math.floor(Math.abs(value));
+            let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
+            return value.toFixed(decimalPlaces) + ' ' + unit;
+        }
+        
+        function formatScientific(value, unit = '') {
+            return formatScientificWith3Digits(value, unit);
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let formattedCorrect = formatScientificWith3Digits(correctValue, unit);
+            options.push({ value: correctValue, display: formattedCorrect });
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                    else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                    else {
+                        const percentChange = (Math.random() * 60 + 20) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    if (unit === 'Ω' || unit === 'm' || unit === 'm²') optionValue = Math.abs(optionValue);
+                    attempts++;
+                    if (attempts > 20) break;
+                } while (options.some(opt => opt.display === formatScientificWith3Digits(optionValue, unit)));
+                options.push({ value: optionValue, display: formatScientificWith3Digits(optionValue, unit) });
+            }
+            return shuffleArray(options).map(opt => opt.display);
+        }
+
+        function getMaterialName(resistivity) {
+            if (Math.abs(resistivity - 1.68e-8) < 1e-10) return "Cobre";
+            if (Math.abs(resistivity - 2.82e-8) < 1e-10) return "Alumínio";
+            if (Math.abs(resistivity - 1.0e-7) < 1e-10) return "Ferro";
+            return "Material Desconhecido";
+        }
+
+        // ========== GERAR EXERCÍCIOS ==========
+        function generateExercises() {
+            exercises = [];
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Calcular resistência
+                let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                let length = (Math.floor(Math.random() * 9) + 1);
+                let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
+                let resistance = resistivity * length / area;
+                let materialName = getMaterialName(resistivity);
+                exercises.push({
+                    type: 'calcular_resistencia',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    answer: formatScientific(resistance, 'Ω'),
+                    options: generateOptions(resistance, 'Ω')
+                });
+                
+                // Tipo 2: Calcular comprimento
+                resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                resistance = (Math.floor(Math.random() * 9) + 1) / 10;
+                area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
+                length = (resistance * area / resistivity);
+                materialName = getMaterialName(resistivity);
+                exercises.push({
+                    type: 'calcular_comprimento',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    answer: formatScientific(length, 'm'),
+                    options: generateOptions(length, 'm')
+                });
+                
+                // Tipo 3: Calcular área transversal
+                resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                resistance = (Math.floor(Math.random() * 9) + 1) / 10;
+                length = (Math.floor(Math.random() * 9) + 1);
+                area = (resistivity * length / resistance);
+                materialName = getMaterialName(resistivity);
+                exercises.push({
+                    type: 'calcular_area',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal?`,
+                    answer: formatScientific(area, 'm²'),
+                    options: generateOptions(area, 'm²')
+                });
+            }
+            exercises = shuffleArray(exercises);
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            if (currentType === 'calcular_resistencia') {
+                let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                let length = (Math.floor(Math.random() * 9) + 1);
+                let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
+                let resistance = resistivity * length / area;
+                let materialName = getMaterialName(resistivity);
+                exercises[currentExercise] = {
+                    type: 'calcular_resistencia',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    answer: formatScientific(resistance, 'Ω'),
+                    options: generateOptions(resistance, 'Ω')
+                };
+            } else if (currentType === 'calcular_comprimento') {
+                let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                let resistance = (Math.floor(Math.random() * 9) + 1) / 10;
+                let area = (Math.floor(Math.random() * 5) + 1) * 1e-6;
+                let length = (resistance * area / resistivity);
+                let materialName = getMaterialName(resistivity);
+                exercises[currentExercise] = {
+                    type: 'calcular_comprimento',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    answer: formatScientific(length, 'm'),
+                    options: generateOptions(length, 'm')
+                };
+            } else if (currentType === 'calcular_area') {
+                let resistivity = [1.68e-8, 2.82e-8, 1.0e-7][Math.floor(Math.random() * 3)];
+                let resistance = (Math.floor(Math.random() * 9) + 1) / 10;
+                let length = (Math.floor(Math.random() * 9) + 1);
+                let area = (resistivity * length / resistance);
+                let materialName = getMaterialName(resistivity);
+                exercises[currentExercise] = {
+                    type: 'calcular_area',
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com ${length} m de comprimento tem resistência de ${resistance} Ω. Qual é sua área transversal?`,
+                    answer: formatScientific(area, 'm²'),
+                    options: generateOptions(area, 'm²')
+                };
+            }
+        }
+
+        // ========== EXIBIR EXERCÍCIOS ==========
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `<div class="option" data-value="${option}">${option}</div>`).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selected) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkBtn.disabled = true;
+            
+            const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const item = document.getElementById(`progress${i+1}`);
+                item.classList.remove('active', 'completed');
+                if (i === currentExercise) item.classList.add('active');
+                else if (i < currentExercise) item.classList.add('completed');
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            const textarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+            const submit = document.getElementById('submitConclusion');
+            const newSubmit = submit.cloneNode(true);
+            submit.parentNode.replaceChild(newSubmit, submit);
+            newSubmit.addEventListener('click', function() {
+                const text = document.getElementById('conclusionText').value;
+                if (text.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                conclusionTextSaved = text;
+                showResults(text);
+            });
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${total}</p>
+                <p>Respostas corretas: ${correct}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${percent}%</p>
+            `;
+            document.getElementById('finalConclusion').value = conclusion;
+            const sendBtn = document.getElementById('sendResults');
+            const newSend = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSend, sendBtn);
+            newSend.addEventListener('click', sendResultsToSheet);
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.style.display = 'block';
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Resistência em um Fio',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correct}/${total - correct}`,
+                nota: percent + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correct}/${total}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName,
+                        serie: studentGrade,
+                        turma: studentClass,
+                        nota: percent + '%',
+                        acertos: `${correct}/${total}`,
+                        questoes_puladas: skippedQuestions,
+                        conclusao: finalConclusion,
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Resistência em um Fio',
+                        mensagem: `Confirmação de Envio - Simulação de Resistência em um Fio\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\n📊 SEUS RESULTADOS:\n• Nota: ${percent}%\n• Acertos: ${correct} de ${total} questões\n• Questões Puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
+                    };
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                setTimeout(() => {
+                    resetExerciseState();
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        // ========== RESET E PERSISTÊNCIA ==========
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = "";
+        }
+
+        function closeExercisesModal() {
+            const textarea = document.getElementById('conclusionText');
+            if (textarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = textarea.value;
+            }
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openExercisesModal() {
+            if (exercises.length === 0 || (currentExercise >= exercises.length && 
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                    // já está nos resultados
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+        // ========== EVENTOS DA UI ==========
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            alert("Como usar:\n\n• Utilize a simulação do PhET para explorar como a resistência varia com comprimento, área e material\n• Observe a fórmula R = ρ × L / A e como cada parâmetro afeta a resistência\n• Use os exercícios para testar seu conhecimento");
+        });
+        
+        document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+        document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+        
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+        document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+        document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+        document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
+            else if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+            else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
+        });
+    </script>
+</body>
+</html>
