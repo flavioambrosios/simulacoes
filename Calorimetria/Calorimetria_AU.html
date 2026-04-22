@@ -130,7 +130,7 @@
 
         .modal-content {
             background: linear-gradient(135deg, #2c3e50, #4a6491);
-            padding: 20px;
+            padding: 20px 20px 120px;
             border-radius: 10px;
             width: 100%;
             max-width: 800px;
@@ -461,6 +461,12 @@
             .theory-panel, .exercise-panel {
                 width: 100%;
             }
+
+            .modal-content {
+                max-height: calc(100vh - 30px);
+                padding-bottom: 180px;
+            }
+
             .audio-controls {
                 right: 10px;
                 left: 10px;
@@ -631,10 +637,9 @@
                         <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre os exercícios de calorimetria..."></textarea>
                     </div>
                     
-                    <div id="emailStatus" class="email-status"></div>                    
-                    <button id="sendResults" class="check-btn">Enviar Resultados</button></div>
-                    <br></br>
-                    <label for="finalConclusion" class="">Parabéns por concluir a atividade!</label></p>
+                    <div id="emailStatus" class="email-status"></div>
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                    <p style="text-align: center; margin-top: 16px;">Parabéns por concluir a atividade!</p>
                     
                 </div>
             </div>
