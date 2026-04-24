@@ -15,7 +15,7 @@
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 20px 140px;
         }
         .container {
             max-width: 1200px;
@@ -50,8 +50,10 @@
         #transformerCanvas {
             width: 100%;
             height: 400px;
-            background: #000;
-            border-radius: 8px;
+            background: radial-gradient(circle at 50% 30%, #18304c 0%, #09131f 58%, #04070c 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.05), 0 12px 24px rgba(0, 0, 0, 0.35);
         }
         .controls-panel {
             flex: 1;
@@ -394,6 +396,170 @@
         .restart-btn:hover {
             background: #c82333;
         }
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .audio-example-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        .audio-example-btn:hover {
+            background: #2980b9;
+        }
+        .audio-example-btn.playing {
+            background: #e67e22;
+        }
+        .audio-example-btn.playing:hover {
+            background: #d35400;
+        }
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffcc00;
+            align-items: center;
+        }
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-selector label {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .voice-selector select {
+            width: auto;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid #ffcc00;
+            border-radius: 18px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            max-width: 210px;
+        }
+        .voice-selector select option {
+            color: #000;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
+        }
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 220px;
+            }
+            .audio-controls {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                border-radius: 18px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .voice-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            .voice-selector select {
+                max-width: 100%;
+                flex: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -423,7 +589,11 @@
             <div class="control-group"><label>Espiras no Secundário:</label><input type="range" id="secondaryTurns" min="50" max="500" value="100" step="10"><div class="value-display"><span id="secondaryTurnsValue">100</span> espiras</div></div>
             <div class="control-group"><label>Núcleo de Ferro:</label><div class="toggle-container"><span class="toggle-label toggle-off">Sem Núcleo</span><label class="toggle-switch"><input type="checkbox" id="coreToggle" checked><span class="toggle-slider"></span></label><span class="toggle-label toggle-on">Com Núcleo</span></div></div>
             <div class="formula-box"><h3>Princípio do Transformador</h3><p>V<sub>s</sub>/V<sub>p</sub> = N<sub>s</sub>/N<sub>p</sub></p><p>P<sub>p</sub> ≈ P<sub>s</sub></p><p>V<sub>p</sub> × I<sub>p</sub> ≈ V<sub>s</sub> × I<sub>s</sub></p></div>
-            <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+            <div class="exercise-buttons">
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                <button class="exercise-btn" id="theoryBtn">Teoria</button>
+            </div>
         </div>
         <div class="measurement-panel">
             <h2 class="panel-title">Medições</h2>
@@ -470,12 +640,125 @@
     </div>
 </div>
 
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios Resolvidos - Transformadores</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div id="solvedExercisesContainer">
+            <div class="solved-exercise" id="solvedExample1">
+                <h4>Exemplo 1: Cálculo da Tensão de Saída</h4>
+                <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Um transformador tem 200 espiras no primário e 100 espiras no secundário. Se a tensão de entrada é 12 V, qual é a tensão de saída?</p>
+                <div class="solution-step"><strong>Fórmula:</strong> Vs / Vp = Ns / Np</div>
+                <div class="solution-step"><strong>Substituição:</strong> Vs / 12 = 100 / 200 = 0,5</div>
+                <div class="solution-step"><strong>Cálculo:</strong> Vs = 12 × 0,5 = 6 V</div>
+                <div class="solution-step"><strong>Resposta:</strong> A tensão de saída é 6 V.</div>
+            </div>
+            <div class="solved-exercise" id="solvedExample2">
+                <h4>Exemplo 2: Relação entre Correntes</h4>
+                <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Em um transformador ideal, o primário tem 100 espiras e o secundário tem 300 espiras. Qual é a relação entre as correntes Ip e Is?</p>
+                <div class="solution-step"><strong>Princípio:</strong> Em um transformador ideal, a corrente é inversamente proporcional ao número de espiras.</div>
+                <div class="solution-step"><strong>Relação:</strong> Ip / Is = Ns / Np = 300 / 100 = 3</div>
+                <div class="solution-step"><strong>Interpretação:</strong> A corrente no primário é 3 vezes maior que a corrente no secundário.</div>
+                <div class="solution-step"><strong>Resposta:</strong> Ip / Is = 3.</div>
+            </div>
+            <div class="solved-exercise" id="solvedExample3">
+                <h4>Exemplo 3: Potência e Eficiência</h4>
+                <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Um transformador recebe 20 W e entrega 19 W na saída. Qual é a eficiência aproximada?</p>
+                <div class="solution-step"><strong>Fórmula:</strong> Eficiência = Potência de saída / Potência de entrada</div>
+                <div class="solution-step"><strong>Substituição:</strong> Eficiência = 19 / 20 = 0,95</div>
+                <div class="solution-step"><strong>Conversão:</strong> 0,95 × 100 = 95%</div>
+                <div class="solution-step"><strong>Resposta:</strong> A eficiência aproximada é 95%.</div>
+            </div>
+        </div>
+        <div class="buttons-container">
+            <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Transformadores</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="theory-content">
+            <div class="theory-section">
+                <h3>Princípio de Funcionamento</h3>
+                <p>O transformador é um dispositivo que transfere energia elétrica de um circuito para outro por meio da <span class="highlight">indução eletromagnética</span>. A corrente alternada no enrolamento primário cria um campo magnético variável no núcleo, e esse campo induz uma tensão no enrolamento secundário.</p>
+                <div class="theory-formula">Vs / Vp = Ns / Np</div>
+                <p>Nessa relação, <span class="highlight">Vp</span> é a tensão de entrada, <span class="highlight">Vs</span> é a tensão de saída, <span class="highlight">Np</span> é o número de espiras do primário e <span class="highlight">Ns</span> é o número de espiras do secundário.</p>
+            </div>
+
+            <div class="theory-section">
+                <h3>Transformador Elevador e Abaixador</h3>
+                <p>Quando o secundário tem mais espiras do que o primário, o transformador é <span class="highlight">elevador de tensão</span>. Quando o secundário tem menos espiras, ele é <span class="highlight">abaixador de tensão</span>.</p>
+                <ul>
+                    <li>Se Ns > Np, então Vs > Vp.</li>
+                    <li>Se Ns < Np, então Vs < Vp.</li>
+                    <li>Se Ns = Np, então a tensão permanece praticamente a mesma.</li>
+                </ul>
+            </div>
+
+            <div class="theory-section">
+                <h3>Relação com a Corrente</h3>
+                <p>Em um transformador ideal, a potência de entrada é aproximadamente igual à potência de saída. Por isso, quando a tensão aumenta, a corrente tende a diminuir, e quando a tensão diminui, a corrente tende a aumentar.</p>
+                <div class="theory-formula">Vp × Ip ≈ Vs × Is</div>
+                <p>Isso explica por que a relação entre correntes é inversa em comparação com a relação entre espiras.</p>
+            </div>
+
+            <div class="theory-section">
+                <h3>Função do Núcleo de Ferro</h3>
+                <p>O núcleo de ferro serve para concentrar e guiar melhor o fluxo magnético entre as bobinas. Com ele, a indução é mais eficiente e há menos dispersão do campo magnético pelo espaço.</p>
+                <ul>
+                    <li>Com núcleo: o fluxo magnético fica mais concentrado.</li>
+                    <li>Sem núcleo: o fluxo se espalha mais e a eficiência diminui.</li>
+                    <li>O núcleo melhora a transferência de energia entre primário e secundário.</li>
+                </ul>
+            </div>
+
+            <div class="theory-section">
+                <h3>Aplicações Práticas</h3>
+                <p>Transformadores estão presentes em várias situações do cotidiano e da tecnologia.</p>
+                <ul>
+                    <li>Postes e subestações de distribuição de energia.</li>
+                    <li>Carregadores de celular e fontes de alimentação.</li>
+                    <li>Equipamentos eletrônicos e industriais.</li>
+                    <li>Sistemas de transmissão em alta tensão.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="buttons-container">
+            <button id="closeTheory" class="check-btn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div class="audio-controls" id="audioControls">
+    <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+    <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
+    <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+    <span id="trackCounter">Trecho 0/6</span>
+    <div class="voice-selector">
+        <label for="voiceSelect">Voz:</label>
+        <select id="voiceSelect" aria-label="Selecionar voz do áudio">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
+</div>
+
 <script>
     // ---------- SIMULAÇÃO (NÃO ALTERADA) ----------
     let canvas, ctx;
     let voltageInput = 12, primaryTurns = 200, secondaryTurns = 100, hasIronCore = true;
     let showFlux = true, showCurrent = true, animationTime = 0;
     let coreThickness = 30;
+    let selectedVoice = null;
     
     function initSimulation() {
         canvas = document.getElementById('transformerCanvas'); 
@@ -540,98 +823,543 @@
             off.style.fontWeight = 'bold';
         }
     }
+
+    function hexToRgba(hex, alpha) {
+        const normalized = hex.replace('#', '');
+        const value = normalized.length === 3
+            ? normalized.split('').map((char) => char + char).join('')
+            : normalized;
+        const intValue = parseInt(value, 16);
+        const red = (intValue >> 16) & 255;
+        const green = (intValue >> 8) & 255;
+        const blue = intValue & 255;
+        return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+    }
+
+    function drawRoundedRectPath(x, y, w, h, r) {
+        const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    function addRoundedRectPath(x, y, w, h, r) {
+        const radius = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+    }
+
+    function createRectPoints(x, y, w, h, dx = 0, dy = 0) {
+        return [
+            { x: x + dx, y: y + dy },
+            { x: x + w + dx, y: y + dy },
+            { x: x + w + dx, y: y + h + dy },
+            { x: x + dx, y: y + h + dy }
+        ];
+    }
+
+    function addPolygonPath(points) {
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+        ctx.closePath();
+    }
+
+    function drawPolygon(points, fillStyle, strokeStyle, lineWidth = 1) {
+        ctx.beginPath();
+        addPolygonPath(points);
+        if (fillStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.fill();
+        }
+        if (strokeStyle) {
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+        }
+    }
+
+    function drawRingFace(outerPoints, innerPoints, fillStyle, strokeStyle, lineWidth = 1) {
+        ctx.beginPath();
+        addPolygonPath(outerPoints);
+        addPolygonPath([innerPoints[0], innerPoints[3], innerPoints[2], innerPoints[1]]);
+        if (fillStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.fill('evenodd');
+        }
+        if (strokeStyle) {
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+            ctx.beginPath();
+            addPolygonPath(outerPoints);
+            ctx.stroke();
+            ctx.beginPath();
+            addPolygonPath(innerPoints);
+            ctx.stroke();
+        }
+    }
+
+    function drawConnector(frontA, frontB, backB, backA, fillStyle, strokeStyle, lineWidth = 1) {
+        drawPolygon([frontA, frontB, backB, backA], fillStyle, strokeStyle, lineWidth);
+    }
+
+    function drawSceneBackground(cx, cy, fw, fh) {
+        const glow = ctx.createRadialGradient(cx, cy, 40, cx, cy, fw * 0.7);
+        glow.addColorStop(0, 'rgba(90, 170, 255, 0.12)');
+        glow.addColorStop(0.6, 'rgba(30, 90, 160, 0.05)');
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = 'rgba(150, 210, 255, 0.06)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 36) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 36) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = 'rgba(255,255,255,0.08)';
+        ctx.font = '12px Segoe UI';
+        ctx.fillText('Primário', cx - fw * 0.31, cy - fh * 0.62);
+        ctx.fillText('Secundário', cx + fw * 0.2, cy - fh * 0.62);
+    }
+
+    function clipToCoreFront(x, y, w, h, thick) {
+        ctx.save();
+        ctx.beginPath();
+        addRoundedRectPath(x, y, w, h, 12);
+        addRoundedRectPath(x + thick, y + thick, w - 2 * thick, h - 2 * thick, 10);
+        ctx.clip('evenodd');
+    }
+
+    function getLoopPoint(x, y, w, h, t) {
+        const perimeter = 2 * (w + h);
+        let distance = ((t % 1) + 1) % 1 * perimeter;
+        if (distance <= w) return { x: x + distance, y, angle: 0 };
+        distance -= w;
+        if (distance <= h) return { x: x + w, y: y + distance, angle: Math.PI / 2 };
+        distance -= h;
+        if (distance <= w) return { x: x + w - distance, y: y + h, angle: Math.PI };
+        distance -= w;
+        return { x, y: y + h - distance, angle: -Math.PI / 2 };
+    }
+
+    function drawFlowArrow(x, y, angle, size, color) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(size, 0);
+        ctx.lineTo(-size * 0.65, -size * 0.48);
+        ctx.lineTo(-size * 0.65, size * 0.48);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+    }
+
+    function drawTurnPath(frontStartX, frontEndX, backEndX, sideDepthY, lineY, frontCurve, sideCurve) {
+        const frontSpan = frontEndX - frontStartX;
+        const depthToBack = Math.max(8, backEndX - frontEndX);
+        const joinTangentX = Math.min(frontSpan * 0.28, depthToBack * 0.34);
+        const joinTangentY = Math.max(frontCurve * 1.2, sideDepthY * 0.22 + sideCurve * 0.6);
+        const sideControlX = Math.max(depthToBack * 0.2, 6);
+        const sideControlY = Math.max(sideDepthY * 0.18, 3) + sideCurve;
+
+        ctx.beginPath();
+        ctx.moveTo(frontStartX, lineY);
+        ctx.bezierCurveTo(
+            frontStartX + frontSpan * 0.22,
+            lineY + frontCurve * 1.1,
+            frontEndX - joinTangentX,
+            lineY + joinTangentY,
+            frontEndX,
+            lineY
+        );
+        ctx.bezierCurveTo(
+            frontEndX + joinTangentX,
+            lineY - joinTangentY,
+            backEndX - sideControlX,
+            lineY - sideDepthY + sideControlY,
+            backEndX,
+            lineY - sideDepthY
+        );
+    }
+
+    function drawRearTurnPath(frontStartX, backStartX, backEndX, sideDepthY, lineY, frontCurve, sideCurve) {
+        const backY = lineY - sideDepthY;
+        const backSpan = backEndX - backStartX;
+        const depthToFront = Math.max(8, backStartX - frontStartX);
+        const joinTangentX = Math.min(backSpan * 0.28, depthToFront * 0.34);
+        const joinTangentY = Math.max(frontCurve * 1.2, sideDepthY * 0.22 + sideCurve * 0.6);
+        const rearControlX = Math.max(backSpan * 0.22, 6);
+        const sideControlX = Math.max(depthToFront * 0.2, 6);
+        const sideControlY = Math.max(sideDepthY * 0.18, 3) + sideCurve;
+
+        ctx.beginPath();
+        ctx.moveTo(backEndX, backY);
+        ctx.bezierCurveTo(
+            backEndX - rearControlX,
+            backY - frontCurve * 1.1,
+            backStartX + joinTangentX,
+            backY - joinTangentY,
+            backStartX,
+            backY
+        );
+        ctx.bezierCurveTo(
+            backStartX - joinTangentX,
+            backY + joinTangentY,
+            frontStartX + sideControlX,
+            lineY - sideControlY,
+            frontStartX,
+            lineY
+        );
+    }
+
+    function drawCore3D(x, y, w, h, thick) {
+        const depthX = Math.min(w * 0.08, 34);
+        const depthY = Math.min(h * 0.10, 24);
+        const outerFront = createRectPoints(x, y, w, h);
+        const outerBack = createRectPoints(x, y, w, h, depthX, -depthY);
+        const innerFront = createRectPoints(x + thick, y + thick, w - 2 * thick, h - 2 * thick);
+        const innerBack = createRectPoints(x + thick, y + thick, w - 2 * thick, h - 2 * thick, depthX, -depthY);
+
+        drawRingFace(outerBack, innerBack, '#4f2404', '#734218', 2);
+        drawConnector(outerFront[0], outerFront[1], outerBack[1], outerBack[0], '#7b3c10', '#9e5c24', 2);
+        drawConnector(outerFront[1], outerFront[2], outerBack[2], outerBack[1], '#5b2706', '#804117', 2);
+        drawConnector(innerFront[0], innerFront[1], innerBack[1], innerBack[0], '#341805', '#6a3614', 1.6);
+        drawConnector(innerFront[1], innerFront[2], innerBack[2], innerBack[1], '#241104', '#4b250d', 1.6);
+
+        const frontGradient = ctx.createLinearGradient(x, y, x + w, y + h);
+        frontGradient.addColorStop(0, '#ffb36b');
+        frontGradient.addColorStop(0.35, '#cd7426');
+        frontGradient.addColorStop(0.7, '#8c4211');
+        frontGradient.addColorStop(1, '#5e2705');
+        drawRingFace(outerFront, innerFront, frontGradient, '#ffcf9d', 2.4);
+
+        ctx.strokeStyle = 'rgba(255, 238, 210, 0.35)';
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(x + 8, y + 6);
+        ctx.lineTo(x + w - 8, y + 6);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+        drawRoundedRectPath(innerFront[0].x + 6, innerFront[0].y + 4, innerFront[1].x - innerFront[0].x - 12, innerFront[3].y - innerFront[0].y - 8, 10);
+        ctx.fill();
+    }
     
     function drawTransformer() { 
         ctx.clearRect(0,0,canvas.width,canvas.height); 
         const cx=canvas.width/2, cy=canvas.height/2, fw=canvas.width*0.7, fh=canvas.height*0.5, fx=cx-fw/2, fy=cy-fh/2; 
-        if(hasIronCore){ 
-            ctx.fillStyle='#9d4d00'; 
-            ctx.strokeStyle='#9d4d10'; 
-            ctx.lineWidth=4; 
-            ctx.beginPath(); 
-            ctx.rect(fx,fy,fw,coreThickness); 
-            ctx.rect(fx,fy+fh-coreThickness,fw,coreThickness); 
-            ctx.rect(fx,fy+coreThickness,coreThickness,fh-2*coreThickness); 
-            ctx.rect(fx+fw-coreThickness,fy+coreThickness,coreThickness,fh-2*coreThickness); 
-            ctx.fill(); 
-            ctx.stroke(); 
-        } 
-        const coilW = fw*0.21, primX = fx, secX = fx+fw-coilW; 
-        drawCoil(primX,cy,coilW,fh*0.8,primaryTurns,'#ff0000','Primária'); 
-        drawCoil(secX,cy,coilW,fh*0.8,secondaryTurns,'#0066ff','Secundária'); 
+        drawSceneBackground(cx, cy, fw, fh);
+        const legCenterOffset = coreThickness * 0.5;
+        const leftLegX = fx + legCenterOffset;
+        const rightLegX = fx + fw - legCenterOffset;
+        const coilW = coreThickness * 2.45 * 0.95 * 0.95, coilH = fh * 0.54 * 0.95 * 0.95;
+        drawCoil(leftLegX, cy, coilW, coilH, primaryTurns, '#ff553d', 'Primária', true, 'back'); 
+        drawCoil(rightLegX, cy, coilW, coilH, secondaryTurns, '#4da3ff', 'Secundária', false, 'back'); 
+        if(showFlux && !hasIronCore) drawMagneticFlux(fx,fy,fw,fh,coreThickness); 
+        if(hasIronCore) drawCore3D(fx, fy, fw, fh, coreThickness);
+        drawCoil(leftLegX, cy, coilW, coilH, primaryTurns, '#ff553d', 'Primária', true, 'front'); 
+        drawCoil(rightLegX, cy, coilW, coilH, secondaryTurns, '#4da3ff', 'Secundária', false, 'front'); 
         if(showFlux && hasIronCore) drawMagneticFlux(fx,fy,fw,fh,coreThickness); 
         if(showCurrent){ 
             const outV = voltageInput*(secondaryTurns/primaryTurns), eff = hasIronCore?0.95:0.6, outI = outV/50, inP = outV*outI/eff, inI = voltageInput>0?inP/voltageInput:0; 
-            drawCurrent(primX,cy,coilW,fh*0.8,Math.min(1,inI/0.5),true); 
-            drawCurrent(secX,cy,coilW,fh*0.8,Math.min(1,outI/0.5),false); 
+            drawCurrent(leftLegX,cy,coilW,coilH,Math.min(1,inI/0.5),true); 
+            drawCurrent(rightLegX,cy,coilW,coilH,Math.min(1,outI/0.5),false); 
         } 
     }
     
-    function drawCoil(x,y,w,h,turns,color,label){ 
-        const num=Math.min(20,Math.floor(turns/10)), sp=h/(num+1); 
-        ctx.strokeStyle=color; 
-        ctx.lineWidth=5; 
-        for(let i=1;i<=num;i++){ 
-            const yp=y-h/2+i*sp; 
-            ctx.beginPath(); 
-            ctx.moveTo(x,yp); 
-            ctx.lineTo(x+w,yp); 
-            ctx.stroke(); 
-        } 
-        ctx.beginPath(); ctx.moveTo(x,y-h/2); ctx.lineTo(x-20,y-h/2); ctx.stroke(); 
-        ctx.beginPath(); ctx.moveTo(x+w,y-h/2); ctx.lineTo(x+w+20,y-h/2); ctx.stroke(); 
-        ctx.beginPath(); ctx.moveTo(x,y+h/2); ctx.lineTo(x-20,y+h/2); ctx.stroke(); 
-        ctx.beginPath(); ctx.moveTo(x+w,y+h/2); ctx.lineTo(x+w+20,y+h/2); ctx.stroke(); 
-        ctx.fillStyle='#fff'; ctx.font='14px Arial'; ctx.fillText(`${label} (${turns} espiras)`,x+w/2,y+h/2+30); 
+    function drawCoil(centerX,y,w,h,turns,color,label,isPrimary,layer='front'){ 
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const visibleTurns = Math.min(15, Math.max(7, Math.round(turns / 18)));
+        const turnSpacing = h / (visibleTurns + 1);
+        const startY = y - h / 2 + turnSpacing;
+        const baseFrontStartX = centerX - w * 0.48;
+        const baseFrontEndX = centerX + w * 0.10;
+        const sideDepthX = Math.min(52 * 0.95 * 0.95, w * 0.78);
+        const sideDepthY = Math.min(20 * 0.95 * 0.95, turnSpacing * 1.05);
+        const frontYawShift = Math.min(w * 0.12, sideDepthX * 0.24);
+        const frontStartX = baseFrontStartX + frontYawShift;
+        const frontEndX = baseFrontEndX + frontYawShift * 0.72;
+        const backStartX = baseFrontStartX + sideDepthX;
+        const backEndX = baseFrontEndX + sideDepthX;
+        const frontCurve = Math.max(2, turnSpacing * 0.18);
+        const sideCurve = Math.max(1, turnSpacing * 0.12);
+        const drawBackLayer = layer === 'back' || layer === 'full';
+        const drawFrontLayer = layer === 'front' || layer === 'full';
+
+        if (drawBackLayer) {
+            ctx.strokeStyle = hexToRgba(color, 0.12);
+            ctx.lineWidth = turnSpacing * 0.9;
+            ctx.beginPath();
+            ctx.moveTo(backEndX - 1, startY - sideDepthY - turnSpacing * 0.45);
+            ctx.lineTo(backStartX + (backEndX - backStartX) * 0.28, startY + (visibleTurns - 1) * turnSpacing - sideDepthY + turnSpacing * 0.45);
+            ctx.stroke();
+        }
+
+        if (drawFrontLayer) {
+            ctx.strokeStyle = hexToRgba(color, 0.18);
+            ctx.lineWidth = turnSpacing * 0.9;
+            ctx.beginPath();
+            ctx.moveTo(frontStartX + w * 0.18, startY - turnSpacing * 0.45);
+            ctx.lineTo(frontStartX + w * 0.18 + (backEndX - frontStartX) * 0.22, startY + (visibleTurns - 1) * turnSpacing + turnSpacing * 0.45);
+            ctx.stroke();
+        }
+
+        for(let i = 0; i < visibleTurns; i++){ 
+            const lineY = startY + i * turnSpacing;
+
+            if (drawBackLayer) {
+                ctx.strokeStyle = hexToRgba(color, 0.22);
+                ctx.lineWidth = 4.2;
+                drawRearTurnPath(frontStartX, backStartX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+                ctx.stroke();
+
+                ctx.strokeStyle = hexToRgba(color, 0.52);
+                ctx.lineWidth = 1.4;
+                drawRearTurnPath(frontStartX, backStartX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+                ctx.stroke();
+            }
+
+            if (drawFrontLayer) {
+                ctx.strokeStyle = hexToRgba(color, 0.38);
+                ctx.lineWidth = 4.8;
+                drawTurnPath(frontStartX, frontEndX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+                ctx.stroke();
+
+                ctx.strokeStyle = hexToRgba(color, 0.86);
+                ctx.lineWidth = 1.8;
+                drawTurnPath(frontStartX, frontEndX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+                ctx.stroke();
+
+                ctx.strokeStyle = hexToRgba('#ffffff', 0.22);
+                ctx.lineWidth = 1.1;
+                ctx.beginPath();
+                ctx.moveTo(frontEndX + (backEndX - frontEndX) * 0.16, lineY - sideDepthY * 0.14 + sideCurve * 0.2);
+                ctx.quadraticCurveTo(
+                    frontEndX + (backEndX - frontEndX) * 0.52,
+                    lineY - sideDepthY * 0.42 + sideCurve * 0.45,
+                    frontEndX + (backEndX - frontEndX) * 0.94,
+                    lineY - sideDepthY * 0.94
+                );
+                ctx.stroke();
+            }
+        }
+
+        const leadYTop = startY + turnSpacing * 0.3;
+        const leadYBottom = startY + (visibleTurns - 1) * turnSpacing - turnSpacing * 0.3;
+        if (drawFrontLayer) {
+            ctx.strokeStyle = '#d9e8ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            if (isPrimary) {
+                ctx.moveTo(frontStartX - 22, leadYTop);
+                ctx.lineTo(frontStartX + 2, leadYTop);
+                ctx.moveTo(frontStartX - 22, leadYBottom);
+                ctx.lineTo(frontStartX + 2, leadYBottom);
+            } else {
+                ctx.moveTo(backEndX - 2, leadYTop - sideDepthY);
+                ctx.lineTo(backEndX + 22, leadYTop - sideDepthY);
+                ctx.moveTo(backEndX - 2, leadYBottom - sideDepthY);
+                ctx.lineTo(backEndX + 22, leadYBottom - sideDepthY);
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px Segoe UI';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${label} (${turns} espiras)`, centerX, y + h / 2 + 34);
+        }
+
+        ctx.restore();
     }
     
     function drawMagneticFlux(x,y,w,h,thick){ 
-        const intens=voltageInput*(hasIronCore?1.5:0.3)*(primaryTurns/200), op=Math.min(0.8,0.3*intens); 
-        ctx.strokeStyle=`rgba(0,255,0,${op})`; ctx.lineWidth=2; 
-        for(let i=0;i<5;i++){ 
-            const off=i*5, ix=x+thick/2+off, iy=y+thick/2+off, iw=w-thick-2*off, ih=h-thick-2*off; 
-            if(iw>0 && ih>0){ 
-                ctx.beginPath(); 
-                ctx.moveTo(ix+10,iy); 
-                ctx.lineTo(ix+iw-10,iy); 
-                ctx.quadraticCurveTo(ix+iw,iy,ix+iw,iy+10); 
-                ctx.lineTo(ix+iw,iy+ih-10); 
-                ctx.quadraticCurveTo(ix+iw,iy+ih,ix+iw-10,iy+ih); 
-                ctx.lineTo(ix+10,iy+ih); 
-                ctx.quadraticCurveTo(ix,iy+ih,ix,iy+ih-10); 
-                ctx.lineTo(ix,iy+10); 
-                ctx.quadraticCurveTo(ix,iy,ix+10,iy); 
-                ctx.stroke(); 
-                if(i===2){ 
-                    ctx.fillStyle=`rgba(0,255,0,${op})`; 
-                    ctx.beginPath(); 
-                    ctx.moveTo(ix+iw*0.7,iy); 
-                    ctx.lineTo(ix+iw*0.7-8,iy-4); 
-                    ctx.lineTo(ix+iw*0.7-8,iy+4); 
-                    ctx.fill(); 
+        const intens=voltageInput*(hasIronCore?1.5:0.3)*(primaryTurns/200), op=Math.min(0.88,0.30+0.05*intens); 
+
+        if (hasIronCore) {
+            const fractions = [0.24, 0.42, 0.60, 0.77];
+
+            clipToCoreFront(x, y, w, h, thick);
+            for(let i = 0; i < fractions.length; i++){ 
+                const inset = thick * fractions[i];
+                const ix = x + inset;
+                const iy = y + inset;
+                const iw = w - inset * 2;
+                const ih = h - inset * 2;
+                if(iw > 24 && ih > 24){ 
+                    const alpha = Math.max(0.18, op - i * 0.10);
+
+                    ctx.strokeStyle = `rgba(45,150,90,${alpha * 0.4})`;
+                    ctx.lineWidth = 1.3;
+                    drawRoundedRectPath(ix, iy, iw, ih, Math.min(22, thick * 0.55));
+                    ctx.stroke();
+
+                    ctx.strokeStyle = `rgba(110,255,185,${alpha})`;
+                    ctx.lineWidth = 2.3 - i * 0.16;
+                    drawRoundedRectPath(ix, iy, iw, ih, Math.min(22, thick * 0.55));
+                    ctx.stroke();
                 } 
-            } 
-        } 
+            }
+            ctx.restore();
+            return;
+        }
+
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const leftPassX = x + thick * 0.52;
+        const rightPassX = x + w - thick * 0.52;
+        const centerSpan = rightPassX - leftPassX;
+        const loops = [
+            { arcRise: h * 0.16, sideInset: w * 0.018, alpha: op * 0.94 },
+            { arcRise: h * 0.25, sideInset: w * 0.028, alpha: op * 0.78 },
+            { arcRise: h * 0.34, sideInset: w * 0.038, alpha: op * 0.62 },
+            { arcRise: h * 0.43, sideInset: w * 0.048, alpha: op * 0.48 }
+        ];
+
+        function addAirFluxPath(loop) {
+            const topY = cy - loop.arcRise;
+            const bottomY = cy + loop.arcRise;
+            const leftOuterX = leftPassX - loop.sideInset;
+            const rightOuterX = rightPassX + loop.sideInset;
+            const topControlY = cy - loop.arcRise * 3.00;
+            const bottomControlY = cy + loop.arcRise * 3.00;
+            const centerControlX = centerSpan * 0.25;
+            const verticalControlY = loop.arcRise * 0.56;
+
+            ctx.moveTo(leftPassX, topY);
+            ctx.bezierCurveTo(
+                leftPassX + centerControlX,
+                topControlY,
+                rightPassX - centerControlX,
+                topControlY,
+                rightPassX,
+                topY
+            );
+            ctx.bezierCurveTo(
+                rightOuterX,
+                cy - verticalControlY,
+                rightOuterX,
+                cy + verticalControlY,
+                rightPassX,
+                bottomY
+            );
+            ctx.bezierCurveTo(
+                rightPassX - centerControlX,
+                bottomControlY,
+                leftPassX + centerControlX,
+                bottomControlY,
+                leftPassX,
+                bottomY
+            );
+            ctx.bezierCurveTo(
+                leftOuterX,
+                cy + verticalControlY,
+                leftOuterX,
+                cy - verticalControlY,
+                leftPassX,
+                topY
+            );
+        }
+
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        for (let i = 0; i < loops.length; i++) {
+            const loop = loops[i];
+
+            ctx.strokeStyle = `rgba(45,150,90,${loop.alpha * 0.35})`;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            addAirFluxPath(loop);
+            ctx.stroke();
+
+            ctx.strokeStyle = `rgba(110,255,185,${loop.alpha})`;
+            ctx.lineWidth = 2.1 - i * 0.18;
+            ctx.beginPath();
+            addAirFluxPath(loop);
+            ctx.stroke();
+        }
+
+        ctx.restore();
     }
     
-    function drawCurrent(x,y,w,h,intens,isPrim){ 
+    function drawCurrent(centerX,y,w,h,intens,isPrim){ 
         if(intens<=0)return; 
-        const num=Math.min(20,Math.floor(primaryTurns/10)), sp=h/(num+1), op=Math.min(1,0.5+intens*2); 
-        ctx.strokeStyle=`rgba(255,119,0,${op})`; ctx.lineWidth=2; ctx.setLineDash([3,5]); 
-        for(let i=1;i<=num;i++){ 
-            const yp=y-h/2+i*sp; 
-            ctx.beginPath(); 
-            if(isPrim){ ctx.moveTo(x+w,yp); ctx.lineTo(x,yp); } 
-            else{ ctx.moveTo(x,yp); ctx.lineTo(x+w,yp); } 
-            ctx.stroke(); 
-            const arrowX=isPrim?x+w*0.3:x+w*0.7; 
-            ctx.fillStyle=`rgba(255,119,0,${op})`; 
-            ctx.beginPath(); 
-            if(isPrim){ ctx.moveTo(arrowX,yp); ctx.lineTo(arrowX+5,yp-2.5); ctx.lineTo(arrowX+5,yp+2.5); } 
-            else{ ctx.moveTo(arrowX,yp); ctx.lineTo(arrowX-5,yp-2.5); ctx.lineTo(arrowX-5,yp+2.5); } 
-            ctx.fill(); 
-        } 
-        ctx.setLineDash([]); 
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        const visibleTurns = Math.min(15, Math.max(7, Math.round((isPrim ? primaryTurns : secondaryTurns) / 18)));
+        const turnSpacing = h / (visibleTurns + 1);
+        const startY = y - h / 2 + turnSpacing;
+        const baseFrontStartX = centerX - w * 0.48;
+        const baseFrontEndX = centerX + w * 0.10;
+        const sideDepthX = Math.min(52 * 0.95 * 0.95, w * 0.78);
+        const sideDepthY = Math.min(20 * 0.95 * 0.95, turnSpacing * 1.05);
+        const frontYawShift = Math.min(w * 0.12, sideDepthX * 0.24);
+        const frontStartX = baseFrontStartX + frontYawShift;
+        const frontEndX = baseFrontEndX + frontYawShift * 0.72;
+        const backEndX = baseFrontEndX + sideDepthX;
+        const op = Math.min(1, 0.45 + intens * 0.55);
+        const frontCurve = Math.max(2, turnSpacing * 0.18);
+        const sideCurve = Math.max(1, turnSpacing * 0.12);
+
+        for (let i = 0; i < visibleTurns; i++) {
+            const lineY = startY + i * turnSpacing;
+            const alpha = op * (0.45 + 0.5 * Math.abs(Math.sin(animationTime * 4.6 + i * 0.55)));
+            const pulse = 0.78 + 0.22 * Math.sin(animationTime * 7 + i * 0.7);
+
+            ctx.save();
+            ctx.setLineDash([8, 5]);
+            ctx.shadowColor = `rgba(255, 210, 70, ${alpha * 0.8})`;
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = `rgba(255, 200, 40, ${alpha * pulse})`;
+            ctx.lineWidth = 2.8;
+            drawTurnPath(frontStartX, frontEndX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.setLineDash([2, 7]);
+            ctx.strokeStyle = `rgba(255, 250, 210, ${alpha * 0.72})`;
+            ctx.lineWidth = 1.4;
+            drawTurnPath(frontStartX, frontEndX, backEndX, sideDepthY, lineY, frontCurve, sideCurve);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        ctx.restore();
     }
     
     function updateSimulation(){ drawTransformer(); updateMeasurements(); updateToggleDisplay(); }
@@ -932,6 +1660,257 @@
         document.getElementById('exercisesModal').style.display = 'none';
     }
 
+    const savedVoicePreference = localStorage.getItem('voicePreferenceTransformadores') || '';
+    const tracks = [
+        'Bem-vindo à simulação de transformadores. No centro da tela, você vê o núcleo e as duas bobinas. À esquerda está a bobina primária e à direita a secundária. No painel de controles, você pode mudar a tensão de entrada, o número de espiras do primário, o número de espiras do secundário e ligar ou desligar o núcleo de ferro.',
+        'Observe a fórmula principal do transformador: tensão de saída dividida pela tensão de entrada é igual ao número de espiras do secundário dividido pelo número de espiras do primário. Isso significa que aumentar as espiras do secundário aumenta a tensão de saída. Faça esse teste agora.',
+        'Quando o núcleo de ferro está presente, o campo magnético fica mais concentrado. Ao retirar o núcleo, o fluxo continua existindo, mas se espalha mais pelo espaço e a eficiência cai. Ligue e desligue o núcleo para comparar os dois casos.',
+        'As correntes também obedecem a uma relação inversa. Em um transformador ideal, se a tensão aumenta, a corrente disponível na saída diminui. Se a tensão diminui, a corrente pode aumentar. Veja isso nas medições da parte inferior da tela.',
+        'Use os botões Campo Magnético e Corrente Elétrica para destacar separadamente cada efeito visual da simulação. Isso ajuda a relacionar o desenho das bobinas com as grandezas medidas.',
+        'Quando terminar a exploração, abra os exercícios resolvidos para ouvir exemplos passo a passo e depois clique em Iniciar Exercícios para testar o que aprendeu.'
+    ];
+    let currentTrack = 0;
+    let speechSynthesis = window.speechSynthesis;
+    let speaking = false;
+    let audioPaused = false;
+    let currentSpeechSource = null;
+    let activeExampleButton = null;
+    let speechSessionId = 0;
+    const exampleNarrations = {
+        '1': 'Exemplo 1. O transformador tem 200 espiras no primário e 100 espiras no secundário. A tensão de entrada é 12 voltis. Aplicamos a relação Vs sobre Vp igual a Ns sobre Np. Então, Vs sobre 12 é igual a 100 sobre 200, que vale 0 vírgula 5. Logo, Vs é igual a 12 vezes 0 vírgula 5, resultando em 6 voltis.',
+        '2': 'Exemplo 2. Em um transformador ideal, a corrente é inversamente proporcional ao número de espiras. Se o primário tem 100 espiras e o secundário 300, então Ip sobre Is é igual a Ns sobre Np, isto é, 300 sobre 100. O resultado é 3. Portanto, a corrente do primário é três vezes a corrente do secundário.',
+        '3': 'Exemplo 3. A potência de entrada é 20 watts e a potência de saída é 19 watts. A eficiência é a potência de saída dividida pela potência de entrada. Então 19 dividido por 20 é igual a 0 vírgula 95. Multiplicando por 100, obtemos 95 por cento.'
+    };
+
+    function getVoiceKey(voice) {
+        return `${voice.name}__${voice.lang}`;
+    }
+
+    function getPreferredVoices(voices) {
+        const portugueseVoices = voices.filter(voice => /^pt(-|$)/i.test(voice.lang));
+        return portugueseVoices.length ? portugueseVoices : voices;
+    }
+
+    function setMainAudioButtonState(state) {
+        const button = document.getElementById('playPauseAudioBtn');
+        if (!button) return;
+        if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+        else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+        else button.innerHTML = '▶️ Iniciar';
+    }
+
+    function setExampleButtonState(button, state) {
+        if (!button) return;
+        if (state === 'playing') {
+            button.innerHTML = '⏸️ Pausar resolução';
+            button.classList.add('playing');
+        } else if (state === 'paused') {
+            button.innerHTML = '▶️ Continuar resolução';
+            button.classList.add('playing');
+        } else {
+            button.innerHTML = '🔊 Ouvir resolução';
+            button.classList.remove('playing');
+        }
+    }
+
+    function clearExampleAudioState() {
+        if (activeExampleButton) {
+            setExampleButtonState(activeExampleButton, 'idle');
+            activeExampleButton = null;
+        }
+    }
+
+    function resetAudioUi() {
+        setMainAudioButtonState('idle');
+        clearExampleAudioState();
+    }
+
+    function finishSpeech(sessionId) {
+        if (sessionId !== speechSessionId) return;
+        speaking = false;
+        audioPaused = false;
+        currentSpeechSource = null;
+        resetAudioUi();
+    }
+
+    function populateVoiceSelector(voices) {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+        const availableVoices = getPreferredVoices(voices);
+        voiceSelect.innerHTML = '';
+
+        availableVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = getVoiceKey(voice);
+            option.textContent = `${voice.name} (${voice.lang})`;
+            voiceSelect.appendChild(option);
+        });
+
+        if (!availableVoices.length) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma voz encontrada';
+            voiceSelect.appendChild(option);
+            voiceSelect.disabled = true;
+            selectedVoice = null;
+            return;
+        }
+
+        voiceSelect.disabled = false;
+        const savedVoice = availableVoices.find(voice => getVoiceKey(voice) === savedVoicePreference);
+        selectedVoice = savedVoice || availableVoices[0] || null;
+        voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+    }
+
+    function setupVoiceSelector() {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+        voiceSelect.addEventListener('change', function() {
+            const voices = getPreferredVoices(speechSynthesis ? speechSynthesis.getVoices() : []);
+            selectedVoice = voices.find(voice => getVoiceKey(voice) === this.value) || null;
+            localStorage.setItem('voicePreferenceTransformadores', selectedVoice ? getVoiceKey(selectedVoice) : '');
+        });
+    }
+
+    function loadPreferredVoice() {
+        return new Promise((resolve) => {
+            const tryGetVoice = () => {
+                const voices = speechSynthesis ? speechSynthesis.getVoices() : [];
+                populateVoiceSelector(voices);
+                resolve(!!selectedVoice);
+            };
+
+            if (speechSynthesis && speechSynthesis.getVoices().length) {
+                tryGetVoice();
+            } else if (speechSynthesis) {
+                speechSynthesis.onvoiceschanged = tryGetVoice;
+            } else {
+                resolve(false);
+            }
+        });
+    }
+
+    function speakText(text) {
+        if (!speechSynthesis) {
+            alert('Este navegador não oferece suporte à fala sintetizada.');
+            return;
+        }
+
+        if (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused) {
+            speechSessionId++;
+            speechSynthesis.cancel();
+        }
+
+        const sessionId = ++speechSessionId;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.onend = () => finishSpeech(sessionId);
+        utterance.onerror = () => finishSpeech(sessionId);
+        speechSynthesis.speak(utterance);
+        speaking = true;
+        audioPaused = false;
+    }
+
+    function speakTrack(index) {
+        currentSpeechSource = 'track';
+        clearExampleAudioState();
+        setMainAudioButtonState('playing');
+        speakText(tracks[index]);
+        if (speaking) {
+            document.getElementById('trackCounter').innerText = `Trecho ${index + 1}/${tracks.length}`;
+        }
+    }
+
+    function pauseAudio() {
+        if (speechSynthesis && speaking && !audioPaused) {
+            speechSynthesis.pause();
+            audioPaused = true;
+            if (currentSpeechSource === 'track') setMainAudioButtonState('paused');
+            else if (currentSpeechSource === 'example') setExampleButtonState(activeExampleButton, 'paused');
+        }
+    }
+
+    function resumeAudio() {
+        if (currentSpeechSource === 'track' && speaking && audioPaused && speechSynthesis) {
+            speechSynthesis.resume();
+            audioPaused = false;
+            setMainAudioButtonState('playing');
+            return;
+        }
+        if (!speaking || currentSpeechSource !== 'track') speakTrack(currentTrack);
+    }
+
+    function toggleExampleAudio(button) {
+        const text = exampleNarrations[button.getAttribute('data-example')];
+        if (!text) return;
+
+        if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+            if (audioPaused && speechSynthesis) {
+                speechSynthesis.resume();
+                audioPaused = false;
+                setExampleButtonState(button, 'playing');
+            } else {
+                pauseAudio();
+            }
+            return;
+        }
+
+        currentSpeechSource = 'example';
+        clearExampleAudioState();
+        activeExampleButton = button;
+        setMainAudioButtonState('idle');
+        setExampleButtonState(button, 'playing');
+        speakText(text);
+    }
+
+    function nextTrack() {
+        if (currentTrack + 1 < tracks.length) {
+            currentTrack++;
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
+            speakTrack(currentTrack);
+        } else {
+            alert('Você concluiu todos os trechos de áudio.');
+        }
+    }
+
+    function prevTrack() {
+        if (currentTrack > 0) {
+            currentTrack--;
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
+            speakTrack(currentTrack);
+        } else {
+            alert('Este é o primeiro trecho.');
+        }
+    }
+
+    function openSolvedExercisesModal() {
+        document.getElementById('solvedExercisesModal').style.display = 'flex';
+    }
+
+    function closeSolvedExercisesModal() {
+        document.getElementById('solvedExercisesModal').style.display = 'none';
+    }
+
+    function openTheoryModal() {
+        document.getElementById('theoryModal').style.display = 'flex';
+    }
+
+    function closeTheoryModal() {
+        document.getElementById('theoryModal').style.display = 'none';
+    }
+
     function resetAndRestartExercises() {
         if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
             resetExerciseState();
@@ -976,13 +1955,51 @@
 
     window.addEventListener('load', () => {
         initSimulation();
+        setupVoiceSelector();
+        loadPreferredVoice().then(() => {
+            document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+        });
         const startBtn = document.getElementById('mainExerciseBtn');
         if(startBtn) startBtn.addEventListener('click', openExercisesModal);
+        const solvedBtn = document.getElementById('solvedExercisesBtn');
+        if(solvedBtn) solvedBtn.addEventListener('click', openSolvedExercisesModal);
+        const theoryBtn = document.getElementById('theoryBtn');
+        if(theoryBtn) theoryBtn.addEventListener('click', openTheoryModal);
         const modalClose = document.querySelector('#exercisesModal .close');
         if(modalClose) modalClose.addEventListener('click', closeExercisesModal);
+        const solvedClose = document.querySelector('#solvedExercisesModal .close');
+        if(solvedClose) solvedClose.addEventListener('click', closeSolvedExercisesModal);
+        const theoryClose = document.querySelector('#theoryModal .close');
+        if(theoryClose) theoryClose.addEventListener('click', closeTheoryModal);
+        const solvedFooterClose = document.getElementById('closeSolvedExercises');
+        if(solvedFooterClose) solvedFooterClose.addEventListener('click', closeSolvedExercisesModal);
+        const theoryFooterClose = document.getElementById('closeTheory');
+        if(theoryFooterClose) theoryFooterClose.addEventListener('click', closeTheoryModal);
         const restartBtn = document.getElementById('restartExercisesBtn');
         if(restartBtn) restartBtn.addEventListener('click', resetAndRestartExercises);
-        window.addEventListener('click', e => { if(e.target === document.getElementById('exercisesModal')) closeExercisesModal(); });
+        const playPauseBtn = document.getElementById('playPauseAudioBtn');
+        if(playPauseBtn) {
+            playPauseBtn.addEventListener('click', () => {
+                if (currentSpeechSource === 'track' && speaking) {
+                    if (audioPaused) resumeAudio();
+                    else pauseAudio();
+                } else {
+                    resumeAudio();
+                }
+            });
+        }
+        const nextTrackBtn = document.getElementById('nextTrackBtn');
+        if(nextTrackBtn) nextTrackBtn.addEventListener('click', nextTrack);
+        const prevTrackBtn = document.getElementById('prevTrackBtn');
+        if(prevTrackBtn) prevTrackBtn.addEventListener('click', prevTrack);
+        document.querySelectorAll('.audio-example-btn').forEach(btn => {
+            btn.addEventListener('click', () => toggleExampleAudio(btn));
+        });
+        window.addEventListener('click', e => {
+            if(e.target === document.getElementById('exercisesModal')) closeExercisesModal();
+            if(e.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+            if(e.target === document.getElementById('theoryModal')) closeTheoryModal();
+        });
     });
 </script>
 </body>
