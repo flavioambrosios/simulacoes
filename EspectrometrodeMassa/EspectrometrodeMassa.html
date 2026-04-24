@@ -53,17 +53,39 @@
         .simulation-container {
             width: 100%;
             height: 400px;
-            background: #000;
+            background: radial-gradient(circle at top left, rgba(123, 207, 255, 0.18), transparent 30%), linear-gradient(160deg, #03111f 0%, #081f35 48%, #02060b 100%);
             border-radius: 8px;
             overflow: hidden;
             position: relative;
             border: 2px solid #444;
+            box-shadow: inset 0 0 30px rgba(0, 255, 255, 0.08), 0 18px 40px rgba(0, 0, 0, 0.35);
         }
         
         #spectrometerCanvas {
             display: block;
             width: 100%;
             height: 100%;
+        }
+
+        .scene-hud {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .hud-pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(4, 16, 28, 0.74);
+            border: 1px solid rgba(123, 207, 255, 0.35);
+            color: #9be9ff;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
         
         .controls-panel {
@@ -226,12 +248,40 @@
             border-bottom: 2px solid #ffcc00;
             padding-bottom: 10px;
         }
+
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         
         .close {
             color: #fff;
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .resume-badge {
+            display: none;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(0, 255, 170, 0.16);
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            color: #a8ffe1;
+            font-size: 0.82rem;
+        }
+
+        .restart-btn {
+            width: auto;
+            margin-bottom: 0;
+            padding: 8px 12px;
+            background: #1a2a6c;
+            color: #fff;
+        }
+
+        .restart-btn:hover {
+            background: #273b93;
         }
         
         .exercise {
@@ -474,6 +524,66 @@
             justify-content: center;
             margin-top: 15px;
         }
+
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 204, 0, 0.25);
+        }
+
+        .audio-controls button {
+            width: auto;
+            margin-bottom: 0;
+            min-width: 96px;
+        }
+
+        .audio-controls span {
+            color: #ffdd88;
+            font-weight: bold;
+        }
+
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+        }
+
+        .voice-selector label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .voice-selector select {
+            width: auto;
+            min-width: 220px;
+            margin-bottom: 0;
+        }
+
+        .audio-example-btn {
+            margin-top: 12px;
+            background: #1d7f5f;
+            color: #fff;
+        }
+
+        .audio-example-btn:hover {
+            background: #249c74;
+        }
+
+        .audio-example-btn.playing {
+            background: #c96d00;
+        }
+
+        .audio-example-btn.playing:hover {
+            background: #df7a00;
+        }
         
         .theory-section {
             margin-bottom: 20px;
@@ -566,6 +676,30 @@
                 height: 50vh;
                 min-height: 250px;
             }
+
+            .modal-header {
+                align-items: flex-start;
+            }
+
+            .modal-header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .audio-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .audio-controls button,
+            .voice-selector select {
+                width: 100%;
+            }
+
+            .voice-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
@@ -581,6 +715,9 @@
                 <h2 class="panel-title">Simulação do Espectrômetro</h2>
                 <div class="simulation-container">
                     <canvas id="spectrometerCanvas"></canvas>
+                    <div class="scene-hud">
+                        
+                    </div>
                 </div>
                 
                 <div class="visualization-toggle">
@@ -706,7 +843,11 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios sobre Espectrômetro de Massa</h2>
-                <span class="close">&times;</span>
+                <div class="modal-header-actions">
+                    <span id="exerciseResumeBadge" class="resume-badge">Progresso salvo</span>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -949,6 +1090,19 @@
 
     </div>
 
+    <div class="audio-controls" id="audioControls">
+        <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+        <button id="playPauseAudioBtn" title="Iniciar ou pausar narração">▶️ Iniciar</button>
+        <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+        <span id="trackCounter">Trecho 0/6</span>
+        <div class="voice-selector">
+            <label for="voiceSelect">Voz:</label>
+            <select id="voiceSelect" aria-label="Selecionar voz da narração">
+                <option value="">Carregando vozes...</option>
+            </select>
+        </div>
+    </div>
+
     <script>
         // =============================================
         // VARIÁVEIS GLOBAIS
@@ -988,6 +1142,31 @@
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = '';
+
+        const EXERCISE_STORAGE_KEY = 'espectrometroMassaExerciseState';
+        const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceEspectrometroMassa';
+        const tracks = [
+            'Bem-vindo ao espectrômetro de massa. A câmara em perspectiva mostra a fonte de partículas à esquerda e a região de campo magnético ocupando o volume central. O feixe entra acelerado e passa a descrever uma curva dentro da câmara.',
+            'A voltagem aceleradora controla a energia cinética inicial. Quando você aumenta a voltagem, a velocidade da partícula aumenta. Como consequência, para o mesmo campo magnético, a trajetória tende a ficar com raio maior.',
+            'O campo magnético atua perpendicularmente ao movimento e produz a força centrípeta. Se o campo magnético aumenta, o raio da trajetória diminui. Compare isso mexendo no controle de B e observando a curvatura do feixe.',
+            'A relação carga massa é a assinatura da partícula. Elétrons, prótons e partículas alfa curvam de maneiras diferentes porque combinam massas e cargas diferentes. O sinal da carga também muda o sentido da curvatura.',
+            'Na parte inferior da tela, as medições mostram velocidade, raio, carga, massa e a relação q sobre m. Use esses valores para conectar a visualização com a equação principal do espectrômetro.',
+            'Quando terminar a exploração, abra os exercícios. Se precisar fechar o painel, o progresso fica salvo para você continuar depois exatamente do ponto em que parou.'
+        ];
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Para calcular q sobre m, usamos a expressão dois vezes a voltagem dividido por R ao quadrado vezes B ao quadrado. Substituindo V igual a cinco vezes dez elevado a três, R igual a um décimo de metro e B igual a cinco décimos de tesla, obtemos q sobre m igual a quatro vezes dez elevado a seis coulomb por quilograma.',
+            '2': 'Exemplo 2. Para o próton, primeiro calculamos a velocidade com raiz quadrada de dois q V sobre m. Em seguida usamos R igual a m v dividido por q B. O resultado é um raio aproximado de seis vírgula quarenta e cinco vezes dez elevado a menos três metro.',
+            '3': 'Exemplo 3. O raio é inversamente proporcional ao campo magnético. Se o campo dobra, o denominador da expressão também dobra. Portanto, o raio cai para a metade.'
+        };
+        let selectedVoice = null;
+        let currentTrack = 0;
+        let speaking = false;
+        let audioPaused = false;
+        let currentSpeechSource = null;
+        let activeExampleButton = null;
+        let speechSessionId = 0;
+        const sourceEmissionDepth = 0.42;
 
         // =============================================
         // FUNÇÃO PARA FORMATAR EM NOTAÇÃO CIENTÍFICA
@@ -1028,6 +1207,405 @@
             return value.toPrecision(precision);
         }
 
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = '';
+        }
+
+        function getCurrentExerciseView() {
+            if (document.getElementById('resultsContainer').style.display === 'block') return 'results';
+            if (document.getElementById('conclusionContainer').style.display === 'block') return 'conclusion';
+            return 'exercise';
+        }
+
+        function getSelectedOptionValue() {
+            const selectedOption = document.querySelector('#exerciseContainer .option.selected');
+            return selectedOption ? (selectedOption.dataset.value || selectedOption.textContent.trim()) : null;
+        }
+
+        function captureFormState() {
+            return {
+                studentName: document.getElementById('studentName').value,
+                studentGrade: document.getElementById('studentGrade').value,
+                studentClass: document.getElementById('studentClass').value,
+                studentEmail: document.getElementById('studentEmail').value,
+                criticismInput: document.getElementById('criticismInput').value,
+                suggestionInput: document.getElementById('suggestionInput').value,
+                finalConclusion: document.getElementById('finalConclusion').value,
+                conclusionText: document.getElementById('conclusionText').value
+            };
+        }
+
+        function applyFormState(formState = {}) {
+            document.getElementById('studentName').value = formState.studentName || '';
+            document.getElementById('studentGrade').value = formState.studentGrade || '';
+            document.getElementById('studentClass').value = formState.studentClass || '';
+            document.getElementById('studentEmail').value = formState.studentEmail || '';
+            document.getElementById('criticismInput').value = formState.criticismInput || '';
+            document.getElementById('suggestionInput').value = formState.suggestionInput || '';
+            document.getElementById('finalConclusion').value = formState.finalConclusion || '';
+            document.getElementById('conclusionText').value = formState.conclusionText || conclusionTextSaved || '';
+        }
+
+        function getSavedExerciseState() {
+            try {
+                const rawState = localStorage.getItem(EXERCISE_STORAGE_KEY);
+                if (!rawState) return null;
+                const parsedState = JSON.parse(rawState);
+                if (!parsedState || !Array.isArray(parsedState.exercises) || !parsedState.exercises.length) {
+                    return null;
+                }
+                return parsedState;
+            } catch (error) {
+                console.warn('Não foi possível recuperar o estado salvo dos exercícios.', error);
+                return null;
+            }
+        }
+
+        function updateExerciseLauncherState() {
+            const mainExerciseBtn = document.getElementById('mainExerciseBtn');
+            if (!mainExerciseBtn) return;
+
+            const hasSavedState = !!getSavedExerciseState();
+            mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
+            mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
+        }
+
+        function updateExerciseResumeBadge(forceVisible) {
+            const badge = document.getElementById('exerciseResumeBadge');
+            if (!badge) return;
+
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : !!getSavedExerciseState();
+            badge.style.display = isVisible ? 'inline-flex' : 'none';
+        }
+
+        function clearExerciseState() {
+            localStorage.removeItem(EXERCISE_STORAGE_KEY);
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(false);
+        }
+
+        function saveExerciseState() {
+            if (!exercises.length) {
+                clearExerciseState();
+                return;
+            }
+
+            conclusionTextSaved = document.getElementById('conclusionText').value || conclusionTextSaved;
+
+            const exerciseState = {
+                exercises,
+                currentExercise,
+                exerciseResults,
+                skippedQuestions,
+                currentExerciseAttempts,
+                conclusionTextSaved,
+                view: getCurrentExerciseView(),
+                selectedOptionValue: getSelectedOptionValue(),
+                formState: captureFormState()
+            };
+
+            try {
+                localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
+            } catch (error) {
+                console.warn('Não foi possível salvar o progresso dos exercícios.', error);
+            }
+
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(true);
+        }
+
+        function restoreExerciseState(savedState) {
+            exercises = Array.isArray(savedState.exercises) ? savedState.exercises : [];
+            currentExercise = Math.min(savedState.currentExercise || 0, Math.max(exercises.length - 1, 0));
+            exerciseResults = Array.isArray(savedState.exerciseResults) ? savedState.exerciseResults : [];
+            skippedQuestions = savedState.skippedQuestions || 0;
+            currentExerciseAttempts = savedState.currentExerciseAttempts || 0;
+            conclusionTextSaved = savedState.conclusionTextSaved || '';
+            applyFormState(savedState.formState || {});
+        }
+
+        function setupPersistentInputs() {
+            document.getElementById('conclusionText').addEventListener('input', function() {
+                conclusionTextSaved = this.value;
+                if (exercises.length) saveExerciseState();
+            });
+
+            ['studentName', 'studentEmail', 'criticismInput', 'suggestionInput', 'finalConclusion'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('input', function() {
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+
+            ['studentGrade', 'studentClass'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('change', function() {
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+        }
+
+        function getVoiceKey(voice) {
+            return `${voice.name}__${voice.lang}`;
+        }
+
+        function getPreferredVoices(voices) {
+            const portugueseVoices = voices.filter(function(voice) {
+                return /^pt(-|$)/i.test(voice.lang);
+            });
+            return portugueseVoices.length ? portugueseVoices : voices;
+        }
+
+        function setMainAudioButtonState(state) {
+            const button = document.getElementById('playPauseAudioBtn');
+            if (!button) return;
+
+            if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+            else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+            else button.innerHTML = '▶️ Iniciar';
+        }
+
+        function setExampleButtonState(button, state) {
+            if (!button) return;
+
+            if (state === 'playing') {
+                button.innerHTML = '⏸️ Pausar resolução';
+                button.classList.add('playing');
+            } else if (state === 'paused') {
+                button.innerHTML = '▶️ Continuar resolução';
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = '🔊 Ouvir resolução';
+                button.classList.remove('playing');
+            }
+        }
+
+        function clearExampleAudioState() {
+            if (activeExampleButton) {
+                setExampleButtonState(activeExampleButton, 'idle');
+                activeExampleButton = null;
+            }
+        }
+
+        function updateTrackCounter() {
+            document.getElementById('trackCounter').textContent = speaking && currentSpeechSource === 'track'
+                ? `Trecho ${currentTrack + 1}/${tracks.length}`
+                : `Trecho 0/${tracks.length}`;
+        }
+
+        function resetAudioUi() {
+            setMainAudioButtonState('idle');
+            clearExampleAudioState();
+            updateTrackCounter();
+        }
+
+        function finishSpeech(sessionId) {
+            if (sessionId !== speechSessionId) return;
+
+            speaking = false;
+            audioPaused = false;
+            currentSpeechSource = null;
+            resetAudioUi();
+        }
+
+        function populateVoiceSelector(voices) {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            const availableVoices = getPreferredVoices(voices);
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach(function(voice) {
+                const option = document.createElement('option');
+                option.value = getVoiceKey(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+
+            if (!availableVoices.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma voz encontrada';
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                selectedVoice = null;
+                return;
+            }
+
+            voiceSelect.disabled = false;
+            const savedVoicePreference = localStorage.getItem(AUDIO_VOICE_STORAGE_KEY) || '';
+            const savedVoice = availableVoices.find(function(voice) {
+                return getVoiceKey(voice) === savedVoicePreference;
+            });
+
+            selectedVoice = savedVoice || availableVoices[0] || null;
+            voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+        }
+
+        function setupVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            voiceSelect.addEventListener('change', function() {
+                const voices = getPreferredVoices(window.speechSynthesis ? window.speechSynthesis.getVoices() : []);
+                selectedVoice = voices.find(function(voice) {
+                    return getVoiceKey(voice) === voiceSelect.value;
+                }) || null;
+
+                localStorage.setItem(AUDIO_VOICE_STORAGE_KEY, selectedVoice ? getVoiceKey(selectedVoice) : '');
+            });
+        }
+
+        function loadPreferredVoice() {
+            return new Promise(function(resolve) {
+                if (!window.speechSynthesis) {
+                    resolve(false);
+                    return;
+                }
+
+                const tryGetVoice = function() {
+                    const voices = window.speechSynthesis.getVoices();
+                    populateVoiceSelector(voices);
+                    resolve(!!selectedVoice);
+                };
+
+                if (window.speechSynthesis.getVoices().length) {
+                    tryGetVoice();
+                } else {
+                    window.speechSynthesis.onvoiceschanged = tryGetVoice;
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!window.speechSynthesis) {
+                alert('Este navegador não oferece suporte à fala sintetizada.');
+                return;
+            }
+
+            if (window.speechSynthesis.speaking || window.speechSynthesis.pending || window.speechSynthesis.paused) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+            }
+
+            const sessionId = ++speechSessionId;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.92;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            utterance.onend = function() { finishSpeech(sessionId); };
+            utterance.onerror = function() { finishSpeech(sessionId); };
+
+            window.speechSynthesis.speak(utterance);
+            speaking = true;
+            audioPaused = false;
+        }
+
+        function speakTrack(index) {
+            currentSpeechSource = 'track';
+            clearExampleAudioState();
+            setMainAudioButtonState('playing');
+            speakText(tracks[index]);
+            if (speaking) updateTrackCounter();
+        }
+
+        function pauseAudio() {
+            if (window.speechSynthesis && speaking && !audioPaused) {
+                window.speechSynthesis.pause();
+                audioPaused = true;
+
+                if (currentSpeechSource === 'track') setMainAudioButtonState('paused');
+                else if (currentSpeechSource === 'example') setExampleButtonState(activeExampleButton, 'paused');
+            }
+        }
+
+        function resumeAudio() {
+            if (currentSpeechSource === 'track' && speaking && audioPaused && window.speechSynthesis) {
+                window.speechSynthesis.resume();
+                audioPaused = false;
+                setMainAudioButtonState('playing');
+                updateTrackCounter();
+                return;
+            }
+
+            if (!speaking || currentSpeechSource !== 'track') {
+                speakTrack(currentTrack);
+            }
+        }
+
+        function toggleExampleAudio(button) {
+            const narrationText = exampleNarrations[button.getAttribute('data-example')];
+            if (!narrationText) return;
+
+            if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+                if (audioPaused && window.speechSynthesis) {
+                    window.speechSynthesis.resume();
+                    audioPaused = false;
+                    setExampleButtonState(button, 'playing');
+                } else {
+                    pauseAudio();
+                }
+                return;
+            }
+
+            currentSpeechSource = 'example';
+            clearExampleAudioState();
+            activeExampleButton = button;
+            setMainAudioButtonState('idle');
+            setExampleButtonState(button, 'playing');
+            speakText(narrationText);
+        }
+
+        function nextTrack() {
+            if (currentTrack + 1 < tracks.length) {
+                currentTrack++;
+                speakTrack(currentTrack);
+            } else {
+                alert('Você concluiu todos os trechos de áudio.');
+            }
+        }
+
+        function previousTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                speakTrack(currentTrack);
+            } else {
+                alert('Este é o primeiro trecho.');
+            }
+        }
+
+        function toggleMainAudio() {
+            if (currentSpeechSource === 'track' && speaking) {
+                if (audioPaused) resumeAudio();
+                else pauseAudio();
+                return;
+            }
+
+            resumeAudio();
+        }
+
+        function stopExampleNarration() {
+            if (currentSpeechSource === 'example' && window.speechSynthesis) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+                speaking = false;
+                audioPaused = false;
+                currentSpeechSource = null;
+                resetAudioUi();
+            }
+        }
+
+        function setupAudioControls() {
+            document.getElementById('prevTrackBtn').addEventListener('click', previousTrack);
+            document.getElementById('playPauseAudioBtn').addEventListener('click', toggleMainAudio);
+            document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+            setupVoiceSelector();
+            updateTrackCounter();
+        }
+
         // =============================================
         // FUNÇÕES PRINCIPAIS
         // =============================================
@@ -1035,7 +1613,12 @@
         function init() {
             resizeCanvas();
             setupEventListeners();
+            setupPersistentInputs();
+            setupAudioControls();
             updateParticleProperties();
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge();
+            loadPreferredVoice();
             drawScene();
             animate();
         }
@@ -1139,6 +1722,7 @@
             document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
             document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
             document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            document.getElementById('restartExercisesBtn').addEventListener('click', restartExercises);
             
             // Fechar modais
             document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
@@ -1167,11 +1751,13 @@
                 simulationTime: 0,
                 x: sourceX,
                 y: sourceY,
+                depth: sourceEmissionDepth,
                 active: true,
                 detected: false,
                 detectionSide: null,
                 color: getRandomColor(),
-                angle: 0
+                angle: 0,
+                trail: [{ x: sourceX, y: sourceY, depth: sourceEmissionDepth }]
             });
             
             if (!isRunning) {
@@ -1254,115 +1840,321 @@
             updateParticleProperties();
             drawScene();
         }
+
+        function getPerspectiveOffset(depth = 1) {
+            const clampedDepth = Math.max(0, Math.min(1, depth));
+            return {
+                x: canvas.width * 0.12 * clampedDepth,
+                y: canvas.height * 0.10 * clampedDepth
+            };
+        }
+
+        function projectPoint(x, y, depth = 0) {
+            const offset = getPerspectiveOffset(depth);
+            return {
+                x: x + offset.x,
+                y: y - offset.y
+            };
+        }
+
+        function tracePolygon(points) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+        }
+
+        function fillAndStrokePolygon(points, fillStyle, strokeStyle, lineWidth = 1) {
+            tracePolygon(points);
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+            if (strokeStyle) {
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = strokeStyle;
+                ctx.stroke();
+            }
+        }
+
+        function getChamberRect() {
+            const marginX = Math.max(canvas.width * 0.04, 18);
+            const marginY = Math.max(canvas.height * 0.06, 18);
+
+            return {
+                left: fieldLeft - marginX,
+                top: fieldTop - marginY,
+                width: fieldWidth + marginX * 1.6,
+                height: fieldHeight + marginY * 2
+            };
+        }
+
+        function drawDetectorPanel(x, y, width, height, depth, label, color) {
+            const front = [
+                { x, y },
+                { x: x + width, y },
+                { x: x + width, y: y + height },
+                { x, y: y + height }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(40, 70, 90, 0.65)', 'rgba(120, 220, 255, 0.18)');
+            fillAndStrokePolygon(front, color, 'rgba(255, 255, 255, 0.18)');
+
+            ctx.fillStyle = '#d8f9ff';
+            ctx.font = '11px Arial';
+            ctx.fillText(label, x + 6, y + height / 2 + 4);
+        }
+
+        function drawPerspectiveArrow(x, y, startDepth, endDepth, opacity, scale = 1) {
+            const start = projectPoint(x, y, startDepth);
+            const end = projectPoint(x, y, endDepth);
+            const dx = end.x - start.x;
+            const dy = end.y - start.y;
+            const length = Math.hypot(dx, dy) || 1;
+            const unitX = dx / length;
+            const unitY = dy / length;
+            const normalX = -unitY;
+            const normalY = unitX;
+            const headSize = (6 + endDepth * 5) * scale;
+            const shaftWidth = Math.max(1.4, 1.2 + endDepth * 1.6) * scale;
+            const shaftEndX = end.x - unitX * headSize * 0.9;
+            const shaftEndY = end.y - unitY * headSize * 0.9;
+
+            ctx.strokeStyle = `rgba(130, 245, 255, ${opacity})`;
+            ctx.lineWidth = shaftWidth;
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(shaftEndX, shaftEndY);
+            ctx.stroke();
+
+            ctx.fillStyle = `rgba(180, 250, 255, ${Math.min(1, opacity + 0.1)})`;
+            ctx.beginPath();
+            ctx.moveTo(end.x, end.y);
+            ctx.lineTo(
+                shaftEndX + normalX * headSize * 0.42,
+                shaftEndY + normalY * headSize * 0.42
+            );
+            ctx.lineTo(
+                shaftEndX - normalX * headSize * 0.42,
+                shaftEndY - normalY * headSize * 0.42
+            );
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawChamberShell() {
+            const chamber = getChamberRect();
+            const depth = 0.92;
+            const front = [
+                { x: chamber.left, y: chamber.top },
+                { x: chamber.left + chamber.width, y: chamber.top },
+                { x: chamber.left + chamber.width, y: chamber.top + chamber.height },
+                { x: chamber.left, y: chamber.top + chamber.height }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(8, 24, 40, 0.75)', 'rgba(129, 220, 255, 0.18)', 1.2);
+
+            fillAndStrokePolygon(
+                [front[0], front[1], back[1], back[0]],
+                'rgba(24, 45, 66, 0.42)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[1], front[2], back[2], back[1]],
+                'rgba(14, 32, 48, 0.45)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[0], front[3], back[3], back[0]],
+                'rgba(18, 36, 54, 0.38)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[3], front[2], back[2], back[3]],
+                'rgba(10, 25, 36, 0.45)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+
+            const frontGradient = ctx.createLinearGradient(chamber.left, chamber.top, chamber.left + chamber.width, chamber.top + chamber.height);
+            frontGradient.addColorStop(0, 'rgba(120, 220, 255, 0.16)');
+            frontGradient.addColorStop(1, 'rgba(0, 0, 0, 0.08)');
+            fillAndStrokePolygon(front, frontGradient, 'rgba(170, 235, 255, 0.3)', 1.5);
+        }
+
+        function drawFieldSymbols(depth, opacity) {
+            const spacing = 34;
+
+            for (let x = fieldLeft + 22; x < fieldLeft + fieldWidth - 18; x += spacing) {
+                for (let y = fieldTop + 24; y < fieldTop + fieldHeight - 18; y += spacing) {
+                    drawPerspectiveArrow(x, y, Math.max(0.02, depth - 0.18), depth, opacity, 0.95);
+                }
+            }
+        }
         
         function drawScene() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
+            drawChamberShell();
             drawMagneticField();
             drawBeamSource();
-            drawAxis();
             drawParticles();
         }
         
         function drawBeamSource() {
-            const sourceWidth = 15;
-            const sourceHeight = 40;
-            
-            // Desenhar a fonte
-            ctx.fillStyle = '#ff9900';
-            ctx.fillRect(sourceX - sourceWidth/2, sourceY - sourceHeight/2, sourceWidth, sourceHeight);
-            
-            // Ponto de emissão
-            ctx.fillStyle = '#ffffff';
+            const sourceMarker = projectPoint(sourceX, sourceY, sourceEmissionDepth);
+
+            ctx.strokeStyle = 'rgba(255, 220, 150, 0.35)';
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.arc(sourceX, sourceY, 5, 0, Math.PI * 2);
+            ctx.arc(sourceMarker.x, sourceMarker.y, 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 220, 150, 0.18)';
+            ctx.beginPath();
+            ctx.arc(sourceMarker.x, sourceMarker.y, 18, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const aperture = sourceMarker;
+            ctx.fillStyle = '#fff5d0';
+            ctx.beginPath();
+            ctx.arc(aperture.x, aperture.y, 4.5, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Texto
-            ctx.fillStyle = '#fff';
+
+            ctx.fillStyle = '#ffe3a6';
             ctx.font = '12px Arial';
-            ctx.fillText('Fonte', sourceX - 15, sourceY - sourceHeight/2 - 10);
+            const labelPoint = projectPoint(sourceX - 28, sourceY - 26, 0.22);
+            ctx.fillText('Fonte', labelPoint.x, labelPoint.y);
         }
         
         function drawMagneticField() {
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.1)';
-            ctx.fillRect(fieldLeft, fieldTop, fieldWidth, fieldHeight);
-            ctx.strokeStyle = '#00ffff';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(fieldLeft, fieldTop, fieldWidth, fieldHeight);
-            
-            // Símbolos do campo magnético
-            ctx.fillStyle = '#00ffff';
-            ctx.font = '16px Arial';
-            const spacing = 30;
-            for (let x = fieldLeft + 20; x < fieldLeft + fieldWidth - 20; x += spacing) {
-                for (let y = fieldTop + 20; y < fieldTop + fieldHeight - 20; y += spacing) {
-                    ctx.fillText('×', x, y);
-                }
-            }
-            
-            ctx.fillText('B', fieldLeft + fieldWidth / 2 - 5, fieldTop - 10);
+            const depth = 0.72;
+            const front = [
+                { x: fieldLeft, y: fieldTop },
+                { x: fieldLeft + fieldWidth, y: fieldTop },
+                { x: fieldLeft + fieldWidth, y: fieldTop + fieldHeight },
+                { x: fieldLeft, y: fieldTop + fieldHeight }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(20, 74, 86, 0.4)', 'rgba(0, 255, 255, 0.18)');
+            fillAndStrokePolygon([front[0], front[1], back[1], back[0]], 'rgba(28, 120, 138, 0.18)', 'rgba(0, 255, 255, 0.16)');
+            fillAndStrokePolygon([front[1], front[2], back[2], back[1]], 'rgba(18, 100, 116, 0.16)', 'rgba(0, 255, 255, 0.16)');
+            fillAndStrokePolygon([front[3], front[2], back[2], back[3]], 'rgba(16, 86, 98, 0.16)', 'rgba(0, 255, 255, 0.16)');
+
+            const fieldGradient = ctx.createLinearGradient(fieldLeft, fieldTop, fieldLeft + fieldWidth, fieldTop + fieldHeight);
+            fieldGradient.addColorStop(0, 'rgba(0, 255, 255, 0.16)');
+            fieldGradient.addColorStop(1, 'rgba(0, 90, 110, 0.06)');
+            fillAndStrokePolygon(front, fieldGradient, 'rgba(0, 255, 255, 0.36)', 1.2);
+
+            drawFieldSymbols(depth, 0.36);
+            drawFieldSymbols(0.24, 0.58);
+
+            const labelPoint = projectPoint(fieldLeft + fieldWidth * 0.5, fieldTop - 12, 0.34);
+            ctx.fillStyle = '#9bf1ff';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('B', labelPoint.x, labelPoint.y);
         }
         
         function drawAxis() {
-            // Desenhar eixos sem números, apenas com marcas
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            const chamber = getChamberRect();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
             ctx.lineWidth = 1;
-            
-            // Eixo X
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height / 2);
-            ctx.lineTo(canvas.width, canvas.height / 2);
-            ctx.stroke();
-            
-            // Eixo Y
-            ctx.beginPath();
-            ctx.moveTo(canvas.width / 2, 0);
-            ctx.lineTo(canvas.width / 2, canvas.height);
-            ctx.stroke();
-            
-            // Marcas nos eixos
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-            
-            // Marcas no eixo X
-            for (let x = 0; x <= canvas.width; x += canvas.width / 10) {
+
+            for (let i = 0; i <= 5; i++) {
+                const ratio = i / 5;
+                const frontStart = { x: chamber.left + chamber.width * ratio, y: chamber.top };
+                const frontEnd = { x: chamber.left + chamber.width * ratio, y: chamber.top + chamber.height };
+                const backStart = projectPoint(frontStart.x, frontStart.y, 0.88);
+                const backEnd = projectPoint(frontEnd.x, frontEnd.y, 0.88);
+
                 ctx.beginPath();
-                ctx.moveTo(x, canvas.height / 2 - 5);
-                ctx.lineTo(x, canvas.height / 2 + 5);
+                ctx.moveTo(frontStart.x, frontStart.y);
+                ctx.lineTo(backStart.x, backStart.y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(frontEnd.x, frontEnd.y);
+                ctx.lineTo(backEnd.x, backEnd.y);
                 ctx.stroke();
             }
-            
-            // Marcas no eixo Y
-            for (let y = 0; y <= canvas.height; y += canvas.height / 10) {
+
+            for (let i = 0; i <= 4; i++) {
+                const ratio = i / 4;
+                const y = chamber.top + chamber.height * ratio;
+                const frontLeftPoint = { x: chamber.left, y };
+                const frontRightPoint = { x: chamber.left + chamber.width, y };
+                const backLeftPoint = projectPoint(frontLeftPoint.x, frontLeftPoint.y, 0.88);
+                const backRightPoint = projectPoint(frontRightPoint.x, frontRightPoint.y, 0.88);
+
                 ctx.beginPath();
-                ctx.moveTo(canvas.width / 2 - 5, y);
-                ctx.lineTo(canvas.width / 2 + 5, y);
+                ctx.moveTo(frontLeftPoint.x, frontLeftPoint.y);
+                ctx.lineTo(frontRightPoint.x, frontRightPoint.y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(backLeftPoint.x, backLeftPoint.y);
+                ctx.lineTo(backRightPoint.x, backRightPoint.y);
                 ctx.stroke();
             }
+
+            ctx.strokeStyle = 'rgba(255, 214, 120, 0.26)';
+            ctx.lineWidth = 1.5;
+            const guideStart = projectPoint(sourceX, sourceY, sourceEmissionDepth);
+            ctx.beginPath();
+            ctx.moveTo(guideStart.x, guideStart.y);
+            const centerGuide = projectPoint(fieldLeft + fieldWidth * 0.95, sourceY, 0.58);
+            ctx.lineTo(centerGuide.x, centerGuide.y);
+            ctx.stroke();
         }
         
         function drawParticles() {
             particles.forEach(particle => {
-                if (particle.active) {
-                    drawParticle(particle.x, particle.y, particle.color);
+                if (particle.trail && particle.trail.length > 1) {
+                    ctx.beginPath();
+                    particle.trail.forEach(function(point, index) {
+                        const projected = projectPoint(point.x, point.y, point.depth || 0);
+                        if (index === 0) ctx.moveTo(projected.x, projected.y);
+                        else ctx.lineTo(projected.x, projected.y);
+                    });
+                    ctx.strokeStyle = particle.color + '99';
+                    ctx.lineWidth = 2;
+                    ctx.shadowColor = particle.color;
+                    ctx.shadowBlur = 8;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+
+                if (particle.active || particle.detected) {
+                    drawParticle(particle.x, particle.y, particle.color, particle.depth || 0, particle.detected);
                 }
             });
         }
         
-        function drawParticle(x, y, color = '#ff0000') {
-            // Partícula com brilho
+        function drawParticle(x, y, color = '#ff0000', depth = 0, detected = false) {
+            const projectedPoint = projectPoint(x, y, depth);
+            const particleRadius = detected ? 7 : 5 + depth * 2.4;
+
             ctx.shadowColor = color;
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = detected ? 14 : 10;
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.arc(projectedPoint.x, projectedPoint.y, particleRadius, 0, Math.PI * 2);
             ctx.fill();
             
-            // Centro branco
             ctx.shadowBlur = 0;
             ctx.fillStyle = '#ffffff';
             ctx.beginPath();
-            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.arc(projectedPoint.x, projectedPoint.y, Math.max(2, particleRadius * 0.35), 0, Math.PI * 2);
             ctx.fill();
         }
         
@@ -1400,6 +2192,15 @@
                     // Partícula negativa - movimento horário (curva para baixo)
                     particle.x = sourceX + displayRadius * Math.sin(particle.angle);
                     particle.y = sourceY + displayRadius * (1 - Math.cos(particle.angle));
+                }
+
+                particle.depth = Math.max(
+                    sourceEmissionDepth,
+                    Math.min(0.85, sourceEmissionDepth + ((particle.x - fieldLeft) / fieldWidth) * 0.38 + (Math.abs(particle.y - sourceY) / fieldHeight) * 0.12)
+                );
+                particle.trail.push({ x: particle.x, y: particle.y, depth: particle.depth });
+                if (particle.trail.length > 26) {
+                    particle.trail.shift();
                 }
                 
                 // Verificar se a partícula atingiu as bordas DO RETÂNGULO
@@ -1610,9 +2411,15 @@
         }
         
         // Mostrar exercício atual
-        function showCurrentExercise() {
+        function showCurrentExercise(selectedValue = null) {
+            if (!exercises.length || !exercises[currentExercise]) return;
+
             const exercise = exercises[currentExercise];
             const container = document.getElementById('exerciseContainer');
+
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
             
             container.innerHTML = `
                 <div class="exercise">
@@ -1620,7 +2427,7 @@
                     <p>${exercise.question}</p>
                     <div class="options">
                         ${exercise.options.map((option, index) => `
-                            <div class="option" data-value="${option}">${option}</div>
+                            <div class="option" data-index="${index}">${option}</div>
                         `).join('')}
                     </div>
                     <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
@@ -1628,22 +2435,28 @@
                 </div>
             `;
             
-            // Adicionar event listeners
-            container.addEventListener('click', function(e) {
+            container.onclick = function(e) {
                 if (e.target.classList.contains('option')) {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
                     e.target.classList.add('selected');
+                    saveExerciseState();
                 }
-            });
+            };
+
+            if (selectedValue) {
+                const optionToRestore = Array.from(container.querySelectorAll('.option')).find(function(option) {
+                    return option.textContent.trim() === selectedValue;
+                });
+
+                if (optionToRestore) optionToRestore.classList.add('selected');
+            }
             
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             
-            // Atualizar barra de progresso
             updateProgressBar();
+            saveExerciseState();
         }
         
-        // Verificar resposta
-       // Verificar resposta
         function checkAnswer() {
             const container = document.getElementById('exerciseContainer');
             const selectedOption = container.querySelector('.option.selected');
@@ -1661,11 +2474,11 @@
             options.forEach(opt => opt.classList.add('disabled'));
             checkButton.disabled = true;
 
-            let isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            let isCorrect = selectedOption.textContent.trim() === exercises[currentExercise].answer;
 
             // CORREÇÃO: Para exercícios de identificação, elétron e pósitron são equivalentes para raios pequenos
             if (!isCorrect && exercises[currentExercise].type === 'identificar_particula') {
-                const selected = selectedOption.dataset.value;
+                const selected = selectedOption.textContent.trim();
                 const correct = exercises[currentExercise].answer;
 
                 // Verificar se é um caso de elétron/pósitron com raio pequeno
@@ -1695,6 +2508,7 @@
                     attempts: currentExerciseAttempts + 1
                 });
                 currentExerciseAttempts = 0;
+                saveExerciseState();
 
                 setTimeout(nextExercise, 1500);
             } else {
@@ -1709,31 +2523,14 @@
 
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // ALTERAÇÃO 1: Gerar nova questão do mesmo tipo ao tentar novamente
                     generateNewExerciseOfSameType();
                     showCurrentExercise();
                 });
-            }
-        
 
-            // CORREÇÃO: Para exercícios de identificação, elétron e pósitron são equivalentes para raios pequenos
-            let isActuallyCorrect = isCorrect;
-            if (!isCorrect && exercises[currentExercise].type === 'identificar_particula') {
-                const selected = selectedOption.dataset.value;
-                const correct = exercises[currentExercise].answer;
-                
-                // Se um for elétron e o outro pósitron, e o raio for pequeno, considerar correto
-                const smallRadius = exercises[currentExercise].question.includes('R=0.0005');
-                if (smallRadius && 
-                    ((selected === 'elétron' && correct === 'pósitron') || 
-                    (selected === 'pósitron' && correct === 'elétron'))) {
-                    isActuallyCorrect = true;
-                }
+                saveExerciseState();
             }
-
         }
         
-        // ALTERAÇÃO 1: Gerar novo exercício do mesmo tipo
         function generateNewExerciseOfSameType() {
             const currentType = exercises[currentExercise].type;
             
@@ -1791,12 +2588,12 @@
 
                 const realisticR = realisticRadii[correctParticle];
 
-                exercises.push({
+                exercises[currentExercise] = {
                     type: 'identificar_particula',
                     question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
                     answer: correctParticle,
                     options: shuffleArray([...options])
-                });
+                };
             }
         }
         
@@ -1813,6 +2610,7 @@
                 skippedQuestions++;
                 currentExerciseAttempts = 0;
                 currentExercise++;
+                saveExerciseState();
                 
                 if (currentExercise < exercises.length) {
                     showCurrentExercise();
@@ -1825,6 +2623,7 @@
         // Avançar para o próximo exercício
         function nextExercise() {
             currentExercise++;
+            saveExerciseState();
             
             if (currentExercise < exercises.length) {
                 showCurrentExercise();
@@ -1857,16 +2656,27 @@
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
+            document.getElementById('resultsContainer').style.display = 'none';
+
+            const conclusionField = document.getElementById('conclusionText');
+            conclusionField.value = conclusionTextSaved || conclusionField.value;
+
+            const submitButton = document.getElementById('submitConclusion');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+            newSubmitButton.addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
                 
+                conclusionTextSaved = conclusionText;
                 showResults(conclusionText);
             });
+
+            saveExerciseState();
         }
         
         // Mostrar resultados finais
@@ -1886,8 +2696,13 @@
             `;
             
             document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+
+            const sendResultsButton = document.getElementById('sendResults');
+            const newSendResultsButton = sendResultsButton.cloneNode(true);
+            sendResultsButton.parentNode.replaceChild(newSendResultsButton, sendResultsButton);
+            newSendResultsButton.addEventListener('click', sendResultsToSheet);
+
+            saveExerciseState();
         }
         
         // Função otimizada para enviar dados e email
@@ -2011,7 +2826,9 @@
                 emailStatus.className = 'email-status sent';
                 
                 setTimeout(() => {
-                    closeExercisesModal();
+                    clearExerciseState();
+                    resetExerciseState();
+                    closeExercisesModal(false);
                     // Reativa o botão após fechar o modal
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
@@ -2027,24 +2844,56 @@
                 sendButton.textContent = 'Enviar Resultados';
             });
         }
+
+        function restartExercises() {
+            if (!confirm('Deseja reiniciar os exercícios e apagar o progresso salvo desta simulação?')) {
+                return;
+            }
+
+            resetExerciseState();
+            clearExerciseState();
+            document.getElementById('emailStatus').style.display = 'none';
+            applyFormState({});
+            generateExercises();
+            showCurrentExercise();
+        }
         
         // Abrir modal de exercícios
         function openExercisesModal() {
-            generateExercises();
             document.getElementById('exercisesModal').style.display = 'flex';
-            document.getElementById('exerciseContainer').style.display = 'block';
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'none';
+
+            const savedState = getSavedExerciseState();
+            document.getElementById('emailStatus').style.display = 'none';
+
+            if (savedState) {
+                restoreExerciseState(savedState);
+                updateExerciseResumeBadge(true);
+
+                if (savedState.view === 'results') {
+                    showResults((savedState.formState && savedState.formState.finalConclusion) || conclusionTextSaved || '');
+                    applyFormState(savedState.formState || {});
+                } else if (savedState.view === 'conclusion') {
+                    showConclusion();
+                } else {
+                    showCurrentExercise(savedState.selectedOptionValue || null);
+                }
+                return;
+            }
+
+            resetExerciseState();
+            applyFormState({});
+            generateExercises();
             showCurrentExercise();
         }
 
         // Fechar modal de exercícios
-        function closeExercisesModal() {
+        function closeExercisesModal(preserveState = true) {
+            if (preserveState && exercises.length) {
+                saveExerciseState();
+            }
+
             document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
+            updateExerciseLauncherState();
         }
         
         // Abrir modal de exercícios resolvidos
@@ -2060,6 +2909,7 @@
                     <div class="solution-step"><strong>Fórmula:</strong> q/m = 2V/(R²B²)</div>
                     <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×5.00×10³/((1.00×10⁻¹)²×(5.00×10⁻¹)²) = 1.00×10⁴/(1.00×10⁻²×2.50×10⁻¹) = 1.00×10⁴/(2.50×10⁻³) = 4.00×10⁶ C/kg</div>
                     <div class="solution-step"><strong>Resposta:</strong> q/m = 4.00×10⁶ C/kg</div>
+                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                 </div>
                 
                 <div class="solved-exercise">
@@ -2069,6 +2919,7 @@
                     <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×1.60×10⁻¹⁹×5.00×10³/1.67×10⁻²⁷) = √(9.58×10¹⁰) ≈ 3.09×10⁵ m/s</div>
                     <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (1.67×10⁻²⁷×3.09×10⁵)/(1.60×10⁻¹⁹×5.00×10⁻¹) = (5.16×10⁻²²)/(8.00×10⁻²⁰) ≈ 6.45×10⁻³ m</div>
                     <div class="solution-step"><strong>Resposta:</strong> R ≈ 6.45×10⁻³ m</div>
+                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
                 </div>
                 
                 <div class="solved-exercise">
@@ -2077,12 +2928,20 @@
                     <div class="solution-step"><strong>Fórmula:</strong> R = mv/(|q|B)</div>
                     <div class="solution-step"><strong>Análise:</strong> R é inversamente proporcional a B</div>
                     <div class="solution-step"><strong>Resposta:</strong> Se B dobra, R diminui pela metade</div>
+                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
                 </div>
             `;
+
+            container.querySelectorAll('.audio-example-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    toggleExampleAudio(button);
+                });
+            });
         }
         
         // Fechar modal de exercícios resolvidos
         function closeSolvedExercisesModal() {
+            stopExampleNarration();
             document.getElementById('solvedExercisesModal').style.display = 'none';
         }
         
