@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Envio - Educação Digital</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;700;800&display=swap');
+
+        :root {
+            --bg-1: #f4efe3;
+            --bg-2: #d6e8da;
+            --ink: #1d2d2a;
+            --muted: #566a66;
+            --panel: rgba(255, 251, 242, 0.92);
+            --panel-strong: #fff9ef;
+            --accent: #0c7a65;
+            --accent-2: #d06a2f;
+            --line: rgba(29, 45, 42, 0.12);
+            --shadow: 0 18px 50px rgba(44, 58, 53, 0.14);
+            --success: #0b7a4b;
+            --warning: #a6541e;
+            --danger: #8c1d18;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(208, 106, 47, 0.18), transparent 24%),
+                radial-gradient(circle at right 20%, rgba(12, 122, 101, 0.2), transparent 30%),
+                linear-gradient(135deg, var(--bg-1), var(--bg-2));
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .shell {
+            width: min(1100px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 24px 0 48px;
+        }
+
+        .hero,
+        .panel,
+        .exam-topbar {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: var(--shadow);
+            border-radius: 28px;
+        }
+
+        .hero,
+        .panel {
+            padding: 24px;
+        }
+
+        .hero {
+            margin-bottom: 20px;
+        }
+
+        .hero h1,
+        .panel h2,
+        .panel h3,
+        .metric span {
+            font-family: 'Fraunces', serif;
+        }
+
+        .hero h1 {
+            margin: 10px 0 0;
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            line-height: 1.05;
+        }
+
+        .hero p,
+        .lead,
+        .note,
+        .instructions li {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .hero-school {
+            margin: 8px 0 0;
+            font-weight: 800;
+        }
+
+        .hero-strip,
+        .actions,
+        .summary-line,
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chip,
+        .summary-pill,
+        .pair-tag {
+            padding: 9px 13px;
+            border-radius: 999px;
+            font-weight: 800;
+        }
+
+        .chip,
+        .pair-tag {
+            background: rgba(12, 122, 101, 0.09);
+            color: var(--accent);
+        }
+
+        .summary-pill {
+            background: rgba(29, 45, 42, 0.06);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .grid,
+        .field-grid,
+        .result-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .grid {
+            grid-template-columns: 1.1fr 0.9fr;
+        }
+
+        .field-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .field,
+        form,
+        .instructions,
+        .question-list,
+        .question-card,
+        .metric,
+        .exam-topbar {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 0.93rem;
+            font-weight: 800;
+        }
+
+        input,
+        select,
+        button {
+            font: inherit;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.96);
+            color: var(--ink);
+        }
+
+        button {
+            border: none;
+            border-radius: 999px;
+            padding: 13px 20px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, var(--accent), #0a5f4f);
+            color: #f8fff8;
+        }
+
+        .secondary {
+            background: rgba(255, 255, 255, 0.88);
+            color: var(--ink);
+            border: 1px solid rgba(29, 45, 42, 0.08);
+        }
+
+        .status {
+            display: none;
+            padding: 12px 14px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: rgba(12, 122, 101, 0.08);
+            color: var(--accent);
+        }
+
+        .status.warning {
+            background: rgba(208, 106, 47, 0.11);
+            color: var(--warning);
+        }
+
+        .status.error {
+            background: rgba(140, 29, 24, 0.11);
+            color: var(--danger);
+        }
+
+        .status.success {
+            background: rgba(11, 122, 75, 0.1);
+            color: var(--success);
+        }
+
+        .exam-topbar {
+            position: sticky;
+            top: 10px;
+            z-index: 20;
+            margin-bottom: 18px;
+            padding: 18px 20px;
+        }
+
+        .progress-track {
+            height: 14px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(29, 45, 42, 0.08);
+        }
+
+        .progress-fill {
+            width: 0;
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--accent-2), var(--accent));
+        }
+
+        .question-card {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid rgba(29, 45, 42, 0.07);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .question-card.pending {
+            border-color: rgba(208, 106, 47, 0.45);
+        }
+
+        .pair-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .question-number {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--accent-2);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .option {
+            position: relative;
+            flex: 1 1 170px;
+        }
+
+        .option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option span {
+            display: block;
+            padding: 12px 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(29, 45, 42, 0.12);
+            background: #ffffff;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        .option input:checked + span {
+            background: linear-gradient(135deg, rgba(12, 122, 101, 0.14), rgba(208, 106, 47, 0.14));
+            border-color: rgba(12, 122, 101, 0.48);
+        }
+
+        .result-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin: 18px 0;
+        }
+
+        .metric {
+            padding: 18px;
+            border-radius: 22px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(12, 122, 101, 0.06));
+            border: 1px solid rgba(29, 45, 42, 0.08);
+        }
+
+        .metric strong {
+            color: var(--muted);
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .metric span {
+            font-size: clamp(1.6rem, 4vw, 2.5rem);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 900px) {
+            .grid,
+            .field-grid,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="hero">
+            <div class="hero-strip">
+                <span class="chip">Modo Técnico</span>
+                <span class="chip">Teste de Envio</span>
+            </div>
+            <p class="hero-school">CEAN - Centro de Ensino Médio Asa Norte<br>Prof. Flávio Ambrósio</p>
+            <h1>Teste rápido do fluxo de planilha e email.</h1>
+            <p>Esta página usa apenas 6 questões, organizadas em 3 pares contraditórios. Ela serve para validar cadastro, envio, histórico e confirmação por email sem precisar preencher a prova completa.</p>
+        </header>
+
+        <section class="screen active" id="intro-screen">
+            <div class="grid">
+                <article class="panel">
+                    <h2>Quando usar</h2>
+                    <p class="lead">Use este modo antes de publicar uma avaliação nova ou quando quiser conferir se o Apps Script ainda está gravando corretamente.</p>
+
+                    <div class="instructions">
+                        <h3>O que este teste faz</h3>
+                        <ul>
+                            <li>Mostra só 6 questões para o preenchimento ser rápido.</li>
+                            <li>Envia o resultado para a planilha com a coluna técnica teste_envio.</li>
+                            <li>Não deve sobrescrever a coluna normal de prova ou recuperação.</li>
+                            <li>Se houver email informado, o Apps Script também tentará mandar a confirmação.</li>
+                        </ul>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <h2>Identificação do estudante</h2>
+                    <form id="intro-form">
+                        <div class="field-grid">
+                            <div class="field">
+                                <label for="serie">Série</label>
+                                <select id="serie" name="serie" required>
+                                    <option value="">Selecione</option>
+                                    <option value="1º ano">1º ano</option>
+                                    <option value="2º ano">2º ano</option>
+                                    <option value="3º ano">3º ano</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="turma">Turma</label>
+                                <select id="turma" name="turma" required>
+                                    <option value="">Selecione</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                    <option value="F">F</option>
+                                    <option value="G">G</option>
+                                    <option value="H">H</option>
+                                    <option value="I">I</option>
+                                    <option value="J">J</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="bimestre">Bimestre</label>
+                                <select id="bimestre" name="bimestre" required>
+                                    <option value="">Selecione</option>
+                                    <option value="1º bimestre">1º bimestre</option>
+                                    <option value="2º bimestre">2º bimestre</option>
+                                    <option value="3º bimestre">3º bimestre</option>
+                                    <option value="4º bimestre">4º bimestre</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="assessment-mode">Tipo de prova</label>
+                                <select id="assessment-mode" name="assessmentMode" required>
+                                    <option value="regular">Prova regular</option>
+                                    <option value="recuperacao">Prova de recuperação</option>
+                                </select>
+                            </div>
+
+                            <div class="field full">
+                                <label for="trilha">Trilha</label>
+                                <select id="trilha" name="trilha" required>
+                                    <option value="">Selecione</option>
+                                    <option value="PCA - Educação Digital 3o ano E">PCA - Educação Digital 3o ano E</option>
+                                    <option value="PCA - Educação Digital 3o ano G">PCA - Educação Digital 3o ano G</option>
+                                    <option value="Sustentabilidade 2o ano C">Sustentabilidade 2o ano C</option>
+                                    <option value="Outra">Outra</option>
+                                    <option value="Nenhuma">Nenhuma</option>
+                                </select>
+                            </div>
+
+                            <div class="field full">
+                                <label for="student-select">Nome completo</label>
+                                <select id="student-select" name="studentSelect" required>
+                                    <option value="">Selecione primeiro a série, a turma e a trilha</option>
+                                </select>
+                            </div>
+
+                            <div class="field full hidden" id="manual-name-field">
+                                <label for="manual-name">Caso o nome não esteja na lista, escreva o nome completo</label>
+                                <input type="text" id="manual-name" name="manualName" placeholder="Digite o nome completo">
+                            </div>
+
+                            <div class="field full">
+                                <label for="student-email">Email do estudante para confirmação</label>
+                                <input type="email" id="student-email" name="studentEmail" placeholder="Opcional: nome@exemplo.com">
+                            </div>
+                        </div>
+
+                        <div id="intro-status" class="status"></div>
+
+                        <div class="actions">
+                            <button type="submit" class="primary">Avançar para o teste</button>
+                        </div>
+                    </form>
+                </article>
+            </div>
+        </section>
+
+        <section class="screen" id="exam-screen">
+            <div class="exam-topbar">
+                <div class="summary-line" id="student-summary"></div>
+                <div>
+                    <div class="summary-line" style="justify-content: space-between; margin-bottom: 8px;">
+                        <strong>Progresso</strong>
+                        <span id="progress-label">0 de 6 respondidas</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <div class="summary-pill">Regra da nota: 1 ponto no par somente se as 2 respostas estiverem corretas.</div>
+            </div>
+
+            <div id="exam-status" class="status"></div>
+            <form id="exam-form">
+                <div class="question-list" id="question-list"></div>
+                <div class="actions" style="margin-top: 20px;">
+                    <button type="button" class="secondary" id="back-button">Voltar aos dados</button>
+                    <button type="submit" class="primary">Finalizar e testar envio</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="screen" id="result-screen">
+            <article class="panel">
+                <h2>Resultado do teste</h2>
+                <p class="lead" id="result-student"></p>
+                <div class="result-grid">
+                    <div class="metric">
+                        <strong>Nota Final</strong>
+                        <span id="result-score">0,0</span>
+                    </div>
+                    <div class="metric">
+                        <strong>Pares Corretos</strong>
+                        <span id="result-pairs">0/3</span>
+                    </div>
+                    <div class="metric">
+                        <strong>Acertos Individuais</strong>
+                        <span id="result-individual">0/6</span>
+                    </div>
+                </div>
+
+                <p class="note">Este modo grava o resultado com o cabeçalho técnico teste_envio. Assim, ele serve para conferir planilha, histórico e email sem mexer diretamente na coluna normal da prova.</p>
+                <div id="result-status" class="status"></div>
+
+                <div class="actions">
+                    <button type="button" class="secondary" id="restart-button">Aplicar novamente</button>
+                </div>
+            </article>
+        </section>
+    </div>
+
+    <script src="alunos.js"></script>
+    <script src="app-teste-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
