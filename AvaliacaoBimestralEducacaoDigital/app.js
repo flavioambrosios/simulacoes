@@ -114,7 +114,7 @@ const QUESTION_PAIRS = [
     {
         theme: 'Trabalho infantil/adolescente',
         left: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, a juventude fica prejudicda.',
-        right: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, automaticamente a juventude fica foratelcida.'
+        right: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, automaticamente a juventude fica fortalecida.'
     },
     {
         theme: 'Redes sociais + cidadania',
