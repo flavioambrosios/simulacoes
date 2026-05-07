@@ -114,7 +114,7 @@ const QUESTION_PAIRS = [
     {
         theme: 'Trabalho infantil/adolescente',
         left: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, a juventude fica prejudicda.',
-        right: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, automaticamente a juventude fica fortalecida.'
+        right: 'Quando o trabalho dificulta ou impede frequência escolar, descanso e desenvolvimento, automaticamente a juventude fica foratelcida.'
     },
     {
         theme: 'Redes sociais + cidadania',
@@ -440,6 +440,33 @@ function normalizeSerieForSheet(serie) {
         .trim();
 }
 
+function normalizeTermKey(termLabel) {
+    const normalized = String(termLabel || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/bimestre/g, '')
+        .trim();
+
+    if (normalized.startsWith('1')) return '1o';
+    if (normalized.startsWith('2')) return '2o';
+    if (normalized.startsWith('3')) return '3o';
+    if (normalized.startsWith('4')) return '4o';
+    return normalized;
+}
+
+function getTermColumn(termLabel) {
+    const termKey = normalizeTermKey(termLabel);
+    const termColumns = {
+        '1o': 'J',
+        '2o': 'N',
+        '3o': 'R',
+        '4o': 'V'
+    };
+
+    return termColumns[termKey] || '';
+}
+
 function postJsonNoCors(url, payload) {
     return fetch(url, {
         method: 'POST',
@@ -554,23 +581,25 @@ function updateStudentSummary() {
     }
 
     const items = [
-        `Estudante: ${state.profile.nome}`,
-        `Série: ${state.profile.serie}`,
-        `Turma: ${state.profile.turma}`,
-        `Bimestre: ${state.profile.bimestre}`,
-        `Tipo: ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'}`,
-        `Trilha: ${state.profile.trilha}`
+        { text: state.profile.nome, className: 'name-pill' },
+        { text: `Série: ${state.profile.serie}`, className: 'detail-pill' },
+        { text: `Turma: ${state.profile.turma}`, className: 'detail-pill' },
+        { text: `Bimestre: ${state.profile.bimestre}`, className: 'detail-pill' },
+        { text: `Tipo: ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'}`, className: 'detail-pill' },
+        { text: `Trilha: ${state.profile.trilha}`, className: 'detail-pill' }
     ];
 
     if (state.profile.sheetName) {
-        items.push(`Base: ${state.profile.sheetName}`);
+        items.push({ text: `Base: ${state.profile.sheetName}`, className: 'detail-pill' });
     }
 
     if (state.profile.email) {
-        items.push(`Email: ${state.profile.email}`);
+        items.push({ text: `Email: ${state.profile.email}`, className: 'detail-pill' });
     }
 
-    studentSummary.innerHTML = items.map((item) => `<span class="summary-pill">${escapeHtml(item)}</span>`).join('');
+    studentSummary.innerHTML = items
+        .map((item) => `<span class="summary-pill ${item.className}">${escapeHtml(item.text)}</span>`)
+        .join('');
 }
 
 function updateProgress() {
@@ -652,6 +681,7 @@ async function sendResultToSheet() {
         return;
     }
 
+    const targetColumn = getTermColumn(state.profile.bimestre);
     const payload = {
         avaliacao: APP_CONFIG.evaluationName,
         atividade: APP_CONFIG.activityName,
@@ -660,6 +690,8 @@ async function sendResultToSheet() {
         serie: state.profile.serie,
         turma: state.profile.turma,
         bimestre: state.profile.bimestre,
+        coluna: targetColumn,
+        colunaBimestre: targetColumn,
         recuperacao: state.profile.isRecovery,
         trilha: state.profile.trilha,
         estudante: state.profile.nome,
@@ -676,11 +708,11 @@ async function sendResultToSheet() {
     };
 
     const targetSheetLabel = state.profile.sheetName || `${normalizeSerieForSheet(state.profile.serie)} ${state.profile.turma}`;
-    showStatus(resultStatus, `Enviando resultado para a aba ${targetSheetLabel}, coluna ${state.profile.scoreHeader}...`, 'info');
+    showStatus(resultStatus, `Enviando resultado para a aba ${targetSheetLabel}, coluna ${targetColumn || state.profile.scoreHeader}...`, 'info');
 
     try {
         await postJsonNoCors(APPS_SCRIPT_URL, payload);
-        showStatus(resultStatus, `Envio disparado para a aba ${targetSheetLabel}, coluna ${state.profile.scoreHeader}. ${state.profile.email ? 'Tambem foi solicitada a confirmação por email.' : 'Sem email de confirmação, porque nenhum email foi informado.'}`, 'success');
+        showStatus(resultStatus, `Envio disparado para a aba ${targetSheetLabel}, coluna ${targetColumn || state.profile.scoreHeader}. ${state.profile.email ? 'Tambem foi solicitada a confirmação por email.' : 'Sem email de confirmação, porque nenhum email foi informado.'}`, 'success');
     } catch (error) {
         showStatus(resultStatus, `A nota foi calculada, mas o envio falhou: ${error.message}`, 'error');
     }

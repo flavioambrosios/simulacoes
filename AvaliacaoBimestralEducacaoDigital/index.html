@@ -309,6 +309,27 @@
             font-weight: 700;
         }
 
+        .summary-pill.name-pill {
+            background: rgba(12, 122, 101, 0.1);
+            color: var(--accent);
+        }
+
+        .progress-summary {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .progress-title {
+            font-weight: 800;
+        }
+
+        .exam-rule-pill {
+            align-self: flex-start;
+        }
+
         .progress-track {
             height: 14px;
             border-radius: 999px;
@@ -491,6 +512,44 @@
                 flex-direction: column;
                 align-items: flex-start;
             }
+
+            .exam-topbar {
+                top: 6px;
+                gap: 10px;
+                margin-bottom: 14px;
+                padding: 12px 14px;
+                border-radius: 18px;
+            }
+
+            .summary-line {
+                gap: 8px;
+            }
+
+            .summary-pill {
+                width: 100%;
+                padding: 8px 12px;
+                font-size: 0.88rem;
+            }
+
+            .summary-pill.detail-pill,
+            .exam-rule-pill,
+            .progress-title {
+                display: none;
+            }
+
+            .progress-summary {
+                margin-bottom: 6px;
+            }
+
+            #progress-label {
+                width: 100%;
+                font-size: 0.84rem;
+                text-align: left;
+            }
+
+            .progress-track {
+                height: 12px;
+            }
         }
     </style>
 </head>
@@ -618,15 +677,15 @@
             <div class="exam-topbar">
                 <div class="summary-line" id="student-summary"></div>
                 <div>
-                    <div class="summary-line" style="justify-content: space-between; margin-bottom: 8px;">
-                        <strong>Progresso</strong>
+                    <div class="progress-summary">
+                        <strong class="progress-title">Progresso</strong>
                         <span id="progress-label">0 de 100 respondidas</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill" id="progress-fill"></div>
                     </div>
                 </div>
-                <div class="summary-pill">Regra da nota: 1 ponto no par somente se as 2 respostas estiverem corretas.</div>
+                <div class="summary-pill exam-rule-pill">Regra da nota: 1 ponto no par somente se as 2 respostas estiverem corretas.</div>
             </div>
 
             <div id="exam-status" class="status"></div>
