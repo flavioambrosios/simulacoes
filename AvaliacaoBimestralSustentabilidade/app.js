@@ -581,23 +581,25 @@ function updateStudentSummary() {
     }
 
     const items = [
-        `Estudante: ${state.profile.nome}`,
-        `Série: ${state.profile.serie}`,
-        `Turma: ${state.profile.turma}`,
-        `Bimestre: ${state.profile.bimestre}`,
-        `Tipo: ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'}`,
-        `Trilha: ${state.profile.trilha}`
+        { text: state.profile.nome, className: 'name-pill' },
+        { text: `Série: ${state.profile.serie}`, className: 'detail-pill' },
+        { text: `Turma: ${state.profile.turma}`, className: 'detail-pill' },
+        { text: `Bimestre: ${state.profile.bimestre}`, className: 'detail-pill' },
+        { text: `Tipo: ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'}`, className: 'detail-pill' },
+        { text: `Trilha: ${state.profile.trilha}`, className: 'detail-pill' }
     ];
 
     if (state.profile.sheetName) {
-        items.push(`Base: ${state.profile.sheetName}`);
+        items.push({ text: `Base: ${state.profile.sheetName}`, className: 'detail-pill' });
     }
 
     if (state.profile.email) {
-        items.push(`Email: ${state.profile.email}`);
+        items.push({ text: `Email: ${state.profile.email}`, className: 'detail-pill' });
     }
 
-    studentSummary.innerHTML = items.map((item) => `<span class="summary-pill">${escapeHtml(item)}</span>`).join('');
+    studentSummary.innerHTML = items
+        .map((item) => `<span class="summary-pill ${item.className}">${escapeHtml(item.text)}</span>`)
+        .join('');
 }
 
 function updateProgress() {
