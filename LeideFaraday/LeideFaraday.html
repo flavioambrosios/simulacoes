@@ -884,6 +884,11 @@
 
         // Inicializar a simulação
         function init() {
+            if (document.body.dataset.faradayInitialized === 'true') {
+                return;
+            }
+
+            document.body.dataset.faradayInitialized = 'true';
             updateMeasurements();
             setupEventListeners();
             console.log("Simulação inicializada com sucesso");
@@ -899,6 +904,12 @@
         }
         
         function setupEventListeners() {
+            if (document.body.dataset.faradayListenersBound === 'true') {
+                return;
+            }
+
+            document.body.dataset.faradayListenersBound = 'true';
+
             document.getElementById('fieldInput').addEventListener('input', function() {
                 fieldInput = parseFloat(this.value);
                 document.getElementById('fieldValue').textContent = fieldInput;
@@ -932,29 +943,29 @@
             });
             
             const mainExerciseBtn = document.getElementById('mainExerciseBtn');
-            if (mainExerciseBtn) mainExerciseBtn.addEventListener('click', openExercisesModal);
+            if (mainExerciseBtn) mainExerciseBtn.onclick = openExercisesModal;
             const solvedExercisesBtn = document.getElementById('solvedExercisesBtn');
-            if (solvedExercisesBtn) solvedExercisesBtn.addEventListener('click', openSolvedExercisesModal);
+            if (solvedExercisesBtn) solvedExercisesBtn.onclick = openSolvedExercisesModal;
             const theoryBtn = document.getElementById('theoryBtn');
-            if (theoryBtn) theoryBtn.addEventListener('click', openTheoryModal);
+            if (theoryBtn) theoryBtn.onclick = openTheoryModal;
             
             // Botão reiniciar exercícios dentro do modal
             const restartBtn = document.getElementById('restartExercisesBtn');
-            if (restartBtn) restartBtn.addEventListener('click', resetAndRestartExercises);
+            if (restartBtn) restartBtn.onclick = resetAndRestartExercises;
             
             // Fechar modais
             const exercisesModalClose = document.querySelector('#exercisesModal .close');
-            if (exercisesModalClose) exercisesModalClose.addEventListener('click', closeExercisesModal);
+            if (exercisesModalClose) exercisesModalClose.onclick = closeExercisesModal;
             const solvedExercisesModalClose = document.querySelector('#solvedExercisesModal .close');
-            if (solvedExercisesModalClose) solvedExercisesModalClose.addEventListener('click', closeSolvedExercisesModal);
+            if (solvedExercisesModalClose) solvedExercisesModalClose.onclick = closeSolvedExercisesModal;
             const theoryModalClose = document.querySelector('#theoryModal .close');
-            if (theoryModalClose) theoryModalClose.addEventListener('click', closeTheoryModal);
+            if (theoryModalClose) theoryModalClose.onclick = closeTheoryModal;
             const closeSolvedExercises = document.getElementById('closeSolvedExercises');
-            if (closeSolvedExercises) closeSolvedExercises.addEventListener('click', closeSolvedExercisesModal);
+            if (closeSolvedExercises) closeSolvedExercises.onclick = closeSolvedExercisesModal;
             const closeTheory = document.getElementById('closeTheory');
-            if (closeTheory) closeTheory.addEventListener('click', closeTheoryModal);
+            if (closeTheory) closeTheory.onclick = closeTheoryModal;
             
-            window.addEventListener('click', function(event) {
+            window.onclick = function(event) {
                 if (event.target == document.getElementById('exercisesModal')) {
                     closeExercisesModal();
                 } else if (event.target == document.getElementById('solvedExercisesModal')) {
@@ -962,7 +973,7 @@
                 } else if (event.target == document.getElementById('theoryModal')) {
                     closeTheoryModal();
                 }
-            });
+            };
             
             addDebugInfo("Event listeners configurados");
         }
@@ -1080,7 +1091,7 @@
                 correctDisplay = correctValue.toFixed(2) + ' ' + unit;
             }
             optionsSet.add(correctDisplay);
-            while (optionsSet.size < 4) {
+            while (optionsSet.size < 5) {
                 let optionDisplay;
                 if (unit === 'espiras') {
                     let factor = 0.5 + Math.random() * 1.5;
@@ -1128,12 +1139,12 @@
                     <div class="result"></div>
                 </div>
             `;
-            container.addEventListener('click', function(e) {
+            container.onclick = function(e) {
                 if (e.target.classList.contains('option')) {
                     container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
                     e.target.classList.add('selected');
                 }
-            });
+            };
             document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
             updateProgressBar();
             addDebugInfo(`Exercício ${currentExercise + 1} exibido`);
@@ -1179,6 +1190,7 @@
                 currentExerciseAttempts++;
                 resultDiv.innerHTML = `
                 <div class="error">Incorreto. Tente novamente.</div>
+                <div class="enhancer-correct-answer">Resposta correta: ${correctText}</div>
                 <div class="button-group">
                     <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
                     <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
@@ -1281,7 +1293,10 @@
             document.getElementById('conclusionContainer').style.display = 'block';
             const conclusionTextarea = document.getElementById('conclusionText');
             if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
-            document.getElementById('submitConclusion').addEventListener('click', function() {
+            const submitButton = document.getElementById('submitConclusion');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+            newSubmitButton.addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
@@ -1305,11 +1320,18 @@
                 <p>Nota: ${scorePercentage}%</p>
             `;
             document.getElementById('finalConclusion').value = conclusion;
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+            const sendButton = document.getElementById('sendResults');
+            const newSendButton = sendButton.cloneNode(true);
+            sendButton.parentNode.replaceChild(newSendButton, sendButton);
+            newSendButton.addEventListener('click', sendResultsToSheet);
             addDebugInfo(`Resultados exibidos: ${correctAnswers}/${totalExercises} acertos (${scorePercentage}%)`);
         }
         
         function sendResultsToSheet() {
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
             const studentClass = document.getElementById('studentClass').value;
@@ -1347,15 +1369,29 @@
                 email: studentEmail || ''
             };
             
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            
-            fetch(scriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(() => {
+            const primaryScriptUrl = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+            const backupScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+
+            Promise.allSettled([
+                fetch(primaryScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }),
+                fetch(backupScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                })
+            ])
+            .then((results) => {
+                const successfulSends = results.filter(result => result.status === 'fulfilled').length;
+                if (!successfulSends) {
+                    throw new Error('Falha ao enviar para os destinos configurados.');
+                }
+
                 emailStatus.textContent = 'Dados enviados com sucesso!';
                 emailStatus.className = 'email-status sent';
                 addDebugInfo("Dados enviados com sucesso");
@@ -1423,7 +1459,45 @@
             addDebugInfo("Modal de exercícios aberto (progresso mantido)");
         }
         
+        init();
         window.addEventListener('load', init);
     </script>
+    <script>
+        let studentNameFaraday = localStorage.getItem('studentNameFaraday') || '';
+
+        function ensureStudentNameFaraday() {
+            if (!studentNameFaraday) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameFaraday = providedName.trim();
+                    localStorage.setItem('studentNameFaraday', studentNameFaraday);
+                } else {
+                    studentNameFaraday = 'estudante';
+                }
+            }
+            return studentNameFaraday;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameFaraday()}! Esta tela reúne a simulação do gerador elétrico, os controles principais e um painel de medições. À esquerda, o simulador mostra a bobina girando no campo magnético. À direita, você ajusta campo magnético, velocidade angular e número de espiras. Abaixo, acompanha a força eletromotriz induzida. O objetivo é observar como a variação do fluxo magnético produz tensão elétrica.`,
+            'A Lei de Faraday afirma que a força eletromotriz induzida está ligada à taxa de variação do fluxo magnético. Por isso a fórmula aparece na tela como epsilon igual a menos N vezes delta fi sobre delta t. No caso de uma bobina girando, essa ideia se traduz em uma dependência com número de espiras, campo magnético, área e velocidade angular.',
+            'Os controles permitem perceber relações proporcionais importantes. Se você aumenta o número de espiras, a fem máxima aumenta. Se intensifica o campo magnético, também aumenta a fem. E se faz a bobina girar mais rapidamente, a variação do fluxo por unidade de tempo cresce, elevando novamente a tensão induzida.',
+            'O sinal negativo da lei não é um detalhe sem importância. Ele expressa a Lei de Lenz, isto é, o sentido da corrente induzida sempre se opõe à variação que a produziu. Mesmo quando a simulação enfatiza mais os módulos das grandezas, vale guardar essa ideia física: a indução responde tentando resistir à mudança do fluxo.',
+            'Observe o painel de medições enquanto altera um controle por vez. Essa estratégia ajuda a isolar causas e efeitos. Primeiro fixe dois controles e mude apenas o terceiro. Depois compare o resultado com a equação mostrada na caixa de fórmulas. Assim a tela vira um laboratório para testar proporcionalidades, e não apenas um painel para ler números.',
+            'Quando terminar a exploração, abra os exercícios resolvidos. Neles, o mais importante será identificar qual grandeza precisa ser isolada em cada situação e fazer com cuidado as conversões de área para metro quadrado.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Queremos a força eletromotriz máxima induzida, então usamos a forma epsilon igual a N vezes B vezes A vezes ômega. A etapa decisiva é converter a área: 10 centímetros quadrados correspondem a 0,001 metro quadrado. Depois disso, basta substituir os valores. O resultado é 96 volts. Mais do que a conta, este exemplo mostra que a fem cresce com todos os fatores que aumentam a variação do fluxo magnético.',
+            '2': 'Exemplo 2. Agora a incógnita é o número de espiras. Em vez de trocar de fórmula, reorganizamos a mesma expressão, deixando N sozinho. Após converter a área para 0,001 metro quadrado, calculamos primeiro o produto B vezes A vezes ômega, que vale 2. Em seguida, dividimos 60 por 2 e encontramos 30 espiras. O raciocínio destaca que mais espiras significam maior tensão induzida para a mesma rotação e o mesmo campo.',
+            '3': 'Exemplo 3. Neste problema queremos o campo magnético. A estratégia é isolar B na expressão da fem máxima. De novo, a área precisa ser convertida para metro quadrado. Depois calculamos N vezes A vezes ômega, que resulta em 6. Dividindo 90 por 6, encontramos 15 teslas. O exemplo reforça a ideia de que a intensidade do campo também controla diretamente a fem gerada.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Lei de Faraday',
+            storageKey: 'lei-de-faraday-v2'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

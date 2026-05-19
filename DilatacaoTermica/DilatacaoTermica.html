@@ -1397,5 +1397,46 @@
         });
         window.addEventListener('resize', resizeCanvas);
     </script>
+    <script>
+        let studentNameDilatacao = localStorage.getItem('studentNameDilatacao') || '';
+
+        function ensureStudentNameDilatacao() {
+            if (!studentNameDilatacao) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameDilatacao = providedName.trim();
+                    localStorage.setItem('studentNameDilatacao', studentNameDilatacao);
+                } else {
+                    studentNameDilatacao = 'estudante';
+                }
+            }
+            return studentNameDilatacao;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameDilatacao()}! Esta simulação de dilatação térmica foi organizada para comparar materiais, temperatura e tipo de dilatação. No centro da tela aparecem as medições principais. Logo abaixo, há exemplos automáticos para área e volume com os valores atuais. À direita, você escolhe o material, o comprimento inicial, a temperatura e o tipo de dilatação.`,
+            'A ideia física central é que o aumento de temperatura intensifica a agitação das partículas e, em média, aumenta as dimensões do corpo. Por isso a variação de temperatura delta T aparece em todas as fórmulas. Se a temperatura sobe, a dilatação tende a ser positiva; se a temperatura diminui, podemos observar contração.',
+            'A dilatação linear usa delta L igual a L zero vezes alfa vezes delta T. Já a superficial usa beta, que para materiais isotrópicos vale 2 alfa. A volumétrica usa gama, que vale 3 alfa. O painel de exemplos ajuda exatamente a enxergar essa passagem da mesma ideia para uma, duas ou três dimensões.',
+            'O material escolhido também importa. Alumínio, cobre, aço, vidro e concreto possuem coeficientes diferentes, então não se dilatam da mesma forma sob a mesma variação de temperatura. Em engenharia, essa diferença explica desde juntas de dilatação em pontes até cuidados com trilhos, chapas e recipientes.',
+            'Uma boa estratégia de exploração é fixar o material e variar apenas a temperatura. Depois mantenha a temperatura e troque o tipo de dilatação. Assim você percebe o papel separado de cada fator e entende por que área e volume crescem com coeficientes proporcionais ao coeficiente linear.',
+            'Nos exercícios resolvidos, você vai ver não apenas cálculos de comprimento, área e volume finais, mas também situações inversas, em que o coeficiente de dilatação ou a própria variação de temperatura precisam ser determinados. Esse tipo de problema exige reorganizar a fórmula com cuidado.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Este é um caso de dilatação linear. Primeiro identificamos a variação de temperatura: de 20 para 120 graus Celsius, então delta T vale 100 graus Celsius. Depois usamos delta L igual a L zero vezes alfa vezes delta T. O aumento de comprimento encontrado é 0,0048 metro. Somando esse acréscimo ao comprimento inicial de 2 metros, obtemos 2,0048 metros. O resultado mostra que a dilatação pode ser pequena em valor absoluto, mas continua fisicamente relevante.',
+            '2': 'Exemplo 2. Agora a situação é de dilatação superficial. Antes de aplicar a fórmula, precisamos lembrar que beta vale 2 alfa. Com alfa igual a 1,7 vezes 10 elevado a menos 5, encontramos beta igual a 3,4 vezes 10 elevado a menos 5. Depois usamos delta A igual a A zero vezes beta vezes delta T e calculamos o aumento de área. Somando ao valor inicial, chegamos a 1,0034 metro quadrado. O ponto conceitual aqui é perceber que a área responde ao aquecimento em duas dimensões.',
+            '3': 'Exemplo 3. Neste problema trabalhamos com dilatação volumétrica. A primeira etapa é passar do coeficiente linear para o volumétrico, usando gama igual a 3 alfa. Em seguida aplicamos delta V igual a V zero vezes gama vezes delta T. O aumento de volume é 0,0036 metro cúbico e o volume final fica em 1,0036 metro cúbico. Esse crescimento maior, em relação ao caso linear, reflete o fato de o corpo se expandir em três dimensões.',
+            '4': 'Exemplo 4. Aqui a incógnita é o coeficiente de dilatação linear. Em vez de aplicar a fórmula diretamente, precisamos isolá-la: alfa igual a delta L dividido por L zero vezes delta T. Primeiro calculamos delta T, que vale 60 graus Celsius. Depois substituímos os valores e obtemos 3,0 vezes 10 elevado a menos 5 grau Celsius a menos 1. O exemplo mostra como é possível determinar uma propriedade do material a partir da deformação observada.',
+            '5': 'Exemplo 5. Neste caso queremos beta e depois alfa. Começamos calculando a variação de área, que é 0,0009 metro quadrado, e a variação de temperatura, que é 100 graus Celsius. Aplicando beta igual a delta A dividido por A zero vezes delta T, encontramos 1,8 vezes 10 elevado a menos 5 grau Celsius a menos 1. Como beta vale 2 alfa, dividimos esse resultado por 2 e obtemos alfa igual a 9,0 vezes 10 elevado a menos 6. O raciocínio conecta a dilatação superficial à linear.',
+            '6': 'Exemplo 6. Este problema é mais rico porque envolve dilatação aparente de líquidos em um recipiente. Primeiro calculamos a dilatação real do líquido usando o coeficiente volumétrico dado e encontramos 1,92 centímetro cúbico. Como apenas 1,52 centímetro cúbico transbordaram, a diferença corresponde à dilatação do próprio recipiente, que foi 0,40 centímetro cúbico. Finalmente, dividimos esse valor por V zero vezes delta T e obtemos o coeficiente volumétrico do vidro: 2,5 vezes 10 elevado a menos 5 grau Celsius a menos 1.',
+            '7': 'Exemplo 7. Aqui a pergunta é sobre a variação de temperatura que provocou certa dilatação. A fórmula mais útil é delta T igual a delta L dividido por L zero vezes alfa. Substituindo 0,0024 metro, 2 metros e 1,2 vezes 10 elevado a menos 5, encontramos 100 graus Celsius. O exemplo é importante porque mostra que a mesma equação da dilatação pode ser usada para reconstruir a causa térmica a partir do efeito observado.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Dilatacao Termica',
+            storageKey: 'dilatacao-termica'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

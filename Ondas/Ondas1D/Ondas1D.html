@@ -1760,5 +1760,60 @@
         // Inicializar a simulação quando a página carregar
         window.addEventListener('load', init);
     </script>
+    <script>
+        let studentNameOndas1D = localStorage.getItem('studentNameOndas1D') || '';
+
+        function ensureStudentNameOndas1D() {
+            if (!studentNameOndas1D) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameOndas1D = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameOndas1D', studentNameOndas1D);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameOndas1D();
+                return `Olá, ${studentNameOndas1D}. Esta simulação de ondas unidimensionais funciona como uma leitura guiada da tela. No painel principal aparece a corda ou linha de propagação da onda, desenhada em um único eixo espacial. Ao lado estão os controles que permitem alterar direção, amplitude, comprimento de onda, frequência, velocidade e fase inicial. A proposta é observar como cada parâmetro modifica a forma e o movimento da onda.`;
+            },
+            function () {
+                return 'A equação exibida resume a descrição matemática da onda harmônica. O deslocamento depende da posição x, do tempo t, da amplitude, do número de onda, da frequência angular e da fase inicial. Em vez de decorar a expressão inteira, vale perceber o papel de cada parte: a amplitude indica o quanto a onda sobe e desce, o comprimento de onda informa a repetição espacial e a frequência mostra quantas oscilações ocorrem por segundo.';
+            },
+            function () {
+                return 'O controle de direção mostra um ponto importante: a mesma forma matemática pode representar uma onda caminhando para a direita ou para a esquerda. O sinal dentro da fase da função é justamente o que distingue esses sentidos. Essa é uma boa oportunidade para relacionar a expressão algébrica com o movimento observado na animação.';
+            },
+            function () {
+                return 'Amplitude e comprimento de onda alteram aspectos diferentes da figura. A amplitude muda a altura máxima da oscilação. O comprimento de onda muda a distância entre duas cristas consecutivas. Quando o estudante separa mentalmente essas duas ideias, fica mais fácil interpretar a forma da onda sem confundir altura com espaçamento.';
+            },
+            function () {
+                return 'Frequência, período e velocidade também precisam ser lidos em conjunto. A frequência informa quantas oscilações acontecem por segundo. O período é o tempo de uma oscilação completa. A velocidade de propagação liga a parte temporal à parte espacial, porque mostra o quanto a perturbação avança no meio. A tela de medições foi organizada exatamente para ajudar nessa conexão.';
+            },
+            function () {
+                return 'Os valores de número de onda k e frequência angular ômega transformam comprimento de onda e frequência em grandezas mais convenientes para a equação trigonométrica. O estudante não precisa ver isso como mera troca de símbolos. k diz respeito à variação espacial da fase, e ômega à variação temporal. Assim, a equação da onda ganha uma leitura física mais clara.';
+            },
+            function () {
+                return 'Depois da exploração inicial, abra os exercícios resolvidos e depois os exercícios finais. Nos exemplos, tente sempre identificar primeiro a pergunta física: estamos montando a equação da onda, calculando a velocidade pela relação lambda sobre T, ou extraindo a velocidade diretamente da razão entre ômega e k? Essa ordem ajuda a transformar a fórmula em raciocínio.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, o objetivo é montar a equação da onda a partir de amplitude, comprimento de onda e frequência. O passo mais importante é converter esses dados nos parâmetros que aparecem na expressão trigonométrica: o número de onda k e a frequência angular ômega. Depois de calcular esses dois valores, basta substituir na forma geral da onda. O ganho pedagógico aqui é perceber como os dados físicos entram na linguagem matemática da propagação.',
+            '2': 'No segundo exemplo, a pergunta é sobre a velocidade de propagação. O raciocínio é direto: a velocidade de uma onda é o comprimento de onda dividido pelo período. Esse tipo de exercício é importante porque liga uma medida espacial, lambda, a uma medida temporal, T. O resultado final mostra o ritmo com que a perturbação se desloca ao longo do meio.',
+            '3': 'No terceiro exemplo, a velocidade é obtida a partir da própria equação da onda, usando a razão entre ômega e k. Isso ajuda o estudante a perceber que a equação já carrega dentro dela a informação sobre a propagação. A pergunta deixa de ser apenas operacional e passa a ser interpretativa: ao ler os coeficientes da equação, já é possível descobrir como a onda se move.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ondas 1D',
+            storageKey: 'ondas-1d'
+        };
+    </script>
+    <script src="../../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

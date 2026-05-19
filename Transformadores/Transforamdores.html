@@ -1395,6 +1395,11 @@
         conclusionTextSaved = "";
     }
 
+    function toSuperscriptExponent(exponent) {
+        const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+        return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+    }
+
     function formatScientific(value, unit='') {
         if(value === 0) return '0.00 ' + unit;
         if(Math.abs(value) < 0.001 || Math.abs(value) > 1000){
@@ -1402,7 +1407,7 @@
             let mant = value / Math.pow(10, exp);
             mant = Math.round(mant * 100) / 100;
             if(mant >= 10){ mant /= 10; exp++; }
-            return mant.toFixed(2) + '×10^' + exp + ' ' + unit;
+            return mant.toFixed(2) + '×10' + toSuperscriptExponent(exp) + ' ' + unit;
         }
         let intPart = Math.floor(Math.abs(value));
         let decimals = intPart === 0 ? 3 : (intPart < 10 ? 2 : (intPart < 100 ? 1 : 0));
@@ -1660,14 +1665,29 @@
         document.getElementById('exercisesModal').style.display = 'none';
     }
 
+    let studentNameTransformadores = localStorage.getItem('studentNameTransformadores') || '';
+
+    function ensureStudentNameTransformadores() {
+        if (!studentNameTransformadores) {
+            const providedName = prompt('Antes de começar, digite seu nome:');
+            if (providedName && providedName.trim()) {
+                studentNameTransformadores = providedName.trim();
+                localStorage.setItem('studentNameTransformadores', studentNameTransformadores);
+            } else {
+                studentNameTransformadores = 'estudante';
+            }
+        }
+        return studentNameTransformadores;
+    }
+
     const savedVoicePreference = localStorage.getItem('voicePreferenceTransformadores') || '';
     const tracks = [
-        'Bem-vindo à simulação de transformadores. No centro da tela, você vê o núcleo e as duas bobinas. À esquerda está a bobina primária e à direita a secundária. No painel de controles, você pode mudar a tensão de entrada, o número de espiras do primário, o número de espiras do secundário e ligar ou desligar o núcleo de ferro.',
-        'Observe a fórmula principal do transformador: tensão de saída dividida pela tensão de entrada é igual ao número de espiras do secundário dividido pelo número de espiras do primário. Isso significa que aumentar as espiras do secundário aumenta a tensão de saída. Faça esse teste agora.',
-        'Quando o núcleo de ferro está presente, o campo magnético fica mais concentrado. Ao retirar o núcleo, o fluxo continua existindo, mas se espalha mais pelo espaço e a eficiência cai. Ligue e desligue o núcleo para comparar os dois casos.',
-        'As correntes também obedecem a uma relação inversa. Em um transformador ideal, se a tensão aumenta, a corrente disponível na saída diminui. Se a tensão diminui, a corrente pode aumentar. Veja isso nas medições da parte inferior da tela.',
-        'Use os botões Campo Magnético e Corrente Elétrica para destacar separadamente cada efeito visual da simulação. Isso ajuda a relacionar o desenho das bobinas com as grandezas medidas.',
-        'Quando terminar a exploração, abra os exercícios resolvidos para ouvir exemplos passo a passo e depois clique em Iniciar Exercícios para testar o que aprendeu.'
+        () => `Olá, ${ensureStudentNameTransformadores()}! Bem-vindo à simulação de transformadores. No centro da tela aparece o núcleo magnético com duas bobinas: a primária, ligada à fonte, e a secundária, onde observamos a saída. No painel de controles você ajusta a tensão de entrada, o número de espiras de cada bobina e a presença do núcleo de ferro. Antes de calcular qualquer coisa, vale a pena reconhecer essas três ideias: indução, razão de espiras e transferência de energia.`,
+        'A relação principal do transformador compara tensão com número de espiras. Quando a razão Ns sobre Np aumenta, a tensão de saída também aumenta; quando essa razão diminui, a tensão de saída cai. Por isso o transformador pode ser elevador ou redutor. Observe a leitura das tensões e compare com a quantidade de voltas desenhadas em cada lado.',
+        'O núcleo de ferro não cria energia, mas conduz melhor o fluxo magnético. Com ele, o campo fica mais concentrado dentro do circuito magnético e o acoplamento entre as bobinas melhora. Sem ele, o fluxo se espalha mais pelo espaço e a transferência fica menos eficiente. Alterne esse controle e compare o desenho do fluxo com os valores medidos.',
+        'A corrente se comporta de modo complementar à tensão. Em um transformador ideal, se a saída ganha tensão, ela perde corrente; se a saída perde tensão, ela pode ganhar corrente. A ideia física por trás disso é a conservação de potência, já que entrada e saída permanecem aproximadamente equivalentes quando desprezamos perdas.',
+        'Use os botões de visualização para separar campo magnético e corrente elétrica. Isso ajuda a perceber que a corrente alternada no primário produz um fluxo variável no núcleo, e esse fluxo variável induz tensão no secundário. Esse encadeamento é o coração da Lei de Faraday aplicada aos transformadores.',
+        'Depois de explorar a tela, abra os exercícios resolvidos. Neles, o foco não é só obter números, mas entender como escolher a razão correta, interpretar o tipo de transformador e relacionar tensão, corrente e eficiência.'
     ];
     let currentTrack = 0;
     let speechSynthesis = window.speechSynthesis;
@@ -1677,9 +1697,9 @@
     let activeExampleButton = null;
     let speechSessionId = 0;
     const exampleNarrations = {
-        '1': 'Exemplo 1. O transformador tem 200 espiras no primário e 100 espiras no secundário. A tensão de entrada é 12 voltis. Aplicamos a relação Vs sobre Vp igual a Ns sobre Np. Então, Vs sobre 12 é igual a 100 sobre 200, que vale 0 vírgula 5. Logo, Vs é igual a 12 vezes 0 vírgula 5, resultando em 6 voltis.',
-        '2': 'Exemplo 2. Em um transformador ideal, a corrente é inversamente proporcional ao número de espiras. Se o primário tem 100 espiras e o secundário 300, então Ip sobre Is é igual a Ns sobre Np, isto é, 300 sobre 100. O resultado é 3. Portanto, a corrente do primário é três vezes a corrente do secundário.',
-        '3': 'Exemplo 3. A potência de entrada é 20 watts e a potência de saída é 19 watts. A eficiência é a potência de saída dividida pela potência de entrada. Então 19 dividido por 20 é igual a 0 vírgula 95. Multiplicando por 100, obtemos 95 por cento.'
+        '1': 'Exemplo 1. Aqui temos um transformador redutor, porque o secundário possui menos espiras que o primário. A ideia central é usar a razão entre espiras para descobrir a razão entre tensões. Como Ns sobre Np vale 100 sobre 200, essa razão é 0,5. Então a tensão de saída será metade da tensão de entrada. Metade de 12 volts é 6 volts. Mais importante que a conta é perceber o significado físico: menos espiras no secundário implicam menor tensão induzida.',
+        '2': 'Exemplo 2. Neste caso o secundário tem mais espiras, então a tensão sobe e a corrente de saída tende a cair. Para enxergar isso, usamos a relação inversa entre corrente e número de espiras. Como Ns sobre Np é 300 sobre 100, a razão vale 3. Isso nos mostra que Ip sobre Is também é 3. Em outras palavras, a corrente no primário é três vezes a corrente no secundário. O resultado confirma a ideia de potência aproximadamente conservada no transformador ideal.',
+        '3': 'Exemplo 3. Agora a pergunta não é sobre transformação de tensão ou de corrente, mas sobre eficiência. Eficiência mede quanto da potência recebida realmente aparece na saída. Dividimos 19 watts por 20 watts e obtemos 0,95. Convertendo para porcentagem, chegamos a 95 por cento. Isso indica um transformador bastante eficiente, com perda pequena de energia entre entrada e saída.'
     };
 
     function getVoiceKey(voice) {
@@ -1813,11 +1833,15 @@
         audioPaused = false;
     }
 
+    function resolveTrackText(track) {
+        return typeof track === 'function' ? track() : track;
+    }
+
     function speakTrack(index) {
         currentSpeechSource = 'track';
         clearExampleAudioState();
         setMainAudioButtonState('playing');
-        speakText(tracks[index]);
+        speakText(resolveTrackText(tracks[index]));
         if (speaking) {
             document.getElementById('trackCounter').innerText = `Trecho ${index + 1}/${tracks.length}`;
         }
@@ -2002,5 +2026,12 @@
         });
     });
 </script>
+<script>
+    window.SIMULATION_ENHANCER_CONFIG = {
+        simulationName: 'Transformadores',
+        storageKey: 'transformadores'
+    };
+</script>
+<script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

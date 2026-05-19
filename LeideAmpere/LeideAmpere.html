@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação - Lei de Ampere com Exercícios</title>
+    <title>Simulação - Lei de Ampere com Áudio Interativo</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
-    
     <style>
+        /* ===== ESTILOS COMPLETOS (mantidos do original) ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -18,7 +18,7 @@
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             color: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 20px 20px 140px;
         }
         .container {
             max-width: 1200px;
@@ -179,25 +179,7 @@
         .yellow { background: #ffcc00; }
         .cyan { background: #00ffff; }
         
-        .trail-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .coordinate-system {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 14px;
-            z-index: 10;
-        }
-        
-        /* Estilos para o modal de exercícios */
+        /* Modais e exercícios (estilos originais completos) */
         .modal {
             display: none;
             position: fixed;
@@ -213,7 +195,7 @@
         }
         .modal-content {
             background: linear-gradient(135deg, #2c3e50, #4a6491);
-            padding: 20px;
+            padding: 20px 20px 120px;
             border-radius: 10px;
             width: 100%;
             max-width: 800px;
@@ -233,6 +215,17 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
         }
         .exercise {
             margin-bottom: 15px;
@@ -370,34 +363,26 @@
             50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
-        
-        /* Estilos para formulário de e-mail */
         .email-form {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-top: 15px;
         }
-        
         .form-row {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        
         .form-row label {
             font-weight: bold;
             color: #ffcc00;
         }
-        
         .required::after {
             content: " *";
             color: #ff0000;
         }
-        
-        .form-row input,
-        .form-row select,
-        .form-row textarea {
+        .form-row input, .form-row select, .form-row textarea {
             width: 100%;
             padding: 12px;
             border-radius: 5px;
@@ -406,12 +391,10 @@
             font-size: 16px;
             box-sizing: border-box;
         }
-        
         .form-row textarea {
             min-height: 80px;
             resize: vertical;
         }
-        
         .email-status {
             margin-top: 10px;
             padding: 10px;
@@ -420,103 +403,97 @@
             font-weight: bold;
             display: none;
         }
-        
         .sending {
             background: rgba(255, 204, 0, 0.3);
             color: #ffcc00;
         }
-        
         .sent {
             background: rgba(0, 255, 0, 0.2);
             color: #00ff00;
         }
-        
         .error-status {
             background: rgba(255, 0, 0, 0.2);
             color: #ff0000;
         }
-        
-        /* Novos estilos para exercícios resolvidos */
         .solved-exercise {
+            position: relative;
             margin-bottom: 20px;
             padding: 15px;
+            padding-top: 52px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
         }
-        
+        .audio-example-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        .audio-example-btn:hover {
+            background: #2980b9;
+        }
+        .audio-example-btn.playing {
+            background: #e67e22;
+        }
+        .audio-example-btn.playing:hover {
+            background: #d35400;
+        }
         .solved-exercise h4 {
             color: #ffcc00;
             margin-bottom: 10px;
             text-align: center;
         }
-        
         .solution-step {
             margin-bottom: 8px;
             padding-left: 15px;
             border-left: 3px solid #ffcc00;
         }
-        
         .buttons-container {
             display: flex;
             gap: 10px;
             justify-content: center;
             margin-top: 15px;
         }
-        
         .exercise-buttons {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
         }
-        
-        .debug-panel {
-            margin-top: 20px;
-            padding: 10px;
-            background: rgba(255, 0, 0, 0.1);
-            border-radius: 5px;
-            display: none;
-        }
-        
-        /* Estilos para a seção de teoria */
         .theory-section {
             margin-bottom: 20px;
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
         }
-        
         .theory-section h3 {
             color: #ffcc00;
             margin-bottom: 15px;
             text-align: center;
         }
-        
         .theory-content {
             line-height: 1.6;
         }
-        
         .theory-content p {
             margin-bottom: 15px;
             text-align: justify;
         }
-        
         .theory-content ul {
             margin-bottom: 15px;
             padding-left: 20px;
         }
-        
         .theory-content li {
             margin-bottom: 8px;
         }
-        
         .highlight {
             background: rgba(255, 204, 0, 0.2);
             padding: 2px 5px;
             border-radius: 3px;
             font-weight: bold;
         }
-        
         .theory-formula {
             text-align: center;
             font-family: 'Courier New', monospace;
@@ -526,7 +503,62 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
-        
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffcc00;
+            align-items: center;
+        }
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-selector label {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+        .voice-selector select {
+            width: auto;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid #ffcc00;
+            border-radius: 18px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            max-width: 210px;
+        }
+        .voice-selector select option {
+            color: #000;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
+        }
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
@@ -535,1281 +567,1129 @@
                 flex: 1;
                 width: 100%;
             }
+            body {
+                padding-bottom: 220px;
+            }
+            .modal-content {
+                max-height: calc(100vh - 30px);
+                padding-bottom: 180px;
+            }
+            .audio-controls {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                border-radius: 18px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .voice-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            .voice-selector select {
+                max-width: 100%;
+                flex: 1;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Simulação - Lei de Ampere com Exercícios</h1>
-            <p class="subtitle">Prof. Flávio Ambrósio</p>
-        </header>
-        
-        <div class="content">
-            <div class="simulation-panel">
-                <h2 class="panel-title">Visualização 3D - Campo Magnético ao Redor de um Fio</h2>
-                <div class="simulation-container">
-                    <div id="renderer-container"></div>
-                </div>
-                
-                <div class="visualization-toggle">
-                    <button id="linesBtn" class="active">Linhas de Campo</button>
-                    <button id="vectorsBtn">Vetores de Campo</button>
-                    <button id="helpBtn">Ajuda</button>
-                </div>
-                
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color red"></div>
-                        <span>Corrente positiva (↑ Z)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color blue"></div>
-                        <span>Corrente negativa (↓ Z)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color green"></div>
-                        <span>Campo magnético (XY)</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color yellow"></div>
-                        <span>Vetores de campo</span>
-                    </div>
-                </div>
+<div class="container">
+    <header>
+        <h1>Simulação - Lei de Ampere com Áudio Interativo</h1>
+        <p class="subtitle">Prof. Flávio Ambrósio | Aprenda no seu ritmo</p>
+    </header>
+    <div class="content">
+        <div class="simulation-panel">
+            <h2 class="panel-title">Visualização 3D - Campo Magnético ao Redor de um Fio</h2>
+            <div class="simulation-container">
+                <div id="renderer-container"></div>
             </div>
-            
-            <div class="controls-panel">
-                <h2 class="panel-title">Controles</h2>
-                
-                <div class="control-group">
-                    <label for="currentSlider">Corrente Elétrica (i):</label>
-                    <input type="range" id="currentSlider" min="-10" max="10" value="5" step="0.1">
-                    <div class="value-display"><span id="currentValue">5.0</span> A</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="distanceDisplay">Distância do Fio:</label>
-                    <div class="value-display"><span id="distanceValue">1.0</span> m</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="fieldDisplay">Campo Magnético (B):</label>
-                    <div class="value-display"><span id="fieldValue">1.00×10^-6</span> T</div>
-                </div>
-                
-                <div class="formula-box">
-                    <h3>Lei de Ampere</h3>
-                    <p>B = (μ₀ · i) / (2πd)</p>
-                    <p>Onde:</p>
-                    <p>B = Campo magnético (Tesla)</p>
-                    <p>μ₀ = 4π×10⁻⁷ T·m/A</p>
-                    <p>i = Corrente elétrica (Amperes)</p>
-                    <p>d = Distância do fio (metros)</p>
-                </div>
-                
-                <div class="exercise-buttons">
-                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
-                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
-                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
-                </div>
+            <div class="visualization-toggle">
+                <button id="linesBtn" class="active">Linhas de Campo</button>
+                <button id="vectorsBtn">Vetores de Campo</button>
+                <button id="helpBtn">Ajuda</button>
             </div>
-            
-            <div class="measurement-panel">
-                <h2 class="panel-title">Medições e Resultados</h2>
-                <div class="measurement-grid">
-                    <div class="measurement-item">
-                        <div class="measurement-label">Corrente (i)</div>
-                        <div class="measurement-value" id="currentDisplay">5.0 A</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Distância (d)</div>
-                        <div class="measurement-value" id="distanceDisplay">1.0 m</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Campo Magnético (B)</div>
-                        <div class="measurement-value" id="fieldDisplay">1.00×10^-6 T</div>
-                    </div>
-                    <div class="measurement-item">
-                        <div class="measurement-label">Permeabilidade (μ₀)</div>
-                        <div class="measurement-value" id="permeabilityDisplay">4π×10⁻⁷ T·m/A</div>
-                    </div>
-                </div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color red"></div><span>Corrente positiva (↑ Z)</span></div>
+                <div class="legend-item"><div class="legend-color blue"></div><span>Corrente negativa (↓ Z)</span></div>
+                <div class="legend-item"><div class="legend-color green"></div><span>Campo magnético (XY)</span></div>
+                <div class="legend-item"><div class="legend-color yellow"></div><span>Vetores de campo</span></div>
+            </div>
+        </div>
+        <div class="controls-panel">
+            <h2 class="panel-title">Controles</h2>
+            <div class="control-group">
+                <label for="currentSlider">Corrente Elétrica (i):</label>
+                <input type="range" id="currentSlider" min="-10" max="10" value="5" step="0.1">
+                <div class="value-display"><span id="currentValue">5.0</span> A</div>
+            </div>
+            <div class="control-group">
+                <label for="distanceDisplay">Distância do Fio:</label>
+                <div class="value-display"><span id="distanceValue">1.0</span> m</div>
+            </div>
+            <div class="control-group">
+                <label for="fieldDisplay">Campo Magnético (B):</label>
+                <div class="value-display"><span id="fieldValue">1.00×10⁻⁶</span> T</div>
+            </div>
+            <div class="formula-box">
+                <h3>Lei de Ampere</h3>
+                <p>B = (μ₀ · i) / (2πd)</p>
+                <p>μ₀ = 4π×10⁻⁷ T·m/A</p>
+            </div>
+            <div class="exercise-buttons">
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                <button class="exercise-btn" id="theoryBtn">Teoria</button>
+            </div>
+        </div>
+        <div class="measurement-panel">
+            <h2 class="panel-title">Medições e Resultados</h2>
+            <div class="measurement-grid">
+                <div class="measurement-item"><div class="measurement-label">Corrente (i)</div><div class="measurement-value" id="currentDisplay">5.0 A</div></div>
+                <div class="measurement-item"><div class="measurement-label">Distância (d)</div><div class="measurement-value" id="distanceDisplay">1.0 m</div></div>
+                <div class="measurement-item"><div class="measurement-label">Campo Magnético (B)</div><div class="measurement-value" id="fieldDisplay">1.00×10⁻⁶ T</div></div>
+                <div class="measurement-item"><div class="measurement-label">Permeabilidade (μ₀)</div><div class="measurement-value" id="permeabilityDisplay">4π×10⁻⁷ T·m/A</div></div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal de Exercícios -->
-    <div id="exercisesModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercícios sobre Lei de Ampere</h2>
+<!-- Modal de Exercícios -->
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios sobre Lei de Ampere</h2>
+            <div>
+                <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
                 <span class="close">&times;</span>
             </div>
-            
-            <div class="progress" id="progressBar">
-                <div class="progress-item" id="progress1">1</div>
-                <div class="progress-item" id="progress2">2</div>
-                <div class="progress-item" id="progress3">3</div>
-                <div class="progress-item" id="progress4">4</div>
-                <div class="progress-item" id="progress5">5</div>
-                <div class="progress-item" id="progress6">6</div>
-            </div>
-            
-            <div id="exerciseContainer">
-                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
-            </div>
-            
-            <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusão de Estudo</h3>
-                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
-                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
-                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
-            </div>
-            
-            <div id="resultsContainer" style="display: none;">
-                <h3>Resultados dos Exercícios</h3>
-                <div id="resultsSummary"></div>
-                
-                <h3>Enviar Resultados</h3>
-                <p>Preencha os dados abaixo para enviar seus resultados:</p>
-                
-                <div class="email-form">
-                    <div class="form-row">
-                        <label for="studentName" class="required">Nome Completo:</label>
-                        <input type="text" id="studentName" required>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentGrade" class="required">Série:</label>
-                        <select id="studentGrade" required>
-                            <option value="">Selecione sua série</option>
-                            <option value="1o ano">1º ano</option>
-                            <option value="2o ano">2º ano</option>
-                            <option value="3o ano">3º ano</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentClass" class="required">Turma:</label>
-                        <select id="studentClass" required>
-                            <option value="">Selecione sua turma</option>
-                            <option value="A">A</option>
-                            <option value="B">B</option>
-                            <option value="C">C</option>
-                            <option value="D">D</option>
-                            <option value="E">E</option>
-                            <option value="F">F</option>
-                            <option value="G">G</option>
-                            <option value="H">H</option>
-                            <option value="I">I</option>
-                            <option value="J">J</option>
-                            <option value="K">K</option>
-                            <option value="L">L</option>
-                            <option value="M">M</option>
-                            <option value="N">N</option>
-                            <option value="O">O</option>
-                            <option value="P">P</option>
-                            <option value="Q">Q</option>
-                            <option value="R">R</option>
-                            <option value="S">S</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="studentEmail">E-mail para cópia:</label>
-                        <input type="email" id="studentEmail" placeholder="seu@email.com">
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="criticismInput">Críticas:</label>
-                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="suggestionInput">Sugestões:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
-                    </div>
-                    
-                    <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
-                    </div>
-                    
-                    <div id="emailStatus" class="email-status"></div>
-                    
-                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
-                </div>
+        </div>
+        <div class="progress" id="progressBar">
+            <div class="progress-item" id="progress1">1</div>
+            <div class="progress-item" id="progress2">2</div>
+            <div class="progress-item" id="progress3">3</div>
+            <div class="progress-item" id="progress4">4</div>
+            <div class="progress-item" id="progress5">5</div>
+            <div class="progress-item" id="progress6">6</div>
+        </div>
+        <div id="exerciseContainer"></div>
+        <div id="conclusionContainer" style="display:none;">
+            <h3>Conclusão de Estudo</h3>
+            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."
+                    style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+        </div>
+        <div id="resultsContainer" style="display:none;">
+            <h3>Resultados</h3>
+            <div id="resultsSummary"></div>
+            <h3>Enviar Resultados</h3>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione</option><option>1º ano</option><option>2º ano</option><option>3º ano</option></select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão final:</label><textarea id="finalConclusion" rows="4" required></textarea></div>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="check-btn">Enviar Resultados</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal de Exercícios Resolvidos -->
-    <div id="solvedExercisesModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Exercícios Resolvidos - Lei de Ampere</h2>
-                <span class="close">&times;</span>
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios Resolvidos - Lei de Ampere</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div id="solvedExercisesContainer">
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Cálculo do Campo Magnético</h4>
+                <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância?</p>
+                <div class="solution-step"><strong>Fórmula:</strong> B = (μ₀·i)/(2πd)</div>
+                <div class="solution-step"><strong>Cálculo:</strong> B = (4π×10⁻⁷ × 5) / (2π × 0,1) = 1,0×10⁻⁵ T</div>
+                <div class="solution-step"><strong>Resposta:</strong> 10 μT</div>
             </div>
-            
-            <div id="solvedExercisesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Cálculo do Campo Magnético</h4>
-                    <p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente de 5 A. Qual a intensidade do campo magnético a 0,1 m de distância do fio?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> B = (μ₀ · i) / (2πd)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> μ₀ = 4π×10⁻⁷ T·m/A</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: B = (4π×10⁻⁷ × 5) / (2π × 0,1)</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Simplificar: B = (20π×10⁻⁷) / (0,2π) = 100×10⁻⁷</div>
-                    <div class="solution-step"><strong>Passo 4:</strong> Calcular: B = 1,0×10⁻⁵ T</div>
-                    <div class="solution-step"><strong>Resposta:</strong> B = 10 μT</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Cálculo da Corrente</h4>
-                    <p><strong>Problema:</strong> A uma distância de 0,2 m de um fio reto, o campo magnético medido é de 2×10⁻⁶ T. Qual a corrente elétrica no fio?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> B = (μ₀ · i) / (2πd) → i = (B · 2πd) / μ₀</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> μ₀ = 4π×10⁻⁷ T·m/A</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷)</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Simplificar: i = (0,8π×10⁻⁶) / (4π×10⁻⁷) = 0,2×10¹</div>
-                    <div class="solution-step"><strong>Passo 4:</strong> Calcular: i = 2,0 A</div>
-                    <div class="solution-step"><strong>Resposta:</strong> i = 2 A</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Direção do Campo Magnético</h4>
-                    <p><strong>Problema:</strong> Um fio reto é percorrido por uma corrente elétrica no sentido positivo do eixo Z. Qual é a direção do campo magnético no ponto (0, 0.1, 0)?</p>
-                    <div class="solution-step"><strong>Regra da mão direita:</strong> Segure o fio com a mão direita, com o polegar apontando no sentido da corrente</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Corrente no sentido +Z → polegar para cima</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Os dedos curvam-se no sentido do campo magnético</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> No ponto (0, 0.1, 0) → eixo Y positivo</div>
-                    <div class="solution-step"><strong>Resposta:</strong> O campo magnético está no sentido negativo do eixo X</div>
-                </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Cálculo da Corrente</h4>
+                <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> A 0,2 m de um fio, B = 2×10⁻⁶ T. Qual a corrente?</p>
+                <div class="solution-step"><strong>Isolando i:</strong> i = (B·2πd)/μ₀</div>
+                <div class="solution-step"><strong>Cálculo:</strong> i = (2×10⁻⁶ × 2π × 0,2) / (4π×10⁻⁷) = 2 A</div>
+                <div class="solution-step"><strong>Resposta:</strong> 2 A</div>
             </div>
-            
-            <div class="buttons-container">
-                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Direção do Campo</h4>
+                <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
+                <p><strong>Problema:</strong> Corrente no sentido +Z. Qual a direção do campo no ponto (0, 0.1, 0)?</p>
+                <div class="solution-step"><strong>Regra da mão direita:</strong> Polegar para cima, dedos curvam no sentido anti-horário.</div>
+                <div class="solution-step"><strong>Resposta:</strong> Campo no sentido negativo do eixo X.</div>
             </div>
         </div>
-    </div>
-
-    <!-- Modal de Teoria -->
-    <div id="theoryModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Teoria - Lei de Ampere</h2>
-                <span class="close">&times;</span>
-            </div>
-            
-            <div class="theory-content">
-                <div class="theory-section">
-                    <h3>Lei de Ampere para Fios Retilíneos</h3>
-                    <p>A Lei de Ampere relaciona a corrente elétrica que percorre um condutor com o campo magnético que ela gera ao seu redor. Para um fio retilíneo infinito, o campo magnético é dado por:</p>
-                    
-                    <div class="theory-formula">B = (μ₀ · i) / (2πd)</div>
-                    
-                    <p>Onde:</p>
-                    <ul>
-                        <li><span class="highlight">B</span> = Campo magnético (Tesla)</li>
-                        <li><span class="highlight">μ₀</span> = Permeabilidade do vácuo (4π×10⁻⁷ T·m/A)</li>
-                        <li><span class="highlight">i</span> = Corrente elétrica (Amperes)</li>
-                        <li><span class="highlight">d</span> = Distância perpendicular ao fio (metros)</li>
-                    </ul>
-                    
-                    <p>O campo magnético diminui com o inverso da distância ao fio e é perpendicular tanto ao fio quanto à direção radial.</p>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Direção do Campo Magnético - Regra da Mão Direita</h3>
-                    <p>Para determinar a direção do campo magnético ao redor de um fio retilíneo:</p>
-                    
-                    <ul>
-                        <li>Segure o fio com a mão direita</li>
-                        <li>Aponte o polegar no sentido da corrente elétrica</li>
-                        <li>Os dedos curvados indicam o sentido das linhas de campo magnético</li>
-                    </ul>
-                    
-                    <p>Para corrente positiva no eixo Z, o campo magnético circula no sentido anti-horário no plano XY.</p>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Propriedades do Campo Magnético</h3>
-                    <p>O campo magnético gerado por um fio retilíneo possui as seguintes características:</p>
-                    
-                    <ul>
-                        <li>É tangente a círculos concêntricos ao fio</li>
-                        <li>Sua intensidade é inversamente proporcional à distância do fio</li>
-                        <li>É diretamente proporcional à corrente elétrica</li>
-                        <li>O sentido depende do sentido da corrente (regra da mão direita)</li>
-                        <li>É nulo em pontos ao longo do fio (d = 0)</li>
-                    </ul>
-                </div>
-                
-                <div class="theory-section">
-                    <h3>Aplicações Práticas</h3>
-                    <p>A Lei de Ampere é fundamental para:</p>
-                    
-                    <ul>
-                        <li>Projeto de eletroímãs e solenoides</li>
-                        <li>Cálculo de forças entre condutores paralelos</li>
-                        <li>Proteção contra campos magnéticos em equipamentos</li>
-                        <li>Medição de correntes elétricas (amperímetros)</li>
-                        <li>Transformadores e indutores</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="buttons-container">
-                <button id="closeTheory" class="check-btn">Fechar</button>
-            </div>
+        <div class="buttons-container">
+            <button id="closeSolvedExercises" class="check-btn">Fechar</button>
         </div>
     </div>
+</div>
 
-    <script>
-        // Variáveis globais
-        let scene, camera, renderer, controls;
-        let wire, fieldLines = [], fieldVectors = [], currentArrow = null;
-        let current = 5.0;
-        let distance = 1.0;
-        let showFieldLines = true;
-        let showFieldVectors = false;
-        const mu0 = 4 * Math.PI * 1e-7; // Permeabilidade do vácuo
+<!-- Modal de Teoria -->
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Lei de Ampere</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="theory-content">
+            <div class="theory-section"><h3>Lei de Ampere para Fios Retilíneos</h3><p>A Lei de Ampere relaciona a corrente elétrica que percorre um condutor com o campo magnético que ela gera ao seu redor. Para um fio retilíneo infinito, o campo magnético é dado por:</p><div class="theory-formula">B = (μ₀ · i) / (2πd)</div><p>Onde:</p><ul><li><span class="highlight">B</span> = Campo magnético (Tesla)</li><li><span class="highlight">μ₀</span> = Permeabilidade do vácuo (4π×10⁻⁷ T·m/A)</li><li><span class="highlight">i</span> = Corrente elétrica (Amperes)</li><li><span class="highlight">d</span> = Distância perpendicular ao fio (metros)</li></ul><p>O campo magnético diminui com o inverso da distância ao fio e é perpendicular tanto ao fio quanto à direção radial.</p></div>
+            <div class="theory-section"><h3>Direção do Campo Magnético - Regra da Mão Direita</h3><p>Para determinar a direção do campo magnético ao redor de um fio retilíneo:</p><ul><li>Segure o fio com a mão direita</li><li>Aponte o polegar no sentido da corrente elétrica</li><li>Os dedos curvados indicam o sentido das linhas de campo magnético</li></ul><p>Para corrente positiva no eixo Z, o campo magnético circula no sentido anti-horário no plano XY.</p></div>
+            <div class="theory-section"><h3>Propriedades do Campo Magnético</h3><p>O campo magnético gerado por um fio retilíneo possui as seguintes características:</p><ul><li>É tangente a círculos concêntricos ao fio</li><li>Sua intensidade é inversamente proporcional à distância do fio</li><li>É diretamente proporcional à corrente elétrica</li><li>O sentido depende do sentido da corrente (regra da mão direita)</li><li>É nulo em pontos ao longo do fio (d = 0)</li></ul></div>
+            <div class="theory-section"><h3>Aplicações Práticas</h3><p>A Lei de Ampere é fundamental para:</p><ul><li>Projeto de eletroímãs e solenoides</li><li>Cálculo de forças entre condutores paralelos</li><li>Proteção contra campos magnéticos em equipamentos</li><li>Medição de correntes elétricas (amperímetros)</li><li>Transformadores e indutores</li></ul></div>
+        </div>
+        <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
+    </div>
+</div>
 
-        // Sistema de exercícios
-        let exercises = [];
-        let currentExercise = 0;
-        let exerciseResults = [];
-        let skippedQuestions = 0;
-        let currentExerciseAttempts = 0;
+<!-- Painel de áudio interativo -->
+<div class="audio-controls" id="audioControls">
+    <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+    <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
+    <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+    <span id="trackCounter">Trecho 0/8</span>
+    <div class="voice-selector">
+        <label for="voiceSelect">Voz:</label>
+        <select id="voiceSelect" aria-label="Selecionar voz do áudio">
+            <option value="">Carregando vozes...</option>
+        </select>
+    </div>
+</div>
 
-        // Função para formatar números em notação científica com 3 algarismos significativos
-        function formatScientificWith3Digits(value, unit = '') {
-            if (value === 0) return '0.00 ' + unit;
-            
-            // Para valores muito pequenos ou grandes, usar notação científica
-            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
-                // Converter para notação científica com 3 algarismos significativos
-                const exponent = Math.floor(Math.log10(Math.abs(value)));
-                const mantissa = value / Math.pow(10, exponent);
-                
-                // Arredondar para 3 algarismos significativos
-                const roundedMantissa = Math.round(mantissa * 100) / 100;
-                
-                // Garantir que temos exatamente 3 algarismos significativos
-                let mantissaStr = roundedMantissa.toFixed(2);
-                
-                // Se após arredondamento tivermos 10.00, ajustar
-                if (mantissaStr === '10.00') {
-                    mantissaStr = '1.00';
-                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
-                }
-                
-                return mantissaStr + '×10^' + exponent + ' ' + unit;
-            }
-            
-            // Para valores intermediários, usar formato decimal com 3 algarismos significativos
-            // Encontrar o número de casas decimais necessárias
-            const integerPart = Math.floor(Math.abs(value));
-            let decimalPlaces;
-            
-            if (integerPart === 0) {
-                // Número entre 0 e 1
-                const firstNonZero = -Math.floor(Math.log10(value));
-                decimalPlaces = firstNonZero + 2;
-            } else if (integerPart < 10) {
-                // Número com 1 dígito inteiro
-                decimalPlaces = 2;
-            } else if (integerPart < 100) {
-                // Número com 2 dígitos inteiros
-                decimalPlaces = 1;
-            } else {
-                // Número com 3 dígitos inteiros
-                decimalPlaces = 0;
-            }
-            
-            return value.toFixed(decimalPlaces) + ' ' + unit;
-        }
-        
-        // Atualizar a função formatScientific existente para usar a nova formatação
-        function formatScientific(value, unit = '') {
-            return formatScientificWith3Digits(value, unit);
-        }
+<script>
+    // ==================== SIMULAÇÃO 3D (completa do original) ====================
+    let scene, camera, renderer, controls;
+    let wire, fieldLines = [], fieldVectors = [], currentArrow = null;
+    let current = 5.0;
+    let distance = 1.0;
+    let showFieldLines = true;
+    let showFieldVectors = false;
+    const mu0 = 4 * Math.PI * 1e-7;
 
-        // Inicializar a cena Three.js
-        function init() {
-            // Configurar cena
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000011);
-            
-            // Configurar câmera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(4, 4, 4);
-            camera.lookAt(0, 0, 0);
-            
-            // Configurar renderizador
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            updateRendererSize();
-            document.getElementById('renderer-container').appendChild(renderer.domElement);
-            
-            // Configurar controles de órbita
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.1;
-            
-            // Adicionar luzes
-            const ambientLight = new THREE.AmbientLight(0x404040);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            directionalLight.position.set(1, 1, 1);
-            scene.add(directionalLight);
-            
-            // Adicionar eixos de referência
-            const axesHelper = new THREE.AxesHelper(2);
-            scene.add(axesHelper);
-            
-            // Criar o fio condutor no eixo Z
-            createWire();
-            
-            // Criar as linhas de campo no plano XY
-            createFieldLines();
-            
-            // Criar vetores de campo
-            createFieldVectors();
-            
-            // Configurar evento de redimensionamento
-            window.addEventListener('resize', onWindowResize);
-            
-            // Iniciar animação
-            animate();
-            
-            // Atualizar medições iniciais
-            updateMeasurements();
-            
-            // Configurar eventos dos controles
-            setupEventListeners();
-            
-            // Configurar eventos dos botões de exercícios
-            setupExerciseEventListeners();
+    function toSuperscriptExponent(exponent) {
+        const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+        return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+    }
+
+    function formatScientificWith3Digits(value, unit = '') {
+        if (value === 0) return '0.00 ' + unit;
+        if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const mantissa = value / Math.pow(10, exponent);
+            const roundedMantissa = Math.round(mantissa * 100) / 100;
+            let mantissaStr = roundedMantissa.toFixed(2);
+            if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit; }
+            return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
         }
-        
-        // Atualizar tamanho do renderizador
-        function updateRendererSize() {
-            const container = document.getElementById('renderer-container');
-            const width = container.clientWidth;
-            const height = container.clientHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-        }
-        
-        // Criar o fio condutor no eixo Z
-        function createWire() {
-            // Remover elementos antigos se existirem
-            if (wire) scene.remove(wire);
-            if (currentArrow) scene.remove(currentArrow);
-            
-            // Criar geometria do fio (cilindro alongado no eixo Z)
-            const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 6, 32);
-            const wireMaterial = new THREE.MeshPhongMaterial({ 
-                color: current >= 0 ? 0xff0000 : 0x0066ff,
-                emissive: current >= 0 ? 0x440000 : 0x000044
-            });
-            
-            wire = new THREE.Mesh(wireGeometry, wireMaterial);
-            // Rotacionar o fio para ficar alinhado com o eixo Z
-            wire.rotation.x = Math.PI / 2;
-            scene.add(wire);
-            
-            // Adicionar seta indicadora de corrente (ao longo do eixo Z)
-            const arrowDirection = current >= 0 ? 1 : -1;
-            const arrowGeometry = new THREE.ConeGeometry(0.1, 0.3, 32);
-            const arrowMaterial = new THREE.MeshBasicMaterial({ 
-                color: current >= 0 ? 0xff0000 : 0x0066ff 
-            });
-            
-            currentArrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-            // Posicionar a seta ao longo do eixo Z
-            currentArrow.position.z = arrowDirection * 3;
-            // Rotacionar a seta para apontar na direção correta
-            currentArrow.rotation.x = Math.PI / 2;
-            
-            // Se a corrente for negativa, inverter a seta
-            if (current < 0) {
-                currentArrow.rotation.x = -Math.PI / 2;
-            }
-            
-            scene.add(currentArrow);
-        }
-        
-        // Criar linhas de campo magnético no plano XY (perpendicular ao fio Z)
-        function createFieldLines() {
-            // Limpar linhas existentes
-            fieldLines.forEach(line => scene.remove(line));
-            fieldLines = [];
-            
-            const segments = 64;
-            const radiusStep = 0.5;
-            const maxRadius = 2.5;
-            const numLevels = 3; // Níveis ao longo do eixo Z
-            
-            // Determinar o sentido do campo (horário ou anti-horário)
-            const fieldDirection = current >= 0 ? 1 : -1;
-            
-            // Criar várias linhas de campo em diferentes raios and alturas Z
-            for (let level = 0; level < numLevels; level++) {
-                const z = (level - (numLevels-1)/2) * 1.5; // Distribuir ao longo do eixo Z
-                
-                for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
-                    for (let i = 0; i < 5; i++) {
-                        const angleOffset = (i / 5) * Math.PI * 2;
-                        
-                        const points = [];
-                        for (let j = 0; j <= segments; j++) {
-                            let angle = (j / segments) * Math.PI * 2 + angleOffset;
-                            
-                            // Inverter o sentido se a corrente for negativa
-                            if (fieldDirection < 0) {
-                                angle = -angle;
-                            }
-                            
-                            const x = Math.cos(angle) * r;
-                            const y = Math.sin(angle) * r;
-                            
-                            points.push(new THREE.Vector3(x, y, z));
-                        }
-                        
-                        const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-                        const lineMaterial = new THREE.LineBasicMaterial({ 
-                            color: 0x00ff00,
-                            transparent: true,
-                            opacity: 0.7
-                        });
-                        
-                        const line = new THREE.Line(lineGeometry, lineMaterial);
-                        scene.add(line);
-                        fieldLines.push(line);
-                    }
-                }
-            }
-            
-            // Ajustar a visibilidade conforme a configuração
-            setFieldLinesVisibility(showFieldLines);
-        }
-        
-        // Função para criar vetores de campo magnético
-        function createFieldVectors() {
-            // Limpar vetores existentes
-            fieldVectors.forEach(vector => scene.remove(vector));
-            fieldVectors = [];
-            
-            const numVectorsPerCircle = 4; // 4 vetores por círculo
-            const radiusStep = 0.8;
-            const maxRadius = 2.4;
-            const numLevels = 3; // Níveis ao longo do eixo Z
-            
-            // Determinar o sentido do campo (horário ou anti-horário)
-            const fieldDirection = current >= 0 ? 1 : -1;
-            
-            // Criar vetores em diferentes raios e alturas Z
-            for (let level = 0; level < numLevels; level++) {
-                const z = (level - (numLevels-1)/2) * 1.5; // Distribuir ao longo do eixo Z
-                
-                for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
-                    for (let i = 0; i < numVectorsPerCircle; i++) {
-                        let angle = (i / numVectorsPerCircle) * Math.PI * 2;
+        const integerPart = Math.floor(Math.abs(value));
+        let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
+        return value.toFixed(decimalPlaces) + ' ' + unit;
+    }
+    function formatScientific(value, unit) { return formatScientificWith3Digits(value, unit); }
+
+    function initSimulation() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000011);
+        camera = new THREE.PerspectiveCamera(75, document.getElementById('renderer-container').clientWidth / document.getElementById('renderer-container').clientHeight, 0.1, 1000);
+        camera.position.set(4, 4, 4);
+        camera.lookAt(0, 0, 0);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        const container = document.getElementById('renderer-container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        const axesHelper = new THREE.AxesHelper(2);
+        scene.add(axesHelper);
+        createWire();
+        createFieldLines();
+        createFieldVectors();
+        window.addEventListener('resize', onWindowResize);
+        animate();
+        updateMeasurements();
+        setupEventListeners();
+    }
+
+    function createWire() {
+        if (wire) scene.remove(wire);
+        if (currentArrow) scene.remove(currentArrow);
+        const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 6, 32);
+        const wireMaterial = new THREE.MeshPhongMaterial({ color: current >= 0 ? 0xff0000 : 0x0066ff, emissive: current >= 0 ? 0x440000 : 0x000044 });
+        wire = new THREE.Mesh(wireGeometry, wireMaterial);
+        wire.rotation.x = Math.PI / 2;
+        scene.add(wire);
+        const arrowDirection = current >= 0 ? 1 : -1;
+        const arrowGeometry = new THREE.ConeGeometry(0.1, 0.3, 32);
+        const arrowMaterial = new THREE.MeshBasicMaterial({ color: current >= 0 ? 0xff0000 : 0x0066ff });
+        currentArrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
+        currentArrow.position.z = arrowDirection * 3;
+        currentArrow.rotation.x = current >= 0 ? Math.PI / 2 : -Math.PI / 2;
+        scene.add(currentArrow);
+    }
+
+    function createFieldLines() {
+        fieldLines.forEach(line => scene.remove(line));
+        fieldLines = [];
+        const segments = 64;
+        const radiusStep = 0.5;
+        const maxRadius = 2.5;
+        const numLevels = 3;
+        const fieldDirection = current >= 0 ? 1 : -1;
+        for (let level = 0; level < numLevels; level++) {
+            const z = (level - (numLevels-1)/2) * 1.5;
+            for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
+                for (let i = 0; i < 5; i++) {
+                    const angleOffset = (i / 5) * Math.PI * 2;
+                    const points = [];
+                    for (let j = 0; j <= segments; j++) {
+                        let angle = (j / segments) * Math.PI * 2 + angleOffset;
+                        if (fieldDirection < 0) angle = -angle;
                         const x = Math.cos(angle) * r;
                         const y = Math.sin(angle) * r;
-                        
-                        // CORREÇÃO: Inverter completamente o sentido para corrente negativa
-                        let tangentialAngle = angle + 2*Math.PI;
-                        
-                        // Para corrente negativa, inverter o sentido
-                        if (fieldDirection < 0) {
-                            tangentialAngle = angle + Math.PI; // Direção oposta
-                        }
-                        
-                        // Calcular a intensidade do campo (proporcional à corrente e inversamente à distância)
-                        const fieldStrength = 0.3 * Math.abs(current) / r;
-                        
-                        // Criar a seta do vetor
-                        const arrow = createArrow(
-                            tangentialAngle, 
-                            fieldStrength, 
-                            0xffff00,
-                            new THREE.Vector3(x, y, z)
-                        );
-                        
-                        scene.add(arrow);
-                        fieldVectors.push(arrow);
+                        points.push(new THREE.Vector3(x, y, z));
                     }
+                    const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.7 });
+                    const line = new THREE.Line(lineGeometry, lineMaterial);
+                    scene.add(line);
+                    fieldLines.push(line);
                 }
             }
-            
-            // Ajustar a visibilidade conforme a configuração
-            setFieldVectorsVisibility(showFieldVectors);
         }
+        setFieldLinesVisibility(showFieldLines);
+    }
 
-        // Função para criar uma seta
-        function createArrow(direction, length, color, position) {
-            const arrow = new THREE.Group();
-            
-            // Corpo da seta (cilindro)
-            const bodyLength = length * 0.7;
-            const bodyGeometry = new THREE.CylinderGeometry(0.02, 0.02, bodyLength, 8);
-            const bodyMaterial = new THREE.MeshBasicMaterial({ color: color });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            body.position.y = bodyLength / 2;
-            arrow.add(body);
-            
-            // Cabeça da seta (cone)
-            const headLength = length * 0.3;
-            const headGeometry = new THREE.ConeGeometry(0.05, headLength, 16);
-            const headMaterial = new THREE.MeshBasicMaterial({ color: color });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.position.y = bodyLength + (headLength / 2);
-            arrow.add(head);
-            
-            // Rotacionar a seta para a direção correta
-            arrow.rotation.z = direction;
-            
-            // Posicionar a seta
-            arrow.position.copy(position);
-            
-            return arrow;
+    function createFieldVectors() {
+        fieldVectors.forEach(vector => scene.remove(vector));
+        fieldVectors = [];
+        const numVectorsPerCircle = 4;
+        const radiusStep = 0.8;
+        const maxRadius = 2.4;
+        const numLevels = 3;
+        const fieldDirection = current >= 0 ? 1 : -1;
+        for (let level = 0; level < numLevels; level++) {
+            const z = (level - (numLevels-1)/2) * 1.5;
+            for (let r = radiusStep; r <= maxRadius; r += radiusStep) {
+                for (let i = 0; i < numVectorsPerCircle; i++) {
+                    let angle = (i / numVectorsPerCircle) * Math.PI * 2;
+                    const x = Math.cos(angle) * r;
+                    const y = Math.sin(angle) * r;
+                    let tangentialAngle = angle + 2*Math.PI;
+                    if (fieldDirection < 0) tangentialAngle = angle + Math.PI;
+                    const fieldStrength = 0.3 * Math.abs(current) / r;
+                    const arrow = createArrow(tangentialAngle, fieldStrength, 0xffff00, new THREE.Vector3(x, y, z));
+                    scene.add(arrow);
+                    fieldVectors.push(arrow);
+                }
+            }
         }
+        setFieldVectorsVisibility(showFieldVectors);
+    }
 
-        // Função para atualizar a simulação
-        function updateSimulation() {
-            // Remover elementos antigos
-            if (wire) scene.remove(wire);
-            if (currentArrow) scene.remove(currentArrow);
-            fieldLines.forEach(line => scene.remove(line));
-            fieldVectors.forEach(vector => scene.remove(vector));
-            
-            // Recriar o fio com a cor correta
-            createWire();
-            
-            // Recriar as linhas de campo
-            createFieldLines();
-            
-            // Recriar os vetores de campo
-            createFieldVectors();
-            
-            // Atualizar medições
-            updateMeasurements();
-        }
-        
-        // Definir visibilidade das linhas de campo
-        function setFieldLinesVisibility(visible) {
-            fieldLines.forEach(line => {
-                line.visible = visible;
-            });
-        }
-        
-        // Definir visibilidade dos vetores de campo
-        function setFieldVectorsVisibility(visible) {
-            fieldVectors.forEach(vector => {
-                vector.visible = visible;
-            });
-        }
-        
-        // Atualizar as medições exibidas
-        function updateMeasurements() {
-            // Calcular campo magnético usando a Lei de Ampere
-            const B = (mu0 * Math.abs(current)) / (2 * Math.PI * distance);
-            
+    function createArrow(direction, length, color, position) {
+        const arrow = new THREE.Group();
+        const bodyLength = length * 0.7;
+        const bodyGeometry = new THREE.CylinderGeometry(0.02, 0.02, bodyLength, 8);
+        const bodyMaterial = new THREE.MeshBasicMaterial({ color: color });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.y = bodyLength / 2;
+        arrow.add(body);
+        const headLength = length * 0.3;
+        const headGeometry = new THREE.ConeGeometry(0.05, headLength, 16);
+        const headMaterial = new THREE.MeshBasicMaterial({ color: color });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.y = bodyLength + (headLength / 2);
+        arrow.add(head);
+        arrow.rotation.z = direction;
+        arrow.position.copy(position);
+        return arrow;
+    }
+
+    function setFieldLinesVisibility(visible) { fieldLines.forEach(line => line.visible = visible); }
+    function setFieldVectorsVisibility(visible) { fieldVectors.forEach(vector => vector.visible = visible); }
+
+    function updateMeasurements() {
+        const B = (mu0 * Math.abs(current)) / (2 * Math.PI * distance);
+        document.getElementById('currentValue').textContent = current.toFixed(1);
+        document.getElementById('distanceValue').textContent = distance.toFixed(1);
+        document.getElementById('fieldValue').textContent = formatScientific(B, 'T');
+        document.getElementById('currentDisplay').textContent = current.toFixed(1) + ' A';
+        document.getElementById('distanceDisplay').textContent = distance.toFixed(1) + ' m';
+        document.getElementById('fieldDisplay').textContent = formatScientific(B, 'T');
+    }
+
+    function updateSimulation() {
+        createWire();
+        createFieldLines();
+        createFieldVectors();
+        updateMeasurements();
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+        const container = document.getElementById('renderer-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    function setupEventListeners() {
+        document.getElementById('currentSlider').addEventListener('input', function() {
+            current = parseFloat(this.value);
             document.getElementById('currentValue').textContent = current.toFixed(1);
-            document.getElementById('distanceValue').textContent = distance.toFixed(1);
-            document.getElementById('fieldValue').textContent = formatScientific(B, 'T');
-    
-            document.getElementById('currentDisplay').textContent = current.toFixed(1) + ' A';
-            document.getElementById('distanceDisplay').textContent = distance.toFixed(1) + ' m';
-            document.getElementById('fieldDisplay').textContent = formatScientific(B, 'T');
-        }
-        
-        // Animação
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        
-        // Ajustar ao redimensionamento da janela
-        function onWindowResize() {
-            updateRendererSize();
-        }
-        
-        // Configurar event listeners
-        function setupEventListeners() {
-            // Controle de corrente
-            document.getElementById('currentSlider').addEventListener('input', function() {
-                current = parseFloat(this.value);
-                document.getElementById('currentValue').textContent = current.toFixed(1);
-                updateSimulation();
-            });
-            
-            // Botões de visualização
-            document.getElementById('linesBtn').addEventListener('click', function() {
-                showFieldLines = !showFieldLines;
-                setFieldLinesVisibility(showFieldLines);
-                this.classList.toggle('active', showFieldLines);
-            });
-            
-            document.getElementById('vectorsBtn').addEventListener('click', function() {
-                showFieldVectors = !showFieldVectors;
-                setFieldVectorsVisibility(showFieldVectors);
-                this.classList.toggle('active', showFieldVectors);
-            });
-            
-            // Botão de ajuda
-            document.getElementById('helpBtn').addEventListener('click', function() {
-                alert("Como usar:\n\n• Arraste para rotacionar a cena\n• Use a roda do mouse para zoom\n• Fio no eixo Z (vertical)\n• Campo magnético no plano XY (horizontal)\n\nRegra da Mão Direita:\n• Polegar aponta no sentido da corrente\n• Dedos curvados indicam o sentido do campo");
-            });
-        }
-        
-        // Configurar eventos dos botões de exercícios
-        function setupExerciseEventListeners() {
-            // Botões de exercícios
-            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
-            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
-            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
-            
-            // Fechar modais
-            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
-            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
-            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
-            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
-            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
-            
-            // Clique fora do modal para fechar
-            window.addEventListener('click', function(event) {
-                if (event.target == document.getElementById('exercisesModal')) {
-                    closeExercisesModal();
-                } else if (event.target == document.getElementById('solvedExercisesModal')) {
-                    closeSolvedExercisesModal();
-                } else if (event.target == document.getElementById('theoryModal')) {
-                    closeTheoryModal();
-                }
-            });
-        }
-        
-        // Fechar modal de exercícios
-        function closeExercisesModal() {
-            document.getElementById('exercisesModal').style.display = 'none';
-            currentExercise = 0;
-            exerciseResults = [];
-            skippedQuestions = 0;
-            currentExerciseAttempts = 0;
-        }
-        
-        // Fechar modal de exercícios resolvidos
-        function closeSolvedExercisesModal() {
-            document.getElementById('solvedExercisesModal').style.display = 'none';
-        }
-        
-        // Fechar modal de teoria
-        function closeTheoryModal() {
-            document.getElementById('theoryModal').style.display = 'none';
-        }
-        
-        // Abrir modal de exercícios resolvidos
-        function openSolvedExercisesModal() {
-            document.getElementById('solvedExercisesModal').style.display = 'flex';
-        }
-        
-        // Abrir modal de teoria
-        function openTheoryModal() {
-            document.getElementById('theoryModal').style.display = 'flex';
-        }
-        
-        // ========== SISTEMA DE EXERCÍCIOS - LEI DE AMPERE ==========
-        
-        // Gerar exercícios sobre Lei de Ampere
-        function generateExercises() {
-            exercises = [];
-            
-            // Gerar 6 exercícios variados
-            for (let i = 0; i < 2; i++) {
-                // Tipo 1: Calcular campo magnético (B)
-                let iVal = (Math.floor(Math.random() * 18) + 3); // 3-20 A
-                let dVal = (Math.floor(Math.random() * 9) + 1) / 10; // 0.1-1.0 m
-                let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
-                
-                exercises.push({
-                    type: 'campo',
-                    question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
-                    answer: formatScientificWith3Digits(bVal, 'T'),
-                    options: generateOptions(bVal, 'T')
-                });
-                
-                // Tipo 2: Calcular corrente elétrica (i)
-                bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6; // 1-10 μT
-                dVal = (Math.floor(Math.random() * 9) + 1) / 10; // 0.1-1.0 m
-                iVal = (bVal * 2 * Math.PI * dVal) / mu0;
-                
-                exercises.push({
-                    type: 'corrente',
-                    question: `A uma distância de ${dVal} m de um fio reto, o campo magnético medido é de ${formatScientificWith3Digits(bVal, 'T')}. Qual a corrente elétrica no fio?`,
-                    answer: formatScientificWith3Digits(iVal, 'A'),
-                    options: generateOptions(iVal, 'A')
-                });
-                
-                // Tipo 3: Calcular distância (d)
-                iVal = (Math.floor(Math.random() * 18) + 3); // 3-20 A
-                bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6; // 1-10 μT
-                dVal = (mu0 * iVal) / (2 * Math.PI * bVal);
-                
-                exercises.push({
-                    type: 'distancia',
-                    question: `Um fio reto percorrido por uma corrente de ${iVal} A produz um campo magnético de ${formatScientificWith3Digits(bVal, 'T')}. A que distância do fio foi medida essa intensidade de campo?`,
-                    answer: formatScientificWith3Digits(dVal, 'm'),
-                    options: generateOptions(dVal, 'm')
-                });
+            updateSimulation();
+        });
+        document.getElementById('linesBtn').addEventListener('click', function() {
+            showFieldLines = !showFieldLines;
+            setFieldLinesVisibility(showFieldLines);
+            this.classList.toggle('active', showFieldLines);
+        });
+        document.getElementById('vectorsBtn').addEventListener('click', function() {
+            showFieldVectors = !showFieldVectors;
+            setFieldVectorsVisibility(showFieldVectors);
+            this.classList.toggle('active', showFieldVectors);
+        });
+        document.getElementById('helpBtn').addEventListener('click', () => alert("Use o mouse para girar a cena. Ajuste a corrente e veja o campo magnético mudar."));
+    }
+
+    // ==================== ÁUDIO INTERATIVO ====================
+    let studentName = localStorage.getItem('studentNameAmpere') || '';
+
+    function ensureStudentNameAmpere() {
+        if (!studentName) {
+            const providedName = prompt('Antes de começar, digite seu nome:');
+            if (providedName && providedName.trim()) {
+                studentName = providedName.trim();
+                localStorage.setItem('studentNameAmpere', studentName);
+            } else {
+                studentName = 'estudante';
             }
-            
-            // Embaralhar exercícios
-            exercises = shuffleArray(exercises);
         }
-        
-        // Gerar opções de resposta com notação científica
-        function generateOptions(correctValue, unit) {
-            const options = [];
+        return studentName;
+    }
+
+    let selectedVoice = null;
+    let savedVoicePreference = localStorage.getItem('voicePreferenceAmpere') || '';
+    const tracks = [
+        () => `Olá, ${ensureStudentNameAmpere()}! Esta simulação da Lei de Ampère mostra um fio retilíneo no centro da cena e o campo magnético circular ao seu redor. No painel lateral, você controla a corrente elétrica e ativa diferentes formas de visualização. A proposta é ligar a fórmula, o desenho do campo e a interpretação espacial do fenômeno em uma mesma leitura.`,
+        'Gire a cena e compare duas representações complementares. As linhas de campo destacam a geometria circular do campo magnético. Os vetores mostram, em cada ponto, a direção e a intensidade desse campo. Altere a corrente e observe: quando seu módulo aumenta, o campo fica mais intenso; quando o sinal da corrente muda, o sentido do campo se inverte.',
+        'A relação física principal para este caso é B igual a mi zero vezes i dividido por 2 pi d. Essa expressão mostra que o campo magnético cresce com a corrente e diminui com a distância ao fio. Mesmo que a distância não seja um controle livre na tela, ela continua sendo uma ideia central para interpretar o comportamento do campo.',
+        'A regra da mão direita é a ponte entre cálculo e orientação espacial. Polegar apontando no sentido da corrente; dedos curvados indicando o sentido do campo magnético. Em torno de um fio retilíneo, isso produz circunferências centradas no fio. Essa leitura será essencial nos exercícios que envolvem direção vetorial do campo.',
+        'Use os botões de visualização para alternar entre linhas de campo e vetores. As linhas ajudam a perceber a simetria circular. Os vetores ajudam a localizar a direção do campo em cada ponto da região observada. Separar essas duas leituras costuma facilitar bastante a construção da intuição espacial em magnetismo.',
+        () => `Muito bem, ${ensureStudentNameAmpere()}! Depois dessa exploração inicial, abra os exercícios resolvidos e observe como a mesma lei pode ser usada para calcular intensidade, determinar corrente e identificar a direção do campo magnético em pontos específicos.`
+    ];
+
+    let currentTrack = 0;
+    let speechSynthesis = window.speechSynthesis;
+    let speaking = false;
+    let audioPaused = false;
+    let currentSpeechSource = null;
+    let activeExampleButton = null;
+    let speechSessionId = 0;
+    const exampleNarrations = {
+        "1": "Exemplo 1. O objetivo é calcular a intensidade do campo magnético a uma distância conhecida do fio. Como a corrente e a distância foram dadas, aplicamos diretamente a expressão B igual a mi zero vezes i dividido por 2 pi d. Ao substituir os valores, obtemos 1,0 vezes 10 elevado a menos 5 tesla, ou 10 microtesla. O ponto principal é perceber que o campo ao redor de um fio retilíneo costuma ser pequeno, mas cresce linearmente com a corrente.",
+        "2": "Exemplo 2. Agora a incógnita é a corrente elétrica. Em vez de decorar outra fórmula, basta reorganizar a mesma relação, isolando i. Assim, a corrente fica igual a B vezes 2 pi d dividido por mi zero. Substituindo o campo medido e a distância ao fio, encontramos 2 amperes. Esse exemplo mostra como a lei pode ser usada de forma inversa, inferindo a corrente a partir do campo magnético observado.",
+        "3": "Exemplo 3. Aqui não basta calcular módulo; precisamos determinar direção. A corrente aponta no sentido positivo de z, então usamos a regra da mão direita com o polegar para cima. Os dedos indicam o campo circulando ao redor do fio. No ponto localizado sobre o eixo y positivo, a direção tangente da circunferência aponta para o sentido negativo do eixo x. Esse é um exemplo clássico de como geometria e vetor caminham juntos no magnetismo."
+    };
+
+    function getVoiceKey(voice) {
+        return `${voice.name}__${voice.lang}`;
+    }
+
+    function getPreferredVoices(voices) {
+        const portugueseVoices = voices.filter(voice => /^pt(-|$)/i.test(voice.lang));
+        return portugueseVoices.length ? portugueseVoices : voices;
+    }
+
+    function setMainAudioButtonState(state) {
+        const button = document.getElementById('playPauseAudioBtn');
+        if (!button) return;
+
+        if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+        else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+        else button.innerHTML = '▶️ Iniciar';
+    }
+
+    function setExampleButtonState(button, state) {
+        if (!button) return;
+
+        if (state === 'playing') {
+            button.innerHTML = '⏸️ Pausar resolução';
+            button.classList.add('playing');
+        } else if (state === 'paused') {
+            button.innerHTML = '▶️ Continuar resolução';
+            button.classList.add('playing');
+        } else {
+            button.innerHTML = '🔊 Ouvir resolução';
+            button.classList.remove('playing');
+        }
+    }
+
+    function clearExampleAudioState() {
+        if (activeExampleButton) {
+            setExampleButtonState(activeExampleButton, 'idle');
+            activeExampleButton = null;
+        }
+    }
+
+    function resetAudioUi() {
+        setMainAudioButtonState('idle');
+        clearExampleAudioState();
+    }
+
+    function finishSpeech(sessionId) {
+        if (sessionId !== speechSessionId) return;
+
+        speaking = false;
+        audioPaused = false;
+        currentSpeechSource = null;
+        resetAudioUi();
+    }
+
+    function populateVoiceSelector(voices) {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+
+        const availableVoices = getPreferredVoices(voices);
+        voiceSelect.innerHTML = '';
+
+        availableVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = getVoiceKey(voice);
+            option.textContent = `${voice.name} (${voice.lang})`;
+            voiceSelect.appendChild(option);
+        });
+
+        if (!availableVoices.length) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma voz encontrada';
+            voiceSelect.appendChild(option);
+            voiceSelect.disabled = true;
+            selectedVoice = null;
+            return;
+        }
+
+        voiceSelect.disabled = false;
+
+        const preferredVoiceNames = [
+            'Microsoft Daniel',
+            'Daniel',
+            'Microsoft Antonio',
+            'Antonio',
+            'Microsoft Duarte',
+            'Duarte'
+        ];
+
+        const savedVoice = availableVoices.find(voice => getVoiceKey(voice) === savedVoicePreference);
+        const preferredVoice = availableVoices.find(voice =>
+            voice.lang === 'pt-BR' &&
+            preferredVoiceNames.some(name => voice.name.includes(name))
+        );
+
+        selectedVoice = savedVoice || preferredVoice || availableVoices[0] || null;
+        voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+    }
+
+    function setupVoiceSelector() {
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (!voiceSelect) return;
+
+        voiceSelect.addEventListener('change', function() {
+            const voices = getPreferredVoices(speechSynthesis ? speechSynthesis.getVoices() : []);
+            selectedVoice = voices.find(voice => getVoiceKey(voice) === this.value) || null;
+            savedVoicePreference = selectedVoice ? getVoiceKey(selectedVoice) : '';
+            localStorage.setItem('voicePreferenceAmpere', savedVoicePreference);
+        });
+    }
+
+    function loadPreferredVoice() {
+        return new Promise((resolve) => {
+            const tryGetVoice = () => {
+                const voices = speechSynthesis.getVoices();
+                populateVoiceSelector(voices);
+                resolve(!!selectedVoice);
+            };
+
+            if (speechSynthesis.getVoices().length) {
+                tryGetVoice();
+            } else {
+                speechSynthesis.onvoiceschanged = tryGetVoice;
+            }
+        });
+    }
+
+    function speakText(text) {
+        if (!speechSynthesis) {
+            alert('Este navegador não oferece suporte à fala sintetizada.');
+            return;
+        }
+
+        if (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused) {
+            speechSessionId++;
+            speechSynthesis.cancel();
+        }
+
+        const sessionId = ++speechSessionId;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.onend = () => finishSpeech(sessionId);
+        utterance.onerror = () => finishSpeech(sessionId);
+        speechSynthesis.speak(utterance);
+        speaking = true;
+        audioPaused = false;
+    }
+
+    function resolveTrackText(track) {
+        return typeof track === 'function' ? track() : track;
+    }
+
+    function speakTrack(index) {
+        currentSpeechSource = 'track';
+        clearExampleAudioState();
+        setMainAudioButtonState('playing');
+        speakText(resolveTrackText(tracks[index]));
+        if (speaking) {
+            document.getElementById('trackCounter').innerText = `Trecho ${index+1}/${tracks.length}`;
+        }
+    }
+
+    function pauseAudio() {
+        if (speechSynthesis && speaking && !audioPaused) {
+            speechSynthesis.pause();
+            audioPaused = true;
+            if (currentSpeechSource === 'track') {
+                setMainAudioButtonState('paused');
+            } else if (currentSpeechSource === 'example') {
+                setExampleButtonState(activeExampleButton, 'paused');
+            }
+        }
+    }
+
+    function resumeAudio() {
+        if (currentSpeechSource === 'track' && speaking && audioPaused && speechSynthesis) {
+            speechSynthesis.resume();
+            audioPaused = false;
+            setMainAudioButtonState('playing');
+            return;
+        }
+
+        if (!speaking || currentSpeechSource !== 'track') speakTrack(currentTrack);
+    }
+
+    function toggleExampleAudio(button) {
+        const text = exampleNarrations[button.getAttribute('data-example')];
+        if (!text) return;
+
+        if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+            if (audioPaused && speechSynthesis) {
+                speechSynthesis.resume();
+                audioPaused = false;
+                setExampleButtonState(button, 'playing');
+            } else {
+                pauseAudio();
+            }
+            return;
+        }
+
+        currentSpeechSource = 'example';
+        clearExampleAudioState();
+        activeExampleButton = button;
+        setMainAudioButtonState('idle');
+        setExampleButtonState(button, 'playing');
+        speakText(text);
+    }
+
+    function stopExampleNarration() {
+        if (currentSpeechSource !== 'example' && !activeExampleButton) {
+            return;
+        }
+
+        if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+            speechSessionId++;
+            speechSynthesis.cancel();
+        }
+
+        speaking = false;
+        audioPaused = false;
+        currentSpeechSource = null;
+        clearExampleAudioState();
+        setMainAudioButtonState('idle');
+    }
+
+    function nextTrack() {
+        if (currentTrack + 1 < tracks.length) {
+            currentTrack++;
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
+            speakTrack(currentTrack);
+        } else {
+            alert("Você concluiu todos os trechos! Agora faça os exercícios.");
+        }
+    }
+
+    function prevTrack() {
+        if (currentTrack > 0) {
+            currentTrack--;
+            if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+            speaking = false;
+            audioPaused = false;
+            speakTrack(currentTrack);
+        } else {
+            alert("Este é o primeiro trecho.");
+        }
+    }
+
+    const playPauseBtn = document.getElementById('playPauseAudioBtn');
+    playPauseBtn.addEventListener('click', () => {
+        if (currentSpeechSource === 'track' && speaking) {
+            if (audioPaused) resumeAudio();
+            else pauseAudio();
+        } else {
+            resumeAudio();
+        }
+    });
+    document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+    document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+    setupVoiceSelector();
+
+    document.querySelectorAll('.audio-example-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            toggleExampleAudio(btn);
+        });
+    });
+
+    window.addEventListener('load', () => {
+        initSimulation();
+        loadPreferredVoice().then(() => {
+            document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+        });
+    });
+
+    // ==================== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ====================
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+    let conclusionTextSaved = "";
+
+    function resetExerciseState() {
+        exercises = [];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        conclusionTextSaved = "";
+    }
+
+    function generateExercises() {
+        exercises = [];
+        for (let i = 0; i < 2; i++) {
+            let iVal = (Math.floor(Math.random() * 18) + 3);
+            let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
+            let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
+            exercises.push({
+                type: 'campo',
+                question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
+                answer: formatScientificWith3Digits(bVal, 'T'),
+                options: generateOptions(bVal, 'T')
+            });
+            let bVal2 = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+            let dVal2 = (Math.floor(Math.random() * 9) + 1) / 10;
+            let iVal2 = (bVal2 * 2 * Math.PI * dVal2) / mu0;
+            exercises.push({
+                type: 'corrente',
+                question: `A uma distância de ${dVal2} m de um fio reto, o campo magnético medido é de ${formatScientificWith3Digits(bVal2, 'T')}. Qual a corrente elétrica no fio?`,
+                answer: formatScientificWith3Digits(iVal2, 'A'),
+                options: generateOptions(iVal2, 'A')
+            });
+            let iVal3 = (Math.floor(Math.random() * 18) + 3);
+            let bVal3 = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+            let dVal3 = (mu0 * iVal3) / (2 * Math.PI * bVal3);
+            exercises.push({
+                type: 'distancia',
+                question: `Um fio reto percorrido por uma corrente de ${iVal3} A produz um campo magnético de ${formatScientificWith3Digits(bVal3, 'T')}. A que distância do fio foi medida essa intensidade de campo?`,
+                answer: formatScientificWith3Digits(dVal3, 'm'),
+                options: generateOptions(dVal3, 'm')
+            });
+        }
+        exercises = shuffleArray(exercises);
+    }
+
+    function generateOptions(correctValue, unit) {
+        const options = [];
+        let formattedCorrect = formatScientificWith3Digits(correctValue, unit);
+        options.push({ value: correctValue, display: formattedCorrect });
+        for (let i = 0; i < 4; i++) {
+            let optionValue;
             let attempts = 0;
-            const maxAttempts = 20;
-            
-            // Formatar o valor correto
-            let formattedCorrectValue = formatScientificWith3Digits(correctValue, unit);
-            
-            options.push({
-                value: correctValue,
-                display: formattedCorrectValue
-            });
-            
-            // Gerar 4 opções incorretas (total de 5 alternativas)
-            for (let i = 0; i < 4; i++) {
-                let optionValue;
-                let formattedOption;
-                let unique = false;
-                
-                // Garantir que as opções sejam diferentes
-                attempts = 0;
-                do {
-                    // Usar variações mais diversificadas
-                    const variationType = Math.random();
-                    if (variationType < 0.3) {
-                        // Multiplicador aleatório
-                        optionValue = correctValue * (Math.random() * 1.5 + 0.5);
-                    } else if (variationType < 0.6) {
-                        // Divisor aleatório
-                        optionValue = correctValue / (Math.random() * 1.5 + 0.5);
-                    } else {
-                        // Soma/subtração de porcentagem
-                        const percentChange = (Math.random() * 60 + 20) / 100;
-                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
-                    }
-                    
-                    // Garantir que o valor seja positivo para grandezas físicas
-                    if (unit === 'T' || unit === 'm' || unit === 'A') {
-                        optionValue = Math.abs(optionValue);
-                    }
-                    
-                    // Formatar com notação científica
-                    formattedOption = formatScientificWith3Digits(optionValue, unit);
-                    
-                    unique = !options.some(opt => opt.display === formattedOption);
-                    attempts++;
-                    
-                    if (attempts > maxAttempts) {
-                        // Forçar uma opção única adicionando um identificador
-                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
-                        unique = true;
-                    }
-                } while (!unique);
-                
-                options.push({
-                    value: optionValue,
-                    display: formattedOption
-                });
-            }
-            
-            // Embaralhar opções e retornar apenas os valores formatados
-            return shuffleArray(options).map(opt => opt.display);
-        }
-        
-        // Embaralhar array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-        
-        // Mostrar exercício atual
-        function showCurrentExercise() {
-            const exercise = exercises[currentExercise];
-            const container = document.getElementById('exerciseContainer');
-            
-            container.innerHTML = `
-                <div class="exercise">
-                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
-                    <p>${exercise.question}</p>
-                    <div class="options">
-                        ${exercise.options.map((option, index) => `
-                            <div class="option" data-value="${option}">${option}</div>
-                        `).join('')}
-                    </div>
-                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
-                    <div class="result"></div>
-                </div>
-            `;
-            
-            // Adicionar event listeners usando delegação
-            container.addEventListener('click', function(e) {
-                if (e.target.classList.contains('option')) {
-                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-                    e.target.classList.add('selected');
+            do {
+                const variationType = Math.random();
+                if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                else {
+                    const percentChange = (Math.random() * 60 + 20) / 100;
+                    optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
                 }
-            });
-            
-            // Listener específico para o botão de verificação
-            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
-            
-            // Atualizar barra de progresso
-            updateProgressBar();
+                if (unit === 'T' || unit === 'm' || unit === 'A') optionValue = Math.abs(optionValue);
+                attempts++;
+                if (attempts > 20) break;
+            } while (options.some(opt => opt.display === formatScientificWith3Digits(optionValue, unit)));
+            options.push({ value: optionValue, display: formatScientificWith3Digits(optionValue, unit) });
         }
-        
-        // Verificar resposta
-        function checkAnswer() {
-            const container = document.getElementById('exerciseContainer');
-            const selectedOption = container.querySelector('.option.selected');
-            const resultDiv = container.querySelector('.result');
-            const checkButton = document.getElementById('checkAnswerBtn');
-            const options = container.querySelectorAll('.option');
-            
-            if (!selectedOption) {
-                resultDiv.textContent = 'Por favor, selecione uma opção.';
-                resultDiv.className = 'result error';
+        return shuffleArray(options).map(opt => opt.display);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function generateNewExerciseOfSameType() {
+        const type = exercises[currentExercise].type;
+        if (type === 'campo') {
+            let iVal = (Math.floor(Math.random() * 18) + 3);
+            let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
+            let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
+            exercises[currentExercise] = {
+                type: 'campo',
+                question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
+                answer: formatScientificWith3Digits(bVal, 'T'),
+                options: generateOptions(bVal, 'T')
+            };
+        } else if (type === 'corrente') {
+            let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+            let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
+            let iVal = (bVal * 2 * Math.PI * dVal) / mu0;
+            exercises[currentExercise] = {
+                type: 'corrente',
+                question: `A uma distância de ${dVal} m de um fio reto, o campo magnético medido é de ${formatScientificWith3Digits(bVal, 'T')}. Qual a corrente elétrica no fio?`,
+                answer: formatScientificWith3Digits(iVal, 'A'),
+                options: generateOptions(iVal, 'A')
+            };
+        } else if (type === 'distancia') {
+            let iVal = (Math.floor(Math.random() * 18) + 3);
+            let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
+            let dVal = (mu0 * iVal) / (2 * Math.PI * bVal);
+            exercises[currentExercise] = {
+                type: 'distancia',
+                question: `Um fio reto percorrido por uma corrente de ${iVal} A produz um campo magnético de ${formatScientificWith3Digits(bVal, 'T')}. A que distância do fio foi medida essa intensidade de campo?`,
+                answer: formatScientificWith3Digits(dVal, 'm'),
+                options: generateOptions(dVal, 'm')
+            };
+        }
+    }
+
+    function showCurrentExercise() {
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map((opt, idx) => `<div class="option" data-value="${opt}">${opt}</div>`).join('')}
+                </div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+        container.onclick = function(event) {
+            const option = event.target.closest('.option');
+            if (!option) {
                 return;
             }
-            
-            // Desabilitar opções e botão de verificação
-            options.forEach(opt => {
-                opt.classList.add('disabled');
+
+            container.querySelectorAll('.option').forEach(function(item) {
+                item.classList.remove('selected');
             });
-            checkButton.disabled = true;
-            
-            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
-            
-            if (isCorrect) {
-                resultDiv.textContent = 'Correto! Parabéns!';
-                resultDiv.className = 'result success';
-                selectedOption.classList.add('correct');
-                
-                // Registrar resultado e avançar após delay
-                exerciseResults.push({ 
-                    exercise: currentExercise, 
-                    correct: true, 
-                    skipped: false,
-                    attempts: currentExerciseAttempts + 1
-                });
-                currentExerciseAttempts = 0;
-                setTimeout(nextExercise, 1500);
-            } else {
-                currentExerciseAttempts++;
-                resultDiv.innerHTML = `
+            option.classList.add('selected');
+        };
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+        if (!selected) {
+            resultDiv.innerHTML = '<div class="error">Selecione uma opção</div>';
+            return;
+        }
+        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+        if (isCorrect) {
+            resultDiv.innerHTML = '<div class="success">Correto! Parabéns!</div>';
+            exerciseResults.push({ correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+            currentExerciseAttempts = 0;
+            setTimeout(() => {
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `
                 <div class="error">Incorreto. Tente novamente.</div>
                 <div class="button-group">
                     <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
                     <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
                 </div>
-                `;
-                
-                // Adicionar event listeners aos novos botões
-                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
-                document.getElementById('tryAgainBtn').addEventListener('click', function() {
-                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
-                    generateNewExerciseOfSameType();
-                    showCurrentExercise();
-                });
-            }
-        }
-        
-        // Gerar novo exercício do mesmo tipo
-        function generateNewExerciseOfSameType() {
-            const currentType = exercises[currentExercise].type;
-            
-            if (currentType === 'campo') {
-                let iVal = (Math.floor(Math.random() * 18) + 3);
-                let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
-                let bVal = (mu0 * iVal) / (2 * Math.PI * dVal);
-                
-                exercises[currentExercise] = {
-                    type: 'campo',
-                    question: `Um fio reto é percorrido por uma corrente de ${iVal} A. Qual a intensidade do campo magnético a ${dVal} m de distância do fio?`,
-                    answer: formatScientificWith3Digits(bVal, 'T'),
-                    options: generateOptions(bVal, 'T')
-                };
-            } else if (currentType === 'corrente') {
-                let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
-                let dVal = (Math.floor(Math.random() * 9) + 1) / 10;
-                let iVal = (bVal * 2 * Math.PI * dVal) / mu0;
-                
-                exercises[currentExercise] = {
-                    type: 'corrente',
-                    question: `A uma distância de ${dVal} m de um fio reto, o campo magnético medido é de ${formatScientificWith3Digits(bVal, 'T')}. Qual a corrente elétrica no fio?`,
-                    answer: formatScientificWith3Digits(iVal, 'A'),
-                    options: generateOptions(iVal, 'A')
-                };
-            } else if (currentType === 'distancia') {
-                let iVal = (Math.floor(Math.random() * 18) + 3);
-                let bVal = (Math.floor(Math.random() * 9) + 1) * 1e-6;
-                let dVal = (mu0 * iVal) / (2 * Math.PI * bVal);
-                
-                exercises[currentExercise] = {
-                    type: 'distancia',
-                    question: `Um fio reto percorrido por uma corrente de ${iVal} A produz um campo magnético de ${formatScientificWith3Digits(bVal, 'T')}. A que distância do fio foi medida essa intensidade de campo?`,
-                    answer: formatScientificWith3Digits(dVal, 'm'),
-                    options: generateOptions(dVal, 'm')
-                };
-            }
-        }
-        
-        // Pular exercício
-        function skipExercise() {
-            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
-                exerciseResults.push({
-                    exercise: currentExercise,
-                    correct: false,
-                    skipped: true,
-                    attempts: currentExerciseAttempts
-                });
-                
-                skippedQuestions++;
-                currentExerciseAttempts = 0;
-                currentExercise++;
-                
-                if (currentExercise < exercises.length) {
-                    showCurrentExercise();
-                } else {
-                    showConclusion();
-                }
-            }   
-        }
-        
-        // Avançar para o próximo exercício
-        function nextExercise() {
-            currentExercise++;
-            
-            if (currentExercise < exercises.length) {
+            `;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', () => {
+                generateNewExerciseOfSameType();
                 showCurrentExercise();
-            } else {
-                showConclusion();
-            }
-        }
-        
-        // Atualizar barra de progresso
-        function updateProgressBar() {
-            for (let i = 0; i < 6; i++) {
-                const progressItem = document.getElementById(`progress${i+1}`);
-                progressItem.classList.remove('active', 'completed');
-                
-                if (i === currentExercise) {
-                    progressItem.classList.add('active');
-                } else if (i < currentExercise) {
-                    progressItem.classList.add('completed');
-                }
-            }
-        }
-        
-        // Mostrar tela de conclusão
-        function showConclusion() {
-            document.getElementById('exerciseContainer').style.display = 'none';
-            document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
-                const conclusionText = document.getElementById('conclusionText').value;
-                if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusão antes de enviar.');
-                    return;
-                }
-                
-                showResults(conclusionText);
             });
         }
-        
-        // Mostrar resultados finais
-        function showResults(conclusion) {
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
-            document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercícios respondidos: ${totalExercises}</p>
-                <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercícios pulados: ${skippedQuestions}</p>
-                <p>Nota: ${scorePercentage}%</p>
-            `;
-            
-            document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+    }
+
+    function skipExercise() {
+        if (confirm("Deseja pular este exercício? Um erro será registrado.")) {
+            exerciseResults.push({ correct: false, skipped: true, attempts: currentExerciseAttempts });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
         }
-        
-        // Função otimizada para enviar dados e email
-        function sendResultsToSheet() {
-            const studentName = document.getElementById('studentName').value;
-            const studentGrade = document.getElementById('studentGrade').value;
-            const studentClass = document.getElementById('studentClass').value;
-            const studentEmail = document.getElementById('studentEmail').value;
-            const criticism = document.getElementById('criticismInput').value;
-            const suggestion = document.getElementById('suggestionInput').value;
-            const finalConclusion = document.getElementById('finalConclusion').value;
-            const sendButton = document.getElementById('sendResults');
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
+    }
+
+    function updateProgressBar() {
+        for (let i = 0; i < 6; i++) {
+            const el = document.getElementById(`progress${i+1}`);
+            el.classList.remove('active', 'completed');
+            if (i === currentExercise) el.classList.add('active');
+            else if (i < currentExercise) el.classList.add('completed');
+        }
+    }
+
+    function showConclusion() {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'block';
+        const textarea = document.getElementById('conclusionText');
+        if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+        const submit = document.getElementById('submitConclusion');
+        const newSubmit = submit.cloneNode(true);
+        submit.parentNode.replaceChild(newSubmit, submit);
+        newSubmit.addEventListener('click', () => {
+            const text = document.getElementById('conclusionText').value;
+            if (!text.trim()) {
+                alert('Por favor, escreva uma conclusão.');
                 return;
             }
-            
-            // Desabilita o botão para evitar múltiplos cliques
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
-            const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-            
-            // Dados únicos que servem para AMBOS os propósitos
-            const dadosCompletos = {
-                // Para a planilha
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Lei de Ampere',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                
-                // Para o email (campos adicionais)
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
+            conclusionTextSaved = text;
+            showResults(text);
+        });
+    }
 
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+    function showResults(conclusion) {
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(r => r.correct).length;
+        const percent = Math.round((correct / total) * 100);
+        document.getElementById('resultsSummary').innerHTML = `
+            <p>Exercícios respondidos: ${total}</p>
+            <p>Respostas corretas: ${correct}</p>
+            <p>Exercícios pulados: ${skippedQuestions}</p>
+            <p>Nota: ${percent}%</p>
+        `;
+        document.getElementById('finalConclusion').value = conclusion;
+        const sendBtn = document.getElementById('sendResults');
+        const newSend = sendBtn.cloneNode(true);
+        sendBtn.parentNode.replaceChild(newSend, sendBtn);
+        newSend.addEventListener('click', sendResultsToSheet);
+    }
 
-            // Primeiro: enviar para a planilha
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dadosCompletos)
-            })
+    function sendResultsToSheet() {
+        if (typeof window.__simulationEnhancerSendResults === 'function') {
+            return window.__simulationEnhancerSendResults();
+        }
+
+        const studentName = document.getElementById('studentName').value;
+        const studentGrade = document.getElementById('studentGrade').value;
+        const studentClass = document.getElementById('studentClass').value;
+        const studentEmail = document.getElementById('studentEmail').value;
+        const criticism = document.getElementById('criticismInput').value;
+        const suggestion = document.getElementById('suggestionInput').value;
+        const finalConclusion = document.getElementById('finalConclusion').value;
+        const sendButton = document.getElementById('sendResults');
+        if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+            alert('Preencha todos os campos obrigatórios.');
+            return;
+        }
+        sendButton.disabled = true;
+        sendButton.textContent = 'Enviando...';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(r => r.correct).length;
+        const percent = Math.round((correct / total) * 100);
+        const emailStatus = document.getElementById('emailStatus');
+        emailStatus.style.display = 'block';
+        emailStatus.textContent = 'Enviando...';
+        emailStatus.className = 'email-status sending';
+        const data = {
+            timestamp: new Date().toLocaleString('pt-BR'),
+            serie: studentGrade,
+            turma: studentClass,
+            estudante: studentName,
+            simulacao: 'Lei de Ampere',
+            questoes_puladas: skippedQuestions,
+            acertos_erros: `${correct}/${total - correct}`,
+            nota: percent + '%',
+            conclusao: finalConclusion,
+            criticas: criticism,
+            sugestoes: suggestion,
+            email: studentEmail || '',
+            to_email: "flavio.ambrosio@edu.se.df.gov.br",
+            nome_aluno: studentName,
+            acertos: `${correct}/${total}`,
+            data_envio: new Date().toLocaleString('pt-BR')
+        };
+        const planilhaUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+        fetch(planilhaUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+            .then(() => fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }))
             .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                
-                // Enviar email para o professor
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(dadosCompletos)
-                });
-            })
-            .then(() => {
-                // Se o aluno forneceu email, enviar cópia
                 if (studentEmail) {
-                    const emailDataAluno = {
-                        to_email: studentEmail,
-                        nome_aluno: studentName || 'Não informado',
-                        serie: studentGrade || 'Não informado',
-                        turma: studentClass || 'Não informado',
-                        nota: scorePercentage + '%' || '0%',
-                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                        questoes_puladas: skippedQuestions || 0,
-                        conclusao: finalConclusion || 'Não informado',
-                        data_envio: new Date().toLocaleString('pt-BR'),
-                        simulacao: 'Lei de Ampere',
-                        mensagem: `Confirmação de Envio - Simulação Lei de Ampere
-
-            Prezado(a) ${studentName},
-
-            Confirmamos o recebimento dos seus resultados:
-
-            📊 SEUS RESULTADOS:
-            • Nota: ${scorePercentage}%
-            • Acertos: ${correctAnswers} de ${totalExercises} questões
-            • Questões Puladas: ${skippedQuestions}
-
-            Data: ${new Date().toLocaleString('pt-BR')}
-
-            Atenciosamente,
-            Sistema de Simulações Físicas`
-                    };
-                    
-                    return fetch(emailScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(emailDataAluno)
-                    });
+                    const alunoData = { ...data, to_email: studentEmail, mensagem: `Confirmação de envio - Lei de Ampere\nNota: ${percent}%\nAcertos: ${correct}/${total}` };
+                    return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alunoData) });
                 }
             })
             .then(() => {
-                const mensagemSucesso = studentEmail 
-                    ? '✅ Dados salvos e emails enviados!' 
-                    : '✅ Dados salvos e email enviado ao professor!';
-                
-                emailStatus.textContent = mensagemSucesso;
+                emailStatus.textContent = '✅ Dados enviados com sucesso!';
                 emailStatus.className = 'email-status sent';
-                
                 setTimeout(() => {
+                    resetExerciseState();
                     closeExercisesModal();
-                    // Reativa o botão após fechar o modal
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
                 }, 3000);
             })
-            .catch(error => {
+            .catch(err => {
                 emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
                 emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-                
-                // Reativa o botão em caso de erro
                 sendButton.disabled = false;
                 sendButton.textContent = 'Enviar Resultados';
             });
+    }
+
+    function closeExercisesModal() {
+        const textarea = document.getElementById('conclusionText');
+        if (textarea && document.getElementById('conclusionContainer').style.display === 'block') {
+            conclusionTextSaved = textarea.value;
         }
-        
-        // Abrir modal de exercícios
-        function openExercisesModal() {
+        document.getElementById('exercisesModal').style.display = 'none';
+    }
+
+    function resetAndRestartExercises() {
+        if (confirm("Deseja reiniciar todos os exercícios? Seu progresso será perdido.")) {
+            resetExerciseState();
             generateExercises();
-            document.getElementById('exercisesModal').style.display = 'flex';
+            currentExercise = 0;
             document.getElementById('exerciseContainer').style.display = 'block';
             document.getElementById('conclusionContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'none';
             showCurrentExercise();
         }
-        
-        // Inicializar a simulação quando a página carregar
-        window.addEventListener('load', init);
-    </script>
+    }
+
+    function openExercisesModal() {
+        if (exercises.length === 0 || (currentExercise >= exercises.length && 
+            document.getElementById('resultsContainer').style.display !== 'block' &&
+            document.getElementById('conclusionContainer').style.display !== 'block')) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        } else {
+            if (document.getElementById('resultsContainer').style.display === 'block') {
+                // já está nos resultados
+            } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                document.getElementById('exerciseContainer').style.display = 'none';
+                document.getElementById('conclusionContainer').style.display = 'block';
+                if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+            } else {
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+        document.getElementById('exercisesModal').style.display = 'flex';
+    }
+
+    function openSolvedExercisesModal() {
+        document.getElementById('solvedExercisesModal').style.display = 'flex';
+    }
+
+    function closeSolvedExercisesModal() {
+        stopExampleNarration();
+        document.getElementById('solvedExercisesModal').style.display = 'none';
+    }
+    function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+    function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+    document.getElementById('mainExerciseBtn').onclick = openExercisesModal;
+    document.getElementById('solvedExercisesBtn').onclick = openSolvedExercisesModal;
+    document.getElementById('theoryBtn').onclick = openTheoryModal;
+    document.querySelector('#exercisesModal .close').onclick = closeExercisesModal;
+    document.querySelector('#solvedExercisesModal .close').onclick = closeSolvedExercisesModal;
+    document.querySelector('#theoryModal .close').onclick = closeTheoryModal;
+    document.getElementById('closeSolvedExercises').onclick = closeSolvedExercisesModal;
+    document.getElementById('closeTheory').onclick = closeTheoryModal;
+    document.getElementById('restartExercisesBtn').onclick = resetAndRestartExercises;
+    window.onclick = (e) => {
+        if (e.target === document.getElementById('exercisesModal')) closeExercisesModal();
+        if (e.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+        if (e.target === document.getElementById('theoryModal')) closeTheoryModal();
+    };
+</script>
+<script>
+    window.SIMULATION_ENHANCER_CONFIG = {
+        simulationName: 'Lei de Ampere',
+        storageKey: 'lei-de-ampere'
+    };
+</script>
+<script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>
