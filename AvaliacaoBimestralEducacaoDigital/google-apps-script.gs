@@ -1,12 +1,21 @@
 const SPREADSHEET_ID = '1SgAsDYqCKlz2Kel0_dmbdMEf9pmCz2mDVQHJwV2kIZk';
 const HISTORY_SHEET_NAME = 'Historico Avaliacoes';
 const DEFAULT_SCORE_HEADER = 'prova';
-const SCRIPT_VERSION = '2026-05-04-a';
+const SCRIPT_VERSION = '2026-05-05-b';
 const MODELO_ABA_NOME = '2o ano A';
 const LINHA_CABECALHO = 1;
 const LINHA_INICIO_ALUNOS = 2;
 const SCHOOL_NAME = 'CEAN - Centro de Ensino Médio Asa Norte';
 const TEACHER_NAME = 'Prof. Flávio Ambrósio';
+const TERM_BASE_COLUMNS = ['J', 'N', 'R', 'V'];
+const TERM_ORDER = ['1o', '2o', '3o', '4o'];
+const TERM_START_COLUMNS_PROPERTY = 'TERM_START_COLUMNS_MAP';
+const TERM_START_COLUMNS = {
+  '1o': 'J',
+  '2o': 'N',
+  '3o': 'R',
+  '4o': 'V'
+};
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'students') {
@@ -59,7 +68,7 @@ function doPost(e) {
 
     const spreadsheet = getManagedSpreadsheet();
     const targetSheet = findTargetSheet(spreadsheet, payload);
-    const scoreColumn = findOrCreateColumn(targetSheet, payload.scoreHeader || DEFAULT_SCORE_HEADER);
+    const scoreColumn = resolveScoreColumn(targetSheet, payload);
     const studentRow = findOrCreateStudentRow(targetSheet, payload.estudante);
 
     targetSheet.getRange(studentRow, scoreColumn).setValue(payload.nota || 0);
@@ -74,7 +83,8 @@ function doPost(e) {
       recuperacao: payload.recuperacao ? 'sim' : 'nao',
       trilha: payload.trilha || '',
       sheetName: payload.sheetName || targetSheet.getName(),
-      scoreHeader: payload.scoreHeader || DEFAULT_SCORE_HEADER,
+      scoreHeader: buildScoreHeader(payload),
+      colunaDestino: columnToLetter(scoreColumn),
       estudante: payload.estudante || '',
       estudanteDigitado: payload.estudanteDigitado || '',
       nota: payload.nota || 0,
@@ -443,6 +453,268 @@ function findOrCreateColumn(sheet, headerName) {
   return newColumn;
 }
 
+function resolveScoreColumn(sheet, payload) {
+  const requestedColumn = getRequestedColumnFromPayload(payload);
+  const scoreHeader = buildScoreHeader(payload);
+
+  if (!requestedColumn) {
+    return findOrCreateColumn(sheet, scoreHeader);
+  }
+
+  if (!shouldUseColumnBlock(payload)) {
+    return ensureFixedColumn(sheet, requestedColumn, scoreHeader);
+  }
+
+  return findOrCreateColumnInRequestedBlock(sheet, requestedColumn, scoreHeader, payload.bimestre || '');
+}
+
+function getRequestedColumnFromPayload(payload) {
+  const normalizedTerm = normalizeTermKey(payload.bimestre);
+  if (normalizedTerm) {
+    const dynamicColumns = getTermStartColumnsMap();
+    if (dynamicColumns[normalizedTerm]) {
+      return String(dynamicColumns[normalizedTerm]).trim().toUpperCase();
+    }
+  }
+
+  const explicitColumn = String(payload.coluna || payload.colunaBimestre || '').trim().toUpperCase();
+  if (explicitColumn) {
+    return explicitColumn;
+  }
+
+  return String(TERM_START_COLUMNS[normalizedTerm] || '').trim().toUpperCase();
+}
+
+function shouldUseColumnBlock(payload) {
+  return payload.categoria === 'nota-bimestral'
+    || payload.acao === 'acumular_nota_bimestral'
+    || !!String(payload.simulacao || '').trim();
+}
+
+function normalizeTermKey(value) {
+  const normalized = normalizeText(value)
+    .replace(/bimestre/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.startsWith('1')) return '1o';
+  if (normalized.startsWith('2')) return '2o';
+  if (normalized.startsWith('3')) return '3o';
+  if (normalized.startsWith('4')) return '4o';
+
+  return normalized;
+}
+
+function buildScoreHeader(payload) {
+  const explicitHeader = String(payload.scoreHeader || '').trim();
+  const normalizedExplicitHeader = normalizeText(explicitHeader);
+
+  if (payload.simulacao) {
+    return String(payload.simulacao).trim();
+  }
+
+  if (payload.atividade && payload.categoria === 'nota-bimestral') {
+    return String(payload.atividade).trim();
+  }
+
+  if (explicitHeader && normalizedExplicitHeader !== normalizeText(DEFAULT_SCORE_HEADER)) {
+    return explicitHeader;
+  }
+
+  return explicitHeader || DEFAULT_SCORE_HEADER;
+}
+
+function findOrCreateColumnInRequestedBlock(sheet, requestedColumnLetter, headerName, schoolTerm) {
+  const targetColumn = columnLetterToNumber(requestedColumnLetter);
+  if (!targetColumn) {
+    throw new Error('Coluna de destino inválida: ' + requestedColumnLetter);
+  }
+
+  ensureColumnExists(sheet, targetColumn);
+
+  const nextProtectedColumn = getNextProtectedColumn(targetColumn);
+  const blockEnd = nextProtectedColumn ? nextProtectedColumn - 1 : Math.max(sheet.getLastColumn(), targetColumn + 3);
+  ensureColumnExists(sheet, blockEnd);
+
+  const lastColumn = Math.max(sheet.getLastColumn(), blockEnd);
+  const headers = sheet.getRange(LINHA_CABECALHO, 1, 1, lastColumn).getDisplayValues()[0];
+  const normalizedHeader = normalizeText(headerName);
+
+  for (let column = targetColumn; column <= blockEnd; column += 1) {
+    if (normalizeText(headers[column - 1]) === normalizedHeader) {
+      return column;
+    }
+  }
+
+  const currentHeader = String(headers[targetColumn - 1] || '').trim();
+  if (!currentHeader || normalizeText(currentHeader) === normalizedHeader) {
+    sheet.getRange(LINHA_CABECALHO, targetColumn).setValue(headerName);
+    return targetColumn;
+  }
+
+  for (let column = targetColumn + 1; column <= blockEnd; column += 1) {
+    const headerValue = String(headers[column - 1] || '').trim();
+    if (!headerValue) {
+      sheet.getRange(LINHA_CABECALHO, column).setValue(headerName);
+      copyColumnFormatting(sheet, targetColumn, column);
+      return column;
+    }
+  }
+
+  if (!schoolTerm) {
+    throw new Error('Não há coluna livre no bloco iniciado em ' + requestedColumnLetter + ' para registrar a simulação ' + headerName + '.');
+  }
+
+  const insertedColumn = insertSimulationColumnAcrossManagedSheets(targetColumn, normalizeTermKey(schoolTerm), headerName);
+  return insertedColumn;
+}
+
+function ensureFixedColumn(sheet, requestedColumnLetter, headerName) {
+  const targetColumn = columnLetterToNumber(requestedColumnLetter);
+  if (!targetColumn) {
+    throw new Error('Coluna de destino inválida: ' + requestedColumnLetter);
+  }
+
+  ensureColumnExists(sheet, targetColumn);
+
+  if (!String(sheet.getRange(LINHA_CABECALHO, targetColumn).getDisplayValue() || '').trim() && headerName) {
+    sheet.getRange(LINHA_CABECALHO, targetColumn).setValue(headerName);
+  }
+
+  return targetColumn;
+}
+
+function getNextProtectedColumn(currentColumn) {
+  const dynamicColumns = getTermStartColumnsMap();
+  const protectedLetters = TERM_ORDER.map(function(termKey) {
+    return dynamicColumns[termKey] || TERM_START_COLUMNS[termKey] || '';
+  }).filter(Boolean);
+
+  for (let index = 0; index < protectedLetters.length; index += 1) {
+    const protectedColumn = columnLetterToNumber(protectedLetters[index]);
+    if (protectedColumn > currentColumn) {
+      return protectedColumn;
+    }
+  }
+
+  return null;
+}
+
+function ensureColumnExists(sheet, columnNumber) {
+  const maxColumns = sheet.getMaxColumns();
+  if (columnNumber <= maxColumns) {
+    return;
+  }
+
+  sheet.insertColumnsAfter(maxColumns, columnNumber - maxColumns);
+}
+
+function copyColumnFormatting(sheet, sourceColumn, targetColumn) {
+  const totalRows = Math.max(sheet.getMaxRows(), LINHA_INICIO_ALUNOS);
+  sheet.getRange(1, sourceColumn, totalRows, 1)
+    .copyTo(sheet.getRange(1, targetColumn, totalRows, 1), { formatOnly: true });
+  sheet.setColumnWidth(targetColumn, sheet.getColumnWidth(sourceColumn));
+}
+
+function getTermStartColumnsMap() {
+  const storedValue = PropertiesService.getScriptProperties().getProperty(TERM_START_COLUMNS_PROPERTY);
+  if (!storedValue) {
+    return Object.assign({}, TERM_START_COLUMNS);
+  }
+
+  try {
+    const parsed = JSON.parse(storedValue);
+    return Object.assign({}, TERM_START_COLUMNS, parsed || {});
+  } catch (error) {
+    return Object.assign({}, TERM_START_COLUMNS);
+  }
+}
+
+function saveTermStartColumnsMap(termStartColumns) {
+  PropertiesService.getScriptProperties().setProperty(
+    TERM_START_COLUMNS_PROPERTY,
+    JSON.stringify(termStartColumns)
+  );
+}
+
+function insertSimulationColumnAcrossManagedSheets(targetColumn, schoolTerm, headerName) {
+  const spreadsheet = getManagedSpreadsheet();
+  const nextProtectedColumn = getNextProtectedColumn(targetColumn);
+  const sheets = spreadsheet.getSheets();
+  let insertionColumn = nextProtectedColumn || 0;
+
+  if (!insertionColumn) {
+    insertionColumn = 1;
+    for (let index = 0; index < sheets.length; index += 1) {
+      const sheet = sheets[index];
+      if (shouldSkipSheet(sheet.getName())) {
+        continue;
+      }
+      insertionColumn = Math.max(insertionColumn, sheet.getLastColumn() + 1);
+    }
+  }
+
+  for (let index = 0; index < sheets.length; index += 1) {
+    const sheet = sheets[index];
+    if (shouldSkipSheet(sheet.getName())) {
+      continue;
+    }
+
+    ensureColumnExists(sheet, Math.max(insertionColumn - 1, 1));
+    sheet.insertColumnBefore(insertionColumn);
+    copyColumnFormatting(sheet, Math.max(insertionColumn - 1, 1), insertionColumn);
+    sheet.getRange(LINHA_CABECALHO, insertionColumn).setValue(headerName);
+  }
+
+  const dynamicColumns = getTermStartColumnsMap();
+  const currentIndex = TERM_ORDER.indexOf(String(schoolTerm || '').trim());
+
+  if (currentIndex !== -1) {
+    for (let index = currentIndex + 1; index < TERM_ORDER.length; index += 1) {
+      const termKey = TERM_ORDER[index];
+      const currentLetter = dynamicColumns[termKey] || TERM_START_COLUMNS[termKey];
+      dynamicColumns[termKey] = columnToLetter(columnLetterToNumber(currentLetter) + 1);
+    }
+    saveTermStartColumnsMap(dynamicColumns);
+  }
+
+  return insertionColumn;
+}
+
+function columnLetterToNumber(columnLetter) {
+  const normalized = String(columnLetter || '').trim().toUpperCase();
+  if (!/^[A-Z]+$/.test(normalized)) {
+    return 0;
+  }
+
+  let result = 0;
+  for (let index = 0; index < normalized.length; index += 1) {
+    result = result * 26 + (normalized.charCodeAt(index) - 64);
+  }
+
+  return result;
+}
+
+function columnToLetter(columnNumber) {
+  let number = Number(columnNumber) || 0;
+  if (number <= 0) {
+    return '';
+  }
+
+  let result = '';
+  while (number > 0) {
+    const remainder = (number - 1) % 26;
+    result = String.fromCharCode(65 + remainder) + result;
+    number = Math.floor((number - 1) / 26);
+  }
+
+  return result;
+}
+
 function findOrCreateStudentRow(sheet, studentName) {
   const lastRow = Math.max(sheet.getLastRow(), 2);
   const names = sheet.getRange(2, 2, Math.max(lastRow - 1, 1), 1).getDisplayValues().flat();
@@ -481,7 +753,7 @@ function appendHistory(spreadsheet, data) {
     data.recuperacao || 'nao',
     data.trilha || '',
     data.sheetName || '',
-    data.scoreHeader || '',
+    data.colunaDestino || data.scoreHeader || '',
     data.estudante || '',
     data.estudanteDigitado || '',
     data.nota || '',
