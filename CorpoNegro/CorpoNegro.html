@@ -1385,5 +1385,60 @@
             setupEventListeners();
         });
     </script>
+    <script>
+        let studentNameCorpoNegro = localStorage.getItem('studentNameCorpoNegro') || '';
+
+        function ensureStudentNameCorpoNegro() {
+            if (!studentNameCorpoNegro) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameCorpoNegro = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameCorpoNegro', studentNameCorpoNegro);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameCorpoNegro();
+                return `Olá, ${studentNameCorpoNegro}. Esta página de radiação de corpo negro usa a simulação do PhET como centro da exploração e organiza, ao lado, as ideias teóricas essenciais. Na área principal aparece o simulador incorporado. No painel lateral estão as leis de Planck, Wien e Stefan-Boltzmann, além de um seletor de faixa de temperatura. A proposta é relacionar forma do espectro, cor aparente, pico de emissão e temperatura.`;
+            },
+            function () {
+                return 'O primeiro ponto importante é entender o que significa corpo negro. Trata-se de um modelo ideal de objeto que absorve toda a radiação incidente e também emite radiação térmica de forma característica. A distribuição dessa radiação depende da temperatura. Por isso, quando a temperatura muda, não muda apenas a intensidade total emitida; muda também a forma do espectro e a posição do pico de emissão.';
+            },
+            function () {
+                return 'A Lei de Planck descreve a intensidade espectral em função do comprimento de onda e da temperatura. Ela é a base teórica que explica o formato da curva observada na simulação. Em vez de decorar a expressão completa, o mais importante é perceber sua função: ela informa quanto um corpo negro emite em cada região do espectro para uma temperatura dada.';
+            },
+            function () {
+                return 'A Lei de Wien ajuda a interpretar o deslocamento do pico. Quando a temperatura aumenta, o comprimento de onda de pico diminui. Em linguagem visual, isso significa que o pico da curva caminha para regiões de menor comprimento de onda. É por isso que objetos mais quentes podem parecer mais azulados, enquanto objetos menos quentes tendem ao avermelhado.';
+            },
+            function () {
+                return 'A Lei de Stefan-Boltzmann complementa essa leitura ao mostrar que a potência total emitida cresce com a quarta potência da temperatura. Isso quer dizer que pequenas elevações de temperatura podem produzir aumentos muito grandes na energia total irradiada. Assim, a simulação permite comparar dois efeitos ao mesmo tempo: o deslocamento do pico e o aumento global da emissão.';
+            },
+            function () {
+                return 'Na área de medições, acompanhe a temperatura, o comprimento de onda de pico, a intensidade máxima, a cor aproximada, a região do espectro e a constante de Wien. Esses valores ajudam a traduzir a curva do simulador em grandezas físicas interpretáveis. O ideal é sempre perguntar o que a curva está mostrando sobre a temperatura da fonte e em que região do espectro a emissão se torna mais intensa.';
+            },
+            function () {
+                return 'Depois dessa exploração inicial, use os exercícios resolvidos e os exercícios finais para consolidar o raciocínio. Nos exemplos, identifique primeiro qual lei está sendo mobilizada: Wien para o pico, Stefan-Boltzmann para a intensidade total ou uma interpretação astrofísica da temperatura. Essa ordem ajuda a organizar a teoria antes da conta.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a pergunta é sobre o comprimento de onda de pico para um corpo negro a seis mil kelvin. A ideia central é aplicar a Lei de Wien, que relaciona diretamente temperatura e pico do espectro. Ao isolar lambda máximo e substituir os valores, encontra-se um pico em torno de quatrocentos e oitenta e três nanômetros. Esse resultado cai na região visível e ajuda a interpretar a cor aproximada associada à fonte. O exemplo é importante porque mostra como uma única medida do espectro pode revelar informações sobre a temperatura do objeto emissor.',
+            '2': 'No segundo exemplo, a questão trata da intensidade quando a temperatura dobra. Aqui entra a Lei de Stefan-Boltzmann, que diz que a emissão total cresce com a quarta potência da temperatura. Como a temperatura passou de quatro mil para oito mil kelvin, o fator de aumento é dois elevado à quarta, ou seja, dezesseis. Esse tipo de problema é valioso porque deixa claro que a dependência com a temperatura é muito forte. Não se trata de um aumento simples ou linear; a potência irradiada cresce de modo muito mais rápido.',
+            '3': 'No terceiro exemplo, o dado conhecido é o comprimento de onda de pico de uma estrela, e o objetivo é encontrar sua temperatura superficial. Mais uma vez, a ferramenta principal é a Lei de Wien, agora reorganizada para isolar a temperatura. Depois de converter o comprimento de onda de nanômetros para metros, a substituição leva a um valor próximo de dez mil kelvin. O ponto pedagógico aqui é perceber como a análise do espectro permite estimar propriedades físicas de astros distantes.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Corpo Negro',
+            storageKey: 'corpo-negro'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

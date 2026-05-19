@@ -1297,5 +1297,60 @@
             setupEventListeners();
         });
     </script>
+    <script>
+        let studentNameOndas2D = localStorage.getItem('studentNameOndas2D') || '';
+
+        function ensureStudentNameOndas2D() {
+            if (!studentNameOndas2D) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameOndas2D = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameOndas2D', studentNameOndas2D);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameOndas2D();
+                return `Olá, ${studentNameOndas2D}. Esta simulação de ondas em duas dimensões usa o simulador do PhET como núcleo da exploração. Na área principal você observa frentes de onda se espalhando sobre uma superfície e formando padrões de encontro entre duas fontes. Ao lado, a página resume os conceitos fundamentais de superposição e interferência. A ideia é ver como a geometria das frentes de onda produz regiões de reforço e de cancelamento.`;
+            },
+            function () {
+                return 'O primeiro conceito importante é o princípio da superposição. Quando duas ondas passam pelo mesmo ponto do meio, os deslocamentos se somam. Isso significa que o resultado observado não pertence isoladamente a uma ou outra fonte, mas à combinação das duas. Esse é o ponto de partida para compreender qualquer padrão de interferência.';
+            },
+            function () {
+                return 'Na interferência construtiva, crista encontra crista ou vale encontra vale. As amplitudes se reforçam e surgem regiões de maior intensidade. Na interferência destrutiva, crista encontra vale e ocorre cancelamento parcial ou total. A simulação ajuda a ver esse processo como um desenho em movimento, não apenas como uma fórmula escrita na lateral.';
+            },
+            function () {
+                return 'As expressões de diferença de caminho resumem quando cada caso acontece. Para a interferência construtiva, a diferença de caminho é um múltiplo inteiro do comprimento de onda. Para a destrutiva, aparece um múltiplo meio ímpar. Em vez de decorar isso de modo mecânico, vale relacionar a ideia à fase das ondas: em fase, reforçam; em oposição de fase, cancelam.';
+            },
+            function () {
+                return 'O seletor de tipo de onda ajuda a comparar contextos físicos diferentes, como água, som e luz. Embora o padrão geométrico de interferência siga a mesma lógica, cada caso lembra ao estudante que o conceito de onda aparece em fenômenos muito diversos. Isso amplia a compreensão do tema e evita que a interferência seja vista como algo restrito a um único exemplo.';
+            },
+            function () {
+                return 'Na área de observações, aparecem palavras-chave como amplificação, cancelamento, padrão de interferência e coerência. O termo coerência é especialmente importante: sem fontes coerentes, o padrão estável de franjas não se mantém. Ou seja, para ver claramente as regiões claras e escuras, é preciso que as fontes tenham relação de fase bem definida.';
+            },
+            function () {
+                return 'Depois da exploração visual, passe para os exercícios resolvidos e para a prática. Nos exemplos, tente perguntar primeiro se a situação pede interpretação espacial do padrão, cálculo da separação entre franjas ou explicação qualitativa da alternância entre regiões claras e escuras. Essa organização ajuda a transformar a interferência em raciocínio físico, e não em coleção de casos soltos.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a pergunta é sobre interferência construtiva entre duas fontes. A ideia central é olhar para a diferença de caminho entre as ondas que chegam a um ponto. Sempre que essa diferença for um múltiplo inteiro do comprimento de onda, as ondas chegam em fase e se reforçam. O exercício mostra isso usando o ponto médio e pontos simétricos ao redor dele. Mais importante que decorar posições específicas é compreender o critério físico do reforço.',
+            '2': 'No segundo exemplo, o foco é a distância entre franjas escuras em uma situação semelhante à dupla fenda. A expressão usada relaciona comprimento de onda, distância até a tela e separação entre as fontes. O ponto pedagógico é perceber que o padrão de interferência não depende só da cor da luz, mas também da geometria do experimento. Ao final, a conta fornece uma separação entre franjas escuras de um vírgula dois centímetro.',
+            '3': 'No terceiro exemplo, a questão é qualitativa e muito importante: por que aparecem franjas claras e escuras alternadas. A resposta vem da alternância entre regiões onde as ondas chegam em fase e regiões onde chegam em oposição de fase. Esse exemplo ajuda o estudante a enxergar o padrão como consequência direta da superposição de duas fontes coerentes, e não como um desenho arbitrário na tela.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ondas 2D',
+            storageKey: 'ondas-2d'
+        };
+    </script>
+    <script src="../../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

@@ -1000,19 +1000,34 @@
         let conclusionTextSaved = "";
         const EXERCISE_STORAGE_KEY = 'leiOhmExerciseState';
         const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceLeiOhm';
+        let studentNameLeiOhm = localStorage.getItem('studentNameLeiOhm') || '';
+
+        function ensureStudentNameLeiOhm() {
+            if (!studentNameLeiOhm) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameLeiOhm = providedName.trim();
+                    localStorage.setItem('studentNameLeiOhm', studentNameLeiOhm);
+                } else {
+                    studentNameLeiOhm = 'estudante';
+                }
+            }
+            return studentNameLeiOhm;
+        }
+
         const tracks = [
-            'Bem-vindo à simulação da Lei de Ohm. Aqui você pode relacionar tensão, resistência e corrente usando a expressão V igual a R vezes i.',
-            'Ao aumentar a tensão, mantendo a resistência fixa, a corrente cresce na mesma proporção. Observe isso nos controles e nas medições ao lado.',
-            'Ao aumentar a resistência, mantendo a tensão fixa, a corrente diminui. Isso mostra que a resistência dificulta a passagem da corrente elétrica.',
-            'A potência elétrica também pode ser acompanhada. Ela pode ser calculada por P igual a V vezes i, por P igual a R vezes i ao quadrado, ou ainda por P igual a V ao quadrado sobre R.',
-            'Nos exercícios, você vai calcular tensão, resistência e corrente em notação científica. Compare sempre os dados com a fórmula principal antes de responder.',
-            'Se precisar interromper a atividade, pode fechar e abrir novamente o painel de exercícios. O progresso fica salvo para continuar exatamente de onde você parou.'
+            () => `Olá, ${ensureStudentNameLeiOhm()}! Bem-vindo à simulação da Lei de Ohm. A tela organiza tensão, corrente e resistência como partes de uma mesma relação física. A ideia central é enxergar que corrente não surge isoladamente: ela depende da diferença de potencial aplicada e da oposição oferecida pelo resistor.`,
+            'A equação V igual a R vezes i pode ser lida de formas diferentes. Se a resistência permanece fixa, aumentar a tensão faz a corrente crescer na mesma proporção. É isso que caracteriza um comportamento ôhmico simples. Observe como os valores medidos acompanham imediatamente as alterações dos controles.',
+            'Quando mantemos a tensão e aumentamos a resistência, a corrente diminui. Essa leitura é importante porque ajuda a interpretar o significado de resistência como obstáculo à passagem de cargas. Não se trata apenas de um número na fórmula, mas de uma propriedade do circuito que modifica o fluxo de corrente.',
+            'A simulação também permite acompanhar a potência dissipada. Esse é um bom momento para conectar as três expressões de potência: P igual a V vezes i, P igual a R vezes i ao quadrado e P igual a V ao quadrado sobre R. Todas descrevem a mesma grandeza, mas cada uma se torna mais útil dependendo dos dados disponíveis.',
+            'Nos exercícios resolvidos, procure perceber primeiro qual é a incógnita. Em alguns problemas vale isolar a tensão, em outros a resistência, em outros a corrente ou a potência. O passo decisivo não é substituir números de imediato, mas escolher a forma da equação mais adequada ao que foi pedido.',
+            'Depois da exploração inicial, abra os exemplos resolvidos para ouvir o raciocínio completo. Em seguida, use os exercícios para verificar se você consegue relacionar corretamente as variáveis do circuito sem depender só de memorização.'
         ];
         const exampleNarrations = {
-            '1': 'Exemplo 1. Para calcular a tensão, usamos V igual a R vezes i. Substituindo R igual a cem ohms e i igual a zero vírgula cinco ampere, obtemos V igual a cinquenta volts.',
-            '2': 'Exemplo 2. Para calcular a resistência, usamos R igual a V sobre i. Substituindo V igual a doze volts e i igual a zero vírgula três ampere, temos R igual a quarenta ohms.',
-            '3': 'Exemplo 3. Para calcular a corrente, usamos i igual a V sobre R. Substituindo V igual a vinte e quatro volts e R igual a sessenta ohms, encontramos i igual a zero vírgula quatro ampere.',
-            '4': 'Exemplo 4. Para calcular a potência, usamos P igual a R vezes i ao quadrado. Primeiro elevamos zero vírgula seis ao quadrado, obtendo zero vírgula trinta e seis. Depois multiplicamos por cinquenta e chegamos a dezoito watts.'
+            '1': 'Exemplo 1. Aqui a incógnita é a tensão, então usamos diretamente V igual a R vezes i. Multiplicamos 100 ohms por 0,5 ampere e obtemos 50 volts. O ponto conceitual é simples: para manter uma corrente de meio ampere atravessando um resistor de 100 ohms, a fonte precisa fornecer uma diferença de potencial de 50 volts.',
+            '2': 'Exemplo 2. Agora queremos a resistência. Reorganizamos a lei de Ohm para R igual a V sobre i. Dividindo 12 volts por 0,3 ampere, encontramos 40 ohms. Esse exemplo mostra bem que a resistência pode ser inferida a partir da resposta do circuito quando conhecemos tensão e corrente.',
+            '3': 'Exemplo 3. Neste problema a corrente é a grandeza desconhecida, então isolamos i, ficando i igual a V sobre R. Ao dividir 24 volts por 60 ohms, obtemos 0,4 ampere. A leitura física é que uma mesma tensão gera corrente menor quando encontra uma resistência mais alta.',
+            '4': 'Exemplo 4. Aqui a pergunta envolve potência dissipada no resistor. Como conhecemos resistência e corrente, a forma mais conveniente é P igual a R vezes i ao quadrado. Primeiro calculamos 0,6 ao quadrado, que é 0,36. Depois multiplicamos por 50 e chegamos a 18 watts. O exemplo ajuda a enxergar que a potência cresce rapidamente quando a corrente aumenta, porque ela aparece ao quadrado.'
         };
         let selectedVoice = null;
         let currentTrack = 0;
@@ -1074,11 +1089,32 @@
             }
         }
 
+        function hasMeaningfulProgress(savedState) {
+            if (!savedState || !Array.isArray(savedState.exercises) || !savedState.exercises.length) {
+                return false;
+            }
+
+            const answeredCount = Array.isArray(savedState.exerciseResults)
+                ? savedState.exerciseResults.filter(function(result) { return result !== null && result !== undefined; }).length
+                : 0;
+            const skippedCount = Number(savedState.skippedQuestions) || 0;
+            const attemptCount = Number(savedState.currentExerciseAttempts) || 0;
+            const currentIndex = Number(savedState.currentExercise) || 0;
+            const hasConclusion = !!(savedState.conclusionTextSaved && String(savedState.conclusionTextSaved).trim());
+            const view = savedState.view || '';
+
+            return answeredCount > 0 || skippedCount > 0 || attemptCount > 0 || currentIndex > 0 || hasConclusion || view === 'conclusion' || view === 'results';
+        }
+
+        function hasResumableExerciseState(savedState) {
+            return !!(savedState && Array.isArray(savedState.exercises) && savedState.exercises.length && hasMeaningfulProgress(savedState));
+        }
+
         function updateExerciseLauncherState() {
             const mainExerciseBtn = document.getElementById('mainExerciseBtn');
             if (!mainExerciseBtn) return;
 
-            const hasSavedState = !!getSavedExerciseState();
+            const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
             mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
             mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
         }
@@ -1087,7 +1123,7 @@
             const badge = document.getElementById('exerciseResumeBadge');
             if (!badge) return;
 
-            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : !!getSavedExerciseState();
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : hasResumableExerciseState(getSavedExerciseState());
             badge.style.display = isVisible ? 'inline-flex' : 'none';
         }
 
@@ -1116,6 +1152,11 @@
                 selectedOptionValue: getSelectedOptionValue(),
                 formState: captureFormState()
             };
+
+            if (!hasMeaningfulProgress(exerciseState)) {
+                clearExerciseState();
+                return;
+            }
 
             try {
                 localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
@@ -1312,11 +1353,15 @@
             audioPaused = false;
         }
 
+        function resolveTrackText(track) {
+            return typeof track === 'function' ? track() : track;
+        }
+
         function speakTrack(index) {
             currentSpeechSource = 'track';
             clearExampleAudioState();
             setMainAudioButtonState('playing');
-            speakText(tracks[index]);
+            speakText(resolveTrackText(tracks[index]));
             if (speaking) updateTrackCounter();
         }
 
@@ -1415,6 +1460,11 @@
         }
 
         // ========== FUNÇÕES AUXILIARES ==========
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+            return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+        }
+
         function formatScientificWith3Digits(value, unit = '') {
             if (value === 0) return '0.00 ' + unit;
             if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
@@ -1422,8 +1472,8 @@
                 const mantissa = value / Math.pow(10, exponent);
                 const roundedMantissa = Math.round(mantissa * 100) / 100;
                 let mantissaStr = roundedMantissa.toFixed(2);
-                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit; }
-                return mantissaStr + '×10^' + exponent + ' ' + unit;
+                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit; }
+                return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
             }
             const integerPart = Math.floor(Math.abs(value));
             let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
@@ -1699,6 +1749,10 @@
         }
 
         function sendResultsToSheet() {
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
             const studentClass = document.getElementById('studentClass').value;
@@ -1850,7 +1904,7 @@
             document.getElementById('emailStatus').style.display = 'none';
 
             const savedState = getSavedExerciseState();
-            if (savedState) {
+            if (hasResumableExerciseState(savedState)) {
                 restoreExerciseState(savedState);
                 updateExerciseResumeBadge(true);
 
@@ -1863,6 +1917,10 @@
                     showCurrentExercise(savedState.selectedOptionValue || null);
                 }
                 return;
+            }
+
+            if (savedState) {
+                clearExerciseState();
             }
 
             resetExerciseState();
@@ -1944,5 +2002,12 @@
         
         window.addEventListener('load', initSimulation);
     </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Lei de Ohm',
+            storageKey: 'lei-de-ohm'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

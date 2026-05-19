@@ -1494,5 +1494,60 @@
             setupEventListeners();
         });
     </script>
+    <script>
+        let studentNameOptica = localStorage.getItem('studentNameOpticaGeometrica') || '';
+
+        function ensureStudentNameOptica() {
+            if (!studentNameOptica) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameOptica = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameOpticaGeometrica', studentNameOptica);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameOptica();
+                return `Olá, ${studentNameOptica}. Esta página de óptica geométrica usa a simulação do PhET para explorar formação de imagens em lentes e espelhos. Na área principal está o simulador, onde o estudante pode mover objetos e observar os raios luminosos. No painel lateral aparecem as fórmulas fundamentais e a escolha do tipo de sistema óptico. A proposta é relacionar posição do objeto, distância focal e características da imagem.`;
+            },
+            function () {
+                return 'O seletor de sistema óptico lembra que a óptica geométrica reúne comportamentos diferentes: lentes convergentes, lentes divergentes, espelhos côncavos e espelhos convexos. Cada sistema modifica os raios luminosos de maneira própria, mas todos podem ser analisados com a mesma lógica básica de posição do objeto, foco, imagem e ampliação.';
+            },
+            function () {
+                return 'A equação de Gauss organiza a relação entre distância focal, distância do objeto e distância da imagem. Em vez de enxergá-la como fórmula isolada, vale interpretá-la como uma regra de localização: dado o sistema óptico e a posição do objeto, ela ajuda a determinar onde a imagem será formada. A simulação visual reforça essa ideia ao mostrar os raios se cruzando, ou parecendo cruzar, em posições específicas.';
+            },
+            function () {
+                return 'A expressão da ampliação acrescenta outra camada de interpretação. Ela informa não apenas o tamanho relativo da imagem, mas também sua orientação. O sinal negativo costuma indicar imagem invertida, e o valor absoluto indica se a imagem ficou maior, menor ou com o mesmo tamanho do objeto. Isso ajuda a conectar a álgebra às características visuais observadas no simulador.';
+            },
+            function () {
+                return 'A equação dos fabricantes aparece como aprofundamento para lentes, mostrando que a distância focal depende do índice de refração do material e dos raios de curvatura das superfícies. Mesmo que o estudante ainda não use essa expressão em todos os exercícios, ela ajuda a entender que a potência óptica da lente não é arbitrária: nasce da geometria da lente e do material de que ela é feita.';
+            },
+            function () {
+                return 'Ao observar a simulação, procure sempre identificar primeiro o tipo de imagem formada: real ou virtual, direita ou invertida, maior ou menor. Depois pergunte em que região o objeto está em relação ao foco e ao centro de curvatura, quando isso fizer sentido. Essa sequência costuma ser mais produtiva do que começar pela conta sem ter uma previsão qualitativa do resultado.';
+            },
+            function () {
+                return 'Depois dessa exploração inicial, abra os exercícios resolvidos e os exercícios finais. Nos exemplos, tente perceber primeiro qual sistema óptico está em jogo e só então acompanhe a conta com a equação de Gauss e a ampliação. Isso ajuda a transformar óptica geométrica em interpretação de formação de imagens, e não apenas em substituição numérica.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, temos uma lente convergente com objeto colocado a vinte centímetros e foco de dez centímetros. Como o objeto está além do foco, já se espera uma imagem real. A equação de Gauss confirma a posição da imagem e a ampliação mostra que ela tem o mesmo tamanho do objeto, mas aparece invertida. O valor didático desse exercício está em mostrar como posição, natureza e tamanho da imagem podem ser lidos de forma articulada.',
+            '2': 'No segundo exemplo, o sistema é um espelho côncavo. A lógica matemática é muito parecida com a da lente convergente, mas o estudante deve lembrar que agora a formação da imagem acontece por reflexão. Depois de encontrar a posição da imagem, a ampliação revela que ela é maior e invertida. Esse exemplo ajuda a perceber que espelhos côncavos podem produzir imagens reais ampliadas dependendo da posição do objeto.',
+            '3': 'No terceiro exemplo, a lente é divergente, e isso muda a previsão qualitativa logo de saída. Em sistemas divergentes, a imagem tende a ser virtual, direita e menor. A conta confirma essa expectativa quando a distância da imagem aparece negativa e a ampliação positiva, porém menor que um. Esse tipo de exercício é importante porque mostra que o sinal das grandezas não é mero detalhe algébrico; ele carrega a interpretação física da formação da imagem.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Optica Geometrica',
+            storageKey: 'optica-geometrica'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

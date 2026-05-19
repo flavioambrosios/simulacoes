@@ -678,7 +678,7 @@
                 
                 <div class="control-group">
                     <label>Campo Magnético (B):</label>
-                    <div class="value-display"><span id="fieldValue">1.01×10^-3</span> T</div>
+                    <div class="value-display"><span id="fieldValue">1.01×10⁻³</span> T</div>
                 </div>
                 
                 <div class="formula-box">
@@ -716,7 +716,7 @@
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Campo Magnético (B)</div>
-                        <div class="measurement-value" id="fieldDisplay">1.01×10^-3 T</div>
+                        <div class="measurement-value" id="fieldDisplay">1.01×10⁻³ T</div>
                     </div>
                 </div>
             </div>
@@ -989,18 +989,21 @@
         let speechSessionId = 0;
         const synth = window.speechSynthesis;
         const exampleNarrations = {
-            '1': 'Exemplo 1. Um solenoide com 200 espiras e comprimento de 0 vírgula 5 metro é percorrido por uma corrente de 2 ampères. Usamos a fórmula B igual a mi zero vezes N sobre L vezes i. Primeiro calculamos N sobre L, que é 200 dividido por 0 vírgula 5, resultando em 400 espiras por metro. Depois substituímos na fórmula: 4 pi vezes 10 elevado a menos 7, vezes 400, vezes 2. Isso resulta em aproximadamente 1 vírgula 01 vezes 10 elevado a menos 3 tesla. Portanto, o campo magnético interno é cerca de 1 vírgula 01 mili tesla.',
-            '2': 'Exemplo 2. O campo magnético interno é 2 vírgula 5 vezes 10 elevado a menos 3 tesla. O solenoide tem 300 espiras e comprimento de 0 vírgula 4 metro. Queremos a corrente. Reorganizamos a fórmula para i igual a B dividido por mi zero vezes N sobre L. Calculamos N sobre L: 300 dividido por 0 vírgula 4, que dá 750 espiras por metro. Depois calculamos mi zero vezes N sobre L e obtemos aproximadamente 9 vírgula 42 vezes 10 elevado a menos 4 tesla por ampère. Por fim, dividimos o campo por esse valor e chegamos a aproximadamente 2 vírgula 65 ampères.',
-            '3': 'Exemplo 3. Um solenoide de comprimento 0 vírgula 3 metro, percorrido por uma corrente de 1 vírgula 5 ampère, gera um campo de 1 vírgula 2 vezes 10 elevado a menos 3 tesla. Queremos o número de espiras. Usamos N igual a B vezes L dividido por mi zero vezes i. Calculamos primeiro B vezes L: 1 vírgula 2 vezes 10 elevado a menos 3, vezes 0 vírgula 3, resultando em 3 vírgula 6 vezes 10 elevado a menos 4. Depois calculamos mi zero vezes i, obtendo aproximadamente 1 vírgula 884 vezes 10 elevado a menos 6. Dividindo, encontramos cerca de 191 espiras.'
+            '1': 'No primeiro exemplo, a ideia é calcular o campo magnético no interior de um solenoide. Antes da conta, vale notar a estrutura da fórmula: B depende da permeabilidade do meio, da densidade de espiras e da corrente elétrica. O termo N sobre L mostra quantas espiras existem por metro, e esse detalhe é decisivo porque o campo cresce quando as espiras ficam mais concentradas. Depois de calcular essa densidade e substituir os valores, encontra-se um campo de aproximadamente um vírgula zero um mili tesla. O ponto pedagógico não é apenas chegar ao número, mas perceber que corrente e densidade de espiras reforçam juntas o campo interno.',
+            '2': 'No segundo exemplo, a incógnita é a corrente elétrica. O campo já é conhecido, assim como o número de espiras e o comprimento do solenoide. Por isso, a estratégia é reorganizar a mesma relação física para isolar i. Esse exercício é importante porque mostra que a fórmula não serve só para calcular B; ela também permite descobrir qual corrente seria necessária para produzir um campo desejado. Depois de determinar a densidade de espiras e avaliar o fator que multiplica a corrente, a divisão final fornece um valor próximo de dois vírgula sessenta e cinco ampères.',
+            '3': 'No terceiro exemplo, queremos descobrir o número de espiras. Mais uma vez, a física é a mesma, mas o olhar muda. Se o campo magnético produzido é conhecido, assim como o comprimento e a corrente, então o total de espiras pode ser estimado reorganizando a expressão do campo. O estudante deve perceber que esse tipo de problema aproxima a fórmula da construção real do dispositivo: não estamos só descrevendo um solenoide pronto, mas projetando quantas espiras seriam necessárias para obter determinado campo. A conta leva a aproximadamente cento e noventa e uma espiras.'
         };
         const tracks = [
-            () => `Olá${studentName ? ', ' + studentName : ''}. Esta simulação mostra o campo magnético produzido por um solenoide. Você pode alterar a corrente elétrica, o número de espiras e o comprimento para observar o efeito no campo.`,
-            () => 'No painel de controles, a corrente elétrica altera a intensidade do campo. Quanto maior a corrente, maior o campo magnético produzido no interior do solenoide.',
-            () => 'O número de espiras também influencia diretamente o campo. Quando aumentamos a quantidade de espiras no mesmo comprimento, a densidade de espiras cresce e o campo interno se torna mais intenso.',
-            () => 'O comprimento do solenoide altera a densidade de espiras e também o formato visual das linhas de campo. Solenoides mais longos tendem a apresentar linhas mais alongadas.',
-            () => 'As linhas verdes indicam o campo magnético. As pequenas setas mostram o sentido do campo. Os marcadores N e S indicam os polos magnéticos associados ao sentido da corrente.',
-            () => 'Use a regra da mão direita: enrole os dedos no sentido da corrente nas espiras. O polegar aponta o sentido do campo interno e do polo norte do solenoide.',
-            () => 'Quando quiser praticar, abra os exercícios. Você pode responder, reiniciar e depois enviar os resultados. Nos exercícios resolvidos, há botões azuis para ouvir cada resolução passo a passo.'
+            () => {
+                ensureStudentName();
+                return `Olá, ${studentName}. Bem vindo! Esta simulação funciona como uma visita guiada a um solenoide em três dimensões. No centro da tela aparece a bobina, com linhas de campo e marcadores que ajudam a visualizar a orientação magnética. A proposta é observar como a corrente elétrica, o número de espiras e o comprimento do solenoide influenciam o campo interno. Em vez de pensar apenas em uma fórmula, tente relacionar o que muda nos controles com o que muda na cena.`;
+            },
+            () => `Comece olhando para o painel de controles. Ali você ajusta a corrente, o número de espiras e o comprimento. Cada um desses parâmetros altera o comportamento do solenoide. A corrente mede o quanto de carga elétrica percorre as espiras. O número de espiras indica quantas voltas existem na bobina. O comprimento mostra como essas espiras se distribuem ao longo do eixo. Juntos, esses três elementos determinam a intensidade do campo no interior do dispositivo.`,
+            () => `A equação principal da simulação resume essa ideia: o campo magnético interno é proporcional à permeabilidade do meio, à densidade de espiras e à corrente. O fator N sobre L é especialmente importante porque transforma número total de espiras em concentração de espiras por metro. Isso ajuda a entender por que não basta aumentar N sozinho; também importa saber em que comprimento essas espiras estão distribuídas. Quando a densidade cresce, o campo interno tende a se fortalecer.`,
+            () => `Observe agora a cena do solenoide. As linhas verdes e as setas indicam o campo magnético, enquanto as letras N e S representam os polos associados ao sentido da corrente. A visualização foi feita para lembrar que o solenoide se comporta como um ímã. Dentro dele, o campo tende a ser mais uniforme e orientado ao longo do eixo. Fora dele, o padrão se parece com o de um ímã em barra. Essa comparação ajuda a ligar o modelo escolar da bobina ao comportamento magnético que o estudante já conhece.`,
+            () => `A regra da mão direita é o guia para interpretar o sentido do campo. Imagine os dedos da mão direita acompanhando o sentido da corrente nas espiras. O polegar estendido aponta a direção do campo interno e indica o polo norte do solenoide. Esse raciocínio é mais útil do que decorar setas soltas na figura, porque permite prever o que acontecerá quando a corrente inverter ou quando a orientação do enrolamento for alterada.`,
+            () => `Repare também que a simulação não serve apenas para ver desenhos. Ela mostra medidas e tendências. Se a corrente aumenta, o campo cresce. Se o número de espiras por metro aumenta, o campo também cresce. Se o comprimento aumenta sem aumento proporcional do número de espiras, a densidade diminui e o campo enfraquece. Esse tipo de leitura é essencial para transformar a animação em argumento físico.`,
+            () => `Depois da exploração, passe pelos exercícios resolvidos e pelos exercícios finais. Nos exemplos, procure primeiro a pergunta física: estamos calculando o campo, a corrente ou o número de espiras? Só depois olhe a álgebra. Essa ordem ajuda a entender por que a mesma fórmula pode ser reorganizada de maneiras diferentes. Quando chegar aos exercícios, tente sempre identificar quais grandezas controlam a intensidade do campo e qual delas precisa ser descoberta.`
         ];
 
         function resetExerciseState() {
@@ -1014,7 +1017,12 @@
 
         function ensureStudentName() {
             if (!studentName) {
-                const promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
                 studentName = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
                 localStorage.setItem('studentNameSolenoide', studentName);
             }
@@ -1286,6 +1294,11 @@
         }
 
         // Função para formatar números em notação científica com 3 algarismos significativos
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+            return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+        }
+
         function formatScientificWith3Digits(value, unit = '') {
             if (value === 0) return '0.00 ' + unit;
             
@@ -1296,9 +1309,9 @@
                 let mantissaStr = roundedMantissa.toFixed(2);
                 if (mantissaStr === '10.00') {
                     mantissaStr = '1.00';
-                    return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit;
+                    return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit;
                 }
-                return mantissaStr + '×10^' + exponent + ' ' + unit;
+                return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
             }
             
             const integerPart = Math.floor(Math.abs(value));
@@ -2200,5 +2213,12 @@ Sistema de Simulações Físicas`
         
         window.addEventListener('load', init);
     </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Solenoide',
+            storageKey: 'solenoide'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

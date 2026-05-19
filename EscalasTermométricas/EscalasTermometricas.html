@@ -1231,5 +1231,43 @@
         });
         window.addEventListener('resize', () => { resizeCanvas(); resizeGraphs(); });
     </script>
+    <script>
+        let studentNameEscalas = localStorage.getItem('studentNameEscalas') || '';
+
+        function ensureStudentNameEscalas() {
+            if (!studentNameEscalas) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameEscalas = providedName.trim();
+                    localStorage.setItem('studentNameEscalas', studentNameEscalas);
+                } else {
+                    studentNameEscalas = 'estudante';
+                }
+            }
+            return studentNameEscalas;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameEscalas()}! Esta simulação organiza a conversão entre Celsius, Kelvin e Fahrenheit em três partes. À esquerda, o painel de medições mostra simultaneamente as três escalas e alguns pontos de referência importantes. À direita, você escolhe a escala de entrada e altera o valor da temperatura. O objetivo é perceber que a temperatura física é a mesma; o que muda é apenas a forma de representá-la em cada escala.`,
+            'A primeira observação importante é que Kelvin é uma escala absoluta. Nela, o zero corresponde ao zero absoluto, e não ao congelamento da água. Por isso a conversão entre Celsius e Kelvin é uma simples translação: somamos ou subtraímos 273. Isso significa que o tamanho do intervalo entre graus é o mesmo nas duas escalas.',
+            'Já a escala Fahrenheit combina dois efeitos: mudança de origem e mudança no tamanho da unidade. Por isso as fórmulas com Fahrenheit exigem multiplicação por 9 sobre 5 ou por 5 sobre 9, além da soma ou subtração de 32. A tela ajuda a enxergar isso comparando pontos famosos como fusão da água, ebulição e temperatura corporal.',
+            'Use o seletor para escolher uma escala de entrada e mova o controle de temperatura. Observe como os três valores mudam juntos. Uma boa estratégia é testar primeiro temperaturas conhecidas, como 0 graus Celsius, 37 graus Celsius e 100 graus Celsius, para construir referência mental antes de fazer contas mais abstratas.',
+            'O painel com pontos de referência é mais do que um resumo. Ele serve para conferir se um resultado faz sentido. Se você obtém uma temperatura corporal muito longe de 98,6 graus Fahrenheit ou 310 kelvin, provavelmente houve algum erro de conversão. Em física, checar a plausibilidade do resultado é parte do raciocínio.',
+            'Depois da exploração, abra os exercícios resolvidos. Neles, a meta é entender qual transformação está sendo feita em cada caso e por que algumas conversões podem ser feitas em uma etapa, enquanto outras passam primeiro por Celsius como escala intermediária.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Queremos converter 25 graus Celsius para Fahrenheit. A fórmula adequada é F igual a 9 sobre 5 vezes C, mais 32. Primeiro calculamos 9 sobre 5 vezes 25, obtendo 45. Depois somamos 32 e chegamos a 77 graus Fahrenheit. Esse exemplo mostra que a conversão para Fahrenheit envolve tanto um fator de escala quanto um deslocamento.',
+            '2': 'Exemplo 2. Agora a conversão é de Fahrenheit para Celsius. Como a escala Fahrenheit começa deslocada em relação à Celsius, o primeiro passo é subtrair 32. De 98,6 obtemos 66,6. Em seguida multiplicamos por 5 sobre 9 e chegamos a 37 graus Celsius. A conta confirma a temperatura corporal humana típica em outra escala.',
+            '3': 'Exemplo 3. Converter Celsius para Kelvin é mais direto porque o tamanho do grau é o mesmo nas duas escalas. Basta somar 273 ao valor em Celsius. Assim, 100 graus Celsius correspondem a 373 kelvin. O exemplo é bom para reforçar que Kelvin não usa símbolo de grau e é a escala preferida em muitos contextos científicos.',
+            '4': 'Exemplo 4. De Kelvin para Fahrenheit, a forma mais clara é fazer duas etapas. Primeiro convertemos 310 kelvin para Celsius, subtraindo 273 e obtendo 37 graus Celsius. Depois passamos de Celsius para Fahrenheit, chegando a 98,6 graus Fahrenheit. Esse procedimento evidencia que usar uma escala intermediária às vezes simplifica o raciocínio.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Escalas Termometricas',
+            storageKey: 'escalas-termometricas'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

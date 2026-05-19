@@ -2652,5 +2652,63 @@
             showCurrentExercise();
         }
     </script>
+    <script>
+        let studentNameFotoeletrico = localStorage.getItem('studentNameFotoeletrico') || '';
+
+        function ensureStudentNameFotoeletrico() {
+            if (!studentNameFotoeletrico) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameFotoeletrico = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameFotoeletrico', studentNameFotoeletrico);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameFotoeletrico();
+                return `Olá, ${studentNameFotoeletrico}. Esta simulação do efeito fotoelétrico funciona como uma leitura guiada da tela. No painel principal aparecem a fonte de luz, a placa metálica que recebe os fótons, a região por onde os elétrons emitidos se deslocam e os instrumentos que representam corrente e tensão. A proposta é observar como frequência, intensidade e voltagem aplicada alteram a emissão fotoelétrica.`;
+            },
+            function () {
+                return 'Os botões de iniciar, pausar, reiniciar, ajuda e gráficos controlam a exploração da cena. Quando a animação está ativa, os fótons chegam à placa metálica e podem arrancar elétrons, dependendo da energia que cada fóton traz. A visualização ajuda a perceber que o efeito fotoelétrico não depende apenas de iluminar o metal, mas de fornecer fótons com energia suficiente para vencer a função trabalho do material.';
+            },
+            function () {
+                return 'No painel de controles, o primeiro elemento importante é o tipo de metal. Cada metal tem sua própria função trabalho, isto é, a energia mínima necessária para remover elétrons de sua superfície. Isso explica por que uma mesma luz pode gerar emissão em um material e não gerar em outro. A função trabalho não é detalhe técnico; ela determina a frequência limiar para o aparecimento do efeito fotoelétrico.';
+            },
+            function () {
+                return 'A frequência da luz desempenha um papel decisivo. Quando a frequência aumenta, a energia de cada fóton aumenta, porque a energia do fóton é dada por h vezes nu. Se essa energia fica abaixo da função trabalho, não há emissão. Se fica acima, os elétrons são emitidos com energia cinética máxima igual à diferença entre a energia do fóton e a função trabalho. Essa é a ideia central da explicação de Einstein para o efeito fotoelétrico.';
+            },
+            function () {
+                return 'A intensidade da luz tem outro papel. Ela altera a quantidade de fótons que chegam por unidade de tempo e, por isso, afeta principalmente o número de elétrons emitidos e a corrente fotoelétrica, desde que a frequência já esteja acima do limiar. Em linguagem simples: aumentar a intensidade não torna cada elétron individualmente mais energético; aumenta a quantidade de eventos de emissão.';
+            },
+            function () {
+                return 'A tensão aplicada ajuda a interpretar a coleta dos elétrons. Se a voltagem favorece o movimento até o coletor, a corrente cresce. Se a voltagem se opõe ao movimento, ela pode reduzir a corrente e até anulá-la. É daí que surge a ideia de voltagem de parada: o valor mínimo necessário para impedir que até os elétrons mais energéticos cheguem ao coletor.';
+            },
+            function () {
+                return 'Na área de medições, acompanhe a corrente fotoelétrica, o número de elétrons emitidos por segundo, a energia cinética máxima, a voltagem de parada, a função trabalho e a energia do fóton. O ideal é ligar cada número à pergunta física correspondente. Houve emissão? Quantos elétrons aparecem? Eles saem mais energéticos ou apenas em maior quantidade? Essa leitura transforma a animação em interpretação quantitativa.';
+            },
+            function () {
+                return 'Depois da exploração inicial, passe pelos exercícios resolvidos e pelos exercícios finais. Nos exemplos, tente identificar primeiro qual grandeza está sendo explicada: energia cinética máxima, voltagem de parada ou frequência limiar. Só depois acompanhe a conta. Essa ordem ajuda a entender por que o efeito fotoelétrico foi tão importante para a física moderna e para a ideia de quantização da luz.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a meta é calcular a energia cinética máxima dos elétrons emitidos. O raciocínio começa pela energia do fóton, que depende da frequência da luz. Depois disso, subtrai-se a função trabalho do sódio, que representa a energia mínima necessária para arrancar o elétron do metal. O que sobra aparece como energia cinética máxima. O resultado de zero vírgula oitenta e dois elétron-volt mostra exatamente isso: depois de vencer a barreira do material, ainda resta energia para o elétron sair em movimento.',
+            '2': 'No segundo exemplo, a pergunta é sobre a voltagem de parada. A ideia física é que a voltagem de parada precisa anular o efeito dos elétrons mais energéticos, impedindo que eles alcancem o coletor. Como a energia cinética máxima já foi calculada em elétron-volt, a leitura fica especialmente elegante: o valor numérico da energia em elétron-volt coincide com o valor da voltagem de parada em volt para um elétron. Por isso, chega-se diretamente a zero vírgula oitenta e dois volt.',
+            '3': 'No terceiro exemplo, o objetivo é encontrar a frequência limiar do sódio. Essa é a frequência mínima necessária para que a energia do fóton iguale a função trabalho do metal. Abaixo desse valor, não há emissão fotoelétrica, por mais intensa que seja a luz. Ao dividir a função trabalho pela constante de Planck, obtém-se uma frequência de aproximadamente cinco vírgula cinquenta e um vezes dez elevado a quatorze hertz. Esse resultado ajuda a consolidar a ideia de limiar, que é uma das marcas centrais do efeito fotoelétrico.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Efeito Fotoeletrico',
+            storageKey: 'efeito-fotoeletrico'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

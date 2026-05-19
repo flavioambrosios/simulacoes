@@ -948,18 +948,33 @@
         let conclusionTextSaved = "";
         const EXERCISE_STORAGE_KEY = 'resistenciaExerciseState';
         const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceResistencia';
+        let studentNameResistencia = localStorage.getItem('studentNameResistencia') || '';
+
+        function ensureStudentNameResistencia() {
+            if (!studentNameResistencia) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameResistencia = providedName.trim();
+                    localStorage.setItem('studentNameResistencia', studentNameResistencia);
+                } else {
+                    studentNameResistencia = 'estudante';
+                }
+            }
+            return studentNameResistencia;
+        }
+
         const tracks = [
-            'Bem-vindo à simulação sobre a resistência elétrica em um fio. Aqui você pode observar como comprimento, área transversal e material alteram a resistência elétrica.',
-            'A expressão principal é R igual a resistividade vezes comprimento dividido pela área da seção transversal. Isso mostra que fios mais longos têm maior resistência.',
-            'Quando a área transversal aumenta, a resistência diminui. Em outras palavras, fios mais grossos facilitam a passagem da corrente elétrica.',
-            'O material também influencia diretamente o resultado. Cada substância tem uma resistividade própria, por isso cobre, alumínio e ferro apresentam resistências diferentes mesmo com o mesmo formato.',
-            'Nos exercícios, você vai calcular resistência, comprimento e área transversal em notação científica. Faça sempre a conversão correta entre milímetro quadrado e metro quadrado.',
-            'Se precisar interromper a atividade, pode fechar o painel de exercícios e voltar depois. O progresso ficará salvo exatamente no ponto em que você parou.'
+            () => `Olá, ${ensureStudentNameResistencia()}! Bem-vindo à simulação sobre resistência elétrica em um fio. A tela foi organizada para que você compare três fatores decisivos: o comprimento do fio, a área da seção transversal e o material escolhido. O objetivo não é decorar a fórmula, mas perceber como cada variável interfere na dificuldade que as cargas elétricas encontram para atravessar o condutor.`,
+            'A equação principal é R igual a resistividade vezes comprimento dividido pela área. O comprimento aparece no numerador, então fios mais longos apresentam maior resistência. A interpretação é direta: quanto maior o caminho percorrido pelos elétrons, maior a oposição ao movimento da corrente.',
+            'A área da seção transversal aparece no denominador. Isso significa que fios mais grossos têm menor resistência. Quando aumentamos a área, oferecemos mais espaço para a passagem das cargas, e a corrente encontra menos dificuldade. Vale observar esse comportamento nas medições enquanto você altera o controle do fio.',
+            'O material entra na conta por meio da resistividade. Cada substância tem um valor próprio, ligado à sua estrutura microscópica. Por isso dois fios com mesmo comprimento e mesma área podem apresentar resistências diferentes se forem feitos de materiais diferentes, como cobre, alumínio ou ferro.',
+            'Nos exercícios resolvidos, preste atenção especial às unidades. Em vários casos a área vem em milímetro quadrado, mas a fórmula pede metro quadrado. Esse tipo de conversão é parte do raciocínio físico e costuma ser exatamente o ponto em que muitos erros aparecem.',
+            'Depois de explorar os controles, abra os exemplos resolvidos para acompanhar como a fórmula é reorganizada quando a incógnita muda. Em seguida, use os exercícios para testar se você consegue identificar qual grandeza deve ser isolada em cada situação.'
         ];
         const exampleNarrations = {
-            '1': 'Exemplo 1. Para calcular a resistência, usamos R igual a resistividade vezes comprimento dividido pela área. Convertendo zero vírgula cinco milímetro quadrado para cinco vezes dez elevado a menos sete metro quadrado e substituindo os valores, obtemos zero vírgula zero seis sete dois ohm.',
-            '2': 'Exemplo 2. Para calcular o comprimento, usamos L igual a resistência vezes área dividido pela resistividade. Com resistência de zero vírgula cinco ohm, área de um vezes dez elevado a menos seis metro quadrado e resistividade do alumínio, encontramos aproximadamente dezessete vírgula setenta e três metros.',
-            '3': 'Exemplo 3. Para calcular a área transversal, usamos A igual a resistividade vezes comprimento dividido pela resistência. Substituindo os valores do fio de ferro, encontramos dois vírgula cinco vezes dez elevado a menos sete metro quadrado, que corresponde a zero vírgula vinte e cinco milímetro quadrado.'
+            '1': 'Exemplo 1. Queremos calcular a resistência, então mantemos a forma original da equação. O ponto mais importante aqui é a conversão da área: 0,5 milímetro quadrado precisa virar 5 vezes 10 elevado a menos 7 metro quadrado. Só depois disso substituímos os valores. A conta mostra uma resistência de aproximadamente 0,0672 ohm. Esse exemplo reforça duas ideias: comprimento aumenta a resistência e área maior a reduz.',
+            '2': 'Exemplo 2. Agora a incógnita é o comprimento, então isolamos L na equação. Multiplicamos a resistência pela área e dividimos pela resistividade do alumínio. Como a área já está em metro quadrado, podemos seguir direto para a substituição. O resultado é cerca de 17,73 metros. O raciocínio importante aqui é perceber que um fio mais resistivo ou mais fino precisa ser mais curto para manter a mesma resistência.',
+            '3': 'Exemplo 3. Neste problema a grandeza procurada é a área transversal. Reorganizamos a fórmula para A igual a resistividade vezes comprimento dividido pela resistência. Depois de substituir os dados do fio de ferro, obtemos 2,5 vezes 10 elevado a menos 7 metro quadrado. Convertendo para uma unidade mais familiar, isso corresponde a 0,25 milímetro quadrado. O exemplo mostra como um fio de área pequena pode gerar uma resistência relativamente alta.'
         };
         let selectedVoice = null;
         let currentTrack = 0;
@@ -1021,11 +1036,32 @@
             }
         }
 
+        function hasMeaningfulProgress(savedState) {
+            if (!savedState || !Array.isArray(savedState.exercises) || !savedState.exercises.length) {
+                return false;
+            }
+
+            const answeredCount = Array.isArray(savedState.exerciseResults)
+                ? savedState.exerciseResults.filter(function(result) { return result !== null && result !== undefined; }).length
+                : 0;
+            const skippedCount = Number(savedState.skippedQuestions) || 0;
+            const attemptCount = Number(savedState.currentExerciseAttempts) || 0;
+            const currentIndex = Number(savedState.currentExercise) || 0;
+            const hasConclusion = !!(savedState.conclusionTextSaved && String(savedState.conclusionTextSaved).trim());
+            const view = savedState.view || '';
+
+            return answeredCount > 0 || skippedCount > 0 || attemptCount > 0 || currentIndex > 0 || hasConclusion || view === 'conclusion' || view === 'results';
+        }
+
+        function hasResumableExerciseState(savedState) {
+            return !!(savedState && Array.isArray(savedState.exercises) && savedState.exercises.length && hasMeaningfulProgress(savedState));
+        }
+
         function updateExerciseLauncherState() {
             const mainExerciseBtn = document.getElementById('mainExerciseBtn');
             if (!mainExerciseBtn) return;
 
-            const hasSavedState = !!getSavedExerciseState();
+            const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
             mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
             mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
         }
@@ -1034,7 +1070,7 @@
             const badge = document.getElementById('exerciseResumeBadge');
             if (!badge) return;
 
-            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : !!getSavedExerciseState();
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : hasResumableExerciseState(getSavedExerciseState());
             badge.style.display = isVisible ? 'inline-flex' : 'none';
         }
 
@@ -1063,6 +1099,11 @@
                 selectedOptionValue: getSelectedOptionValue(),
                 formState: captureFormState()
             };
+
+            if (!hasMeaningfulProgress(exerciseState)) {
+                clearExerciseState();
+                return;
+            }
 
             try {
                 localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
@@ -1259,11 +1300,15 @@
             audioPaused = false;
         }
 
+        function resolveTrackText(track) {
+            return typeof track === 'function' ? track() : track;
+        }
+
         function speakTrack(index) {
             currentSpeechSource = 'track';
             clearExampleAudioState();
             setMainAudioButtonState('playing');
-            speakText(tracks[index]);
+            speakText(resolveTrackText(tracks[index]));
             if (speaking) updateTrackCounter();
         }
 
@@ -1362,6 +1407,11 @@
         }
 
         // ========== FUNÇÕES AUXILIARES ==========
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+            return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+        }
+
         function formatScientificWith3Digits(value, unit = '') {
             if (value === 0) return '0.00 ' + unit;
             if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
@@ -1369,8 +1419,8 @@
                 const mantissa = value / Math.pow(10, exponent);
                 const roundedMantissa = Math.round(mantissa * 100) / 100;
                 let mantissaStr = roundedMantissa.toFixed(2);
-                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10^' + (exponent + 1) + ' ' + unit; }
-                return mantissaStr + '×10^' + exponent + ' ' + unit;
+                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit; }
+                return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
             }
             const integerPart = Math.floor(Math.abs(value));
             let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
@@ -1659,6 +1709,10 @@
         }
 
         function sendResultsToSheet() {
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
             const studentClass = document.getElementById('studentClass').value;
@@ -1810,7 +1864,7 @@
             document.getElementById('emailStatus').style.display = 'none';
 
             const savedState = getSavedExerciseState();
-            if (savedState) {
+            if (hasResumableExerciseState(savedState)) {
                 restoreExerciseState(savedState);
                 updateExerciseResumeBadge(true);
 
@@ -1823,6 +1877,10 @@
                     showCurrentExercise(savedState.selectedOptionValue || null);
                 }
                 return;
+            }
+
+            if (savedState) {
+                clearExerciseState();
             }
 
             resetExerciseState();
@@ -1878,5 +1936,12 @@
             else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
         });
     </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Resistencia Eletrica',
+            storageKey: 'resistencia'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

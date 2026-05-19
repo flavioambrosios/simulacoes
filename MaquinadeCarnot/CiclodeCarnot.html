@@ -904,5 +904,42 @@
         document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
         window.addEventListener('load', init);
     </script>
+    <script>
+        let studentNameCarnot = localStorage.getItem('studentNameCarnot') || '';
+
+        function ensureStudentNameCarnot() {
+            if (!studentNameCarnot) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameCarnot = providedName.trim();
+                    localStorage.setItem('studentNameCarnot', studentNameCarnot);
+                } else {
+                    studentNameCarnot = 'estudante';
+                }
+            }
+            return studentNameCarnot;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameCarnot()}! Esta simulação mostra o ciclo de Carnot como uma referência ideal para estudar máquinas térmicas. À esquerda aparece a animação do ciclo com as quatro etapas destacadas por cores. À direita estão os controles de temperatura da fonte quente, temperatura da fonte fria e calor absorvido. Abaixo, o painel de medições reúne rendimento, trabalho realizado e calor rejeitado.`,
+            'O primeiro ponto importante é que o rendimento de Carnot depende apenas das temperaturas absolutas das fontes. A fórmula eta igual a 1 menos T dois sobre T um mostra isso com clareza. Quando a fonte quente fica muito mais quente que a fria, o rendimento aumenta. Quando as temperaturas se aproximam, o rendimento cai.',
+            'Além do rendimento, a tela permite comparar calor absorvido, trabalho e calor rejeitado. Pela primeira lei da termodinâmica aplicada ao ciclo, o trabalho realizado é a diferença entre o calor recebido da fonte quente e o calor devolvido à fonte fria. Por isso os três valores precisam ser analisados em conjunto, e não separadamente.',
+            'A legenda colorida ajuda a identificar as quatro transformações do ciclo: expansão isotérmica, expansão adiabática, compressão isotérmica e compressão adiabática. Mesmo sem entrar em todos os detalhes matemáticos de cada etapa, vale perceber que o ciclo ideal alterna momentos de troca de calor com momentos sem troca de calor.',
+            'Use os controles para testar comparações simples. Mantendo T um fixa, diminua T dois e observe o aumento do rendimento. Depois mantenha as temperaturas e altere o calor de entrada Q um. Você verá que o rendimento permanece o mesmo, mas o trabalho e o calor rejeitado mudam de escala.',
+            'Depois dessa exploração, abra os exercícios resolvidos. Eles foram escritos para mostrar o raciocínio por trás das contas: primeiro identificar o que a fórmula responde, depois interpretar fisicamente o resultado em termos de eficiência e transferência de energia.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1. A pergunta pede o rendimento máximo de uma máquina de Carnot, então a expressão mais importante é eta igual a 1 menos T dois sobre T um. Com T um igual a 500 kelvin e T dois igual a 300 kelvin, a razão entre as temperaturas é 0,6. Subtraindo esse valor de 1, obtemos 0,4, ou 40 por cento. A interpretação física é que, mesmo no melhor cenário possível, apenas parte do calor absorvido pode virar trabalho.',
+            '2': 'Exemplo 2. Agora queremos o trabalho realizado. Primeiro calculamos o rendimento usando as temperaturas das fontes: 1 menos 300 sobre 600, que resulta em 0,5. Isso significa que metade do calor recebido pode ser convertida em trabalho. Como a máquina absorve 800 joules, o trabalho é 0,5 vezes 800, ou 400 joules. O raciocínio liga diretamente eficiência e energia transformada.',
+            '3': 'Exemplo 3. Neste caso já sabemos o rendimento e o calor absorvido, e a pergunta é sobre o calor rejeitado. Um rendimento de 25 por cento significa que a máquina transforma 250 joules em trabalho quando recebe 1000 joules. O restante não desaparece: ele precisa ser rejeitado para a fonte fria. Então Q dois é 1000 menos 250, resultando em 750 joules. Esse exemplo deixa claro que nenhuma máquina térmica converte todo o calor em trabalho.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ciclo de Carnot',
+            storageKey: 'ciclo-de-carnot'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

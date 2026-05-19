@@ -1822,5 +1822,60 @@
         // Inicializar quando a página carregar
         window.addEventListener('load', init);
     </script>
+    <script>
+        let studentNameRelatividade = localStorage.getItem('studentNameRelatividade') || '';
+
+        function ensureStudentNameRelatividade() {
+            if (!studentNameRelatividade) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameRelatividade = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameRelatividade', studentNameRelatividade);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameRelatividade();
+                return `Olá, ${studentNameRelatividade}. Esta simulação apresenta a dilatação do tempo na relatividade especial como uma leitura guiada da tela. Na parte superior aparecem duas animações: uma mostra o ponto de vista de dentro da espaçonave e a outra mostra o ponto de vista de fora. Logo abaixo, a área principal destaca o triângulo da relatividade, com segmentos coloridos que ajudam a transformar a ideia física em geometria.`;
+            },
+            function () {
+                return 'No painel central, o triângulo resume o raciocínio da dilatação do tempo. O segmento vermelho representa a altura associada ao tempo próprio, o verde representa a distância percorrida pela espaçonave, e o azul representa o percurso da luz visto por um observador externo. A simulação foi organizada para mostrar que o caminho da luz parece diferente para observadores diferentes, e é dessa diferença geométrica que nasce a dilatação do tempo.';
+            },
+            function () {
+                return 'No painel de controles, você ajusta a velocidade da espaçonave em fração da velocidade da luz e também o tempo próprio medido dentro da nave. Ao lado, a tela mostra automaticamente o fator de Lorentz e o tempo dilatado. O ponto importante é observar a tendência: quando a velocidade cresce e se aproxima de c, o fator de Lorentz aumenta, e o tempo medido pelo observador externo se afasta cada vez mais do tempo próprio.';
+            },
+            function () {
+                return 'As duas caixas de fórmulas contam a mesma história em linguagens diferentes. A primeira mostra a expressão final da dilatação do tempo. A segunda mostra a dedução passo a passo a partir da relação pitagórica entre os lados do triângulo. Isso ajuda o estudante a perceber que a fórmula não surge pronta do nada; ela aparece quando a geometria do percurso da luz é interpretada com cuidado.';
+            },
+            function () {
+                return 'O par de grandezas mais importante aqui é t e tau. O tempo próprio, indicado por tau, é medido no referencial em que o relógio está em repouso, ou seja, dentro da espaçonave. O tempo t é o que um observador externo mede ao ver a nave em movimento. A simulação reforça uma ideia central da relatividade: o intervalo de tempo não é absoluto. Ele depende do referencial adotado.';
+            },
+            function () {
+                return 'Na área de medições, você acompanha velocidade, tempo próprio, fator de Lorentz, tempo dilatado, percurso do fóton e distância percorrida pela nave. Esses números servem para ligar a figura ao raciocínio quantitativo. O ideal é sempre perguntar o que mudou na geometria quando um valor mudou na tabela. Assim, a observação visual e a fórmula trabalham juntas.';
+            },
+            function () {
+                return 'Depois dessa exploração inicial, abra os exercícios resolvidos e os exercícios finais. Nos exemplos, procure primeiro a ideia física: estamos calculando gamma, o tempo dilatado ou a velocidade necessária para produzir certo efeito relativístico? Só depois disso vale seguir a álgebra. Essa ordem ajuda a transformar a relatividade em interpretação, e não apenas em substituição de números.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a meta é calcular o fator de Lorentz para uma velocidade de zero vírgula oito vezes a velocidade da luz. O ponto central é entender que gamma mede o quanto os efeitos relativísticos se tornam importantes. Quando a velocidade ainda é pequena em comparação com c, gamma fica perto de um. Quando a velocidade cresce, gamma aumenta. A conta usa a razão v sobre c, eleva ao quadrado, subtrai de um e depois toma a raiz no denominador. O valor final, aproximadamente um vírgula sessenta e sete, mostra que os efeitos relativísticos já são bastante relevantes nessa velocidade.',
+            '2': 'No segundo exemplo, o foco é a dilatação do tempo. Um astronauta mede uma hora dentro da espaçonave, e queremos saber quanto tempo passa para um observador na Terra. A ideia física é que o tempo próprio é o menor intervalo, porque é medido no referencial em que o relógio está em repouso. O observador externo mede um intervalo maior. A conta segue a fórmula da dilatação do tempo e chega a uma hora e vinte e cinco centésimos de hora, isto é, uma hora e quinze minutos. Mais importante que o valor final é perceber a interpretação: o tempo do observador externo ficou dilatado em relação ao tempo próprio.',
+            '3': 'No terceiro exemplo, a incógnita é a velocidade necessária para que o fator de Lorentz seja igual a dois. Esse tipo de problema é valioso porque inverte a pergunta usual. Em vez de partir da velocidade para achar gamma, parte-se de um efeito relativístico conhecido para descobrir quão rápida a nave precisa estar. Ao reorganizar a expressão, obtém-se v sobre c igual a aproximadamente zero vírgula oitocentos e sessenta e seis. O resultado mostra que efeitos relativísticos fortes exigem velocidades muito próximas da velocidade da luz.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Relatividade Especial',
+            storageKey: 'relatividade-especial'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

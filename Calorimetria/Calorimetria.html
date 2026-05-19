@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercícios Interativos de Calorimetria</title>
+    <title>Exercícios Interativos de Calorimetria com Áudio</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -130,7 +130,7 @@
 
         .modal-content {
             background: linear-gradient(135deg, #2c3e50, #4a6491);
-            padding: 20px;
+            padding: 20px 20px 120px;
             border-radius: 10px;
             width: 100%;
             max-width: 800px;
@@ -152,6 +152,18 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+        }
+
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
         }
 
         .exercise {
@@ -292,6 +304,7 @@
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
+            position: relative;
         }
 
         .solved-exercise h4 {
@@ -303,6 +316,25 @@
             margin-bottom: 8px;
             padding-left: 15px;
             border-left: 3px solid #ffcc00;
+        }
+
+        .audio-example-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        .audio-example-btn:hover {
+            background: #2980b9;
+        }
+        .audio-example-btn.playing {
+            background: #e67e22;
+        }
+        .audio-example-btn.playing:hover {
+            background: #d35400;
         }
 
         .buttons-container {
@@ -365,6 +397,62 @@
             color: #ff0000;
         }
 
+        /* Painel de controle de áudio */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffcc00;
+            align-items: center;
+        }
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-selector label {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .voice-selector select {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            border: 1px solid #ffcc00;
+            border-radius: 18px;
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            max-width: 210px;
+        }
+        .voice-selector select option {
+            color: #000;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
+        }
+
         @media (max-width: 768px) {
             .content {
                 flex-direction: column;
@@ -373,6 +461,28 @@
             .theory-panel, .exercise-panel {
                 width: 100%;
             }
+
+            .modal-content {
+                max-height: calc(100vh - 30px);
+                padding-bottom: 180px;
+            }
+
+            .audio-controls {
+                right: 10px;
+                left: 10px;
+                bottom: 10px;
+                border-radius: 18px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .voice-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            .voice-selector select {
+                max-width: 100%;
+                flex: 1;
+            }
         }
     </style>
 </head>
@@ -380,7 +490,7 @@
     <div class="container">
         <header>
             <h1>Exercícios Interativos de Calorimetria</h1>
-            <p class="subtitle">Prof. Flávio Ambrósio </p>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
         <div class="content">
@@ -389,13 +499,13 @@
                 
                 <div class="formula-box">
                     <h3>Calor Sensível</h3>
-                    <div class="formula">Q = m × c × Δθ</div>
+                    <div class="formula">Q = m × c × ΔT</div>
                     <p>Onde:</p>
                     <ul>
                         <li>Q = quantidade de calor (cal ou J)</li>
                         <li>m = massa (g)</li>
                         <li>c = calor específico (cal/g°C)</li>
-                        <li>Δθ = variação de temperatura (°C)</li>
+                        <li>ΔT = variação de temperatura (°C)</li>
                     </ul>
                 </div>
                 
@@ -417,7 +527,7 @@
                     <p>Princípio da conservação da energia: em um sistema isolado, a soma das quantidades de calor trocadas é zero.</p>
                 </div>
                 
-                <button id="startExercisesBtn" style="width: 100%; margin-top: 20px;">Iniciar Exercícios</button>
+                <button id="mainExerciseBtn" style="width: 100%; margin-top: 20px;">Iniciar Exercícios</button>
                 <button id="solvedExercisesBtn" style="width: 100%; margin-top: 10px;">Ver Exercícios Resolvidos</button>
             </div>
             
@@ -432,6 +542,7 @@
                     <p>Clique em <strong>"Iniciar Exercícios"</strong> para começar.</p>
                     <p>Serão apresentadas 6 questões de calorimetria baseadas em três modelos.</p>
                     <p>Após responder, escreva uma conclusão e envie seus resultados.</p>
+                    <p><strong>Áudio guia:</strong> Use os botões no canto inferior direito para ouvir explicações passo a passo.</p>
                 </div>
             </div>
         </div>
@@ -442,7 +553,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Exercícios de Calorimetria</h2>
-                <span class="close">&times;</span>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
             
             <div class="progress" id="progressBar">
@@ -524,14 +638,15 @@
                     </div>
                     
                     <div id="emailStatus" class="email-status"></div>
-                    
                     <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                    <p style="text-align: center; margin-top: 16px;">Parabéns por concluir a atividade!</p>
+                    
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Exercícios Resolvidos (com correção do Exemplo 2 - Gelo em água) -->
+    <!-- Modal de Exercícios Resolvidos (com botões de áudio individuais) -->
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -541,53 +656,122 @@
             
             <div id="solvedExercisesContainer">
                 <!-- Exemplo 1: Metal + Água -->
-                <div class="solved-exercise">
+                <div class="solved-exercise" id="ex1">
                     <h4>Exemplo 1: Metal aquecido em água</h4>
+                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> Uma peça de ferro de 200 g é aquecida a 250 °C e é colocada em seguida em um recipiente com um litro (1 kg) de água a 25 °C. Depois de algum tempo, qual a temperatura de equilíbrio do sistema? (c<sub>ferro</sub> = 0,11 cal/g°C, c<sub>água</sub> = 1 cal/g°C)</p>
-                    <div class="solution-step"><strong>Calor cedido pelo ferro:</strong> Q<sub>ferro</sub> = m<sub>ferro</sub> · c<sub>ferro</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</div>
-                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</div>
-                    <div class="solution-step"><strong>Equação de troca de calor:</strong> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div> 
+                    <div class="solution-step"><strong>Calor cedido pelo ferro:</strong><br> Q<sub>ferro</sub> = m<sub>ferro</sub> · c<sub>ferro</sub> · (T<sub>eq</sub> - T<sub>if</sub>)</div>
+                    <div class="solution-step"><strong>Calor recebido pela água:</strong><br> Q<sub>água</sub> = m<sub>água</sub> · c<sub>água</sub> · (T<sub>eq</sub> - T<sub>ia</sub>)</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:</strong><br> Q<sub>cedido</sub> + Q<sub>recebido</sub> = 0</div><br>
+                    Onde:<br>                     
                     <div class="solution-step">200 · 0,11 · (T<sub>eq</sub> - 250) + 1000 · 1 · (T<sub>eq</sub> - 25) = 0</div>
-                    <div class="solution-step">22 · (T<sub>eq</sub> - 250) + 1000 · (T<sub>eq</sub> - 25) = 0 → 22T<sub>eq</sub> - 5500 + 1000T<sub>eq</sub> - 25000 = 0 → 1022T<sub>eq</sub> = 30500 → T<sub>eq</sub> ≈ 29,84 °C</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>29,8 °C</strong>.</div>
+                    <div class="solution-step">22 · (T<sub>eq</sub> - 250) + 1000 · (T<sub>eq</sub> - 25) = 0 <br>
+                        22T<sub>eq</sub> - 5500 + 1000T<sub>eq</sub> - 25000 = 0<br>
+                        1022 . T<sub>eq</sub> - 30500 = 0 <br>
+                        1022 . T<sub>eq</sub> = 30500 <br>
+                        T<sub>eq</sub> = 30500 / 1022<br>
+                        T<sub>eq</sub> ≈ 29,84 °C</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>29,8 °C.</strong><br>
+                        <br>Legenda:<br>
+                        Q<sub>ferro</sub> - calor cedido pelo ferro<br>
+                        Q<sub>água</sub> - calor recebido pela água<br>
+                        m<sub>ferro</sub> - massa de ferro<br>
+                        c<sub>ferro</sub> - calor específico do Ferro<br>
+                        m<sub>água</sub> - massa de água<br>
+                        c<sub>água</sub> - calor específico da água<br>
+                        T<sub>eq</sub> - temperatura de equlíbrio<br>
+                        T<sub>if</sub> - temperatura inicial do Ferro<br>
+                        T<sub>ia</sub> - temperatura inicial da água</div>
                 </div>
                 
-                <!-- Exemplo 2: Gelo em água (CORRIGIDO - agora com a etapa de aquecimento da água proveniente do gelo) -->
-                <div class="solved-exercise">
+                <!-- Exemplo 2: Gelo em água (corrigido) -->
+                <div class="solved-exercise" id="ex2">
                     <h4>Exemplo 2: Gelo em água (corrigido)</h4>
+                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> Uma pedra de gelo de 250 g, com temperatura inicial de -10 °C, é colocada em recipiente isolado com 1500 g de água a 25 °C. Calcule a temperatura de equilíbrio do sistema. <br> (c<sub>gelo</sub> = 0,5 cal/g°C, L<sub>fusão</sub> = 80 cal/g, c<sub>água</sub> = 1 cal/g°C)</p>
-                    <div class="solution-step"><strong>1. Aquecimento do gelo de -10°C até 0°C:</strong></p> Q₁ = m<sub>gelo</sub>·c<sub>gelo</sub>·Δθ = 250·0,5·(0 - (-10)) = 250·0,5·10 = <strong>1250 cal</strong></div>
-                    <div class="solution-step"><strong>2. Fusão total do gelo a 0°C:</strong></p> Q₂ = m<sub>gelo</sub>·L<sub>fusão</sub> = 250·80 = <strong>20000 cal</strong></div>
+                    <br>
+                    <div class="solution-step"><strong>1. Aquecimento do gelo de -10°C até 0°C:<br></strong> Q₁ = m<sub>gelo</sub>·c<sub>gelo</sub>·(0 -T<sub>ig</sub>) = 250·0,5·(0 - (-10)) = 250·0,5·10 = <strong>1250 cal</strong></div>
+                    <div class="solution-step"><strong>2. Fusão total do gelo a 0°C:<br></strong> Q₂ = m<sub>gelo</sub>·L<sub>fusão</sub> = 250·80 = <strong>20000 cal</strong></div>
+                    <div class="solution-step"><strong>3. Aquecimento da água proveniente do gelo derretido (0°C até T<sub>eq</sub>):<br></strong> Q₃ = m<sub>gelo</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 0) = 250·1·T<sub>eq</sub> = <strong>250·T<sub>eq</sub></strong></div>
+                    <div class="solution-step"><strong>4. Resfriamento total da água (25°C até T<sub>eq</sub>):<br></strong> Q₄ = m<sub>água</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 25) = 1500·1·(T<sub>eq</sub> - 25) = <strong>1500·T<sub>eq</sub> - 37500</strong></div>
+                    <div class="solution-step"><strong>5. Equação de troca de calor:<br></strong> Q₁ + Q₂ + Q₃ + Q₄ = 0 <br>
+                        1250 + 20000 + 250·T<sub>eq</sub> + 1500·(T<sub>eq</sub> - 25) = 0 <br>
+                        21250 + 250T<sub>eq</sub> + 1500T<sub>eq</sub> - 37500 = 0 <br>
+                        1750T<sub>eq</sub> - 16250 = 0 <br>
+                        T<sub>eq</sub> = 16250 / 1750 <br>
+                        T<sub>eq</sub> = <strong>9,2857... °C</strong></div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>9,29 °C</strong>. (Todo o gelo derrete e a mistura atinge equilíbrio térmico a 9,29°C)<br>
+                    <br>Legenda:<br>
+                        Q<sub>1</sub> - calor recebido pelo gelo para chegar a zero grau<br>
+                        Q<sub>2</sub> - calor necessário para derreter o gelo<br>
+                        Q<sub>3</sub> - calor recebido pelo gelo derretido<br>
+                        Q<sub>4</sub> - calor total cedido pela água<br>
+                        m<sub>g</sub> - massa de gelo<br>
+                        c<sub>g</sub> - calor específico do gelo<br>
+                        m<sub>água</sub> - massa de água<br>
+                        c<sub>água</sub> - calor específico da água<br>
+                        T<sub>eq</sub> - temperatura de equlíbrio<br>
+                        T<sub>ig</sub> - temperatura inicial do gelo<br>
+                        T<sub>ia</sub> - temperatura inicial da água<br>
+                        L<sub>fusão</sub> - calor latente de fusão do gelo
+                    </div>
                     
-                    <div class="solution-step"><strong>3. Aquecimento da água proveniente do gelo derretido (0°C até T<sub>eq</sub>):</strong> </p>Q₃ = m<sub>gelo</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 0) = 250·1·T<sub>eq</sub> = <strong>250·T<sub>eq</sub></strong></div>
-                    <div class="solution-step"><strong>4. Resfriamento da água inicial (25°C até T<sub>eq</sub>):</strong></p> Q<sub>4</sub> = m<sub>água</sub>·c<sub>água</sub>·(T<sub>eq</sub> - 25) = 1500·1·(T<sub>eq</sub> - 25) = <strong>1500·(T<sub>eq</sub> - 25)</strong></div>
-                    <div class="solution-step"><strong>5. Equação de troca de calor :</strong> </p>
-                    Q₁ + Q₂ + Q₃ + Q<sub>4</sub> = 0<br>
-                    21250 + 250·T<sub>eq</sub> + 1500·(T<sub>eq</sub> - 25) = 0</div>
-                    <div class="solution-step"><strong>6. Resolvendo:</strong><br>
-                    21250 + 250T<sub>eq</sub> + 1500T<sub>eq</sub> - 37500 = 0<br>
-                    1750T<sub>eq</sub> - 16250 = 0<br>
-                    1750T<sub>eq</sub> = 16250<br>
-                    T<sub>eq</sub> = 16250 / 1750 = <strong>9,2857... °C</strong></div>
-                    <div class="solution-step"><strong>Resposta:</strong> A temperatura de equilíbrio é aproximadamente <strong>9,29 °C</strong>. (Todo o gelo derrete e a mistura atinge equilíbrio térmico a 9,29°C)</div>
                 </div>
                 
                 <!-- Exemplo 3: Capacidade térmica do calorímetro -->
-                <div class="solved-exercise">
+                <div class="solved-exercise" id="ex3">
                     <h4>Exemplo 3: Capacidade térmica de um calorímetro</h4>
+                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
                     <p><strong>Problema:</strong> Calcule a capacidade térmica de um calorímetro (C<sub>c</sub>) no qual contém 300 ml (300g) de água a 20 °C. Neste calorímetro é colocada uma barra de metal de massa 300 g, calor específico 0,2 cal/g°C, a 300 °C. A temperatura de equilíbrio do sistema é 50 °C. Despreze perdas.</p>
-                    <div class="solution-step"><strong>Dados:</strong> m<sub>água</sub>=300g, c<sub>água</sub>=1 cal/g°C, T<sub>ia</sub>=20°C; m<sub>metal</sub>=300g, c<sub>metal</sub>=0,2 cal/g°C, T<sub>im</sub>=300°C; T<sub>eq</sub>=50°C; C<sub>c</sub> = ?</div>
-                    <div class="solution-step"><strong>Calor recebido pela água:</strong> Q<sub>água</sub> = 300·1·(50-20) = 9000 cal</div>
-                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:</strong> Q<sub>cal</sub> = C<sub>c</sub>·(50-20) = 30·C<sub>c</sub></div>
-                    <div class="solution-step"><strong>Calor cedido pelo metal:</strong> Q<sub>metal</sub> = 300·0,2·(50-300) = 60·(-250) = -15000 cal</div>
-                    <div class="solution-step"><strong>Equação de troca de calor:</strong> 9000 + 30·C<sub>c</sub> - 15000 = 0 → 30·C<sub>c</sub> = 6000 → C<sub>c</sub> = 200 cal/°C</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A capacidade térmica do calorímetro é <strong>200 cal/°C</strong>.</div>
+                    <div class="solution-step"><strong>Dados:</strong><br> m<sub>água</sub>=300g, <br>
+                        c<sub>água</sub>=1 cal/g°C,<br>
+                        T<sub>ia</sub>=20°C, <br>
+                        m<sub>metal</sub>=300g, <br>
+                        c<sub>metal</sub>=0,2 cal/g°C, <br>
+                        T<sub>im</sub>=300°C, <br>
+                        T<sub>eq</sub>=50°C, <br>
+                        C<sub>cal</sub> = ?</div><br>
+                    <div class="solution-step"><strong>Calor recebido pela água:<br></strong> Q<sub>água</sub> = 300·1·(50-20) = 9000 cal</div>
+                    <div class="solution-step"><strong>Calor recebido pelo calorímetro:<br></strong> Q<sub>cal</sub> = C<sub>cal</sub>·(50-20) = 30·C<sub>cal</sub></div>
+                    <div class="solution-step"><strong>Calor cedido pelo metal:<br></strong> Q<sub>metal</sub> = 300·0,2·(50-300) = 60·(-250) = -15000 cal</div>
+                    <div class="solution-step"><strong>Equação de troca de calor:<br></strong>
+                        Q<sub>água</sub> + Q<sub>calorímetro</sub> + Q<sub>metal</sub>= 0 <br>
+                        9000 + 30·C<sub>cal</sub> - 15000 = 0 <br>
+                        30·C<sub>c</sub> = 6000 <br>
+                        C<sub>cal</sub> = 200 cal/°C</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A capacidade térmica do calorímetro é <strong>200 cal/°C</strong>.<br>
+                    <br>Legenda:<br>
+                        Q<sub>água</sub> - calor recebido pela água<br>
+                        Q<sub>cal</sub> - calor recebido pelo calorímetro<br>
+                        Q<sub>metal</sub> - calor cedido pelo metal<br>                        
+                        m<sub>metal</sub> - massa de metal<br>
+                        c<sub>metal</sub> - calor específico do metal<br>
+                        m<sub>água</sub> - massa de água<br>
+                        c<sub>água</sub> - calor específico da água<br>
+                        T<sub>eq</sub> - temperatura de equlíbrio<br>
+                        T<sub>im</sub> - temperatura inicial do metal<br>
+                        T<sub>ia</sub> - temperatura inicial da água<br>
+                        C<sub>cal</sub> - capacidade térmica do calorímetro</div>
                 </div>
             </div>
             
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Painel de áudio flutuante -->
+    <div class="audio-controls" id="audioControls">
+        <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+        <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
+        <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+        <span id="trackCounter">Trecho 0/8</span>
+        <div class="voice-selector">
+            <label for="voiceSelect">Voz:</label>
+            <select id="voiceSelect" aria-label="Selecionar voz do áudio">
+                <option value="">Carregando vozes...</option>
+            </select>
         </div>
     </div>
 
@@ -656,7 +840,6 @@
                 let Q_max_agua = m_agua * C_AGUA * t_agua;
                 let T;
                 if (Q1 + Q2 <= Q_max_agua) {
-                    // Equação completa: m_agua*C_AGUA*(t_agua - T) = Q1+Q2 + m_gelo*C_AGUA*T
                     T = (m_agua * C_AGUA * t_agua - Q1 - Q2) / ((m_agua + m_gelo) * C_AGUA);
                 } else {
                     T = 0;
@@ -770,46 +953,35 @@
             return arr;
         }
 
-        let exercises = exerciseTemplates.map(t => t());
+        // ========== VARIÁVEIS DE ESTADO PERSISTENTES ==========
+        let exercises = [];
         let currentExercise = 0;
         let exerciseResults = [];
         let skippedQuestions = 0;
         let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
 
-        const exercisesModal = document.getElementById('exercisesModal');
-        const solvedExercisesModal = document.getElementById('solvedExercisesModal');
-        const exerciseContainer = document.getElementById('exerciseContainer');
-        const conclusionContainer = document.getElementById('conclusionContainer');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const resultsSummary = document.getElementById('resultsSummary');
-        const startBtn = document.getElementById('startExercisesBtn');
-        const solvedBtn = document.getElementById('solvedExercisesBtn');
-        const closeModal = document.querySelector('#exercisesModal .close');
-        const closeSolved = document.querySelector('#solvedExercisesModal .close');
-        const closeSolvedBtn = document.getElementById('closeSolvedExercises');
-        const submitConclusion = document.getElementById('submitConclusion');
-        const sendResultsBtn = document.getElementById('sendResults');
-
-        function openExercisesModal() {
-            exercisesModal.style.display = 'flex';
+        // Reset completo do estado dos exercícios
+        function resetExerciseState() {
+            exercises = [];
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
             currentExerciseAttempts = 0;
-            exercises = exerciseTemplates.map(t => t());
-            exerciseContainer.style.display = 'block';
-            conclusionContainer.style.display = 'none';
-            resultsContainer.style.display = 'none';
-            showCurrentExercise();
+            conclusionTextSaved = "";
         }
 
-        function closeExercisesModal() { exercisesModal.style.display = 'none'; }
-        function openSolvedExercisesModal() { solvedExercisesModal.style.display = 'flex'; }
-        function closeSolvedExercisesModal() { solvedExercisesModal.style.display = 'none'; }
+        // Gerar novos exercícios (chamado ao iniciar ou reiniciar)
+        function generateFreshExercises() {
+            return exerciseTemplates.map(t => t());
+        }
 
+        // Mostrar o exercício atual
         function showCurrentExercise() {
+            if (!exercises.length || currentExercise >= exercises.length) return;
             const ex = exercises[currentExercise];
-            exerciseContainer.innerHTML = `
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = `
                 <div class="exercise">
                     <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
                     <p>${ex.question}</p>
@@ -820,21 +992,23 @@
                     <div class="result"></div>
                 </div>
             `;
-            exerciseContainer.querySelectorAll('.option').forEach(opt => {
+            container.querySelectorAll('.option').forEach(opt => {
                 opt.addEventListener('click', function() {
-                    exerciseContainer.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+                    container.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
                     this.classList.add('selected');
                 });
             });
-            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            if (checkBtn) checkBtn.addEventListener('click', checkAnswer);
             updateProgressBar();
         }
 
         function checkAnswer() {
-            const selected = exerciseContainer.querySelector('.option.selected');
-            const resultDiv = exerciseContainer.querySelector('.result');
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
             const checkBtn = document.getElementById('checkAnswerBtn');
-            const options = exerciseContainer.querySelectorAll('.option');
+            const options = container.querySelectorAll('.option');
 
             if (!selected) {
                 resultDiv.textContent = 'Selecione uma opção.';
@@ -865,7 +1039,6 @@
                 `;
                 document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
                 document.getElementById('tryAgainBtn').addEventListener('click', () => {
-                    // Gera um novo exercício do MESMO TIPO (índice atual) com dados diferentes
                     exercises[currentExercise] = exerciseTemplates[currentExercise]();
                     showCurrentExercise();
                 });
@@ -899,39 +1072,51 @@
         function updateProgressBar() {
             for (let i = 0; i < 6; i++) {
                 const item = document.getElementById(`progress${i+1}`);
-                item.classList.remove('active', 'completed');
-                if (i === currentExercise) item.classList.add('active');
-                else if (i < currentExercise) item.classList.add('completed');
+                if (item) {
+                    item.classList.remove('active', 'completed');
+                    if (i === currentExercise) item.classList.add('active');
+                    else if (i < currentExercise) item.classList.add('completed');
+                }
             }
         }
 
         function showConclusion() {
-            exerciseContainer.style.display = 'none';
-            conclusionContainer.style.display = 'block';
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+            const submitBtn = document.getElementById('submitConclusion');
+            // Remove listener antigo para evitar duplicação
+            const newSubmit = submitBtn.cloneNode(true);
+            submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+            newSubmit.addEventListener('click', function() {
+                const conclusion = document.getElementById('conclusionText').value;
+                if (conclusion.trim() === '') {
+                    alert('Escreva uma conclusão antes de continuar.');
+                    return;
+                }
+                conclusionTextSaved = conclusion;
+                showResults(conclusion);
+            });
         }
 
-        submitConclusion.addEventListener('click', function() {
-            const conclusion = document.getElementById('conclusionText').value;
-            if (conclusion.trim() === '') {
-                alert('Escreva uma conclusão antes de continuar.');
-                return;
-            }
-            showResults(conclusion);
-        });
-
         function showResults(conclusion) {
-            conclusionContainer.style.display = 'none';
-            resultsContainer.style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
             const total = exercises.length;
             const correct = exerciseResults.filter(r => r.correct).length;
             const percent = Math.round((correct / total) * 100);
-            resultsSummary.innerHTML = `
+            document.getElementById('resultsSummary').innerHTML = `
                 <p>Exercícios respondidos: ${total}</p>
                 <p>Respostas corretas: ${correct}</p>
                 <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${percent}%</p>
             `;
             document.getElementById('finalConclusion').value = conclusion;
+            const sendBtn = document.getElementById('sendResults');
+            const newSendBtn = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+            newSendBtn.addEventListener('click', sendResultsToSheet);
         }
 
         function sendResultsToSheet() {
@@ -1024,6 +1209,7 @@
                 emailStatus.textContent = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
                 emailStatus.className = 'email-status sent';
                 setTimeout(() => {
+                    resetExerciseState();  // Limpa o estado após envio bem-sucedido
                     closeExercisesModal();
                     sendButton.disabled = false;
                     sendButton.textContent = 'Enviar Resultados';
@@ -1038,16 +1224,376 @@
             });
         }
 
-        startBtn.addEventListener('click', openExercisesModal);
-        solvedBtn.addEventListener('click', openSolvedExercisesModal);
-        closeModal.addEventListener('click', closeExercisesModal);
-        closeSolved.addEventListener('click', closeSolvedExercisesModal);
-        closeSolvedBtn.addEventListener('click', closeSolvedExercisesModal);
-        sendResultsBtn.addEventListener('click', sendResultsToSheet);
+        // ========== FUNÇÕES DE ABRIR/FECHAR MODAL COM PERSISTÊNCIA ==========
+        function openExercisesModal() {
+            // Se não há exercícios ou já foram concluídos (e não está em resultados/conclusão)
+            if (exercises.length === 0 || (currentExercise >= exercises.length && 
+                document.getElementById('resultsContainer').style.display !== 'block' &&
+                document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                // Retomar do ponto atual
+                if (document.getElementById('resultsContainer').style.display === 'block') {
+                    // já está nos resultados
+                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+        }
+
+        function closeExercisesModal() {
+            // Salvar conclusão digitada se estiver na tela de conclusão
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = conclusionTextarea.value;
+            }
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                exercises = generateFreshExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+
+        // ========== ÁUDIO INTERATIVO ==========
+        let studentName = localStorage.getItem('studentNameCalor');
+        if (!studentName) {
+            studentName = prompt("🎧 Olá! Qual é o seu nome? (Vou te chamar durante o áudio interativo)");
+            if (studentName) localStorage.setItem('studentNameCalor', studentName);
+            else studentName = "estudante";
+        }
+
+        let selectedVoice = null;
+        let savedVoicePreference = localStorage.getItem('voicePreferenceCalor') || '';
+        const tracks = [
+            `Olá, ${studentName}! Bem-vindo à simulação de Calorimetria. Pense neste primeiro áudio como uma apresentação guiada da tela. No alto aparece o título da atividade. Logo abaixo, a página se divide em dois painéis. À esquerda fica a parte teórica, com caixas de fórmulas e dois botões principais. À direita ficam a imagem animada, as instruções de uso e o convite para começar. A proposta desta página é simples: primeiro observar as ideias centrais da calorimetria, depois estudar exemplos resolvidos e, por fim, praticar com exercícios.`,
+            `Vamos olhar com calma o painel da esquerda. Ele reúne três caixas de teoria. A primeira fala do calor sensível, que é usado quando a temperatura muda, mas o estado físico continua o mesmo. A segunda fala do calor latente, usado quando a substância muda de estado, como no derretimento do gelo. A terceira lembra o princípio da troca de calor, que amarra toda a simulação. Essas três caixas formam um pequeno roteiro mental: aquecer ou resfriar, mudar de estado e, por fim, equilibrar as trocas de energia entre os corpos envolvidos.`,
+            `No primeiro bloco, o calor sensível, a fórmula representa uma ideia muito importante: a quantidade de calor depende da massa do corpo, do material de que ele é feito e da variação de temperatura. Em vez de ler símbolo por símbolo, vale guardar a interpretação. Se um corpo é maior, costuma precisar de mais energia para variar sua temperatura. Se o material tem maior calor específico, ele também exige mais energia para aquecer ou resfriar. E, naturalmente, quanto maior a mudança de temperatura, maior a troca de calor. Esse bloco ajuda o estudante a perceber que a fórmula não é um desenho para decorar, mas um resumo de relações físicas.`,
+            `No segundo e no terceiro blocos aparece o coração conceitual da calorimetria escolar. O calor latente mostra que uma substância pode receber energia e mesmo assim permanecer na mesma temperatura enquanto derrete ou muda de fase. Já a troca de calor mostra que, em um sistema isolado, a energia térmica perdida por um corpo reaparece nos outros corpos do sistema. É por isso que a simulação insiste tanto na ideia de equilíbrio térmico. O estudante não deve pensar só em números; deve imaginar quem está cedendo energia, quem está recebendo e em que etapa do processo isso acontece.`,
+            `Agora observe o painel da direita. Ele funciona como uma área de orientação. Há uma animação no centro para dar identidade visual à atividade e, abaixo dela, instruções curtas dizendo que a sequência começa pelo botão iniciar exercícios, que haverá seis questões e que, no final, será preciso escrever uma conclusão e enviar os resultados. Os dois botões principais da página ficam ao alcance logo no painel teórico: um abre os exercícios e o outro mostra os exercícios resolvidos. Nos exemplos resolvidos, os botões azuis de áudio têm a função de comentar as ideias e as equações, ajudando o estudante a entender melhor o que já está escrito na tela.`,
+            `No primeiro exemplo resolvido, a situação é de um metal quente colocado em água mais fria. A ideia física é simples: o ferro cede calor porque está mais quente, e a água recebe calor porque está mais fria. A temperatura de equilíbrio será um valor intermediário entre as duas temperaturas iniciais. O que a resolução faz é transformar essa ideia em conta: calcula o comportamento térmico do ferro, calcula o comportamento térmico da água e iguala as trocas de energia. O resultado final mostra que a água esquenta pouco e o ferro esfria bastante, até os dois chegarem a uma mesma temperatura.`,
+            `No segundo exemplo resolvido, a situação é mais rica, porque envolve gelo abaixo de zero grau sendo colocado em água líquida. Aqui o raciocínio precisa ser dividido em etapas. Primeiro, o gelo aquece até chegar a zero grau. Depois, o gelo derrete. Em seguida, a água originada desse gelo pode ainda aquecer até a temperatura final. Ao mesmo tempo, a água inicialmente quente vai esfriando. Esse exemplo é excelente para entender que a calorimetria nem sempre se resolve com uma única conta: às vezes, é preciso organizar o processo em fases para respeitar o que está acontecendo fisicamente.`,
+            `No terceiro exemplo resolvido, entra em cena o calorímetro. Agora não basta pensar só na água e no metal: o próprio recipiente também participa da troca de calor. A ideia principal é perceber que três partes do sistema trocam energia: o metal perde calor, a água ganha calor e o calorímetro também ganha calor. A capacidade térmica do calorímetro aparece justamente para medir quanto ele absorve quando sua temperatura varia. Esse tipo de questão ajuda a ampliar a visão do estudante, mostrando que o recipiente não é apenas um detalhe; ele também interfere no equilíbrio térmico.`,
+            `Parabéns, ${studentName}! Agora você já tem um mapa mental da simulação: teoria à esquerda, orientação e animação à direita, exemplos resolvidos para estudar o raciocínio e, por fim, a sequência de exercícios para praticar. Quando começar, tente sempre identificar primeiro a ideia física da questão e só depois partir para a conta. Pergunte a si mesmo: quem perde calor, quem ganha calor e se há mudança de estado. Essa ordem ajuda muito mais do que decorar fórmulas soltas. Bons estudos e bom trabalho na atividade!`
+        ];
+
+        let currentTrack = 0;
+        let speechSynthesis = window.speechSynthesis;
+        let speaking = false;
+        let audioPaused = false;
+        let currentSpeechSource = null;
+        let activeExampleButton = null;
+        let speechSessionId = 0;
+        const exampleNarrations = {
+            "1": "Neste primeiro exemplo, a ideia central é acompanhar uma troca de calor entre dois corpos em temperaturas muito diferentes. O ferro começa muito quente e a água começa relativamente fria. Como o sistema caminha para o equilíbrio, o ferro perde energia térmica e a água ganha essa mesma energia. A conta usa a expressão do calor sensível para os dois lados. Em vez de decorar a escrita algébrica, vale lembrar a lógica: massa vezes calor específico vezes variação de temperatura. Como a temperatura final é a mesma para os dois corpos, ela aparece nas duas expressões. Depois disso, basta igualar o calor perdido pelo ferro ao calor recebido pela água e resolver a equação. O resultado fica próximo de vinte e nove vírgula oito graus Celsius, o que faz sentido porque a água tem muito mais capacidade de absorver calor do que a peça de ferro de alterar a sua própria temperatura final para valores muito altos.",
+            "2": "Neste segundo exemplo, a resolução precisa ser organizada em etapas porque existe mudança de estado físico. O gelo começa abaixo de zero grau, então a primeira fase é aquecer esse gelo até zero grau. A segunda fase é derreter o gelo. Só depois disso faz sentido pensar na água que veio do gelo sendo aquecida até a temperatura final. Enquanto essas três etapas acontecem do lado do gelo, a água inicialmente a vinte e cinco graus vai cedendo calor e esfriando. O segredo da questão é perceber que o calor recebido pelo gelo não vem do nada; ele sai da água líquida. Por isso, a soma das trocas continua sendo zero. Quando todas as etapas são somadas e a equação é resolvida, a temperatura de equilíbrio fica em torno de nove vírgula vinte e nove graus Celsius. Esse valor também confirma uma interpretação física importante: todo o gelo derrete, e o sistema termina acima de zero grau.",
+            "3": "No terceiro exemplo, a novidade é que o calorímetro também participa da troca de calor. Não temos apenas um metal quente e uma água mais fria; temos três elementos do sistema interagindo ao mesmo tempo. O metal cede calor ao esfriar. A água recebe calor ao aquecer. E o calorímetro também recebe calor, porque sua temperatura sobe junto com a da água. A capacidade térmica do calorímetro serve exatamente para medir quanto calor ele absorve por grau de variação de temperatura. A resolução calcula separadamente o calor recebido pela água, o calor recebido pelo calorímetro e o calor cedido pelo metal. Depois, junta tudo na equação de conservação da energia. Ao isolar a capacidade térmica do calorímetro, chega-se ao valor de duzentas calorias por grau Celsius. Mais importante que o número final é perceber a ideia: o recipiente também interfere no balanço térmico e não pode ser ignorado."
+        };
+
+        function getVoiceKey(voice) {
+            return `${voice.name}__${voice.lang}`;
+        }
+
+        function getPreferredVoices(voices) {
+            const portugueseVoices = voices.filter(voice => /^pt(-|$)/i.test(voice.lang));
+            return portugueseVoices.length ? portugueseVoices : voices;
+        }
+
+        function setMainAudioButtonState(state) {
+            const button = document.getElementById('playPauseAudioBtn');
+            if (!button) return;
+
+            if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+            else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+            else button.innerHTML = '▶️ Iniciar';
+        }
+
+        function setExampleButtonState(button, state) {
+            if (!button) return;
+
+            if (state === 'playing') {
+                button.innerHTML = '⏸️ Pausar resolução';
+                button.classList.add('playing');
+            } else if (state === 'paused') {
+                button.innerHTML = '▶️ Continuar resolução';
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = '🔊 Ouvir resolução';
+                button.classList.remove('playing');
+            }
+        }
+
+        function clearExampleAudioState() {
+            if (activeExampleButton) {
+                setExampleButtonState(activeExampleButton, 'idle');
+                activeExampleButton = null;
+            }
+        }
+
+        function resetAudioUi() {
+            setMainAudioButtonState('idle');
+            clearExampleAudioState();
+        }
+
+        function finishSpeech(sessionId) {
+            if (sessionId !== speechSessionId) return;
+
+            speaking = false;
+            audioPaused = false;
+            currentSpeechSource = null;
+            resetAudioUi();
+        }
+
+        function populateVoiceSelector(voices) {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            const availableVoices = getPreferredVoices(voices);
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = getVoiceKey(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+
+            if (!availableVoices.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma voz encontrada';
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                selectedVoice = null;
+                return;
+            }
+
+            voiceSelect.disabled = false;
+
+            const preferredVoiceNames = [
+                'Microsoft Daniel',
+                'Daniel',
+                'Microsoft Antonio',
+                'Antonio',
+                'Microsoft Duarte',
+                'Duarte'
+            ];
+
+            const savedVoice = availableVoices.find(voice => getVoiceKey(voice) === savedVoicePreference);
+            const preferredVoice = availableVoices.find(voice =>
+                voice.lang === 'pt-BR' &&
+                preferredVoiceNames.some(name => voice.name.includes(name))
+            );
+
+            selectedVoice = savedVoice || preferredVoice || availableVoices[0] || null;
+            voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+        }
+
+        function setupVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            voiceSelect.addEventListener('change', function() {
+                const voices = getPreferredVoices(speechSynthesis ? speechSynthesis.getVoices() : []);
+                selectedVoice = voices.find(voice => getVoiceKey(voice) === this.value) || null;
+                savedVoicePreference = selectedVoice ? getVoiceKey(selectedVoice) : '';
+                localStorage.setItem('voicePreferenceCalor', savedVoicePreference);
+            });
+        }
+
+        function loadPreferredVoice() {
+            return new Promise((resolve) => {
+                const tryGetVoice = () => {
+                    const voices = speechSynthesis.getVoices();
+                    populateVoiceSelector(voices);
+                    resolve(!!selectedVoice);
+                };
+
+                if (speechSynthesis.getVoices().length) {
+                    tryGetVoice();
+                } else {
+                    speechSynthesis.onvoiceschanged = tryGetVoice;
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!speechSynthesis) {
+                alert('Este navegador não oferece suporte à fala sintetizada.');
+                return;
+            }
+
+            if (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused) {
+                speechSessionId++;
+                speechSynthesis.cancel();
+            }
+
+            const sessionId = ++speechSessionId;
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            utterance.onend = () => finishSpeech(sessionId);
+            utterance.onerror = () => finishSpeech(sessionId);
+            speechSynthesis.speak(utterance);
+            speaking = true;
+            audioPaused = false;
+        }
+
+        function speakTrack(index) {
+            currentSpeechSource = 'track';
+            clearExampleAudioState();
+            setMainAudioButtonState('playing');
+            speakText(tracks[index]);
+            if (speaking) {
+                document.getElementById('trackCounter').innerText = `Trecho ${index+1}/${tracks.length}`;
+            }
+        }
+
+        function pauseAudio() {
+            if (speechSynthesis && speaking && !audioPaused) {
+                speechSynthesis.pause();
+                audioPaused = true;
+                if (currentSpeechSource === 'track') {
+                    setMainAudioButtonState('paused');
+                } else if (currentSpeechSource === 'example') {
+                    setExampleButtonState(activeExampleButton, 'paused');
+                }
+            }
+        }
+
+        function resumeAudio() {
+            if (currentSpeechSource === 'track' && speaking && audioPaused && speechSynthesis) {
+                speechSynthesis.resume();
+                audioPaused = false;
+                setMainAudioButtonState('playing');
+                return;
+            }
+
+            if (!speaking || currentSpeechSource !== 'track') speakTrack(currentTrack);
+        }
+
+        function toggleExampleAudio(button) {
+            const text = exampleNarrations[button.getAttribute('data-example')];
+            if (!text) return;
+
+            if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+                if (audioPaused && speechSynthesis) {
+                    speechSynthesis.resume();
+                    audioPaused = false;
+                    setExampleButtonState(button, 'playing');
+                } else {
+                    pauseAudio();
+                }
+                return;
+            }
+
+            currentSpeechSource = 'example';
+            clearExampleAudioState();
+            activeExampleButton = button;
+            setMainAudioButtonState('idle');
+            setExampleButtonState(button, 'playing');
+            speakText(text);
+        }
+
+        function nextTrack() {
+            if (currentTrack + 1 < tracks.length) {
+                currentTrack++;
+                if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                    speechSessionId++;
+                    speechSynthesis.cancel();
+                }
+                speaking = false;
+                audioPaused = false;
+                speakTrack(currentTrack);
+            } else {
+                alert("Você concluiu todos os trechos! Agora faça os exercícios.");
+            }
+        }
+
+        function prevTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                if (speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending || speechSynthesis.paused)) {
+                    speechSessionId++;
+                    speechSynthesis.cancel();
+                }
+                speaking = false;
+                audioPaused = false;
+                speakTrack(currentTrack);
+            } else {
+                alert("Este é o primeiro trecho.");
+            }
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+        
         window.addEventListener('click', function(event) {
-            if (event.target === exercisesModal) closeExercisesModal();
-            if (event.target === solvedExercisesModal) closeSolvedExercisesModal();
+            if (event.target === document.getElementById('exercisesModal')) closeExercisesModal();
+            if (event.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+        });
+
+        const playPauseBtn = document.getElementById('playPauseAudioBtn');
+        playPauseBtn.addEventListener('click', () => {
+            if (currentSpeechSource === 'track' && speaking) {
+                if (audioPaused) resumeAudio();
+                else pauseAudio();
+            } else {
+                resumeAudio();
+            }
+        });
+        document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+        document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+        setupVoiceSelector();
+
+        document.querySelectorAll('.audio-example-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleExampleAudio(btn);
+            });
+        });
+
+        window.addEventListener('load', () => {
+            loadPreferredVoice().then(() => {
+                document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+            });
         });
     </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Calorimetria',
+            storageKey: 'calorimetria'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>

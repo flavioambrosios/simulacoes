@@ -881,8 +881,15 @@
                 
                 <div class="email-form">
                     <div class="form-row">
-                        <label for="studentName" class="required">Nome Completo:</label>
-                        <input type="text" id="studentName" required>
+                        <label for="studentTrail">Trilha:</label>
+                        <select id="studentTrail">
+                            <option value="">Selecione sua trilha</option>
+                            <option value="PCA - Educação Digital 3o ano E">PCA - Educação Digital 3o ano E</option>
+                            <option value="PCA - Educação Digital 3o ano G">PCA - Educação Digital 3o ano G</option>
+                            <option value="Sustentabilidade 2o ano C">Sustentabilidade 2o ano C</option>
+                            <option value="Outra">Outra</option>
+                            <option value="Nenhuma">Nenhuma</option>
+                        </select>
                     </div>
                     
                     <div class="form-row">
@@ -920,10 +927,34 @@
                             <option value="S">S</option>
                         </select>
                     </div>
+
+                    <div class="form-row">
+                        <label for="studentNameSelect" class="required">Nome Completo:</label>
+                        <select id="studentNameSelect" required>
+                            <option value="">Selecione primeiro a série, a turma e a trilha</option>
+                        </select>
+                        <input type="hidden" id="studentName">
+                    </div>
+
+                    <div class="form-row" id="studentNameManualRow" style="display: none;">
+                        <label for="studentNameManual" class="required">Caso o nome não esteja na lista, escreva o nome completo:</label>
+                        <input type="text" id="studentNameManual">
+                    </div>
                     
                     <div class="form-row">
                         <label for="studentEmail">E-mail para cópia:</label>
                         <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="schoolTerm" class="required">Bimestre:</label>
+                        <select id="schoolTerm" required>
+                            <option value="">Selecione o bimestre</option>
+                            <option value="1o">1º bimestre</option>
+                            <option value="2o">2º bimestre</option>
+                            <option value="3o">3º bimestre</option>
+                            <option value="4o">4º bimestre</option>
+                        </select>
                     </div>
                     
                     <div class="form-row">
@@ -1103,6 +1134,7 @@
         </div>
     </div>
 
+    <script src="../AvaliacaoBimestralEducacaoDigital/alunos.js"></script>
     <script>
         // =============================================
         // VARIÁVEIS GLOBAIS
@@ -1146,18 +1178,64 @@
 
         const EXERCISE_STORAGE_KEY = 'espectrometroMassaExerciseState';
         const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceEspectrometroMassa';
+        const PRIMARY_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+        const LEGACY_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const TERM_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+        const SHARED_STUDENT_SOURCE = typeof STUDENT_DATABASE !== 'undefined'
+            ? STUDENT_DATABASE
+            : { bySheet: {}, bySerieTurma: {}, byTrilha: {} };
+        const SIMULATION_NAME = 'Espectrômetro de Massa';
+        const TERM_COLUMN_MAP = {
+            '1o': 'J',
+            '2o': 'N',
+            '3o': 'R',
+            '4o': 'V'
+        };
+        const SCORE_WEIGHTS = {
+            exercises: 0.5,
+            conclusion: 0.5
+        };
+        const TOPIC_REFERENCE_TERMS = [
+            'espectrometro', 'massa', 'particula', 'particulas', 'carga', 'campo', 'magnetico', 'magnetica',
+            'trajetoria', 'raio', 'velocidade', 'aceleracao', 'voltagem', 'potencial', 'ion', 'ions', 'forca',
+            'centripeta', 'detector', 'separacao', 'relacao', 'q/m'
+        ];
+        const LEARNING_SIGNAL_TERMS = [
+            'aprendi', 'compreendi', 'percebi', 'observei', 'conclui', 'conclusao', 'entendi', 'relacionei',
+            'comparei', 'analisei', 'identifiquei', 'interpretei', 'expliquei', 'notei', 'verifiquei'
+        ];
+        const CONNECTOR_TERMS = [
+            'porque', 'portanto', 'assim', 'logo', 'entao', 'então', 'quando', 'se', 'pois', 'desse modo',
+            'por isso', 'ou seja', 'enquanto'
+        ];
+        let studentNameEspectrometro = localStorage.getItem('studentNameEspectrometro') || '';
+
+        function ensureStudentNameEspectrometro() {
+            if (!studentNameEspectrometro) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameEspectrometro = providedName.trim();
+                    localStorage.setItem('studentNameEspectrometro', studentNameEspectrometro);
+                } else {
+                    studentNameEspectrometro = 'estudante';
+                }
+            }
+            return studentNameEspectrometro;
+        }
+
         const tracks = [
-            'Bem-vindo ao espectrômetro de massa. A câmara em perspectiva mostra a fonte de partículas à esquerda e a região de campo magnético ocupando o volume central. O feixe entra acelerado e passa a descrever uma curva dentro da câmara.',
-            'A voltagem aceleradora controla a energia cinética inicial. Quando você aumenta a voltagem, a velocidade da partícula aumenta. Como consequência, para o mesmo campo magnético, a trajetória tende a ficar com raio maior.',
-            'O campo magnético atua perpendicularmente ao movimento e produz a força centrípeta. Se o campo magnético aumenta, o raio da trajetória diminui. Compare isso mexendo no controle de B e observando a curvatura do feixe.',
-            'A relação carga massa é a assinatura da partícula. Elétrons, prótons e partículas alfa curvam de maneiras diferentes porque combinam massas e cargas diferentes. O sinal da carga também muda o sentido da curvatura.',
-            'Na parte inferior da tela, as medições mostram velocidade, raio, carga, massa e a relação q sobre m. Use esses valores para conectar a visualização com a equação principal do espectrômetro.',
-            'Quando terminar a exploração, abra os exercícios. Se precisar fechar o painel, o progresso fica salvo para você continuar depois exatamente do ponto em que parou.'
+            () => `Olá, ${ensureStudentNameEspectrometro()}! Bem-vindo ao espectrômetro de massa. Neste primeiro áudio, a proposta é apresentar a tela como um mapa de observação. A região principal mostra a câmara do experimento em perspectiva. De um lado fica a fonte que lança as partículas. Mais adiante aparece a área onde o campo magnético atua e curva o feixe. Ao acompanhar essa curva, o estudante deve imaginar que a trajetória não é apenas um desenho bonito: ela traz informações sobre velocidade, massa, carga e sobre a identidade da partícula analisada.`,
+            'Observe com atenção os controles da simulação. Um deles ajusta a voltagem aceleradora, outro ajusta o campo magnético, e também há a escolha do tipo de partícula. Esses controles permitem comparar situações. Quando a voltagem aumenta, a partícula sai com mais energia cinética e tende a percorrer uma curva de raio maior. Quando o campo magnético aumenta, a força magnética cresce e a trajetória fica mais fechada. A utilidade pedagógica da tela está justamente nessa comparação visual entre causas e efeitos.',
+            'O coração físico da simulação está no encontro entre duas ideias. A primeira é que a energia elétrica fornecida pela diferença de potencial acelera a partícula. A segunda é que, depois disso, o campo magnético desvia o movimento sem fazer trabalho, mudando a direção da velocidade e produzindo a força centrípeta. Em linguagem escolar, isso significa ligar duas equações: uma para a energia adquirida na aceleração e outra para o raio da trajetória circular. O espectrômetro funciona porque essas relações transformam a curva observada em informação mensurável.',
+            'A escolha da partícula também merece atenção. Elétrons, prótons e partículas alfa não se comportam do mesmo modo porque têm massas e cargas diferentes. Mesmo quando duas partículas passam pela mesma região da simulação, o raio pode mudar bastante. Além disso, o sinal da carga altera o sentido da curvatura. Por isso, a relação carga por massa aparece como uma assinatura física: ela ajuda a distinguir espécies de partículas e mostra por que o espectrômetro de massa é uma ferramenta de identificação.',
+            'Na parte de medições, a simulação exibe grandezas como velocidade, raio, massa, carga e a razão q sobre m. Não vale apenas ler esses números isoladamente. O mais importante é perguntar o que cada valor está contando sobre a trajetória. Se a velocidade aumenta e o campo permanece o mesmo, o raio tende a crescer. Se a carga por massa é maior, a curvatura responde de outro modo. Esse painel transforma a animação em interpretação quantitativa e ajuda o estudante a passar do fenômeno observado para o raciocínio físico.',
+            'Depois de explorar a tela, avance para os exercícios resolvidos e para a prática. Nos exemplos, o ideal é observar primeiro a ideia antes da conta: que relação está sendo investigada, qual grandeza foi medida e como a equação organiza o raciocínio. Nos exercícios finais, tente sempre pensar assim: a partícula foi acelerada, depois desviada, e a curva registrada revela propriedades dela. Esse caminho é mais útil do que decorar fórmulas sem contexto.'
         ];
         const exampleNarrations = {
-            '1': 'Exemplo 1. Para calcular q sobre m, usamos a expressão dois vezes a voltagem dividido por R ao quadrado vezes B ao quadrado. Substituindo V igual a cinco vezes dez elevado a três, R igual a um décimo de metro e B igual a cinco décimos de tesla, obtemos q sobre m igual a quatro vezes dez elevado a seis coulomb por quilograma.',
-            '2': 'Exemplo 2. Para o próton, primeiro calculamos a velocidade com raiz quadrada de dois q V sobre m. Em seguida usamos R igual a m v dividido por q B. O resultado é um raio aproximado de seis vírgula quarenta e cinco vezes dez elevado a menos três metro.',
-            '3': 'Exemplo 3. O raio é inversamente proporcional ao campo magnético. Se o campo dobra, o denominador da expressão também dobra. Portanto, o raio cai para a metade.'
+            '1': 'No primeiro exemplo, a meta é descobrir a razão carga por massa a partir de valores que podem ser medidos no aparelho. A força desse exercício está em mostrar como o espectrômetro transforma uma curva observada em informação sobre a partícula. A voltagem aceleradora informa quanta energia cinética foi fornecida. O campo magnético e o raio revelam como a trajetória respondeu ao desvio. Ao combinar essas ideias, chega-se a uma expressão direta para q sobre m. O valor obtido, quatro vezes dez elevado a seis coulomb por quilograma, deve ser interpretado como uma assinatura da partícula, não apenas como um resultado algébrico isolado.',
+            '2': 'No segundo exemplo, queremos o raio da trajetória de um próton. O raciocínio é dividido em duas etapas porque a velocidade não é dada de forma direta. Primeiro, usa-se a diferença de potencial para calcular a velocidade adquirida pela partícula na aceleração elétrica. Depois, essa velocidade entra na expressão do raio em campo magnético. O estudante precisa perceber essa sequência lógica: a aceleração elétrica prepara a entrada da partícula na região magnética, e a região magnética curva o movimento. O raio final sai muito pequeno, da ordem de milésimos de metro, o que ajuda a entender por que o espectrômetro consegue separar partículas com tanta precisão.',
+            '3': 'No terceiro exemplo, a pergunta é sobre proporcionalidade. A fórmula do raio mostra que B aparece no denominador. Portanto, se o campo magnético dobra e todas as outras grandezas permanecem fixas, o raio cai para a metade. Esse é um ótimo exercício conceitual porque treina previsão física antes da conta. Em vez de apenas manipular símbolos, o estudante aprende a antecipar o comportamento da curva: campo mais intenso significa desvio mais eficiente e trajetória mais fechada.'
         };
         let selectedVoice = null;
         let currentTrack = 0;
@@ -1171,6 +1249,24 @@
         // =============================================
         // FUNÇÃO PARA FORMATAR EM NOTAÇÃO CIENTÍFICA
         // =============================================
+
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = {
+                '-': '⁻',
+                '0': '⁰',
+                '1': '¹',
+                '2': '²',
+                '3': '³',
+                '4': '⁴',
+                '5': '⁵',
+                '6': '⁶',
+                '7': '⁷',
+                '8': '⁸',
+                '9': '⁹'
+            };
+
+            return String(exponent).split('').map(char => superscriptMap[char] || char).join('');
+        }
         
         function formatScientific(value, precision = 3) {
             if (value === 0) return '0.00';
@@ -1186,10 +1282,10 @@
             // Se a mantissa for 10.0, ajustar para 1.00
             if (Math.abs(parseFloat(formattedMantissa)) >= 10) {
                 formattedMantissa = (mantissa / 10).toPrecision(precision);
-                return `${formattedMantissa}×10<sup>${exponent + 1}</sup>`;
+                return `${formattedMantissa}×10${toSuperscriptExponent(exponent + 1)}`;
             }
             
-            return `${formattedMantissa}×10<sup>${exponent}</sup>`;
+            return `${formattedMantissa}×10${toSuperscriptExponent(exponent)}`;
         }
         
         // Função alternativa para valores que podem ser expressos sem notação científica
@@ -1227,12 +1323,117 @@
             return selectedOption ? (selectedOption.dataset.value || selectedOption.textContent.trim()) : null;
         }
 
+        function normalizeSerieForSheet(serie) {
+            return String(serie || '').replace('º', 'o').trim();
+        }
+
+        function resolveSimulationSheetName(serie, turma, trilha) {
+            if (trilha && !['Outra', 'Nenhuma'].includes(trilha) && SHARED_STUDENT_SOURCE.bySheet[trilha]) {
+                return trilha;
+            }
+
+            const normalizedSerie = normalizeSerieForSheet(serie);
+            const serieTurmaName = normalizedSerie && turma ? `${normalizedSerie} ${turma}` : '';
+            if (serieTurmaName && SHARED_STUDENT_SOURCE.bySheet[serieTurmaName]) {
+                return serieTurmaName;
+            }
+
+            return '';
+        }
+
+        function getSimulationStudentNames(serie, turma, trilha) {
+            const names = new Set();
+            const sheetName = resolveSimulationSheetName(serie, turma, trilha);
+            const serieTurmaKey = `${serie}|${turma}`;
+
+            if (sheetName && SHARED_STUDENT_SOURCE.bySheet[sheetName]) {
+                SHARED_STUDENT_SOURCE.bySheet[sheetName].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            if (SHARED_STUDENT_SOURCE.bySerieTurma[serieTurmaKey]) {
+                SHARED_STUDENT_SOURCE.bySerieTurma[serieTurmaKey].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            if (trilha && SHARED_STUDENT_SOURCE.byTrilha[trilha]) {
+                SHARED_STUDENT_SOURCE.byTrilha[trilha].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            return Array.from(names).sort(function(first, second) {
+                return first.localeCompare(second, 'pt-BR');
+            });
+        }
+
+        function syncStudentNameValue() {
+            const selectedName = document.getElementById('studentNameSelect').value;
+            const manualName = document.getElementById('studentNameManual').value.trim();
+            document.getElementById('studentName').value = selectedName === '__OTHER__' ? manualName : selectedName;
+        }
+
+        function handleSimulationStudentSelectionChange() {
+            const manualMode = document.getElementById('studentNameSelect').value === '__OTHER__';
+            document.getElementById('studentNameManualRow').style.display = manualMode ? 'block' : 'none';
+            document.getElementById('studentNameManual').required = manualMode;
+            if (!manualMode) {
+                document.getElementById('studentNameManual').value = '';
+            }
+            syncStudentNameValue();
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function populateSimulationStudentOptions(preservedValue) {
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentTrail = document.getElementById('studentTrail').value;
+            const names = getSimulationStudentNames(studentGrade, studentClass, studentTrail);
+            const studentNameSelect = document.getElementById('studentNameSelect');
+
+            const placeholder = names.length
+                ? '<option value="">Selecione o nome</option>'
+                : '<option value="">Nenhum nome encontrado para este recorte</option>';
+            const options = names.map(function(name) {
+                return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+            }).join('');
+
+            studentNameSelect.innerHTML = `${placeholder}${options}<option value="__OTHER__">Meu nome não está na lista</option>`;
+
+            if (preservedValue) {
+                studentNameSelect.value = preservedValue;
+            } else {
+                studentNameSelect.value = '';
+            }
+
+            handleSimulationStudentSelectionChange();
+        }
+
+        function getResolvedSimulationStudentName() {
+            syncStudentNameValue();
+            return document.getElementById('studentName').value.trim();
+        }
+
         function captureFormState() {
             return {
                 studentName: document.getElementById('studentName').value,
+                studentNameSelect: document.getElementById('studentNameSelect').value,
+                studentNameManual: document.getElementById('studentNameManual').value,
                 studentGrade: document.getElementById('studentGrade').value,
                 studentClass: document.getElementById('studentClass').value,
+                studentTrail: document.getElementById('studentTrail').value,
                 studentEmail: document.getElementById('studentEmail').value,
+                schoolTerm: document.getElementById('schoolTerm').value,
                 criticismInput: document.getElementById('criticismInput').value,
                 suggestionInput: document.getElementById('suggestionInput').value,
                 finalConclusion: document.getElementById('finalConclusion').value,
@@ -1241,10 +1442,16 @@
         }
 
         function applyFormState(formState = {}) {
-            document.getElementById('studentName').value = formState.studentName || '';
             document.getElementById('studentGrade').value = formState.studentGrade || '';
             document.getElementById('studentClass').value = formState.studentClass || '';
+            document.getElementById('studentTrail').value = formState.studentTrail || '';
+            populateSimulationStudentOptions(formState.studentNameSelect || '');
+            document.getElementById('studentNameManual').value = formState.studentNameManual || '';
+            document.getElementById('studentName').value = formState.studentName || '';
+            handleSimulationStudentSelectionChange();
+            syncStudentNameValue();
             document.getElementById('studentEmail').value = formState.studentEmail || '';
+            document.getElementById('schoolTerm').value = formState.schoolTerm || '';
             document.getElementById('criticismInput').value = formState.criticismInput || '';
             document.getElementById('suggestionInput').value = formState.suggestionInput || '';
             document.getElementById('finalConclusion').value = formState.finalConclusion || '';
@@ -1270,7 +1477,7 @@
             const mainExerciseBtn = document.getElementById('mainExerciseBtn');
             if (!mainExerciseBtn) return;
 
-            const hasSavedState = !!getSavedExerciseState();
+            const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
             mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
             mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
         }
@@ -1279,7 +1486,7 @@
             const badge = document.getElementById('exerciseResumeBadge');
             if (!badge) return;
 
-            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : !!getSavedExerciseState();
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : hasResumableExerciseState(getSavedExerciseState());
             badge.style.display = isVisible ? 'inline-flex' : 'none';
         }
 
@@ -1309,6 +1516,11 @@
                 formState: captureFormState()
             };
 
+            if (!hasMeaningfulProgress(exerciseState)) {
+                clearExerciseState();
+                return;
+            }
+
             try {
                 localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
             } catch (error) {
@@ -1317,6 +1529,38 @@
 
             updateExerciseLauncherState();
             updateExerciseResumeBadge(true);
+        }
+
+        function hasMeaningfulProgress(state) {
+            if (!state) return false;
+
+            const hasCurrentExercise = Number(state.currentExercise || 0) > 0;
+            const hasResults = Array.isArray(state.exerciseResults) && state.exerciseResults.length > 0;
+            const hasSkipped = Number(state.skippedQuestions || 0) > 0;
+            const hasAttempts = Number(state.currentExerciseAttempts || 0) > 0;
+            const hasSelection = Boolean(state.selectedOptionValue);
+            const hasConclusion = Boolean(String(state.conclusionTextSaved || '').trim());
+            const hasFormData = Boolean(state.formState && Object.keys(state.formState).some(function(key) {
+                return Boolean(String(state.formState[key] || '').trim());
+            }));
+
+            return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasFormData;
+        }
+
+        function hasResumableExerciseState(state) {
+            if (!state || !Array.isArray(state.exercises) || !state.exercises.length) return false;
+
+            const hasCurrentExercise = Number(state.currentExercise || 0) > 0;
+            const hasResults = Array.isArray(state.exerciseResults) && state.exerciseResults.length > 0;
+            const hasSkipped = Number(state.skippedQuestions || 0) > 0;
+            const hasAttempts = Number(state.currentExerciseAttempts || 0) > 0;
+            const hasSelection = Boolean(state.selectedOptionValue);
+            const hasConclusion = Boolean(String(
+                state.conclusionTextSaved || (state.formState && state.formState.finalConclusion) || ''
+            ).trim());
+            const hasCompletedView = state.view === 'conclusion' || state.view === 'results';
+
+            return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasCompletedView;
         }
 
         function restoreExerciseState(savedState) {
@@ -1335,17 +1579,238 @@
                 if (exercises.length) saveExerciseState();
             });
 
-            ['studentName', 'studentEmail', 'criticismInput', 'suggestionInput', 'finalConclusion'].forEach(function(fieldId) {
+            ['studentNameManual', 'studentEmail', 'criticismInput', 'suggestionInput', 'finalConclusion'].forEach(function(fieldId) {
                 document.getElementById(fieldId).addEventListener('input', function() {
+                    if (fieldId === 'studentNameManual') {
+                        syncStudentNameValue();
+                    }
                     if (exercises.length) saveExerciseState();
                 });
             });
 
-            ['studentGrade', 'studentClass'].forEach(function(fieldId) {
+            ['studentGrade', 'studentClass', 'studentTrail', 'schoolTerm'].forEach(function(fieldId) {
                 document.getElementById(fieldId).addEventListener('change', function() {
+                    if (fieldId !== 'schoolTerm') {
+                        populateSimulationStudentOptions();
+                    }
                     if (exercises.length) saveExerciseState();
                 });
             });
+
+            document.getElementById('studentNameSelect').addEventListener('change', function() {
+                handleSimulationStudentSelectionChange();
+                if (exercises.length) saveExerciseState();
+            });
+        }
+
+        function normalizeTextForAnalysis(text) {
+            return (text || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function getTermGradeColumn(schoolTerm) {
+            return TERM_COLUMN_MAP[schoolTerm] || '';
+        }
+
+        function analyzeConclusionWithLocalAi(text) {
+            const trimmedText = (text || '').trim();
+            const normalizedText = normalizeTextForAnalysis(trimmedText);
+            const words = normalizedText.match(/[a-z0-9]+(?:\/[a-z0-9]+)?/g) || [];
+            const sentences = trimmedText.split(/[.!?]+/).map(function(sentence) {
+                return sentence.trim();
+            }).filter(Boolean);
+            const uniqueWords = new Set(words);
+
+            const wordCount = words.length;
+            const lexicalDiversity = wordCount ? uniqueWords.size / wordCount : 0;
+            const topicHits = TOPIC_REFERENCE_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const learningHits = LEARNING_SIGNAL_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const connectorHits = CONNECTOR_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const repeatedWords = wordCount - uniqueWords.size;
+
+            const lengthScore = clamp((wordCount / 140) * 10, 0, 10);
+            const semanticsScore = clamp((topicHits / 6) * 10 + Math.min(connectorHits, 3), 0, 10);
+            const originalityScore = clamp((lexicalDiversity * 12) - (repeatedWords > wordCount * 0.45 ? 1.5 : 0), 0, 10);
+            const learningScore = clamp((learningHits / 4) * 10 + (sentences.length >= 3 ? 1 : 0), 0, 10);
+            const finalScore = Number(((lengthScore * 0.2) + (semanticsScore * 0.35) + (originalityScore * 0.2) + (learningScore * 0.25)).toFixed(1));
+
+            return {
+                wordCount,
+                sentenceCount: sentences.length,
+                lexicalDiversity: Number(lexicalDiversity.toFixed(2)),
+                lengthScore: Number(lengthScore.toFixed(1)),
+                semanticsScore: Number(semanticsScore.toFixed(1)),
+                originalityScore: Number(originalityScore.toFixed(1)),
+                learningScore: Number(learningScore.toFixed(1)),
+                finalScore,
+                feedback: [
+                    `Palavras: ${wordCount}`,
+                    `Coerência temática: ${semanticsScore.toFixed(1)}/10`,
+                    `Originalidade lexical: ${originalityScore.toFixed(1)}/10`,
+                    `Aprendizagem evidenciada: ${learningScore.toFixed(1)}/10`
+                ].join(' | ')
+            };
+        }
+
+        function calculateCompositeSimulationScore(exerciseScorePercentage, aiConclusionScore) {
+            const exerciseScore = clamp(exerciseScorePercentage / 10, 0, 10);
+            return Number(((exerciseScore * SCORE_WEIGHTS.exercises) + (aiConclusionScore * SCORE_WEIGHTS.conclusion)).toFixed(1));
+        }
+
+        function buildUnifiedSimulationPayload(studentName, studentGrade, studentClass, studentTrail, studentEmail, schoolTerm, criticism, suggestion, finalConclusion, scorePercentage, correctAnswers, totalExercises, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toISOString(),
+                serie: studentGrade,
+                turma: studentClass,
+                trilha: studentTrail || '',
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                estudante: studentName,
+                estudanteDigitado: document.getElementById('studentNameSelect').value === '__OTHER__' ? document.getElementById('studentNameManual').value.trim() : '',
+                sheetName: resolveSimulationSheetName(studentGrade, studentClass, studentTrail),
+                avaliacao: `Simulação - ${SIMULATION_NAME}`,
+                categoria: 'simulacao',
+                atividade: SIMULATION_NAME,
+                simulacao: SIMULATION_NAME,
+                scoreHeader: 'simulções',
+                nota: finalScore,
+                notaExercicios: Number((scorePercentage / 10).toFixed(1)),
+                notaConclusaoIa: aiAnalysis.finalScore,
+                notaPercentual: `${scorePercentage}%`,
+                acertosIndividuais: correctAnswers,
+                totalQuestoes: totalExercises,
+                questoes_puladas: skippedQuestions,
+                conclusao: finalConclusion,
+                analiseIa: aiAnalysis.feedback,
+                palavrasConclusao: aiAnalysis.wordCount,
+                coerenciaSemantica: aiAnalysis.semanticsScore,
+                originalidade: aiAnalysis.originalityScore,
+                significanciaAprendizagem: aiAnalysis.learningScore,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || ''
+            };
+        }
+
+        function buildLegacyBackupPayload(studentName, studentGrade, studentClass, studentEmail, schoolTerm, criticism, suggestion, finalConclusion, scorePercentage, correctAnswers, totalExercises, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                estudante: studentName,
+                simulacao: SIMULATION_NAME,
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: `${scorePercentage}%`,
+                nota_final: finalScore,
+                nota_conclusao_ia: aiAnalysis.finalScore,
+                conclusao: finalConclusion,
+                analise_ia: aiAnalysis.feedback,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+        }
+
+        function buildTermGradePayload(studentName, studentGrade, studentClass, studentTrail, studentEmail, schoolTerm, scorePercentage, correctAnswers, totalExercises, finalConclusion, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toISOString(),
+                serie: studentGrade,
+                turma: studentClass,
+                trilha: studentTrail || '',
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                acao: 'acumular_nota_bimestral',
+                tipoLancamento: 'somar',
+                valorLancamento: finalScore,
+                estudante: studentName,
+                estudanteDigitado: document.getElementById('studentNameSelect').value === '__OTHER__' ? document.getElementById('studentNameManual').value.trim() : '',
+                sheetName: resolveSimulationSheetName(studentGrade, studentClass, studentTrail),
+                avaliacao: `Nota Bimestral - ${SIMULATION_NAME}`,
+                categoria: 'nota-bimestral',
+                atividade: SIMULATION_NAME,
+                simulacao: SIMULATION_NAME,
+                totalSimulacoesAcumuladas: 1,
+                nota: finalScore,
+                notaExercicios: Number((scorePercentage / 10).toFixed(1)),
+                notaConclusaoIa: aiAnalysis.finalScore,
+                notaPercentual: `${scorePercentage}%`,
+                acertos: correctAnswers,
+                totalQuestoes: totalExercises,
+                conclusao: finalConclusion,
+                palavrasConclusao: aiAnalysis.wordCount,
+                coerenciaSemantica: aiAnalysis.semanticsScore,
+                originalidade: aiAnalysis.originalityScore,
+                significanciaAprendizagem: aiAnalysis.learningScore,
+                analiseIa: aiAnalysis.feedback,
+                email: studentEmail || ''
+            };
+        }
+
+        function postJsonNoCors(url, data) {
+            return fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+        }
+
+        function sendProfessorEmail(data) {
+            return postJsonNoCors(EMAIL_SCRIPT_URL, data);
+        }
+
+        function sendStudentCopyEmail(studentEmail, studentName, studentGrade, studentClass, scorePercentage, correctAnswers, totalExercises, finalConclusion) {
+            const emailDataAluno = {
+                to_email: studentEmail,
+                nome_aluno: studentName || 'Não informado',
+                serie: studentGrade || 'Não informado',
+                turma: studentClass || 'Não informado',
+                nota: `${scorePercentage}%` || '0%',
+                acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                questoes_puladas: skippedQuestions || 0,
+                conclusao: finalConclusion || 'Não informado',
+                data_envio: new Date().toLocaleString('pt-BR'),
+                simulacao: 'Espectrômetro de Massa',
+                mensagem: `Confirmação de Envio - Simulação de Espectrômetro de Massa'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+            };
+
+            return postJsonNoCors(EMAIL_SCRIPT_URL, emailDataAluno);
         }
 
         function getVoiceKey(voice) {
@@ -1504,11 +1969,15 @@
             audioPaused = false;
         }
 
+        function resolveTrackText(track) {
+            return typeof track === 'function' ? track() : track;
+        }
+
         function speakTrack(index) {
             currentSpeechSource = 'track';
             clearExampleAudioState();
             setMainAudioButtonState('playing');
-            speakText(tracks[index]);
+            speakText(resolveTrackText(tracks[index]));
             if (speaking) updateTrackCounter();
         }
 
@@ -1614,6 +2083,7 @@
             resizeCanvas();
             setupEventListeners();
             setupPersistentInputs();
+            populateSimulationStudentOptions();
             setupAudioControls();
             updateParticleProperties();
             updateExerciseLauncherState();
@@ -1718,21 +2188,27 @@
 
         // Configurar eventos dos botões de exercícios
         function setupExerciseEventListeners() {
+            if (document.body.dataset.massExerciseListenersBound === 'true') {
+                return;
+            }
+
+            document.body.dataset.massExerciseListenersBound = 'true';
+
             // Botões de exercícios
-            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
-            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
-            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
-            document.getElementById('restartExercisesBtn').addEventListener('click', restartExercises);
+            document.getElementById('mainExerciseBtn').onclick = openExercisesModal;
+            document.getElementById('solvedExercisesBtn').onclick = openSolvedExercisesModal;
+            document.getElementById('theoryBtn').onclick = openTheoryModal;
+            document.getElementById('restartExercisesBtn').onclick = restartExercises;
             
             // Fechar modais
-            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
-            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
-            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
-            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
-            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.querySelector('#exercisesModal .close').onclick = closeExercisesModal;
+            document.querySelector('#solvedExercisesModal .close').onclick = closeSolvedExercisesModal;
+            document.querySelector('#theoryModal .close').onclick = closeTheoryModal;
+            document.getElementById('closeSolvedExercises').onclick = closeSolvedExercisesModal;
+            document.getElementById('closeTheory').onclick = closeTheoryModal;
             
             // Clique fora do modal para fechar
-            window.addEventListener('click', function(event) {
+            window.onclick = function(event) {
                 if (event.target == document.getElementById('exercisesModal')) {
                     closeExercisesModal();
                 } else if (event.target == document.getElementById('solvedExercisesModal')) {
@@ -1740,7 +2216,7 @@
                 } else if (event.target == document.getElementById('theoryModal')) {
                     closeTheoryModal();
                 }
-            });
+            };
         }
         
         function addParticle() {
@@ -2056,7 +2532,6 @@
             fieldGradient.addColorStop(1, 'rgba(0, 90, 110, 0.06)');
             fillAndStrokePolygon(front, fieldGradient, 'rgba(0, 255, 255, 0.36)', 1.2);
 
-            drawFieldSymbols(depth, 0.36);
             drawFieldSymbols(0.24, 0.58);
 
             const labelPoint = projectPoint(fieldLeft + fieldWidth * 0.5, fieldTop - 12, 0.34);
@@ -2515,6 +2990,7 @@
                 currentExerciseAttempts++;
                 resultDiv.innerHTML = `
                     <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="enhancer-correct-answer">Resposta correta: ${exercises[currentExercise].answer}</div>
                     <div class="button-group">
                         <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
                         <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
@@ -2532,69 +3008,77 @@
         }
         
         function generateNewExerciseOfSameType() {
+            const previousExercise = exercises[currentExercise];
+            const previousSignature = previousExercise ? JSON.stringify({
+                question: previousExercise.question,
+                answer: previousExercise.answer
+            }) : '';
             const currentType = exercises[currentExercise].type;
-            
-            if (currentType === 'calcular_qm') {
-                let v = (Math.floor(Math.random() * 9) + 1) * 1000;
-                let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
-                let r = (Math.floor(Math.random() * 9) + 1) * 0.01;
-                let qm = (2 * v / (r * r * b * b));
-                
-                exercises[currentExercise] = {
-                    type: 'calcular_qm',
-                    question: `Um espectrômetro de massa é configurado com V=${formatScientific(v)} V e B=${formatScientific(b)} T. Uma partícula é detectada com R=${formatScientific(r)} m. Qual a relação q/m?`,
-                    answer: formatScientific(qm) + ' C/kg',
-                    options: generateOptions(qm, 'C/kg')
-                };
-            } else if (currentType === 'calcular_raio') {
-                let m = (Math.floor(Math.random() * 9) + 1) * 1e-27;
-                let vel = (Math.floor(Math.random() * 9) + 1) * 1e6;
-                let q = (Math.floor(Math.random() * 9) + 1) * 1e-19;
-                let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
-                let r = (m * vel / (Math.abs(q) * b));
-                
-                exercises[currentExercise] = {
-                    type: 'calcular_raio',
-                    question: `Uma partícula com massa de ${formatScientific(m)} kg e carga de ${formatScientific(q)} C move-se com velocidade de ${formatScientific(vel)} m/s perpendicularmente a um campo magnético de ${formatScientific(b)} T. Qual o raio de sua trajetória circular?`,
-                    answer: formatScientific(r) + ' m',
-                    options: generateOptions(r, 'm')
-                };
-            } else if (currentType === 'identificar_particula') {
-                let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
+            let attempts = 0;
 
-                // Calcular raios REALISTAS baseados na física
-                const realisticRadii = {
-                    'elétron': calculateRealisticRadius('electron'),
-                    'próton': calculateRealisticRadius('proton'), 
-                    'partícula alfa': calculateRealisticRadius('alpha'),
-                    'pósitron': calculateRealisticRadius('positron')
-                };
+            do {
+                attempts++;
 
-                // Para raios pequenos (elétron/pósitron), incluir ambos como possíveis respostas
-                const particleTypes = ['elétron', 'próton', 'partícula alfa', 'pósitron'];
-                let correctParticle;
+                if (currentType === 'calcular_qm') {
+                    let v = (Math.floor(Math.random() * 9) + 1) * 1000;
+                    let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
+                    let r = (Math.floor(Math.random() * 9) + 1) * 0.01;
+                    let qm = (2 * v / (r * r * b * b));
+                    
+                    exercises[currentExercise] = {
+                        type: 'calcular_qm',
+                        question: `Um espectrômetro de massa é configurado com V=${formatScientific(v)} V e B=${formatScientific(b)} T. Uma partícula é detectada com R=${formatScientific(r)} m. Qual a relação q/m?`,
+                        answer: formatScientific(qm) + ' C/kg',
+                        options: generateOptions(qm, 'C/kg')
+                    };
+                } else if (currentType === 'calcular_raio') {
+                    let m = (Math.floor(Math.random() * 9) + 1) * 1e-27;
+                    let vel = (Math.floor(Math.random() * 9) + 1) * 1e6;
+                    let q = (Math.floor(Math.random() * 9) + 1) * 1e-19;
+                    let b = (Math.floor(Math.random() * 9) + 1) * 0.1;
+                    let r = (m * vel / (Math.abs(q) * b));
+                    
+                    exercises[currentExercise] = {
+                        type: 'calcular_raio',
+                        question: `Uma partícula com massa de ${formatScientific(m)} kg e carga de ${formatScientific(q)} C move-se com velocidade de ${formatScientific(vel)} m/s perpendicularmente a um campo magnético de ${formatScientific(b)} T. Qual o raio de sua trajetória circular?`,
+                        answer: formatScientific(r) + ' m',
+                        options: generateOptions(r, 'm')
+                    };
+                } else if (currentType === 'identificar_particula') {
+                    let options = ['elétron', 'próton', 'partícula alfa', 'nêutron', 'pósitron'];
 
-                // Escolher uma partícula aleatória, mas com pesos diferentes baseados na probabilidade
-                const random = Math.random();
-                if (random < 0.4) { // 40% de chance de ser elétron (mais comum)
-                    correctParticle = 'elétron';
-                } else if (random < 0.5) { // 10% de chance de ser pósitron (menos comum)
-                    correctParticle = 'pósitron';
-                } else if (random < 0.8) { // 30% de chance de ser próton
-                    correctParticle = 'próton';
-                } else { // 20% de chance de ser partícula alfa
-                    correctParticle = 'partícula alfa';
+                    const realisticRadii = {
+                        'elétron': calculateRealisticRadius('electron'),
+                        'próton': calculateRealisticRadius('proton'), 
+                        'partícula alfa': calculateRealisticRadius('alpha'),
+                        'pósitron': calculateRealisticRadius('positron')
+                    };
+
+                    let correctParticle;
+                    const random = Math.random();
+                    if (random < 0.4) {
+                        correctParticle = 'elétron';
+                    } else if (random < 0.5) {
+                        correctParticle = 'pósitron';
+                    } else if (random < 0.8) {
+                        correctParticle = 'próton';
+                    } else {
+                        correctParticle = 'partícula alfa';
+                    }
+
+                    const realisticR = realisticRadii[correctParticle];
+
+                    exercises[currentExercise] = {
+                        type: 'identificar_particula',
+                        question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
+                        answer: correctParticle,
+                        options: shuffleArray([...options])
+                    };
                 }
-
-                const realisticR = realisticRadii[correctParticle];
-
-                exercises[currentExercise] = {
-                    type: 'identificar_particula',
-                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
-                    answer: correctParticle,
-                    options: shuffleArray([...options])
-                };
-            }
+            } while (attempts < 8 && previousSignature && previousSignature === JSON.stringify({
+                question: exercises[currentExercise].question,
+                answer: exercises[currentExercise].answer
+            }));
         }
         
         // Pular exercício
@@ -2707,17 +3191,28 @@
         
         // Função otimizada para enviar dados e email
         function sendResultsToSheet() {
-            const studentName = document.getElementById('studentName').value;
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
+            const studentName = getResolvedSimulationStudentName();
             const studentGrade = document.getElementById('studentGrade').value;
             const studentClass = document.getElementById('studentClass').value;
+            const studentTrail = document.getElementById('studentTrail').value;
             const studentEmail = document.getElementById('studentEmail').value;
+            const schoolTerm = document.getElementById('schoolTerm').value;
             const criticism = document.getElementById('criticismInput').value;
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
             
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+            if (!studentName || !studentGrade || !studentClass || !schoolTerm || !finalConclusion) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            if (document.getElementById('studentNameSelect').value === '__OTHER__' && !document.getElementById('studentNameManual').value.trim()) {
+                alert('Digite o nome completo quando ele não estiver na lista.');
                 return;
             }
             
@@ -2728,99 +3223,90 @@
             const totalExercises = exercises.length;
             const correctAnswers = exerciseResults.filter(r => r.correct).length;
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            const aiAnalysis = analyzeConclusionWithLocalAi(finalConclusion);
+            const finalScore = calculateCompositeSimulationScore(scorePercentage, aiAnalysis.finalScore);
             
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.textContent = 'Enviando para banco principal, backup e planilha de notas...';
             emailStatus.className = 'email-status sending';
             emailStatus.style.display = 'block';
-            
-            // Dados únicos que servem para AMBOS os propósitos
-            const dadosCompletos = {
-                // Para a planilha
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Espectrômetro de Massa',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                
-                // Para o email (campos adicionais)
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
 
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            const primaryPayload = buildUnifiedSimulationPayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentTrail,
+                studentEmail,
+                schoolTerm,
+                criticism,
+                suggestion,
+                finalConclusion,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                aiAnalysis,
+                finalScore
+            );
+            const backupPayload = buildLegacyBackupPayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentEmail,
+                schoolTerm,
+                criticism,
+                suggestion,
+                finalConclusion,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                aiAnalysis,
+                finalScore
+            );
+            const termPayload = buildTermGradePayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentTrail,
+                studentEmail,
+                schoolTerm,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                finalConclusion,
+                aiAnalysis,
+                finalScore
+            );
 
-            // Primeiro: enviar para a planilha
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dadosCompletos)
-            })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                
-                // Enviar email para o professor
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(dadosCompletos)
-                });
+            Promise.allSettled([
+                postJsonNoCors(PRIMARY_GRADEBOOK_URL, primaryPayload),
+                postJsonNoCors(LEGACY_BACKUP_URL, backupPayload),
+                postJsonNoCors(TERM_GRADEBOOK_URL, termPayload)
+            ])
+            .then((results) => {
+                const successfulSends = results.filter(function(result) {
+                    return result.status === 'fulfilled';
+                }).length;
+
+                if (!successfulSends) {
+                    throw new Error('Falha ao enviar para os destinos configurados.');
+                }
+
+                emailStatus.textContent = successfulSends === 3
+                    ? `Registros salvos. Nota final ${finalScore.toFixed(1)}. Enviando email...`
+                    : `Houve registro parcial. Nota final ${finalScore.toFixed(1)}. Enviando email...`;
+
+                return sendProfessorEmail(backupPayload);
             })
             .then(() => {
                 // Se o aluno forneceu email, enviar cópia
                 if (studentEmail) {
-                    const emailDataAluno = {
-                        to_email: studentEmail,
-                        nome_aluno: studentName || 'Não informado',
-                        serie: studentGrade || 'Não informado',
-                        turma: studentClass || 'Não informado',
-                        nota: scorePercentage + '%' || '0%',
-                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                        questoes_puladas: skippedQuestions || 0,
-                        conclusao: finalConclusion || 'Não informado',
-                        data_envio: new Date().toLocaleString('pt-BR'),
-                        simulacao: 'Espectrômetro de Massa',
-                        mensagem: `Confirmação de Envio - Simulação de Espectrômetro de Massa'
-
-            Prezado(a) ${studentName},
-
-            Confirmamos o recebimento dos seus resultados:
-
-            📊 SEUS RESULTADOS:
-            • Nota: ${scorePercentage}%
-            • Acertos: ${correctAnswers} de ${totalExercises} questões
-            • Questões Puladas: ${skippedQuestions}
-
-            Data: ${new Date().toLocaleString('pt-BR')}
-
-            Atenciosamente,
-            Sistema de Simulações Físicas`
-                    };
-                    
-                    return fetch(emailScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(emailDataAluno)
-                    });
+                    return sendStudentCopyEmail(studentEmail, studentName, studentGrade, studentClass, scorePercentage, correctAnswers, totalExercises, finalConclusion);
                 }
             })
             .then(() => {
                 const mensagemSucesso = studentEmail 
-                    ? '✅ Dados salvos e emails enviados!' 
-                    : '✅ Dados salvos e email enviado ao professor!';
+                    ? `✅ Dados salvos, nota ${finalScore.toFixed(1)} lançada e emails enviados!`
+                    : `✅ Dados salvos, nota ${finalScore.toFixed(1)} lançada e email enviado ao professor!`;
                 
                 emailStatus.textContent = mensagemSucesso;
                 emailStatus.className = 'email-status sent';
@@ -2865,7 +3351,7 @@
             const savedState = getSavedExerciseState();
             document.getElementById('emailStatus').style.display = 'none';
 
-            if (savedState) {
+            if (hasResumableExerciseState(savedState)) {
                 restoreExerciseState(savedState);
                 updateExerciseResumeBadge(true);
 
@@ -2878,6 +3364,10 @@
                     showCurrentExercise(savedState.selectedOptionValue || null);
                 }
                 return;
+            }
+
+            if (savedState) {
+                clearExerciseState();
             }
 
             resetExerciseState();
@@ -2958,5 +3448,12 @@
         // Inicializar a simulação quando a página carregar
         window.addEventListener('load', init);
     </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Espectrômetro de Massa',
+            storageKey: 'espectrometro-de-massa'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>
