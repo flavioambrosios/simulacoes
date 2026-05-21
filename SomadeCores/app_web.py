@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np
 from dash import Dash, Input, Output, State, dcc, html, dash_table, callback_context
@@ -31,8 +32,8 @@ def amps_to_table_data(amps1, amps2):
     return [
         {
             "frequencia": int(freq),
-            "onda1": round(float(amp1), 4),
-            "onda2": round(float(amp2), 4),
+            "onda1": round(float(amp1), 1),
+            "onda2": round(float(amp2), 1),
         }
         for freq, amp1, amp2 in zip(FREQS, amps1, amps2)
     ]
@@ -233,6 +234,53 @@ def build_main_figure(amps1, amps2):
     return figure
 
 
+def build_intensity_figure(amps1, amps2):
+    figure = make_subplots(
+        rows=1,
+        cols=2,
+        subplot_titles=(
+            "Controle de Onda 1",
+            "Controle de Onda 2",
+        ),
+        horizontal_spacing=0.1,
+    )
+
+    figure.add_trace(
+        go.Bar(
+            x=FREQS,
+            y=amps1,
+            name="Onda 1",
+            marker=dict(color=[rgb_to_hex(normalize_rgb(frequency_to_rgb(freq))) for freq in FREQS]),
+            hovertemplate="%{x} THz<br>Amplitude: %{y:.1f}<extra></extra>",
+        ),
+        row=1,
+        col=1,
+    )
+    figure.add_trace(
+        go.Bar(
+            x=FREQS,
+            y=amps2,
+            name="Onda 2",
+            marker=dict(color=[rgb_to_hex(normalize_rgb(frequency_to_rgb(freq))) for freq in FREQS]),
+            hovertemplate="%{x} THz<br>Amplitude: %{y:.1f}<extra></extra>",
+        ),
+        row=1,
+        col=2,
+    )
+
+    for col in [1, 2]:
+        figure.update_xaxes(title_text="Frequência (THz)", dtick=40, row=1, col=col)
+        figure.update_yaxes(title_text="Amplitude", range=[AMP_MIN, AMP_MAX], row=1, col=col)
+
+    figure.update_layout(
+        height=360,
+        template="plotly_white",
+        margin=dict(l=30, r=30, t=60, b=30),
+        showlegend=False,
+    )
+    return figure
+
+
 def build_summary(amps1, amps2):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
@@ -372,9 +420,14 @@ initial_history = {
     "after2": ZERO_AMPS.tolist(),
 }
 
+initial_lab_refresh = {
+    "count": 0,
+}
+
 app.layout = html.Div(
     [
         dcc.Store(id="history-store", data=initial_history),
+        dcc.Store(id="lab-refresh-store", data=initial_lab_refresh),
         html.H1("Simulador de Ondas e Envelopes de Hilbert - Versão Web"),
         html.P(
             "Esta versão foi adaptada para navegador. As janelas do programa original foram preservadas como abas da página, o que funciona melhor para uso online.",
@@ -405,7 +458,7 @@ app.layout = html.Div(
                                             editable=True,
                                             style_table={"height": "520px", "overflowY": "auto", "border": "1px solid #d7deea"},
                                             style_header={"fontWeight": "bold", "backgroundColor": "#eef4ff"},
-                                            style_cell={"textAlign": "center", "padding": "6px", "minWidth": "90px", "width": "90px"},
+                                            style_cell={"textAlign": "center", "padding": "5px", "minWidth": "68px", "width": "68px", "maxWidth": "68px"},
                                         ),
                                         html.Div(
                                             [
@@ -428,6 +481,15 @@ app.layout = html.Div(
                                             ],
                                             style={"marginTop": "18px", "display": "flex", "gap": "10px"},
                                         ),
+                                        dcc.Loading(
+                                            id="optimize-loading",
+                                            type="circle",
+                                            color="#2563eb",
+                                            children=html.Div(
+                                                id="optimization-indicator",
+                                                style={"marginTop": "12px", "minHeight": "24px", "fontWeight": "bold", "color": "#2563eb"},
+                                            ),
+                                        ),
                                         html.Div(
                                             "Pronto para editar e otimizar as ondas.",
                                             id="status-message",
@@ -444,6 +506,7 @@ app.layout = html.Div(
                                 ),
                                 html.Div(
                                     [
+                                        dcc.Graph(id="intensity-graph"),
                                         dcc.Graph(id="main-graph"),
                                         html.Div(
                                             [
@@ -514,14 +577,20 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.H3("Laboratório RGB do Monitor"),
-                                dcc.RadioItems(
-                                    id="rgb-mode",
-                                    options=[
-                                        {"label": "RGB visual", "value": "visual"},
-                                        {"label": "Paleta em RGB", "value": "palette"},
+                                html.Div(
+                                    [
+                                        dcc.RadioItems(
+                                            id="rgb-mode",
+                                            options=[
+                                                {"label": "RGB visual", "value": "visual"},
+                                                {"label": "Paleta em RGB", "value": "palette"},
+                                            ],
+                                            value="visual",
+                                            inline=True,
+                                        ),
+                                        html.Button("Atualizar", id="rgb-refresh-btn", n_clicks=0),
                                     ],
-                                    value="visual",
-                                    inline=True,
+                                    style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "gap": "12px", "flexWrap": "wrap"},
                                 ),
                                 dcc.Graph(id="rgb-scale-graph"),
                                 html.Div(
@@ -554,6 +623,7 @@ app.layout = html.Div(
 @app.callback(
     Output("amp-table", "data"),
     Output("history-store", "data"),
+    Output("optimization-indicator", "children"),
     Output("status-message", "children"),
     Input("optimize-btn", "n_clicks"),
     Input("reset-btn", "n_clicks"),
@@ -573,8 +643,9 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
             "after1": ZERO_AMPS.tolist(),
             "after2": ZERO_AMPS.tolist(),
         }
-        return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
+        return zero_table, history, "", "Tudo zerado. Ajuste as amplitudes novamente."
 
+    time.sleep(0.2)
     optimized1, optimized2, final_diff, reason = optimize_amplitudes(amps1, amps2, int(max_iterations))
     history = {
         "before1": amps1.tolist(),
@@ -590,10 +661,22 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
     else:
         status = f"Otimização parcial: diferença máxima = {final_diff:.4f}"
 
-    return amps_to_table_data(optimized1, optimized2), history, status
+    return amps_to_table_data(optimized1, optimized2), history, "Otimização concluída.", status
 
 
 @app.callback(
+    Output("lab-refresh-store", "data"),
+    Input("rgb-refresh-btn", "n_clicks"),
+    State("lab-refresh-store", "data"),
+    prevent_initial_call=True,
+)
+def refresh_lab_rgb(refresh_clicks, current_data):
+    count = int(current_data.get("count", 0)) + 1
+    return {"count": count}
+
+
+@app.callback(
+    Output("intensity-graph", "figure"),
     Output("main-graph", "figure"),
     Output("summary-box", "children"),
     Output("fourier-before", "children"),
@@ -603,8 +686,9 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
     Input("amp-table", "data"),
     Input("history-store", "data"),
     Input("rgb-mode", "value"),
+    Input("lab-refresh-store", "data"),
 )
-def refresh_outputs(table_data, history_data, rgb_mode):
+def refresh_outputs(table_data, history_data, rgb_mode, lab_refresh_data):
     current1, current2 = table_data_to_amps(table_data)
 
     before1 = np.array(history_data.get("before1", current1.tolist()), dtype=float)
@@ -623,6 +707,7 @@ def refresh_outputs(table_data, history_data, rgb_mode):
     ]
 
     return (
+        build_intensity_figure(current1, current2),
         build_main_figure(current1, current2),
         build_summary(current1, current2),
         fourier_before,
