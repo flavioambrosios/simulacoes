@@ -1,12 +1,9 @@
-name: Publicar Avaliacao Pages
+name: Publicar Simulacoes Pages
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'AvaliacaoBimestralEducacaoDigital/**'
-      - '.github/workflows/publish-avaliacao-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -32,10 +29,10 @@ jobs:
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Empacotar site da avaliacao
+      - name: Empacotar site das simulacoes
         uses: actions/upload-pages-artifact@v3
         with:
-          path: AvaliacaoBimestralEducacaoDigital
+          path: .
 
       - name: Publicar no GitHub Pages
         id: deployment
