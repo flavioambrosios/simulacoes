@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: somadecores-web
+    runtime: python
+    rootDir: SomadeCores
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app_web:server

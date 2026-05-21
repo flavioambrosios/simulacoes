@@ -67,10 +67,12 @@ git push -u origin main
 1. Escolha Web Service.
 1. Conecte sua conta do GitHub, se o Render pedir.
 1. Selecione o repositorio deste projeto.
+1. Como a aplicacao esta dentro da pasta SomadeCores, preencha o campo Root Directory com SomadeCores, se o Render mostrar esse campo.
 1. Confira se os campos estao assim:
 
 ```text
 Environment: Python
+Root Directory: SomadeCores
 Build Command: pip install -r requirements.txt
 Start Command: gunicorn app_web:server
 ```
@@ -78,6 +80,10 @@ Start Command: gunicorn app_web:server
 1. Clique em Create Web Service.
 1. Espere o primeiro deploy terminar.
 1. Abra o link publico gerado pelo Render.
+
+## Opcao mais automatica
+
+Na raiz do repositorio agora existe o arquivo [render.yaml](../render.yaml). Em muitos casos, o Render consegue ler esse arquivo automaticamente e preencher os dados do servico com a pasta correta.
 
 ## Observacao importante
 
