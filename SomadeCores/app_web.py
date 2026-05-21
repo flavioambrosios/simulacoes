@@ -1,8 +1,8 @@
 import os
-import time
+from datetime import datetime
 
 import numpy as np
-from dash import Dash, Input, Output, State, dcc, html, dash_table, callback_context
+from dash import Dash, Input, Output, State, ctx, dcc, html, dash_table
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from scipy.optimize import minimize
@@ -420,14 +420,9 @@ initial_history = {
     "after2": ZERO_AMPS.tolist(),
 }
 
-initial_lab_refresh = {
-    "count": 0,
-}
-
 app.layout = html.Div(
     [
         dcc.Store(id="history-store", data=initial_history),
-        dcc.Store(id="lab-refresh-store", data=initial_lab_refresh),
         html.H1("Simulador de Ondas e Envelopes de Hilbert - Versão Web"),
         html.P(
             "Esta versão foi adaptada para navegador. As janelas do programa original foram preservadas como abas da página, o que funciona melhor para uso online.",
@@ -592,6 +587,11 @@ app.layout = html.Div(
                                     ],
                                     style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "gap": "12px", "flexWrap": "wrap"},
                                 ),
+                                html.Div(
+                                    "Clique em Atualizar para recalcular os cartões do laboratório RGB com o estado atual.",
+                                    id="rgb-refresh-message",
+                                    style={"marginTop": "10px", "fontWeight": "bold", "color": "#2563eb", "minHeight": "24px"},
+                                ),
                                 dcc.Graph(id="rgb-scale-graph"),
                                 html.Div(
                                     id="rgb-cards-container",
@@ -623,16 +623,22 @@ app.layout = html.Div(
 @app.callback(
     Output("amp-table", "data"),
     Output("history-store", "data"),
-    Output("optimization-indicator", "children"),
     Output("status-message", "children"),
     Input("optimize-btn", "n_clicks"),
     Input("reset-btn", "n_clicks"),
     State("amp-table", "data"),
     State("max-iter-slider", "value"),
     prevent_initial_call=True,
+    running=[
+        (Output("optimization-indicator", "children"), "Otimização em andamento...", ""),
+        (Output("optimize-btn", "disabled"), True, False),
+        (Output("reset-btn", "disabled"), True, False),
+    ],
 )
 def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
-    trigger = callback_context.triggered[0]["prop_id"].split(".")[0]
+    trigger = ctx.triggered_id
+    if table_data is None:
+        table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
     amps1, amps2 = table_data_to_amps(table_data)
 
     if trigger == "reset-btn":
@@ -643,9 +649,8 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
             "after1": ZERO_AMPS.tolist(),
             "after2": ZERO_AMPS.tolist(),
         }
-        return zero_table, history, "", "Tudo zerado. Ajuste as amplitudes novamente."
+        return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
 
-    time.sleep(0.2)
     optimized1, optimized2, final_diff, reason = optimize_amplitudes(amps1, amps2, int(max_iterations))
     history = {
         "before1": amps1.tolist(),
@@ -661,18 +666,17 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
     else:
         status = f"Otimização parcial: diferença máxima = {final_diff:.4f}"
 
-    return amps_to_table_data(optimized1, optimized2), history, "Otimização concluída.", status
+    return amps_to_table_data(optimized1, optimized2), history, status
 
 
 @app.callback(
-    Output("lab-refresh-store", "data"),
+    Output("rgb-refresh-message", "children"),
     Input("rgb-refresh-btn", "n_clicks"),
-    State("lab-refresh-store", "data"),
     prevent_initial_call=True,
 )
-def refresh_lab_rgb(refresh_clicks, current_data):
-    count = int(current_data.get("count", 0)) + 1
-    return {"count": count}
+def refresh_lab_rgb(refresh_clicks):
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    return f"Laboratório RGB atualizado às {timestamp}."
 
 
 @app.callback(
@@ -686,9 +690,16 @@ def refresh_lab_rgb(refresh_clicks, current_data):
     Input("amp-table", "data"),
     Input("history-store", "data"),
     Input("rgb-mode", "value"),
-    Input("lab-refresh-store", "data"),
+    Input("rgb-refresh-btn", "n_clicks"),
 )
-def refresh_outputs(table_data, history_data, rgb_mode, lab_refresh_data):
+def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks):
+    if table_data is None:
+        table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
+    if history_data is None:
+        history_data = initial_history
+    if rgb_mode is None:
+        rgb_mode = "visual"
+
     current1, current2 = table_data_to_amps(table_data)
 
     before1 = np.array(history_data.get("before1", current1.tolist()), dtype=float)
