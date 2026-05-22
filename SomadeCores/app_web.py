@@ -12,12 +12,14 @@ from scipy.signal import hilbert
 FREQS = np.arange(400, 801, 10)
 N_FREQS = len(FREQS)
 T = np.linspace(0, 2e-13, 4000)
+T_OPT = np.linspace(0, 2e-13, 1200)
 TIME_FS = T * 1e15
 AMP_MIN = -1.0
 AMP_MAX = 1.0
 TARGET_DIFF = 0.25
 ZERO_AMPS = np.zeros(N_FREQS)
 BASIS = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T[None, :])
+BASIS_OPT = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T_OPT[None, :])
 
 
 def clamp_amp(value):
@@ -48,8 +50,8 @@ def table_data_to_amps(table_data):
     return np.array(amps1, dtype=float), np.array(amps2, dtype=float)
 
 
-def generate_wave(amps):
-    return amps @ BASIS
+def generate_wave(amps, basis=BASIS):
+    return amps @ basis
 
 
 def compute_envelope(wave):
@@ -59,6 +61,12 @@ def compute_envelope(wave):
 def max_envelope_difference(amps1, amps2):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
+    return float(np.max(np.abs(compute_envelope(wave1) - compute_envelope(wave2))))
+
+
+def max_envelope_difference_fast(amps1, amps2):
+    wave1 = generate_wave(amps1, BASIS_OPT)
+    wave2 = generate_wave(amps2, BASIS_OPT)
     return float(np.max(np.abs(compute_envelope(wave1) - compute_envelope(wave2))))
 
 
@@ -370,13 +378,13 @@ def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
     def cost_function(amps_flat):
         amps1 = amps_flat[:N_FREQS]
         amps2 = amps_flat[N_FREQS:]
-        return max_envelope_difference(amps1, amps2)
+        return max_envelope_difference_fast(amps1, amps2)
 
     iteration_counter = {"count": 0}
 
     def iteration_callback(xk):
         iteration_counter["count"] += 1
-        current_diff = max_envelope_difference(xk[:N_FREQS], xk[N_FREQS:])
+        current_diff = max_envelope_difference_fast(xk[:N_FREQS], xk[N_FREQS:])
         if current_diff <= TARGET_DIFF:
             raise OptimizationStopped(xk, current_diff, "target")
         if iteration_counter["count"] >= max_iterations:
@@ -384,6 +392,11 @@ def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
 
     x0 = np.concatenate([initial_amps1, initial_amps2])
     bounds = [(AMP_MIN, AMP_MAX) for _ in range(2 * N_FREQS)]
+
+    initial_diff = max_envelope_difference_fast(initial_amps1, initial_amps2)
+    if initial_diff <= TARGET_DIFF:
+        final_diff = max_envelope_difference(initial_amps1, initial_amps2)
+        return initial_amps1.copy(), initial_amps2.copy(), final_diff, "target"
 
     try:
         result = minimize(
@@ -395,8 +408,9 @@ def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
             options={"maxiter": int(max_iterations)},
         )
         final_x = result.x
+        fast_diff = max_envelope_difference_fast(final_x[:N_FREQS], final_x[N_FREQS:])
         final_diff = max_envelope_difference(final_x[:N_FREQS], final_x[N_FREQS:])
-        if final_diff <= TARGET_DIFF:
+        if fast_diff <= TARGET_DIFF or final_diff <= TARGET_DIFF:
             reason = "target"
         elif getattr(result, "nit", 0) >= max_iterations:
             reason = "limit"
@@ -418,6 +432,7 @@ initial_history = {
     "before2": ZERO_AMPS.tolist(),
     "after1": ZERO_AMPS.tolist(),
     "after2": ZERO_AMPS.tolist(),
+    "has_optimization": False,
 }
 
 app.layout = html.Div(
@@ -463,7 +478,7 @@ app.layout = html.Div(
                                                     min=1000,
                                                     max=10000,
                                                     step=500,
-                                                    value=5000,
+                                                    value=2000,
                                                     marks={value: str(value) for value in range(1000, 10001, 1500)},
                                                 ),
                                             ],
@@ -648,6 +663,7 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
             "before2": ZERO_AMPS.tolist(),
             "after1": ZERO_AMPS.tolist(),
             "after2": ZERO_AMPS.tolist(),
+            "has_optimization": False,
         }
         return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
 
@@ -657,6 +673,7 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
         "before2": amps2.tolist(),
         "after1": optimized1.tolist(),
         "after2": optimized2.tolist(),
+        "has_optimization": True,
     }
 
     if reason == "target" or final_diff <= TARGET_DIFF:
@@ -706,16 +723,30 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks):
     before2 = np.array(history_data.get("before2", current2.tolist()), dtype=float)
     after1 = np.array(history_data.get("after1", current1.tolist()), dtype=float)
     after2 = np.array(history_data.get("after2", current2.tolist()), dtype=float)
+    has_optimization = bool(history_data.get("has_optimization", False))
 
     fourier_before = generate_fourier_equation(before1, "Onda 1") + "\n\n" + generate_fourier_equation(before2, "Onda 2")
     fourier_after = generate_fourier_equation(after1, "Onda 1") + "\n\n" + generate_fourier_equation(after2, "Onda 2")
 
     cards = [
-        build_rgb_card(before1, "Onda 1", "Antes da otimização", rgb_mode),
-        build_rgb_card(after1, "Onda 1", "Depois da otimização", rgb_mode),
-        build_rgb_card(before2, "Onda 2", "Antes da otimização", rgb_mode),
-        build_rgb_card(after2, "Onda 2", "Depois da otimização", rgb_mode),
+        build_rgb_card(current1, "Onda 1", "Estado atual", rgb_mode),
+        build_rgb_card(current2, "Onda 2", "Estado atual", rgb_mode),
     ]
+
+    if has_optimization:
+        cards.extend(
+            [
+                build_rgb_card(after1, "Onda 1", "Última otimização", rgb_mode),
+                build_rgb_card(after2, "Onda 2", "Última otimização", rgb_mode),
+            ]
+        )
+    else:
+        cards.extend(
+            [
+                build_rgb_card(current1, "Onda 1", "Estado atual", rgb_mode),
+                build_rgb_card(current2, "Onda 2", "Estado atual", rgb_mode),
+            ]
+        )
 
     return (
         build_intensity_figure(current1, current2),
