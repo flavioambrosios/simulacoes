@@ -1,4 +1,5 @@
 import os
+import unicodedata
 from datetime import datetime
 
 import numpy as np
@@ -20,6 +21,9 @@ TARGET_DIFF = 0.25
 ZERO_AMPS = np.zeros(N_FREQS)
 BASIS = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T[None, :])
 BASIS_OPT = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T_OPT[None, :])
+MAX_FREQ_DELTA = int(FREQS[-1] - FREQS[0])
+DEFAULT_SMOOTHING = 1
+DEFAULT_FREQ_DELTA = MAX_FREQ_DELTA
 
 
 def clamp_amp(value):
@@ -54,20 +58,82 @@ def generate_wave(amps, basis=BASIS):
     return amps @ basis
 
 
-def compute_envelope(wave):
-    return np.abs(hilbert(wave))
+def sanitize_smoothing_window(value, signal_length):
+    window = max(1, int(value or 1))
+    if window % 2 == 0:
+        window += 1
+    max_allowed = signal_length if signal_length % 2 == 1 else signal_length - 1
+    window = min(window, max_allowed)
+    return max(1, window)
 
 
-def max_envelope_difference(amps1, amps2):
+def smooth_signal(signal, smoothing_window):
+    window = sanitize_smoothing_window(smoothing_window, len(signal))
+    if window <= 1:
+        return signal
+
+    pad = window // 2
+    kernel = np.ones(window, dtype=float) / window
+    padded = np.pad(signal, (pad, pad), mode="edge")
+    return np.convolve(padded, kernel, mode="valid")
+
+
+def compute_envelope(wave, smoothing_window=DEFAULT_SMOOTHING):
+    envelope = np.abs(hilbert(wave))
+    return smooth_signal(envelope, smoothing_window)
+
+
+def max_envelope_difference(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
-    return float(np.max(np.abs(compute_envelope(wave1) - compute_envelope(wave2))))
+    return float(np.max(np.abs(
+        compute_envelope(wave1, smoothing_window) - compute_envelope(wave2, smoothing_window)
+    )))
 
 
-def max_envelope_difference_fast(amps1, amps2):
+def max_envelope_difference_fast(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     wave1 = generate_wave(amps1, BASIS_OPT)
     wave2 = generate_wave(amps2, BASIS_OPT)
-    return float(np.max(np.abs(compute_envelope(wave1) - compute_envelope(wave2))))
+    return float(np.max(np.abs(
+        compute_envelope(wave1, smoothing_window) - compute_envelope(wave2, smoothing_window)
+    )))
+
+
+def is_frequency_delta_unrestricted(freq_delta):
+    return int(freq_delta) >= MAX_FREQ_DELTA
+
+
+def format_frequency_delta(freq_delta):
+    if is_frequency_delta_unrestricted(freq_delta):
+        return "livre"
+    return f"+-{int(freq_delta)} THz"
+
+
+def build_optimization_mask(initial_amps1, initial_amps2, freq_delta):
+    if is_frequency_delta_unrestricted(freq_delta):
+        return np.ones(N_FREQS, dtype=bool)
+
+    active_mask = (np.abs(initial_amps1) > 1e-12) | (np.abs(initial_amps2) > 1e-12)
+    if not np.any(active_mask):
+        return np.ones(N_FREQS, dtype=bool)
+
+    active_freqs = FREQS[active_mask]
+    distances = np.abs(FREQS[:, None] - active_freqs[None, :])
+    return np.min(distances, axis=1) <= int(freq_delta)
+
+
+def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_mask):
+    free_count = int(np.sum(optimize_mask))
+    amps1 = base_amps1.copy()
+    amps2 = base_amps2.copy()
+    amps1[optimize_mask] = optimized_values[:free_count]
+    amps2[optimize_mask] = optimized_values[free_count:]
+    return amps1, amps2
+
+
+def normalize_text(text):
+    normalized = unicodedata.normalize("NFKD", text or "")
+    return normalized.encode("ascii", "ignore").decode("ascii").lower()
 
 
 def generate_fourier_equation(amps, wave_name):
@@ -182,12 +248,16 @@ def format_rgb(rgb):
     return f"{rgb_to_hex(rgb)} | R={rgb[0]:.2f} G={rgb[1]:.2f} B={rgb[2]:.2f}"
 
 
-def build_main_figure(amps1, amps2):
+def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
-    envelope1 = compute_envelope(wave1)
-    envelope2 = compute_envelope(wave2)
+    envelope1 = compute_envelope(wave1, smoothing_window)
+    envelope2 = compute_envelope(wave2, smoothing_window)
     diff = envelope1 - envelope2
+    if sanitize_smoothing_window(smoothing_window, len(T)) <= 1:
+        envelope_title = "Envelopes de Hilbert"
+    else:
+        envelope_title = f"Envelopes de Hilbert suavizados ({sanitize_smoothing_window(smoothing_window, len(T))} pts)"
 
     figure = make_subplots(
         rows=2,
@@ -195,7 +265,7 @@ def build_main_figure(amps1, amps2):
         subplot_titles=(
             "Onda 1",
             "Onda 2",
-            "Envelopes de Hilbert",
+            envelope_title,
             "Diferença entre os envelopes",
         ),
         vertical_spacing=0.16,
@@ -289,11 +359,11 @@ def build_intensity_figure(amps1, amps2):
     return figure
 
 
-def build_summary(amps1, amps2):
+def build_summary(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING, freq_delta=DEFAULT_FREQ_DELTA):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
-    envelope1 = compute_envelope(wave1)
-    envelope2 = compute_envelope(wave2)
+    envelope1 = compute_envelope(wave1, smoothing_window)
+    envelope2 = compute_envelope(wave2, smoothing_window)
     max_diff = float(np.max(np.abs(envelope1 - envelope2)))
     return html.Ul(
         [
@@ -302,6 +372,8 @@ def build_summary(amps1, amps2):
             html.Li(f"Diferença máxima entre envelopes: {max_diff:.3f}"),
             html.Li(f"Componentes ativas na Onda 1: {int(np.sum(np.abs(amps1) > 1e-12))}"),
             html.Li(f"Componentes ativas na Onda 2: {int(np.sum(np.abs(amps2) > 1e-12))}"),
+            html.Li(f"Suavização de Hilbert: {sanitize_smoothing_window(smoothing_window, len(T))} ponto(s)"),
+            html.Li(f"Janela da otimização em delta f: {format_frequency_delta(freq_delta)}"),
         ],
         style={"margin": "0", "paddingLeft": "18px", "lineHeight": "1.7"},
     )
@@ -368,34 +440,47 @@ def build_rgb_card(amps, wave_name, stage_name, mode):
     )
 
 
-def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
+def optimize_amplitudes(
+    initial_amps1,
+    initial_amps2,
+    max_iterations,
+    smoothing_window=DEFAULT_SMOOTHING,
+    freq_delta=DEFAULT_FREQ_DELTA,
+):
     class OptimizationStopped(Exception):
         def __init__(self, amps_flat, diff, reason):
             self.amps_flat = amps_flat.copy()
             self.diff = diff
             self.reason = reason
 
+    optimize_mask = build_optimization_mask(initial_amps1, initial_amps2, freq_delta)
+    free_count = int(np.sum(optimize_mask))
+
+    if free_count == 0:
+        final_diff = max_envelope_difference(initial_amps1, initial_amps2, smoothing_window)
+        return initial_amps1.copy(), initial_amps2.copy(), final_diff, "blocked"
+
     def cost_function(amps_flat):
-        amps1 = amps_flat[:N_FREQS]
-        amps2 = amps_flat[N_FREQS:]
-        return max_envelope_difference_fast(amps1, amps2)
+        amps1, amps2 = merge_optimized_values(amps_flat, initial_amps1, initial_amps2, optimize_mask)
+        return max_envelope_difference_fast(amps1, amps2, smoothing_window)
 
     iteration_counter = {"count": 0}
 
     def iteration_callback(xk):
         iteration_counter["count"] += 1
-        current_diff = max_envelope_difference_fast(xk[:N_FREQS], xk[N_FREQS:])
+        amps1, amps2 = merge_optimized_values(xk, initial_amps1, initial_amps2, optimize_mask)
+        current_diff = max_envelope_difference_fast(amps1, amps2, smoothing_window)
         if current_diff <= TARGET_DIFF:
             raise OptimizationStopped(xk, current_diff, "target")
         if iteration_counter["count"] >= max_iterations:
             raise OptimizationStopped(xk, current_diff, "limit")
 
-    x0 = np.concatenate([initial_amps1, initial_amps2])
-    bounds = [(AMP_MIN, AMP_MAX) for _ in range(2 * N_FREQS)]
+    x0 = np.concatenate([initial_amps1[optimize_mask], initial_amps2[optimize_mask]])
+    bounds = [(AMP_MIN, AMP_MAX) for _ in range(2 * free_count)]
 
-    initial_diff = max_envelope_difference_fast(initial_amps1, initial_amps2)
+    initial_diff = max_envelope_difference_fast(initial_amps1, initial_amps2, smoothing_window)
     if initial_diff <= TARGET_DIFF:
-        final_diff = max_envelope_difference(initial_amps1, initial_amps2)
+        final_diff = max_envelope_difference(initial_amps1, initial_amps2, smoothing_window)
         return initial_amps1.copy(), initial_amps2.copy(), final_diff, "target"
 
     try:
@@ -407,9 +492,9 @@ def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
             callback=iteration_callback,
             options={"maxiter": int(max_iterations)},
         )
-        final_x = result.x
-        fast_diff = max_envelope_difference_fast(final_x[:N_FREQS], final_x[N_FREQS:])
-        final_diff = max_envelope_difference(final_x[:N_FREQS], final_x[N_FREQS:])
+        final_amps1, final_amps2 = merge_optimized_values(result.x, initial_amps1, initial_amps2, optimize_mask)
+        fast_diff = max_envelope_difference_fast(final_amps1, final_amps2, smoothing_window)
+        final_diff = max_envelope_difference(final_amps1, final_amps2, smoothing_window)
         if fast_diff <= TARGET_DIFF or final_diff <= TARGET_DIFF:
             reason = "target"
         elif getattr(result, "nit", 0) >= max_iterations:
@@ -417,11 +502,288 @@ def optimize_amplitudes(initial_amps1, initial_amps2, max_iterations):
         else:
             reason = "partial"
     except OptimizationStopped as stopped:
-        final_x = stopped.amps_flat
+        final_amps1, final_amps2 = merge_optimized_values(stopped.amps_flat, initial_amps1, initial_amps2, optimize_mask)
         final_diff = stopped.diff
         reason = stopped.reason
 
-    return final_x[:N_FREQS], final_x[N_FREQS:], final_diff, reason
+    return final_amps1, final_amps2, final_diff, reason
+
+
+def build_hilbert_notes(smoothing_window, freq_delta):
+    smoothing_window = sanitize_smoothing_window(smoothing_window, len(T))
+    smoothing_text = (
+        f"Suavização adicional atual: desligada (janela = {smoothing_window} ponto)."
+        if smoothing_window <= 1
+        else f"Suavização adicional atual: média móvel de {smoothing_window} pontos após o módulo de Hilbert."
+    )
+    delta_text = (
+        "Janela atual da otimização: toda a faixa espectral está liberada."
+        if is_frequency_delta_unrestricted(freq_delta)
+        else f"Janela atual da otimização: apenas frequências dentro de +- {int(freq_delta)} THz das componentes iniciais podem variar."
+    )
+    return smoothing_text, delta_text
+
+
+def generate_random_exercise(previous_id=None):
+    seed = int(datetime.now().timestamp() * 1000000) % 1000000000
+    rng = np.random.default_rng(seed)
+    target_diff = float(rng.choice([0.35, 0.30, 0.25]))
+    target_smoothing = int(rng.choice([9, 15, 21, 31]))
+    target_delta = int(rng.choice([20, 30, 40, 60]))
+
+    exercises = [
+        {
+            "type": "envelope-target",
+            "title": "Exercicio: aproximar envelopes",
+            "prompt": (
+                f"Ajuste manualmente ou use a otimizacao para deixar a diferenca maxima entre os envelopes menor ou igual a {target_diff:.2f}. "
+                "Na conclusao, explique o que aconteceu com a diferenca entre os envelopes."
+            ),
+            "checklist": [
+                f"Meta numerica: diferenca maxima <= {target_diff:.2f}.",
+                "Comente a aproximacao entre os envelopes no tempo.",
+                "Registre uma conclusao curta antes de enviar.",
+            ],
+            "keyword_groups": [["envelope", "envelopes"], ["diferenca", "aproximou", "reduziu"]],
+            "min_keyword_groups": 2,
+            "target_diff": target_diff,
+        },
+        {
+            "type": "smoothing-observe",
+            "title": "Exercicio: observar a suavizacao",
+            "prompt": (
+                f"Aumente a suavizacao de Hilbert para pelo menos {target_smoothing} pontos e observe o grafico dos envelopes. "
+                "Na conclusao, descreva o efeito da suavizacao sobre picos e variacoes rapidas."
+            ),
+            "checklist": [
+                f"Meta de controle: suavizacao >= {target_smoothing} pontos.",
+                "Descreva o efeito visual da suavizacao.",
+                "Use uma conclusao com vocabulario fisico simples.",
+            ],
+            "keyword_groups": [["suavizacao", "suavizar", "media"], ["pico", "variacao", "oscilacao"]],
+            "min_keyword_groups": 2,
+            "target_smoothing": target_smoothing,
+        },
+        {
+            "type": "frequency-window",
+            "title": "Exercicio: limitar frequencias da otimizacao",
+            "prompt": (
+                f"Defina delta f em no maximo {target_delta} THz, mantenha pelo menos uma frequencia ativa em cada onda e execute a otimizacao. "
+                "Na conclusao, explique como a janela espectral ajuda a evitar frequencias muito distantes."
+            ),
+            "checklist": [
+                f"Meta de controle: delta f <= {target_delta} THz.",
+                "Deixe ao menos uma componente ativa em cada onda.",
+                "Envie uma conclusao sobre a restricao espectral.",
+            ],
+            "keyword_groups": [["frequencia", "espectral", "delta"], ["distante", "janela", "restricao"]],
+            "min_keyword_groups": 2,
+            "target_delta": target_delta,
+        },
+        {
+            "type": "color-compare",
+            "title": "Exercicio: relacionar envelope e cor",
+            "prompt": (
+                f"Use a otimizacao para atingir diferenca maxima menor ou igual a {target_diff:.2f} e depois compare os cartoes Antes da otimizacao e Depois da otimizacao no Lab RGB. "
+                "Na conclusao, diga se a aproximacao dos envelopes alterou muito a cor exibida."
+            ),
+            "checklist": [
+                f"Meta numerica: diferenca maxima <= {target_diff:.2f}.",
+                "Passe pelo Lab RGB para comparar antes e depois.",
+                "Explique a relacao entre envelopes e cor observada.",
+            ],
+            "keyword_groups": [["cor", "rgb", "cartao"], ["envelope", "mudanca", "comparacao"]],
+            "min_keyword_groups": 2,
+            "target_diff": target_diff,
+        },
+    ]
+
+    if previous_id is not None and len(exercises) > 1:
+        previous_type = str(previous_id).split("-", 1)[0]
+        filtered = [exercise for exercise in exercises if exercise["type"] != previous_type]
+        if filtered:
+            exercises = filtered
+
+    index = int(rng.integers(0, len(exercises)))
+    exercise = exercises[index]
+    exercise["id"] = f"{exercise['type']}-{seed}"
+    return exercise
+
+
+def build_exercise_rubric(exercise):
+    return html.Ul(
+        [html.Li(item) for item in exercise.get("checklist", [])],
+        style={"margin": "0", "paddingLeft": "18px", "lineHeight": "1.8"},
+    )
+
+
+def build_exercise_feedback(feedback=None):
+    if feedback is None:
+        feedback = {
+            "title": "Pronto para comecar",
+            "message": "Clique em Sortear novo exercicio para gerar um desafio ou responda o exercicio atual.",
+            "details": [],
+            "accent": "#2563eb",
+            "background": "#eff6ff",
+        }
+
+    return html.Div(
+        [
+            html.Strong(feedback["title"]),
+            html.P(feedback["message"], style={"margin": "10px 0 0 0", "lineHeight": "1.7"}),
+            html.Ul(
+                [html.Li(detail) for detail in feedback.get("details", [])],
+                style={"margin": "10px 0 0 0", "paddingLeft": "18px", "lineHeight": "1.7"},
+            ) if feedback.get("details") else html.Div(),
+        ],
+        style={
+            "border": f"1px solid {feedback['accent']}",
+            "background": feedback["background"],
+            "borderRadius": "12px",
+            "padding": "14px 16px",
+            "marginTop": "14px",
+        },
+    )
+
+
+def build_exercise_progress_panel(progress_data):
+    attempts = int(progress_data.get("attempts", 0))
+    correct = int(progress_data.get("correct", 0))
+    incorrect = int(progress_data.get("incorrect", 0))
+    history_entries = progress_data.get("history", [])[-5:][::-1]
+    accuracy = 0.0 if attempts == 0 else 100.0 * correct / attempts
+
+    return html.Div(
+        [
+            html.Div(
+                [
+                    html.Div([
+                        html.Strong("Tentativas"),
+                        html.Div(str(attempts), style={"fontSize": "1.5rem", "marginTop": "6px"}),
+                    ], style={"padding": "12px", "borderRadius": "12px", "background": "#eff6ff"}),
+                    html.Div([
+                        html.Strong("Acertos"),
+                        html.Div(str(correct), style={"fontSize": "1.5rem", "marginTop": "6px"}),
+                    ], style={"padding": "12px", "borderRadius": "12px", "background": "#ecfdf5"}),
+                    html.Div([
+                        html.Strong("Precisao"),
+                        html.Div(f"{accuracy:.0f}%", style={"fontSize": "1.5rem", "marginTop": "6px"}),
+                    ], style={"padding": "12px", "borderRadius": "12px", "background": "#fff7ed"}),
+                ],
+                style={"display": "grid", "gridTemplateColumns": "repeat(3, minmax(110px, 1fr))", "gap": "12px"},
+            ),
+            html.H4("Ultimos envios", style={"marginTop": "18px", "marginBottom": "10px"}),
+            html.Ul(
+                [
+                    html.Li(
+                        f"{entry['timestamp']} | {entry['title']} | {entry['result']} | {entry['metric']}"
+                    )
+                    for entry in history_entries
+                ],
+                style={"margin": "0", "paddingLeft": "18px", "lineHeight": "1.8"},
+            ) if history_entries else html.P(
+                "Nenhum envio registrado ainda. O progresso ficara salvo neste navegador.",
+                style={"margin": "0", "lineHeight": "1.7"},
+            ),
+            html.P(
+                f"Erros registrados: {incorrect}. Cada novo envio atualiza o historico salvo localmente.",
+                style={"marginTop": "16px", "color": "#475569", "lineHeight": "1.7"},
+            ),
+        ]
+    )
+
+
+def collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta):
+    if table_data is None:
+        table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
+    amps1, amps2 = table_data_to_amps(table_data)
+    wave1 = generate_wave(amps1)
+    wave2 = generate_wave(amps2)
+    envelope1 = compute_envelope(wave1, smoothing_window)
+    envelope2 = compute_envelope(wave2, smoothing_window)
+    active_count1 = int(np.sum(np.abs(amps1) > 1e-12))
+    active_count2 = int(np.sum(np.abs(amps2) > 1e-12))
+
+    return {
+        "max_diff": float(np.max(np.abs(envelope1 - envelope2))),
+        "smoothing_window": sanitize_smoothing_window(smoothing_window, len(T)),
+        "freq_delta": int(freq_delta),
+        "active_count1": active_count1,
+        "active_count2": active_count2,
+        "has_optimization": bool((history_data or {}).get("has_optimization", False)),
+    }
+
+
+def evaluate_exercise(exercise, metrics, answer_text):
+    answer_normalized = normalize_text(answer_text)
+    keyword_groups = exercise.get("keyword_groups", [])
+    matched_groups = 0
+    missing_topics = []
+
+    for group in keyword_groups:
+        if any(keyword in answer_normalized for keyword in group):
+            matched_groups += 1
+        else:
+            missing_topics.append(group[0])
+
+    text_pass = matched_groups >= int(exercise.get("min_keyword_groups", len(keyword_groups)))
+    numeric_pass = False
+    metric_message = ""
+
+    if exercise["type"] == "envelope-target":
+        numeric_pass = metrics["max_diff"] <= float(exercise["target_diff"])
+        metric_message = f"Diferença atual: {metrics['max_diff']:.3f}. Meta: <= {exercise['target_diff']:.2f}."
+    elif exercise["type"] == "smoothing-observe":
+        numeric_pass = metrics["smoothing_window"] >= int(exercise["target_smoothing"])
+        metric_message = (
+            f"Suavização atual: {metrics['smoothing_window']} ponto(s). "
+            f"Meta: >= {exercise['target_smoothing']} ponto(s)."
+        )
+    elif exercise["type"] == "frequency-window":
+        numeric_pass = (
+            metrics["freq_delta"] <= int(exercise["target_delta"])
+            and metrics["active_count1"] > 0
+            and metrics["active_count2"] > 0
+            and metrics["has_optimization"]
+        )
+        metric_message = (
+            f"delta f atual: {metrics['freq_delta']} THz. Meta: <= {exercise['target_delta']} THz. "
+            f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
+        )
+    elif exercise["type"] == "color-compare":
+        numeric_pass = metrics["has_optimization"] and metrics["max_diff"] <= float(exercise["target_diff"])
+        metric_message = (
+            f"Diferença atual: {metrics['max_diff']:.3f}. Meta: <= {exercise['target_diff']:.2f}. "
+            f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
+        )
+
+    passed = numeric_pass and text_pass
+    details = [metric_message]
+    details.append(
+        f"Conclusao textual: {matched_groups}/{max(1, len(keyword_groups))} topico(s) essenciais identificados."
+    )
+    if missing_topics and not text_pass:
+        details.append("Sugestao para a conclusao: inclua termos ligados a " + ", ".join(missing_topics[:2]) + ".")
+
+    if passed:
+        feedback = {
+            "title": "Acerto registrado",
+            "message": "Envio recebido com criterio numerico e conclusao textual consistentes.",
+            "details": details,
+            "accent": "#15803d",
+            "background": "#ecfdf5",
+        }
+    else:
+        feedback = {
+            "title": "Tentativa registrada",
+            "message": "O envio foi salvo, mas ainda falta atender pelo menos um dos criterios do exercicio.",
+            "details": details,
+            "accent": "#c2410c",
+            "background": "#fff7ed",
+        }
+
+    metric_summary = metric_message.replace("Meta: ", "meta ")
+    return passed, feedback, metric_summary
 
 
 app = Dash(__name__)
@@ -435,9 +797,20 @@ initial_history = {
     "has_optimization": False,
 }
 
+initial_exercise_progress = {
+    "attempts": 0,
+    "correct": 0,
+    "incorrect": 0,
+    "history": [],
+}
+
+initial_exercise = generate_random_exercise()
+
 app.layout = html.Div(
     [
         dcc.Store(id="history-store", data=initial_history),
+        dcc.Store(id="exercise-store", data=initial_exercise, storage_type="local"),
+        dcc.Store(id="exercise-progress-store", data=initial_exercise_progress, storage_type="local"),
         html.H1("Simulador de Ondas e Envelopes de Hilbert - Versão Web"),
         html.P(
             "Esta versão foi adaptada para navegador. As janelas do programa original foram preservadas como abas da página, o que funciona melhor para uso online.",
@@ -466,9 +839,44 @@ app.layout = html.Div(
                                             ],
                                             data=amps_to_table_data(ZERO_AMPS, ZERO_AMPS),
                                             editable=True,
+                                            persistence=True,
+                                            persisted_props=["data"],
+                                            persistence_type="local",
                                             style_table={"height": "520px", "overflowY": "auto", "border": "1px solid #d7deea"},
                                             style_header={"fontWeight": "bold", "backgroundColor": "#eef4ff"},
                                             style_cell={"textAlign": "center", "padding": "5px", "minWidth": "68px", "width": "68px", "maxWidth": "68px"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Label("Suavização dos envelopes de Hilbert"),
+                                                dcc.Slider(
+                                                    id="smoothing-slider",
+                                                    min=1,
+                                                    max=121,
+                                                    step=2,
+                                                    value=DEFAULT_SMOOTHING,
+                                                    marks={value: str(value) for value in [1, 11, 21, 31, 51, 81, 121]},
+                                                    persistence=True,
+                                                    persistence_type="local",
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Label("delta f limite para a otimização"),
+                                                dcc.Slider(
+                                                    id="freq-delta-slider",
+                                                    min=0,
+                                                    max=MAX_FREQ_DELTA,
+                                                    step=10,
+                                                    value=DEFAULT_FREQ_DELTA,
+                                                    marks={value: str(value) for value in [0, 40, 80, 120, 200, 300, 400]},
+                                                    persistence=True,
+                                                    persistence_type="local",
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px"},
                                         ),
                                         html.Div(
                                             [
@@ -480,9 +888,22 @@ app.layout = html.Div(
                                                     step=500,
                                                     value=2000,
                                                     marks={value: str(value) for value in range(1000, 10001, 1500)},
+                                                    persistence=True,
+                                                    persistence_type="local",
                                                 ),
                                             ],
                                             style={"marginTop": "18px"},
+                                        ),
+                                        html.Div(
+                                            id="control-note-box",
+                                            style={
+                                                "marginTop": "18px",
+                                                "padding": "12px 14px",
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "10px",
+                                                "background": "#f8fafc",
+                                                "lineHeight": "1.7",
+                                            },
                                         ),
                                         html.Div(
                                             [
@@ -575,6 +996,8 @@ app.layout = html.Div(
                                 html.P("Para um sinal real x(t), o envelope complexo é z(t) = x(t) + j*H{x(t)}."),
                                 html.P("O envelope de amplitude é A(t) = sqrt(x^2(t) + H^2{x(t)})."),
                                 html.P("Nesta aplicação, os envelopes são calculados com scipy.signal.hilbert e a otimização busca reduzir a diferença máxima entre os dois envelopes."),
+                                html.P(id="hilbert-smoothing-note"),
+                                html.P(id="hilbert-delta-note"),
                                 html.P("Critério principal: minimizar max|A1(t) - A2(t)|."),
                             ],
                             style={"padding": "20px", "lineHeight": "1.8"},
@@ -621,6 +1044,113 @@ app.layout = html.Div(
                         )
                     ],
                 ),
+                dcc.Tab(
+                    label="Exercícios",
+                    children=[
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        html.H3(id="exercise-title", children=initial_exercise["title"]),
+                                        html.P(
+                                            id="exercise-prompt",
+                                            children=initial_exercise["prompt"],
+                                            style={"lineHeight": "1.8"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.H4("Critérios de conferência"),
+                                                html.Div(id="exercise-rubric", children=build_exercise_rubric(initial_exercise)),
+                                            ],
+                                            style={
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "padding": "16px",
+                                                "background": "#ffffff",
+                                            },
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Label("Conclusão do estudante"),
+                                                dcc.Textarea(
+                                                    id="exercise-answer",
+                                                    value="",
+                                                    placeholder="Escreva aqui sua conclusão, observação ou justificativa física.",
+                                                    style={
+                                                        "width": "100%",
+                                                        "minHeight": "180px",
+                                                        "marginTop": "8px",
+                                                        "padding": "12px",
+                                                        "borderRadius": "12px",
+                                                        "border": "1px solid #cbd5e1",
+                                                        "lineHeight": "1.7",
+                                                    },
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Button("Sortear novo exercício", id="new-exercise-btn", n_clicks=0),
+                                                html.Button(
+                                                    "Enviar resposta e dados",
+                                                    id="submit-exercise-btn",
+                                                    n_clicks=0,
+                                                    style={"marginLeft": "10px"},
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px", "display": "flex", "gap": "10px", "flexWrap": "wrap"},
+                                        ),
+                                        html.Div(id="exercise-feedback", children=build_exercise_feedback()),
+                                    ],
+                                    style={"minWidth": "320px"},
+                                ),
+                                html.Div(
+                                    [
+                                        html.Div(
+                                            [
+                                                html.H3("Progresso salvo"),
+                                                html.Div(id="exercise-progress-panel", children=build_exercise_progress_panel(initial_exercise_progress)),
+                                            ],
+                                            style={
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "padding": "16px",
+                                                "background": "#ffffff",
+                                            },
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.H3("Dinâmica da aba"),
+                                                html.P(
+                                                    "Os exercícios já seguem uma lógica de sorteio, envio, correção automática e histórico local salvo no navegador. A parte visual foi adaptada à identidade desta simulação de ondas e cores.",
+                                                    style={"lineHeight": "1.8"},
+                                                ),
+                                                html.P(
+                                                    "Cada envio compara os dados atuais da simulação com os critérios do exercício e também verifica a conclusão escrita por palavras-chave conceituais.",
+                                                    style={"lineHeight": "1.8"},
+                                                ),
+                                            ],
+                                            style={
+                                                "marginTop": "18px",
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "padding": "16px",
+                                                "background": "#ffffff",
+                                            },
+                                        ),
+                                    ],
+                                ),
+                            ],
+                            style={
+                                "display": "grid",
+                                "gridTemplateColumns": "minmax(320px, 1.1fr) minmax(320px, 0.9fr)",
+                                "gap": "20px",
+                                "padding": "20px 0",
+                            },
+                        )
+                    ],
+                ),
             ]
         ),
     ],
@@ -643,6 +1173,8 @@ app.layout = html.Div(
     Input("reset-btn", "n_clicks"),
     State("amp-table", "data"),
     State("max-iter-slider", "value"),
+    State("smoothing-slider", "value"),
+    State("freq-delta-slider", "value"),
     prevent_initial_call=True,
     running=[
         (Output("optimization-indicator", "children"), "Otimização em andamento...", ""),
@@ -650,7 +1182,7 @@ app.layout = html.Div(
         (Output("reset-btn", "disabled"), True, False),
     ],
 )
-def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
+def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations, smoothing_window, freq_delta):
     trigger = ctx.triggered_id
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
@@ -667,7 +1199,13 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
         }
         return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
 
-    optimized1, optimized2, final_diff, reason = optimize_amplitudes(amps1, amps2, int(max_iterations))
+    optimized1, optimized2, final_diff, reason = optimize_amplitudes(
+        amps1,
+        amps2,
+        int(max_iterations),
+        smoothing_window=smoothing_window,
+        freq_delta=freq_delta,
+    )
     history = {
         "before1": amps1.tolist(),
         "before2": amps2.tolist(),
@@ -680,6 +1218,8 @@ def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations):
         status = f"Concluído: diferença máxima entre envelopes = {final_diff:.4f}"
     elif reason == "limit":
         status = f"Parada pelo limite de {int(max_iterations)} iterações. Diferença = {final_diff:.4f}"
+    elif reason == "blocked":
+        status = "Nenhuma frequência ficou disponível para variar na janela escolhida."
     else:
         status = f"Otimização parcial: diferença máxima = {final_diff:.4f}"
 
@@ -700,22 +1240,31 @@ def refresh_lab_rgb(refresh_clicks):
     Output("intensity-graph", "figure"),
     Output("main-graph", "figure"),
     Output("summary-box", "children"),
+    Output("control-note-box", "children"),
     Output("fourier-before", "children"),
     Output("fourier-after", "children"),
+    Output("hilbert-smoothing-note", "children"),
+    Output("hilbert-delta-note", "children"),
     Output("rgb-scale-graph", "figure"),
     Output("rgb-cards-container", "children"),
     Input("amp-table", "data"),
     Input("history-store", "data"),
     Input("rgb-mode", "value"),
     Input("rgb-refresh-btn", "n_clicks"),
+    Input("smoothing-slider", "value"),
+    Input("freq-delta-slider", "value"),
 )
-def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks):
+def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoothing_window, freq_delta):
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
     if history_data is None:
         history_data = initial_history
     if rgb_mode is None:
         rgb_mode = "visual"
+    if smoothing_window is None:
+        smoothing_window = DEFAULT_SMOOTHING
+    if freq_delta is None:
+        freq_delta = DEFAULT_FREQ_DELTA
 
     current1, current2 = table_data_to_amps(table_data)
 
@@ -724,38 +1273,129 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks):
     after1 = np.array(history_data.get("after1", current1.tolist()), dtype=float)
     after2 = np.array(history_data.get("after2", current2.tolist()), dtype=float)
     has_optimization = bool(history_data.get("has_optimization", False))
+    control_smoothing = sanitize_smoothing_window(smoothing_window, len(T))
+    hilbert_smoothing_note, hilbert_delta_note = build_hilbert_notes(smoothing_window, freq_delta)
 
     fourier_before = generate_fourier_equation(before1, "Onda 1") + "\n\n" + generate_fourier_equation(before2, "Onda 2")
     fourier_after = generate_fourier_equation(after1, "Onda 1") + "\n\n" + generate_fourier_equation(after2, "Onda 2")
+    control_note = html.Div(
+        [
+            html.Div(f"Suavização atual dos envelopes: {control_smoothing} ponto(s)."),
+            html.Div(f"Janela atual da otimização em delta f: {format_frequency_delta(freq_delta)}."),
+        ]
+    )
+
+    if not has_optimization:
+        before1 = current1.copy()
+        before2 = current2.copy()
+        after1 = current1.copy()
+        after2 = current2.copy()
 
     cards = [
-        build_rgb_card(current1, "Onda 1", "Estado atual", rgb_mode),
-        build_rgb_card(current2, "Onda 2", "Estado atual", rgb_mode),
+        build_rgb_card(before1, "Onda 1", "Antes da otimização", rgb_mode),
+        build_rgb_card(after1, "Onda 1", "Depois da otimização", rgb_mode),
+        build_rgb_card(before2, "Onda 2", "Antes da otimização", rgb_mode),
+        build_rgb_card(after2, "Onda 2", "Depois da otimização", rgb_mode),
     ]
-
-    if has_optimization:
-        cards.extend(
-            [
-                build_rgb_card(after1, "Onda 1", "Última otimização", rgb_mode),
-                build_rgb_card(after2, "Onda 2", "Última otimização", rgb_mode),
-            ]
-        )
-    else:
-        cards.extend(
-            [
-                build_rgb_card(current1, "Onda 1", "Estado atual", rgb_mode),
-                build_rgb_card(current2, "Onda 2", "Estado atual", rgb_mode),
-            ]
-        )
 
     return (
         build_intensity_figure(current1, current2),
-        build_main_figure(current1, current2),
-        build_summary(current1, current2),
+        build_main_figure(current1, current2, smoothing_window),
+        build_summary(current1, current2, smoothing_window, freq_delta),
+        control_note,
         fourier_before,
         fourier_after,
+        hilbert_smoothing_note,
+        hilbert_delta_note,
         build_color_scale_figure(rgb_mode),
         cards,
+    )
+
+
+@app.callback(
+    Output("exercise-store", "data"),
+    Output("exercise-progress-store", "data"),
+    Output("exercise-title", "children"),
+    Output("exercise-prompt", "children"),
+    Output("exercise-rubric", "children"),
+    Output("exercise-feedback", "children"),
+    Output("exercise-progress-panel", "children"),
+    Output("exercise-answer", "value"),
+    Input("new-exercise-btn", "n_clicks"),
+    Input("submit-exercise-btn", "n_clicks"),
+    State("exercise-store", "data"),
+    State("exercise-progress-store", "data"),
+    State("amp-table", "data"),
+    State("exercise-answer", "value"),
+    State("smoothing-slider", "value"),
+    State("freq-delta-slider", "value"),
+    State("history-store", "data"),
+    prevent_initial_call=True,
+)
+def handle_exercises(
+    new_exercise_clicks,
+    submit_exercise_clicks,
+    exercise_data,
+    progress_data,
+    table_data,
+    answer_text,
+    smoothing_window,
+    freq_delta,
+    history_data,
+):
+    trigger = ctx.triggered_id
+    exercise_data = exercise_data or generate_random_exercise()
+    progress_data = progress_data or initial_exercise_progress.copy()
+
+    if trigger == "new-exercise-btn":
+        new_exercise = generate_random_exercise(exercise_data.get("id"))
+        feedback = build_exercise_feedback(
+            {
+                "title": "Novo exercício sorteado",
+                "message": "A estrutura da atividade foi atualizada. Ajuste a simulação e envie quando terminar.",
+                "details": ["O progresso já salvo foi mantido."],
+                "accent": "#2563eb",
+                "background": "#eff6ff",
+            }
+        )
+        return (
+            new_exercise,
+            progress_data,
+            new_exercise["title"],
+            new_exercise["prompt"],
+            build_exercise_rubric(new_exercise),
+            feedback,
+            build_exercise_progress_panel(progress_data),
+            "",
+        )
+
+    metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
+    passed, feedback_data, metric_summary = evaluate_exercise(exercise_data, metrics, answer_text)
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    updated_progress = {
+        "attempts": int(progress_data.get("attempts", 0)) + 1,
+        "correct": int(progress_data.get("correct", 0)) + (1 if passed else 0),
+        "incorrect": int(progress_data.get("incorrect", 0)) + (0 if passed else 1),
+        "history": list(progress_data.get("history", [])) + [
+            {
+                "timestamp": timestamp,
+                "title": exercise_data["title"],
+                "result": "acerto" if passed else "erro",
+                "metric": metric_summary,
+            }
+        ],
+    }
+    updated_progress["history"] = updated_progress["history"][-12:]
+
+    return (
+        exercise_data,
+        updated_progress,
+        exercise_data["title"],
+        exercise_data["prompt"],
+        build_exercise_rubric(exercise_data),
+        build_exercise_feedback(feedback_data),
+        build_exercise_progress_panel(updated_progress),
+        answer_text,
     )
 
 

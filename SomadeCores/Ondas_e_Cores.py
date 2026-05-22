@@ -22,6 +22,8 @@ class WaveControlApp:
         self.amp_min, self.amp_max = -1, 1
         self.status_message = 'Pronto para editar e otimizar as ondas.'
         self.max_iterations = 5000
+        self.envelope_smoothing = 1
+        self.optimize_freq_delta = int(self.freqs[-1] - self.freqs[0])
         self.show_layout_grid = True
         self.layout_grid_ax = None
         self.spinner_states = ['.', '..', '...']
@@ -215,6 +217,11 @@ class WaveControlApp:
                          color='moccasin', hovercolor='gold')
         self.visible_colors_btn.on_clicked(self._show_visible_colors)
 
+        exercises_ax = self.fig.add_axes([0.57, 0.92, 0.12, 0.03])
+        self.exercises_btn = Button(exercises_ax, 'Exercícios',
+                        color='honeydew', hovercolor='palegreen')
+        self.exercises_btn.on_clicked(self._show_exercises_tab)
+
         grid_ax = self.fig.add_axes([0.84, 0.935, 0.11, 0.03])
         self.grid_btn = Button(grid_ax, 'Grade: ON',
                                color='lavender', hovercolor='plum')
@@ -234,6 +241,20 @@ class WaveControlApp:
         self.reset_btn.label.set_fontweight('bold')
         self.reset_btn.on_clicked(self._reset_all)
 
+        # Controle da suavização adicional do envelope de Hilbert
+        smooth_ax = self.fig.add_axes([0.36, 0.09, 0.30, 0.025])
+        self.smoothing_slider = Slider(
+            smooth_ax,
+            'Suavização Hilbert',
+            1,
+            121,
+            valinit=self.envelope_smoothing,
+            valstep=2,
+            color='teal'
+        )
+        self.smoothing_slider.valtext.set_text(str(self.envelope_smoothing))
+        self.smoothing_slider.on_changed(self._update_envelope_smoothing)
+
         # Controle do número máximo de iterações
         max_iter_ax = self.fig.add_axes([0.36, 0.055, 0.30, 0.025])
         self.max_iter_slider = Slider(
@@ -247,6 +268,20 @@ class WaveControlApp:
         )
         self.max_iter_slider.valtext.set_text(str(self.max_iterations))
         self.max_iter_slider.on_changed(self._update_max_iterations)
+
+        # Controle da faixa de frequências permitidas na otimização
+        freq_delta_ax = self.fig.add_axes([0.36, 0.02, 0.30, 0.025])
+        self.freq_delta_slider = Slider(
+            freq_delta_ax,
+            'Δf otimizado (THz)',
+            0,
+            int(self.freqs[-1] - self.freqs[0]),
+            valinit=self.optimize_freq_delta,
+            valstep=10,
+            color='peru'
+        )
+        self.freq_delta_slider.valtext.set_text(self._format_frequency_delta_label())
+        self.freq_delta_slider.on_changed(self._update_frequency_delta)
 
     def _setup_layout_grid(self):
         """Cria uma grade de apoio para posicionamento visual dos componentes."""
@@ -282,6 +317,92 @@ class WaveControlApp:
         if self.optimize_btn.label.get_text() == 'OTIMIZAR':
             self._set_status(f'Limite ajustado para {self.max_iterations} iterações.', 'purple')
         self.fig.canvas.draw_idle()
+
+    def _update_envelope_smoothing(self, value):
+        """Atualiza o nível de suavização aplicado aos envelopes."""
+        self.envelope_smoothing = self._sanitize_smoothing_window(value)
+        if hasattr(self, 'smoothing_slider'):
+            self.smoothing_slider.valtext.set_text(str(self.envelope_smoothing))
+
+        if self.optimize_btn.label.get_text() == 'OTIMIZAR':
+            if self.envelope_smoothing <= 1:
+                message = 'Suavização extra desligada para os envelopes de Hilbert.'
+            else:
+                message = f'Suavização dos envelopes ajustada para janela de {self.envelope_smoothing} pontos.'
+            self._set_status(message, 'teal')
+
+        self._update_plots()
+
+    def _update_frequency_delta(self, value):
+        """Atualiza a faixa de frequências liberadas para a otimização."""
+        self.optimize_freq_delta = int(value)
+        if hasattr(self, 'freq_delta_slider'):
+            self.freq_delta_slider.valtext.set_text(self._format_frequency_delta_label())
+
+        if self.optimize_btn.label.get_text() == 'OTIMIZAR':
+            if self._is_frequency_delta_unrestricted():
+                message = 'A otimização pode mexer em toda a faixa de frequências.'
+            else:
+                message = f'A otimização ficará restrita a ±{self.optimize_freq_delta} THz das frequências iniciais.'
+            self._set_status(message, 'saddlebrown')
+
+        self.fig.canvas.draw_idle()
+
+    def _show_exercises_tab(self, event):
+        """Abre a estrutura inicial da futura aba de exercícios."""
+        fig_exercises = plt.figure(figsize=(11.2, 7.0))
+        fig_exercises.suptitle('Exercícios - Estrutura em preparação', fontsize=16, fontweight='bold')
+        fig_exercises.subplots_adjust(left=0.05, right=0.95, top=0.90, bottom=0.08)
+        gs = fig_exercises.add_gridspec(2, 2, height_ratios=[0.34, 1], hspace=0.28, wspace=0.20)
+
+        ax_intro = fig_exercises.add_subplot(gs[0, :])
+        ax_prompt = fig_exercises.add_subplot(gs[1, 0])
+        ax_feedback = fig_exercises.add_subplot(gs[1, 1])
+
+        for ax in [ax_intro, ax_prompt, ax_feedback]:
+            ax.axis('off')
+
+        intro_text = textwrap.dedent("""
+        Esta janela prepara a futura aba de exercícios no estilo das simulações em HTML.
+
+        Dinâmica planejada:
+        1. apresentar um enunciado curto;
+        2. pedir uma ação na simulação principal;
+        3. reservar espaço para resposta do estudante;
+        4. mostrar feedback e critérios de conferência.
+        """).strip()
+        intro_box = patches.FancyBboxPatch((0.02, 0.08), 0.96, 0.84,
+                                           boxstyle='round,pad=0.02',
+                                           facecolor='aliceblue', edgecolor='steelblue', linewidth=1.8)
+        ax_intro.add_patch(intro_box)
+        ax_intro.text(0.04, 0.85, intro_text, transform=ax_intro.transAxes,
+                      ha='left', va='top', fontsize=10, color='midnightblue')
+
+        prompt_box = patches.FancyBboxPatch((0.03, 0.04), 0.94, 0.92,
+                                            boxstyle='round,pad=0.02',
+                                            facecolor='mintcream', edgecolor='seagreen', linewidth=1.6)
+        ax_prompt.add_patch(prompt_box)
+        ax_prompt.text(0.06, 0.92,
+                       'Painel do enunciado e da tentativa\n\n'
+                       '• título do exercício\n'
+                       '• objetivo conceitual\n'
+                       '• instrução ligada aos controles da simulação\n'
+                       '• campo para registrar hipótese, previsão ou resposta',
+                       transform=ax_prompt.transAxes, ha='left', va='top', fontsize=10, color='darkgreen')
+
+        feedback_box = patches.FancyBboxPatch((0.03, 0.04), 0.94, 0.92,
+                                              boxstyle='round,pad=0.02',
+                                              facecolor='linen', edgecolor='sienna', linewidth=1.6)
+        ax_feedback.add_patch(feedback_box)
+        ax_feedback.text(0.06, 0.92,
+                         'Painel de retorno e correção\n\n'
+                         '• comparação entre resposta esperada e resposta dada\n'
+                         '• feedback imediato\n'
+                         '• botão para novo exercício\n'
+                         '• espaço para histórico de tentativas',
+                         transform=ax_feedback.transAxes, ha='left', va='top', fontsize=10, color='saddlebrown')
+
+        plt.show()
 
     def _show_fourier_before(self, event):
         """Mostra as equações de Fourier com as escolhas atuais (antes de otimizar)"""
@@ -350,7 +471,13 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
         ax = fig_hilbert.add_subplot(111)
         ax.axis('off')
         
-        hilbert_text = textwrap.dedent("""
+        smoothing_text = (
+            '• A suavização adicional está desligada (janela = 1 ponto).'
+            if self.envelope_smoothing <= 1
+            else f'• Após o módulo de Hilbert, aplicamos média móvel de {self.envelope_smoothing} pontos.'
+        )
+
+        hilbert_text = textwrap.dedent(f"""
     DEFINIÇÃO DO ENVELOPE DE HILBERT:
 
     Para um sinal real x(t), o envelope complexo é definido como:
@@ -368,6 +495,7 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
     • Calculamos os envelopes usando scipy.signal.hilbert
     • envelope₁(t) = |hilbert(Onda₁(t))|
     • envelope₂(t) = |hilbert(Onda₂(t))|
+    {smoothing_text}
     • A diferença entre envelopes é: Δ(t) = envelope₁(t) - envelope₂(t)
 
     INTERPRETAÇÃO FÍSICA:
@@ -607,21 +735,22 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
         bottom_note.set_position((0.5, 0.025))
 
         def refresh_visible_colors(_event=None):
+            before_label = 'Antes da otimização'
+            after_label = 'Depois da otimização'
+
             if self.amps_before is not None:
                 before1, before2 = self.amps_before
-                before_label = 'Antes da otimização'
             else:
                 before1, before2 = self.amps1.copy(), self.amps2.copy()
-                before_label = 'Estado atual'
 
             after1, after2 = self.amps_after
             current_mode = mode_state['value']
 
             scale_title.set_text(self._draw_frequency_color_scale(ax_scale, current_mode))
             self._draw_color_card(ax_before_wave1, before1, 'Onda 1', before_label, current_mode)
-            self._draw_color_card(ax_after_wave1, after1, 'Onda 1', 'Após a otimização', current_mode)
+            self._draw_color_card(ax_after_wave1, after1, 'Onda 1', after_label, current_mode)
             self._draw_color_card(ax_before_wave2, before2, 'Onda 2', before_label, current_mode)
-            self._draw_color_card(ax_after_wave2, after2, 'Onda 2', 'Após a otimização', current_mode)
+            self._draw_color_card(ax_after_wave2, after2, 'Onda 2', after_label, current_mode)
 
             if current_mode == 'choice1':
                 mode_description.set_text('Modo RGB visual: compara diretamente a emissão RGB calculada com a cor efetivamente exibida na tela.')
@@ -721,9 +850,62 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
             for amp, freq in zip(amps, self.freqs)
         ], axis=0)
 
+    def _sanitize_smoothing_window(self, value):
+        """Garante que a janela de suavização seja ímpar e válida."""
+        window = max(1, int(value))
+        if window % 2 == 0:
+            window += 1
+        if window >= len(self.t):
+            window = len(self.t) - 1 if len(self.t) % 2 == 0 else len(self.t)
+        return max(1, int(window))
+
+    def _smooth_signal(self, signal):
+        """Aplica média móvel simples para suavizar o envelope."""
+        window = self._sanitize_smoothing_window(self.envelope_smoothing)
+        if window <= 1:
+            return signal
+
+        pad = window // 2
+        kernel = np.ones(window, dtype=float) / window
+        padded = np.pad(signal, (pad, pad), mode='edge')
+        return np.convolve(padded, kernel, mode='valid')
+
+    def _is_frequency_delta_unrestricted(self):
+        """Indica se o delta atual libera toda a faixa espectral."""
+        return self.optimize_freq_delta >= int(self.freqs[-1] - self.freqs[0])
+
+    def _format_frequency_delta_label(self):
+        """Formata o rótulo mostrado ao lado do controle de delta."""
+        if self._is_frequency_delta_unrestricted():
+            return 'livre'
+        return f'±{self.optimize_freq_delta}'
+
+    def _build_optimization_mask(self, amps1, amps2):
+        """Escolhe quais frequências podem variar durante a otimização."""
+        if self._is_frequency_delta_unrestricted():
+            return np.ones(self.n, dtype=bool)
+
+        active_mask = (np.abs(amps1) > 1e-12) | (np.abs(amps2) > 1e-12)
+        if not np.any(active_mask):
+            return np.ones(self.n, dtype=bool)
+
+        active_freqs = self.freqs[active_mask]
+        distances = np.abs(self.freqs[:, None] - active_freqs[None, :])
+        return np.min(distances, axis=1) <= self.optimize_freq_delta
+
+    def _merge_optimized_values(self, optimized_values, base_amps1, base_amps2, optimize_mask):
+        """Reconstrói os vetores completos mantendo fixas as frequências bloqueadas."""
+        free_count = int(np.sum(optimize_mask))
+        amps1 = base_amps1.copy()
+        amps2 = base_amps2.copy()
+        amps1[optimize_mask] = optimized_values[:free_count]
+        amps2[optimize_mask] = optimized_values[free_count:]
+        return amps1, amps2
+
     def _compute_envelope(self, wave):
         """Calcula o envelope de Hilbert de uma onda."""
-        return np.abs(hilbert(wave))
+        envelope = np.abs(hilbert(wave))
+        return self._smooth_signal(envelope)
 
     def _max_envelope_difference(self, amps1, amps2):
         """Calcula a diferença máxima entre os envelopes de duas ondas."""
@@ -772,7 +954,12 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
         self.ax_hilbert.plot(self.t * 1e15, envelope1, 'blue', label='Envelope Onda 1', alpha=0.7)
         self.ax_hilbert.plot(self.t * 1e15, envelope2, 'orange', label='Envelope Onda 2', alpha=0.7)
 
-        self.ax_hilbert.set_title('Envelopes de Hilbert')
+        if self.envelope_smoothing <= 1:
+            hilbert_title = 'Envelopes de Hilbert'
+        else:
+            hilbert_title = f'Envelopes de Hilbert suavizados ({self.envelope_smoothing} pts)'
+
+        self.ax_hilbert.set_title(hilbert_title)
         self.ax_hilbert.grid(True, linestyle=':', alpha=0.5)
         self.ax_hilbert.legend()
         self.ax_hilbert.set_xlabel('Tempo (fs)')
@@ -864,14 +1051,24 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
                 self.reason = reason
 
         try:
-            self.amps_before = self.amps1.copy(), self.amps2.copy()
+            initial_amps1 = self.amps1.copy()
+            initial_amps2 = self.amps2.copy()
+            self.amps_before = initial_amps1.copy(), initial_amps2.copy()
             target_diff = 0.25
             max_iterations = self.max_iterations
             iteration_count = {'count': 0}
+            optimize_mask = self._build_optimization_mask(initial_amps1, initial_amps2)
+            free_count = int(np.sum(optimize_mask))
+
+            if free_count == 0:
+                self.optimize_btn.label.set_text('OTIMIZAR')
+                self._set_status('Nenhuma frequência ficou liberada para otimização.', 'firebrick')
+                return
 
             def cost_function(amps_flat):
-                amps1 = amps_flat[:self.n]
-                amps2 = amps_flat[self.n:]
+                amps1, amps2 = self._merge_optimized_values(
+                    amps_flat, initial_amps1, initial_amps2, optimize_mask
+                )
                 return self._max_envelope_difference(amps1, amps2)
 
             def iteration_callback(xk):
@@ -879,14 +1076,17 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
                 if iteration_count['count'] == 1 or iteration_count['count'] % 20 == 0:
                     self._animate_optimization_status(iteration_count['count'])
 
-                current_diff = self._max_envelope_difference(xk[:self.n], xk[self.n:])
+                amps1, amps2 = self._merge_optimized_values(
+                    xk, initial_amps1, initial_amps2, optimize_mask
+                )
+                current_diff = self._max_envelope_difference(amps1, amps2)
                 if current_diff <= target_diff:
                     raise OptimizationStopped(xk, current_diff, 'target')
                 if iteration_count['count'] >= max_iterations:
                     raise OptimizationStopped(xk, current_diff, 'limit')
 
-            x0 = np.concatenate([self.amps1, self.amps2])
-            bounds = [(self.amp_min, self.amp_max) for _ in range(2 * self.n)]
+            x0 = np.concatenate([initial_amps1[optimize_mask], initial_amps2[optimize_mask]])
+            bounds = [(self.amp_min, self.amp_max) for _ in range(2 * free_count)]
 
             stop_reason = 'partial'
             try:
@@ -898,19 +1098,23 @@ y(t) = Σ [Aₙ · sin(2π · fₙ · t)]
                     callback=iteration_callback,
                     options={'maxiter': max_iterations}
                 )
-                final_x = res.x
-                max_diff = self._max_envelope_difference(final_x[:self.n], final_x[self.n:])
+                final_amps1, final_amps2 = self._merge_optimized_values(
+                    res.x, initial_amps1, initial_amps2, optimize_mask
+                )
+                max_diff = self._max_envelope_difference(final_amps1, final_amps2)
                 if max_diff <= target_diff:
                     stop_reason = 'target'
                 elif getattr(res, 'nit', 0) >= max_iterations:
                     stop_reason = 'limit'
             except OptimizationStopped as stopped:
-                final_x = stopped.amps_flat
+                final_amps1, final_amps2 = self._merge_optimized_values(
+                    stopped.amps_flat, initial_amps1, initial_amps2, optimize_mask
+                )
                 max_diff = stopped.diff
                 stop_reason = stopped.reason
 
-            self.amps1 = final_x[:self.n]
-            self.amps2 = final_x[self.n:]
+            self.amps1 = final_amps1
+            self.amps2 = final_amps2
             self._update_sliders()
             self._update_plots()
             self.optimize_btn.label.set_text('OTIMIZAR')
