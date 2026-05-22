@@ -535,65 +535,74 @@ def generate_random_exercise(previous_id=None):
         {
             "type": "envelope-target",
             "title": "Exercicio: aproximar envelopes",
+            "difficulty": "fundamental",
             "prompt": (
-                f"Ajuste manualmente ou use a otimizacao para deixar a diferenca maxima entre os envelopes menor ou igual a {target_diff:.2f}. "
-                "Na conclusao, explique o que aconteceu com a diferenca entre os envelopes."
+                f"Tente fazer os dois envelopes ficarem mais parecidos. Voce pode ajustar manualmente ou usar a otimizacao. "
+                f"O objetivo e deixar a diferenca maxima menor ou igual a {target_diff:.2f}. "
+                "Ao final, escreva com suas palavras o que aconteceu com a diferenca entre os envelopes."
             ),
             "checklist": [
-                f"Meta numerica: diferenca maxima <= {target_diff:.2f}.",
-                "Comente a aproximacao entre os envelopes no tempo.",
-                "Registre uma conclusao curta antes de enviar.",
+                f"A meta e: diferenca maxima <= {target_diff:.2f}.",
+                "Observe se os envelopes ficaram mais proximos ao longo do tempo.",
+                "Escreva uma conclusao curta antes de enviar.",
             ],
             "keyword_groups": [["envelope", "envelopes"], ["diferenca", "aproximou", "reduziu"]],
             "min_keyword_groups": 2,
+            "min_words": 12,
             "target_diff": target_diff,
         },
         {
             "type": "smoothing-observe",
             "title": "Exercicio: observar a suavizacao",
+            "difficulty": "intermediario",
             "prompt": (
-                f"Aumente a suavizacao de Hilbert para pelo menos {target_smoothing} pontos e observe o grafico dos envelopes. "
-                "Na conclusao, descreva o efeito da suavizacao sobre picos e variacoes rapidas."
+                f"Aumente a suavizacao de Hilbert para pelo menos {target_smoothing} pontos e observe com calma o grafico dos envelopes. "
+                "Depois, descreva o que mudou nos picos e nas variacoes mais rapidas do grafico."
             ),
             "checklist": [
-                f"Meta de controle: suavizacao >= {target_smoothing} pontos.",
-                "Descreva o efeito visual da suavizacao.",
-                "Use uma conclusao com vocabulario fisico simples.",
+                f"Ajuste o controle para suavizacao >= {target_smoothing} pontos.",
+                "Descreva o efeito visual da suavizacao no grafico.",
+                "Use uma explicacao simples e objetiva.",
             ],
             "keyword_groups": [["suavizacao", "suavizar", "media"], ["pico", "variacao", "oscilacao"]],
             "min_keyword_groups": 2,
+            "min_words": 14,
             "target_smoothing": target_smoothing,
         },
         {
             "type": "frequency-window",
             "title": "Exercicio: limitar frequencias da otimizacao",
+            "difficulty": "intermediario",
             "prompt": (
-                f"Defina delta f em no maximo {target_delta} THz, mantenha pelo menos uma frequencia ativa em cada onda e execute a otimizacao. "
-                "Na conclusao, explique como a janela espectral ajuda a evitar frequencias muito distantes."
+                f"Defina delta f em no maximo {target_delta} THz. Deixe pelo menos uma frequencia ativa em cada onda e execute a otimizacao. "
+                "Na conclusao, explique por que esse limite ajuda a evitar frequencias novas muito distantes das iniciais."
             ),
             "checklist": [
-                f"Meta de controle: delta f <= {target_delta} THz.",
-                "Deixe ao menos uma componente ativa em cada onda.",
-                "Envie uma conclusao sobre a restricao espectral.",
+                f"Ajuste o controle para delta f <= {target_delta} THz.",
+                "Mantenha ao menos uma componente ativa em cada onda.",
+                "Explique a ideia da restricao espectral com suas palavras.",
             ],
             "keyword_groups": [["frequencia", "espectral", "delta"], ["distante", "janela", "restricao"]],
             "min_keyword_groups": 2,
+            "min_words": 14,
             "target_delta": target_delta,
         },
         {
             "type": "color-compare",
             "title": "Exercicio: relacionar envelope e cor",
+            "difficulty": "avancado",
             "prompt": (
-                f"Use a otimizacao para atingir diferenca maxima menor ou igual a {target_diff:.2f} e depois compare os cartoes Antes da otimizacao e Depois da otimizacao no Lab RGB. "
-                "Na conclusao, diga se a aproximacao dos envelopes alterou muito a cor exibida."
+                f"Use a otimizacao para atingir diferenca maxima menor ou igual a {target_diff:.2f}. Depois, abra o Lab RGB e compare os cartoes Antes da otimizacao e Depois da otimizacao. "
+                "Na conclusao, diga se a aproximacao dos envelopes mudou muito ou pouco a cor mostrada na tela."
             ),
             "checklist": [
-                f"Meta numerica: diferenca maxima <= {target_diff:.2f}.",
-                "Passe pelo Lab RGB para comparar antes e depois.",
-                "Explique a relacao entre envelopes e cor observada.",
+                f"A meta e: diferenca maxima <= {target_diff:.2f}.",
+                "Use o Lab RGB para comparar antes e depois.",
+                "Explique a relacao observada entre envelopes e cor.",
             ],
             "keyword_groups": [["cor", "rgb", "cartao"], ["envelope", "mudanca", "comparacao"]],
             "min_keyword_groups": 2,
+            "min_words": 16,
             "target_diff": target_diff,
         },
     ]
@@ -621,7 +630,7 @@ def build_exercise_feedback(feedback=None):
     if feedback is None:
         feedback = {
             "title": "Pronto para comecar",
-            "message": "Clique em Sortear novo exercicio para gerar um desafio ou responda o exercicio atual.",
+            "message": "Clique em Sortear novo exercicio para gerar uma atividade ou responda o exercicio atual com os dados da simulacao.",
             "details": [],
             "accent": "#2563eb",
             "background": "#eff6ff",
@@ -649,7 +658,12 @@ def build_exercise_feedback(feedback=None):
 def build_exercise_progress_panel(progress_data):
     attempts = int(progress_data.get("attempts", 0))
     correct = int(progress_data.get("correct", 0))
+    partial = int(progress_data.get("partial", 0))
     incorrect = int(progress_data.get("incorrect", 0))
+    streak = int(progress_data.get("streak", 0))
+    best_streak = int(progress_data.get("best_streak", 0))
+    best_score = int(progress_data.get("best_score", 0))
+    last_score = int(progress_data.get("last_score", 0))
     history_entries = progress_data.get("history", [])[-5:][::-1]
     accuracy = 0.0 if attempts == 0 else 100.0 * correct / attempts
 
@@ -666,17 +680,29 @@ def build_exercise_progress_panel(progress_data):
                         html.Div(str(correct), style={"fontSize": "1.5rem", "marginTop": "6px"}),
                     ], style={"padding": "12px", "borderRadius": "12px", "background": "#ecfdf5"}),
                     html.Div([
+                        html.Strong("Parciais"),
+                        html.Div(str(partial), style={"fontSize": "1.5rem", "marginTop": "6px"}),
+                    ], style={"padding": "12px", "borderRadius": "12px", "background": "#fef3c7"}),
+                    html.Div([
                         html.Strong("Precisao"),
                         html.Div(f"{accuracy:.0f}%", style={"fontSize": "1.5rem", "marginTop": "6px"}),
                     ], style={"padding": "12px", "borderRadius": "12px", "background": "#fff7ed"}),
+                    html.Div([
+                        html.Strong("Sequencia"),
+                        html.Div(str(streak), style={"fontSize": "1.5rem", "marginTop": "6px"}),
+                    ], style={"padding": "12px", "borderRadius": "12px", "background": "#ede9fe"}),
                 ],
-                style={"display": "grid", "gridTemplateColumns": "repeat(3, minmax(110px, 1fr))", "gap": "12px"},
+                style={"display": "grid", "gridTemplateColumns": "repeat(auto-fit, minmax(110px, 1fr))", "gap": "12px"},
+            ),
+            html.P(
+                f"Ultima pontuacao: {last_score}/100 | Melhor pontuacao: {best_score}/100 | Melhor sequencia: {best_streak}.",
+                style={"marginTop": "14px", "marginBottom": "0", "color": "#475569", "lineHeight": "1.7"},
             ),
             html.H4("Ultimos envios", style={"marginTop": "18px", "marginBottom": "10px"}),
             html.Ul(
                 [
                     html.Li(
-                        f"{entry['timestamp']} | {entry['title']} | {entry['result']} | {entry['metric']}"
+                        f"{entry['timestamp']} | {entry['title']} | {entry['result']} | {entry['score']}/100 | {entry['metric']}"
                     )
                     for entry in history_entries
                 ],
@@ -716,6 +742,7 @@ def collect_simulation_metrics(table_data, history_data, smoothing_window, freq_
 
 def evaluate_exercise(exercise, metrics, answer_text):
     answer_normalized = normalize_text(answer_text)
+    answer_word_count = len([word for word in answer_normalized.split() if word])
     keyword_groups = exercise.get("keyword_groups", [])
     matched_groups = 0
     missing_topics = []
@@ -726,44 +753,64 @@ def evaluate_exercise(exercise, metrics, answer_text):
         else:
             missing_topics.append(group[0])
 
-    text_pass = matched_groups >= int(exercise.get("min_keyword_groups", len(keyword_groups)))
+    min_keyword_groups = int(exercise.get("min_keyword_groups", len(keyword_groups)))
+    min_words = int(exercise.get("min_words", 12))
+    keyword_score = 0.0 if len(keyword_groups) == 0 else matched_groups / len(keyword_groups)
+    depth_score = min(1.0, answer_word_count / max(1, min_words))
+    text_score = 0.7 * keyword_score + 0.3 * depth_score
+    text_pass = matched_groups >= min_keyword_groups and answer_word_count >= min_words
     numeric_pass = False
     metric_message = ""
+    numeric_score = 0.0
 
     if exercise["type"] == "envelope-target":
         numeric_pass = metrics["max_diff"] <= float(exercise["target_diff"])
+        numeric_score = 1.0 if numeric_pass else min(1.0, float(exercise["target_diff"]) / max(metrics["max_diff"], 1e-9))
         metric_message = f"Diferença atual: {metrics['max_diff']:.3f}. Meta: <= {exercise['target_diff']:.2f}."
     elif exercise["type"] == "smoothing-observe":
         numeric_pass = metrics["smoothing_window"] >= int(exercise["target_smoothing"])
+        numeric_score = min(1.0, metrics["smoothing_window"] / max(1, int(exercise["target_smoothing"])))
         metric_message = (
             f"Suavização atual: {metrics['smoothing_window']} ponto(s). "
             f"Meta: >= {exercise['target_smoothing']} ponto(s)."
         )
     elif exercise["type"] == "frequency-window":
+        delta_ratio = min(1.0, int(exercise["target_delta"]) / max(metrics["freq_delta"], 1))
+        active_ratio = 0.5 * int(metrics["active_count1"] > 0) + 0.5 * int(metrics["active_count2"] > 0)
+        optimization_ratio = 1.0 if metrics["has_optimization"] else 0.0
         numeric_pass = (
             metrics["freq_delta"] <= int(exercise["target_delta"])
             and metrics["active_count1"] > 0
             and metrics["active_count2"] > 0
             and metrics["has_optimization"]
         )
+        numeric_score = 0.5 * delta_ratio + 0.25 * active_ratio + 0.25 * optimization_ratio
         metric_message = (
             f"delta f atual: {metrics['freq_delta']} THz. Meta: <= {exercise['target_delta']} THz. "
             f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
         )
     elif exercise["type"] == "color-compare":
         numeric_pass = metrics["has_optimization"] and metrics["max_diff"] <= float(exercise["target_diff"])
+        diff_ratio = min(1.0, float(exercise["target_diff"]) / max(metrics["max_diff"], 1e-9))
+        optimization_ratio = 1.0 if metrics["has_optimization"] else 0.0
+        numeric_score = 0.75 * diff_ratio + 0.25 * optimization_ratio
         metric_message = (
             f"Diferença atual: {metrics['max_diff']:.3f}. Meta: <= {exercise['target_diff']:.2f}. "
             f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
         )
 
+    total_score = int(round((0.65 * numeric_score + 0.35 * text_score) * 100))
     passed = numeric_pass and text_pass
+    partial = (numeric_pass or total_score >= 55) and not passed
     details = [metric_message]
     details.append(
-        f"Conclusao textual: {matched_groups}/{max(1, len(keyword_groups))} topico(s) essenciais identificados."
+        f"Conclusao textual: {matched_groups}/{max(1, len(keyword_groups))} topico(s) essenciais identificados em {answer_word_count} palavra(s)."
     )
+    details.append(f"Pontuacao da tentativa: {total_score}/100.")
     if missing_topics and not text_pass:
         details.append("Sugestao para a conclusao: inclua termos ligados a " + ", ".join(missing_topics[:2]) + ".")
+    if answer_word_count < min_words:
+        details.append(f"A conclusao ainda esta curta. Tente usar pelo menos {min_words} palavras.")
 
     if passed:
         feedback = {
@@ -772,6 +819,14 @@ def evaluate_exercise(exercise, metrics, answer_text):
             "details": details,
             "accent": "#15803d",
             "background": "#ecfdf5",
+        }
+    elif partial:
+        feedback = {
+            "title": "Avanco parcial registrado",
+            "message": "A tentativa mostrou progresso, mas ainda falta consolidar a meta numerica ou aprofundar a conclusao.",
+            "details": details,
+            "accent": "#b45309",
+            "background": "#fffbeb",
         }
     else:
         feedback = {
@@ -783,7 +838,8 @@ def evaluate_exercise(exercise, metrics, answer_text):
         }
 
     metric_summary = metric_message.replace("Meta: ", "meta ")
-    return passed, feedback, metric_summary
+    result_label = "acerto" if passed else "parcial" if partial else "erro"
+    return passed, partial, total_score, feedback, metric_summary, result_label
 
 
 app = Dash(__name__)
@@ -800,7 +856,12 @@ initial_history = {
 initial_exercise_progress = {
     "attempts": 0,
     "correct": 0,
+    "partial": 0,
     "incorrect": 0,
+    "streak": 0,
+    "best_streak": 0,
+    "last_score": 0,
+    "best_score": 0,
     "history": [],
 }
 
@@ -1052,6 +1113,20 @@ app.layout = html.Div(
                                 html.Div(
                                     [
                                         html.H3(id="exercise-title", children=initial_exercise["title"]),
+                                        html.Div(
+                                            id="exercise-difficulty",
+                                            children=f"Nivel atual: {initial_exercise.get('difficulty', 'fundamental')}",
+                                            style={
+                                                "display": "inline-block",
+                                                "marginBottom": "12px",
+                                                "padding": "6px 10px",
+                                                "borderRadius": "999px",
+                                                "background": "#e0f2fe",
+                                                "color": "#0f172a",
+                                                "fontWeight": "bold",
+                                                "fontSize": "0.92rem",
+                                            },
+                                        ),
                                         html.P(
                                             id="exercise-prompt",
                                             children=initial_exercise["prompt"],
@@ -1316,6 +1391,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     Output("exercise-store", "data"),
     Output("exercise-progress-store", "data"),
     Output("exercise-title", "children"),
+    Output("exercise-difficulty", "children"),
     Output("exercise-prompt", "children"),
     Output("exercise-rubric", "children"),
     Output("exercise-feedback", "children"),
@@ -1362,6 +1438,7 @@ def handle_exercises(
             new_exercise,
             progress_data,
             new_exercise["title"],
+            f"Nivel atual: {new_exercise.get('difficulty', 'fundamental')}",
             new_exercise["prompt"],
             build_exercise_rubric(new_exercise),
             feedback,
@@ -1370,17 +1447,24 @@ def handle_exercises(
         )
 
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
-    passed, feedback_data, metric_summary = evaluate_exercise(exercise_data, metrics, answer_text)
+    passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(exercise_data, metrics, answer_text)
     timestamp = datetime.now().strftime("%H:%M:%S")
+    next_streak = int(progress_data.get("streak", 0)) + 1 if passed else 0
     updated_progress = {
         "attempts": int(progress_data.get("attempts", 0)) + 1,
         "correct": int(progress_data.get("correct", 0)) + (1 if passed else 0),
-        "incorrect": int(progress_data.get("incorrect", 0)) + (0 if passed else 1),
+        "partial": int(progress_data.get("partial", 0)) + (1 if partial else 0),
+        "incorrect": int(progress_data.get("incorrect", 0)) + (1 if not passed and not partial else 0),
+        "streak": next_streak,
+        "best_streak": max(int(progress_data.get("best_streak", 0)), next_streak),
+        "last_score": total_score,
+        "best_score": max(int(progress_data.get("best_score", 0)), total_score),
         "history": list(progress_data.get("history", [])) + [
             {
                 "timestamp": timestamp,
                 "title": exercise_data["title"],
-                "result": "acerto" if passed else "erro",
+                "result": result_label,
+                "score": total_score,
                 "metric": metric_summary,
             }
         ],
@@ -1391,6 +1475,7 @@ def handle_exercises(
         exercise_data,
         updated_progress,
         exercise_data["title"],
+        f"Nivel atual: {exercise_data.get('difficulty', 'fundamental')}",
         exercise_data["prompt"],
         build_exercise_rubric(exercise_data),
         build_exercise_feedback(feedback_data),
