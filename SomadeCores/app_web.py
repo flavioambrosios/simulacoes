@@ -842,7 +842,184 @@ def evaluate_exercise(exercise, metrics, answer_text):
     return passed, partial, total_score, feedback, metric_summary, result_label
 
 
-app = Dash(__name__)
+def build_mobile_active_summary(table_data):
+        if table_data is None:
+                table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
+
+        amps1, amps2 = table_data_to_amps(table_data)
+        active_wave1 = [str(int(freq)) for freq, amp in zip(FREQS, amps1) if abs(amp) > 1e-12]
+        active_wave2 = [str(int(freq)) for freq, amp in zip(FREQS, amps2) if abs(amp) > 1e-12]
+
+        def summarize(freqs):
+                if not freqs:
+                        return "nenhuma ativa"
+                preview = ", ".join(freqs[:6])
+                if len(freqs) > 6:
+                        preview += ", ..."
+                return preview + " THz"
+
+        return html.Div(
+                [
+                        html.Strong("Resumo rapido das frequencias ativas"),
+                        html.Div(f"Onda 1: {summarize(active_wave1)}", style={"marginTop": "8px"}),
+                        html.Div(f"Onda 2: {summarize(active_wave2)}", style={"marginTop": "4px"}),
+                ],
+                style={"lineHeight": "1.7"},
+        )
+
+
+def clone_figure_for_mobile(figure, height):
+        cloned = go.Figure(figure)
+        cloned.update_layout(
+                height=height,
+                margin=dict(l=18, r=18, t=58, b=18),
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+        )
+        return cloned
+
+
+def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_figure, cards, summary_box, control_note):
+        if view_name == "controls":
+                return html.Div(
+                        [
+                                html.H4("Controle das amplitudes", style={"marginBottom": "10px"}),
+                                dcc.Graph(
+                                        figure=clone_figure_for_mobile(intensity_figure, 300),
+                                        config={"displayModeBar": False, "responsive": True},
+                                ),
+                        ]
+                )
+
+        if view_name == "rgb":
+                return html.Div(
+                        [
+                                html.H4("Lab RGB no celular", style={"marginBottom": "10px"}),
+                                dcc.Graph(
+                                        figure=clone_figure_for_mobile(scale_figure, 240),
+                                        config={"displayModeBar": False, "responsive": True},
+                                ),
+                                html.Div(
+                                        cards,
+                                        style={
+                                                "display": "grid",
+                                                "gridTemplateColumns": "1fr",
+                                                "gap": "12px",
+                                                "marginTop": "12px",
+                                        },
+                                ),
+                        ]
+                )
+
+        if view_name == "summary":
+                return html.Div(
+                        [
+                                html.H4("Resumo da simulacao", style={"marginBottom": "10px"}),
+                                html.Div(
+                                        [summary_box],
+                                        style={
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "padding": "14px",
+                                                "background": "#ffffff",
+                                        },
+                                ),
+                                html.Div(
+                                        [control_note],
+                                        style={
+                                                "marginTop": "12px",
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "padding": "14px",
+                                                "background": "#ffffff",
+                                        },
+                                ),
+                        ]
+                )
+
+        return html.Div(
+                [
+                        html.H4("Ondas, envelopes e diferenca", style={"marginBottom": "10px"}),
+                        dcc.Graph(
+                                figure=clone_figure_for_mobile(main_figure, 520),
+                                config={"displayModeBar": False, "responsive": True},
+                        ),
+                ]
+        )
+
+
+RESPONSIVE_STYLES = """
+.app-shell {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    font-family: Arial, sans-serif;
+    background: #f7f8fb;
+    color: #1f2937;
+}
+.desktop-only {
+    display: block;
+}
+.mobile-only {
+    display: none;
+}
+.simulator-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 330px) 1fr;
+    gap: 18px;
+    padding: 20px 0;
+}
+.exercise-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1.1fr) minmax(320px, 0.9fr);
+    gap: 20px;
+    padding: 20px 0;
+}
+.panel-card {
+    min-width: 0;
+}
+.graph-stack > * + * {
+    margin-top: 18px;
+}
+.mobile-card {
+    border: 1px solid #d7deea;
+    border-radius: 12px;
+    padding: 16px;
+    background: #ffffff;
+}
+.mobile-controls-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 12px;
+}
+@media (max-width: 960px) {
+    .app-shell {
+        padding: 12px !important;
+    }
+    .desktop-only {
+        display: none !important;
+    }
+    .mobile-only {
+        display: block !important;
+    }
+    .simulator-grid,
+    .exercise-grid {
+        display: block !important;
+        padding: 12px 0 !important;
+    }
+    .panel-card + .panel-card {
+        margin-top: 18px;
+    }
+    .mobile-controls-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+"""
+
+
+app = Dash(
+        __name__,
+        meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1, maximum-scale=1"}],
+)
 server = app.server
 
 initial_history = {
@@ -869,6 +1046,7 @@ initial_exercise = generate_random_exercise()
 
 app.layout = html.Div(
     [
+        html.Style(RESPONSIVE_STYLES),
         dcc.Store(id="history-store", data=initial_history),
         dcc.Store(id="exercise-store", data=initial_exercise, storage_type="local"),
         dcc.Store(id="exercise-progress-store", data=initial_exercise_progress, storage_type="local"),
@@ -891,21 +1069,113 @@ app.layout = html.Div(
                                             "Edite os valores das colunas Onda 1 e Onda 2. Cada linha corresponde a uma frequência em THz.",
                                             style={"lineHeight": "1.6"},
                                         ),
-                                        dash_table.DataTable(
-                                            id="amp-table",
-                                            columns=[
-                                                {"name": "Frequência (THz)", "id": "frequencia", "editable": False},
-                                                {"name": "Onda 1", "id": "onda1", "editable": True},
-                                                {"name": "Onda 2", "id": "onda2", "editable": True},
+                                        html.Div(
+                                            className="desktop-only",
+                                            children=[
+                                                dash_table.DataTable(
+                                                    id="amp-table",
+                                                    columns=[
+                                                        {"name": "Freq. (THz)", "id": "frequencia", "editable": False},
+                                                        {"name": "Onda 1", "id": "onda1", "editable": True},
+                                                        {"name": "Onda 2", "id": "onda2", "editable": True},
+                                                    ],
+                                                    data=amps_to_table_data(ZERO_AMPS, ZERO_AMPS),
+                                                    editable=True,
+                                                    persistence=True,
+                                                    persisted_props=["data"],
+                                                    persistence_type="local",
+                                                    style_table={
+                                                        "height": "520px",
+                                                        "overflowY": "auto",
+                                                        "overflowX": "auto",
+                                                        "border": "1px solid #d7deea",
+                                                    },
+                                                    style_header={
+                                                        "fontWeight": "bold",
+                                                        "backgroundColor": "#eef4ff",
+                                                        "fontSize": "11px",
+                                                        "whiteSpace": "normal",
+                                                        "height": "auto",
+                                                    },
+                                                    style_cell={
+                                                        "textAlign": "center",
+                                                        "padding": "4px",
+                                                        "fontSize": "11px",
+                                                        "minWidth": "60px",
+                                                        "width": "60px",
+                                                        "maxWidth": "60px",
+                                                    },
+                                                )
                                             ],
-                                            data=amps_to_table_data(ZERO_AMPS, ZERO_AMPS),
-                                            editable=True,
-                                            persistence=True,
-                                            persisted_props=["data"],
-                                            persistence_type="local",
-                                            style_table={"height": "520px", "overflowY": "auto", "border": "1px solid #d7deea"},
-                                            style_header={"fontWeight": "bold", "backgroundColor": "#eef4ff"},
-                                            style_cell={"textAlign": "center", "padding": "5px", "minWidth": "68px", "width": "68px", "maxWidth": "68px"},
+                                        ),
+                                        html.Div(
+                                            className="mobile-only mobile-card",
+                                            children=[
+                                                html.P(
+                                                    "No celular, a edicao acontece uma frequencia por vez. Escolha a frequencia, ajuste os dois valores e toque em Aplicar.",
+                                                    style={"marginTop": "0", "lineHeight": "1.7"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Button("Anterior", id="mobile-prev-freq-btn", n_clicks=0),
+                                                        html.Button("Proxima", id="mobile-next-freq-btn", n_clicks=0),
+                                                    ],
+                                                    style={"display": "flex", "gap": "10px", "flexWrap": "wrap", "marginTop": "12px"},
+                                                ),
+                                                dcc.Dropdown(
+                                                    id="mobile-frequency-picker",
+                                                    options=[
+                                                        {"label": f"{int(freq)} THz", "value": int(freq)}
+                                                        for freq in FREQS
+                                                    ],
+                                                    value=int(FREQS[0]),
+                                                    clearable=False,
+                                                    searchable=False,
+                                                    style={"marginTop": "12px"},
+                                                ),
+                                                html.Div(id="mobile-frequency-position", style={"marginTop": "10px", "color": "#475569"}),
+                                                html.Div(
+                                                    className="mobile-controls-grid",
+                                                    children=[
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Amplitude da Onda 1"),
+                                                                dcc.Input(
+                                                                    id="mobile-amp1-input",
+                                                                    type="number",
+                                                                    step=0.1,
+                                                                    min=AMP_MIN,
+                                                                    max=AMP_MAX,
+                                                                    value=0,
+                                                                    style={"width": "100%", "marginTop": "6px", "padding": "10px"},
+                                                                ),
+                                                            ]
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Amplitude da Onda 2"),
+                                                                dcc.Input(
+                                                                    id="mobile-amp2-input",
+                                                                    type="number",
+                                                                    step=0.1,
+                                                                    min=AMP_MIN,
+                                                                    max=AMP_MAX,
+                                                                    value=0,
+                                                                    style={"width": "100%", "marginTop": "6px", "padding": "10px"},
+                                                                ),
+                                                            ]
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "12px"},
+                                                ),
+                                                html.Button(
+                                                    "Aplicar a frequencia",
+                                                    id="mobile-apply-btn",
+                                                    n_clicks=0,
+                                                    style={"marginTop": "14px", "width": "100%"},
+                                                ),
+                                                html.Div(id="mobile-active-summary", style={"marginTop": "14px"}),
+                                            ],
                                         ),
                                         html.Div(
                                             [
@@ -994,33 +1264,58 @@ app.layout = html.Div(
                                             },
                                         ),
                                     ],
-                                    style={"minWidth": "320px"},
+                                    className="panel-card",
                                 ),
                                 html.Div(
                                     [
-                                        dcc.Graph(id="intensity-graph"),
-                                        dcc.Graph(id="main-graph"),
                                         html.Div(
-                                            [
-                                                html.H3("Resumo rápido"),
-                                                html.Div(id="summary-box"),
+                                            className="desktop-only graph-stack",
+                                            children=[
+                                                dcc.Graph(id="intensity-graph"),
+                                                dcc.Graph(id="main-graph"),
+                                                html.Div(
+                                                    [
+                                                        html.H3("Resumo rápido"),
+                                                        html.Div(id="summary-box"),
+                                                    ],
+                                                    style={
+                                                        "border": "1px solid #d7deea",
+                                                        "borderRadius": "12px",
+                                                        "padding": "16px",
+                                                        "background": "#ffffff",
+                                                    },
+                                                ),
                                             ],
-                                            style={
-                                                "border": "1px solid #d7deea",
-                                                "borderRadius": "12px",
-                                                "padding": "16px",
-                                                "background": "#ffffff",
-                                            },
+                                        ),
+                                        html.Div(
+                                            className="mobile-only mobile-card",
+                                            children=[
+                                                html.H3("Visualização no celular"),
+                                                html.P(
+                                                    "Escolha uma etapa para visualizar um bloco por vez. Isso deixa a leitura mais confortável em telas pequenas.",
+                                                    style={"lineHeight": "1.7"},
+                                                ),
+                                                dcc.RadioItems(
+                                                    id="mobile-visual-view",
+                                                    options=[
+                                                        {"label": "Ondas e envelopes", "value": "main"},
+                                                        {"label": "Controles", "value": "controls"},
+                                                        {"label": "Lab RGB", "value": "rgb"},
+                                                        {"label": "Resumo", "value": "summary"},
+                                                    ],
+                                                    value="main",
+                                                    inline=False,
+                                                    labelStyle={"display": "block", "marginBottom": "8px"},
+                                                    style={"marginTop": "12px"},
+                                                ),
+                                                html.Div(id="mobile-visual-content", style={"marginTop": "14px"}),
+                                            ],
                                         ),
                                     ],
+                                    className="panel-card",
                                 ),
                             ],
-                            style={
-                                "display": "grid",
-                                "gridTemplateColumns": "minmax(320px, 380px) 1fr",
-                                "gap": "20px",
-                                "padding": "20px 0",
-                            },
+                            className="simulator-grid",
                         )
                     ],
                 ),
@@ -1178,7 +1473,7 @@ app.layout = html.Div(
                                         ),
                                         html.Div(id="exercise-feedback", children=build_exercise_feedback()),
                                     ],
-                                    style={"minWidth": "320px"},
+                                    className="panel-card",
                                 ),
                                 html.Div(
                                     [
@@ -1215,28 +1510,17 @@ app.layout = html.Div(
                                             },
                                         ),
                                     ],
+                                    className="panel-card",
                                 ),
                             ],
-                            style={
-                                "display": "grid",
-                                "gridTemplateColumns": "minmax(320px, 1.1fr) minmax(320px, 0.9fr)",
-                                "gap": "20px",
-                                "padding": "20px 0",
-                            },
+                            className="exercise-grid",
                         )
                     ],
                 ),
             ]
         ),
     ],
-    style={
-        "maxWidth": "1400px",
-        "margin": "0 auto",
-        "padding": "24px",
-        "fontFamily": "Arial, sans-serif",
-        "background": "#f7f8fb",
-        "color": "#1f2937",
-    },
+    className="app-shell",
 )
 
 
@@ -1246,22 +1530,51 @@ app.layout = html.Div(
     Output("status-message", "children"),
     Input("optimize-btn", "n_clicks"),
     Input("reset-btn", "n_clicks"),
+    Input("mobile-apply-btn", "n_clicks"),
     State("amp-table", "data"),
     State("max-iter-slider", "value"),
     State("smoothing-slider", "value"),
     State("freq-delta-slider", "value"),
+    State("mobile-frequency-picker", "value"),
+    State("mobile-amp1-input", "value"),
+    State("mobile-amp2-input", "value"),
+    State("history-store", "data"),
     prevent_initial_call=True,
     running=[
         (Output("optimization-indicator", "children"), "Otimização em andamento...", ""),
         (Output("optimize-btn", "disabled"), True, False),
         (Output("reset-btn", "disabled"), True, False),
+        (Output("mobile-apply-btn", "disabled"), True, False),
     ],
 )
-def handle_actions(optimize_clicks, reset_clicks, table_data, max_iterations, smoothing_window, freq_delta):
+def handle_actions(
+    optimize_clicks,
+    reset_clicks,
+    mobile_apply_clicks,
+    table_data,
+    max_iterations,
+    smoothing_window,
+    freq_delta,
+    mobile_frequency,
+    mobile_amp1,
+    mobile_amp2,
+    history_data,
+):
     trigger = ctx.triggered_id
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
+    if history_data is None:
+        history_data = initial_history
     amps1, amps2 = table_data_to_amps(table_data)
+
+    if trigger == "mobile-apply-btn":
+        current_frequency = int(mobile_frequency or FREQS[0])
+        updated_table = [dict(row) for row in table_data]
+        selected_index = int(np.where(FREQS == current_frequency)[0][0])
+        updated_table[selected_index]["onda1"] = round(clamp_amp(mobile_amp1), 1)
+        updated_table[selected_index]["onda2"] = round(clamp_amp(mobile_amp2), 1)
+        status = f"Frequência {current_frequency} THz atualizada pelo editor móvel."
+        return updated_table, history_data, status
 
     if trigger == "reset-btn":
         zero_table = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
@@ -1322,14 +1635,16 @@ def refresh_lab_rgb(refresh_clicks):
     Output("hilbert-delta-note", "children"),
     Output("rgb-scale-graph", "figure"),
     Output("rgb-cards-container", "children"),
+    Output("mobile-visual-content", "children"),
     Input("amp-table", "data"),
     Input("history-store", "data"),
     Input("rgb-mode", "value"),
     Input("rgb-refresh-btn", "n_clicks"),
     Input("smoothing-slider", "value"),
     Input("freq-delta-slider", "value"),
+    Input("mobile-visual-view", "value"),
 )
-def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoothing_window, freq_delta):
+def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoothing_window, freq_delta, mobile_visual_view):
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
     if history_data is None:
@@ -1340,6 +1655,8 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
         smoothing_window = DEFAULT_SMOOTHING
     if freq_delta is None:
         freq_delta = DEFAULT_FREQ_DELTA
+    if mobile_visual_view is None:
+        mobile_visual_view = "main"
 
     current1, current2 = table_data_to_amps(table_data)
 
@@ -1373,17 +1690,75 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
         build_rgb_card(after2, "Onda 2", "Depois da otimização", rgb_mode),
     ]
 
+    intensity_figure = build_intensity_figure(current1, current2)
+    main_figure = build_main_figure(current1, current2, smoothing_window)
+    summary_box = build_summary(current1, current2, smoothing_window, freq_delta)
+    mobile_visual_content = build_mobile_visual_content(
+        mobile_visual_view,
+        intensity_figure,
+        main_figure,
+        build_color_scale_figure(rgb_mode),
+        cards,
+        summary_box,
+        control_note,
+    )
+    scale_figure = build_color_scale_figure(rgb_mode)
+
     return (
-        build_intensity_figure(current1, current2),
-        build_main_figure(current1, current2, smoothing_window),
-        build_summary(current1, current2, smoothing_window, freq_delta),
+        intensity_figure,
+        main_figure,
+        summary_box,
         control_note,
         fourier_before,
         fourier_after,
         hilbert_smoothing_note,
         hilbert_delta_note,
-        build_color_scale_figure(rgb_mode),
+        scale_figure,
         cards,
+        mobile_visual_content,
+    )
+
+
+@app.callback(
+    Output("mobile-frequency-picker", "value"),
+    Input("mobile-prev-freq-btn", "n_clicks"),
+    Input("mobile-next-freq-btn", "n_clicks"),
+    State("mobile-frequency-picker", "value"),
+    prevent_initial_call=True,
+)
+def browse_mobile_frequency(prev_clicks, next_clicks, current_frequency):
+    trigger = ctx.triggered_id
+    current_frequency = int(current_frequency or FREQS[0])
+    current_index = int(np.where(FREQS == current_frequency)[0][0])
+
+    if trigger == "mobile-prev-freq-btn":
+        return int(FREQS[(current_index - 1) % N_FREQS])
+    return int(FREQS[(current_index + 1) % N_FREQS])
+
+
+@app.callback(
+    Output("mobile-amp1-input", "value"),
+    Output("mobile-amp2-input", "value"),
+    Output("mobile-frequency-position", "children"),
+    Output("mobile-active-summary", "children"),
+    Input("amp-table", "data"),
+    Input("mobile-frequency-picker", "value"),
+)
+def sync_mobile_editor(table_data, mobile_frequency):
+    if table_data is None:
+        table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
+
+    current_frequency = int(mobile_frequency or FREQS[0])
+    row_lookup = {int(row["frequencia"]): row for row in table_data}
+    current_row = row_lookup.get(current_frequency, {"onda1": 0, "onda2": 0})
+    current_index = int(np.where(FREQS == current_frequency)[0][0])
+    position_text = f"Editando {current_frequency} THz ({current_index + 1} de {N_FREQS})."
+
+    return (
+        current_row.get("onda1", 0),
+        current_row.get("onda2", 0),
+        position_text,
+        build_mobile_active_summary(table_data),
     )
 
 
