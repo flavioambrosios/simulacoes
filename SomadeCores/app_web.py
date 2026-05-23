@@ -947,75 +947,6 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
         )
 
 
-RESPONSIVE_STYLES = """
-.app-shell {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-    font-family: Arial, sans-serif;
-    background: #f7f8fb;
-    color: #1f2937;
-}
-.desktop-only {
-    display: block;
-}
-.mobile-only {
-    display: none;
-}
-.simulator-grid {
-    display: grid;
-    grid-template-columns: minmax(280px, 330px) 1fr;
-    gap: 18px;
-    padding: 20px 0;
-}
-.exercise-grid {
-    display: grid;
-    grid-template-columns: minmax(320px, 1.1fr) minmax(320px, 0.9fr);
-    gap: 20px;
-    padding: 20px 0;
-}
-.panel-card {
-    min-width: 0;
-}
-.graph-stack > * + * {
-    margin-top: 18px;
-}
-.mobile-card {
-    border: 1px solid #d7deea;
-    border-radius: 12px;
-    padding: 16px;
-    background: #ffffff;
-}
-.mobile-controls-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-    gap: 12px;
-}
-@media (max-width: 960px) {
-    .app-shell {
-        padding: 12px !important;
-    }
-    .desktop-only {
-        display: none !important;
-    }
-    .mobile-only {
-        display: block !important;
-    }
-    .simulator-grid,
-    .exercise-grid {
-        display: block !important;
-        padding: 12px 0 !important;
-    }
-    .panel-card + .panel-card {
-        margin-top: 18px;
-    }
-    .mobile-controls-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-"""
-
-
 app = Dash(
         __name__,
         meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1, maximum-scale=1"}],
@@ -1046,7 +977,6 @@ initial_exercise = generate_random_exercise()
 
 app.layout = html.Div(
     [
-        html.Style(RESPONSIVE_STYLES),
         dcc.Store(id="history-store", data=initial_history),
         dcc.Store(id="exercise-store", data=initial_exercise, storage_type="local"),
         dcc.Store(id="exercise-progress-store", data=initial_exercise_progress, storage_type="local"),
