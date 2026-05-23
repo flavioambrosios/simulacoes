@@ -283,7 +283,7 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
             envelope_title,
             "Diferença entre os envelopes",
         ),
-        vertical_spacing=0.16,
+        vertical_spacing=0.22,
         horizontal_spacing=0.12,
     )
 
@@ -314,15 +314,18 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     )
     figure.add_hline(y=0, line_width=1, line_color="black", opacity=0.5, row=2, col=2)
 
+    for col in [1, 2]:
+        figure.update_xaxes(range=[0, 200], dtick=25, row=1, col=col)
+        figure.update_xaxes(title_text="Tempo (fs)", title_standoff=10, range=[0, 200], dtick=25, row=2, col=col)
+
     for row, col in [(1, 1), (1, 2), (2, 1), (2, 2)]:
-        figure.update_xaxes(title_text="Tempo (fs)", range=[0, 200], dtick=25, row=row, col=col)
         figure.update_yaxes(title_text="Amplitude", row=row, col=col)
 
     figure.update_layout(
-        height=760,
+        height=820,
         template="plotly_white",
-        margin=dict(l=30, r=30, t=70, b=30),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+        margin=dict(l=30, r=30, t=110, b=40),
+        legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="center", x=0.5),
     )
     return lock_figure_interaction(figure)
 
@@ -883,12 +886,12 @@ def build_mobile_active_summary(table_data):
         )
 
 
-def clone_figure_for_mobile(figure, height):
+def clone_figure_for_mobile(figure, height, top_margin=58):
         cloned = go.Figure(figure)
         cloned.update_layout(
                 height=height,
-                margin=dict(l=18, r=18, t=58, b=18),
-                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+        margin=dict(l=18, r=18, t=top_margin, b=18),
+        legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="center", x=0.5),
         )
         return cloned
 
@@ -955,7 +958,7 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
                 [
                         html.H4("Ondas, envelopes e diferenca", style={"marginBottom": "10px"}),
                         dcc.Graph(
-                                figure=clone_figure_for_mobile(main_figure, 520),
+                    figure=clone_figure_for_mobile(main_figure, 620, top_margin=88),
                             config=GRAPH_CONFIG,
                         ),
                 ]
