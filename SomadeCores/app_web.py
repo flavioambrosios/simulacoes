@@ -248,6 +248,21 @@ def format_rgb(rgb):
     return f"{rgb_to_hex(rgb)} | R={rgb[0]:.2f} G={rgb[1]:.2f} B={rgb[2]:.2f}"
 
 
+GRAPH_CONFIG = {
+    "displayModeBar": False,
+    "displaylogo": False,
+    "responsive": True,
+    "scrollZoom": False,
+    "doubleClick": False,
+}
+
+
+def lock_figure_interaction(figure):
+    figure.update_xaxes(fixedrange=True)
+    figure.update_yaxes(fixedrange=True)
+    return figure
+
+
 def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
@@ -309,7 +324,7 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
         margin=dict(l=30, r=30, t=70, b=30),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
     )
-    return figure
+    return lock_figure_interaction(figure)
 
 
 def build_intensity_figure(amps1, amps2):
@@ -356,7 +371,7 @@ def build_intensity_figure(amps1, amps2):
         margin=dict(l=30, r=30, t=60, b=30),
         showlegend=False,
     )
-    return figure
+    return lock_figure_interaction(figure)
 
 
 def build_summary(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING, freq_delta=DEFAULT_FREQ_DELTA):
@@ -406,7 +421,7 @@ def build_color_scale_figure(mode):
         bargap=0,
         showlegend=False,
     )
-    return figure
+    return lock_figure_interaction(figure)
 
 
 def build_rgb_card(amps, wave_name, stage_name, mode):
@@ -885,7 +900,7 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
                                 html.H4("Controle das amplitudes", style={"marginBottom": "10px"}),
                                 dcc.Graph(
                                         figure=clone_figure_for_mobile(intensity_figure, 300),
-                                        config={"displayModeBar": False, "responsive": True},
+                                    config=GRAPH_CONFIG,
                                 ),
                         ]
                 )
@@ -896,7 +911,7 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
                                 html.H4("Lab RGB no celular", style={"marginBottom": "10px"}),
                                 dcc.Graph(
                                         figure=clone_figure_for_mobile(scale_figure, 240),
-                                        config={"displayModeBar": False, "responsive": True},
+                                    config=GRAPH_CONFIG,
                                 ),
                                 html.Div(
                                         cards,
@@ -941,7 +956,7 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
                         html.H4("Ondas, envelopes e diferenca", style={"marginBottom": "10px"}),
                         dcc.Graph(
                                 figure=clone_figure_for_mobile(main_figure, 520),
-                                config={"displayModeBar": False, "responsive": True},
+                            config=GRAPH_CONFIG,
                         ),
                 ]
         )
@@ -1201,8 +1216,8 @@ app.layout = html.Div(
                                         html.Div(
                                             className="desktop-only graph-stack",
                                             children=[
-                                                dcc.Graph(id="intensity-graph"),
-                                                dcc.Graph(id="main-graph"),
+                                                dcc.Graph(id="intensity-graph", config=GRAPH_CONFIG),
+                                                dcc.Graph(id="main-graph", config=GRAPH_CONFIG),
                                                 html.Div(
                                                     [
                                                         html.H3("Resumo rápido"),
@@ -1316,7 +1331,7 @@ app.layout = html.Div(
                                     id="rgb-refresh-message",
                                     style={"marginTop": "10px", "fontWeight": "bold", "color": "#2563eb", "minHeight": "24px"},
                                 ),
-                                dcc.Graph(id="rgb-scale-graph"),
+                                dcc.Graph(id="rgb-scale-graph", config=GRAPH_CONFIG),
                                 html.Div(
                                     id="rgb-cards-container",
                                     style={
