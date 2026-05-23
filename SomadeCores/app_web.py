@@ -269,10 +269,7 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     envelope1 = compute_envelope(wave1, smoothing_window)
     envelope2 = compute_envelope(wave2, smoothing_window)
     diff = envelope1 - envelope2
-    if sanitize_smoothing_window(smoothing_window, len(T)) <= 1:
-        envelope_title = "Envelopes de Hilbert"
-    else:
-        envelope_title = f"Envelopes de Hilbert suavizados ({sanitize_smoothing_window(smoothing_window, len(T))} pts)"
+    envelope_title = "Envelopes"
 
     figure = make_subplots(
         rows=2,
@@ -281,7 +278,7 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
             "Onda 1",
             "Onda 2",
             envelope_title,
-            "Diferença entre os envelopes",
+            "Diferença",
         ),
         vertical_spacing=0.22,
         horizontal_spacing=0.12,
@@ -319,7 +316,7 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
         figure.update_xaxes(title_text="Tempo (fs)", title_standoff=10, range=[0, 200], dtick=25, row=2, col=col)
 
     for row, col in [(1, 1), (1, 2), (2, 1), (2, 2)]:
-        figure.update_yaxes(title_text="Amplitude", row=row, col=col)
+        figure.update_yaxes(row=row, col=col)
 
     figure.update_layout(
         height=820,
@@ -388,6 +385,8 @@ def build_summary(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING, freq_delta=D
             html.Li(f"Pico da Onda 1: {np.max(np.abs(wave1)):.3f}"),
             html.Li(f"Pico da Onda 2: {np.max(np.abs(wave2)):.3f}"),
             html.Li(f"Diferença máxima entre envelopes: {max_diff:.3f}"),
+            html.Li("Envelopes: comparam a intensidade instantânea das duas ondas após o cálculo de Hilbert."),
+            html.Li("Diferença: mostra quanto os envelopes ainda estão afastados em cada instante de tempo."),
             html.Li(f"Componentes ativas na Onda 1: {int(np.sum(np.abs(amps1) > 1e-12))}"),
             html.Li(f"Componentes ativas na Onda 2: {int(np.sum(np.abs(amps2) > 1e-12))}"),
             html.Li(f"Suavização de Hilbert: {sanitize_smoothing_window(smoothing_window, len(T))} ponto(s)"),
