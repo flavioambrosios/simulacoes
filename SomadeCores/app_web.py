@@ -265,8 +265,8 @@ def has_valid_optimization_result(current1, current2, history_data):
     return (
         after1.shape == current1.shape
         and after2.shape == current2.shape
-        and np.allclose(current1, after1, atol=1e-9)
-        and np.allclose(current2, after2, atol=1e-9)
+        and np.allclose(current1, after1, atol=1e-12)
+        and np.allclose(current2, after2, atol=1e-12)
     )
 
 
@@ -1602,25 +1602,28 @@ def handle_actions(
         smoothing_window=smoothing_window,
         freq_delta=freq_delta,
     )
+    optimized_table = amps_to_table_data(optimized1, optimized2)
+    displayed1, displayed2 = table_data_to_amps(optimized_table)
+    displayed_diff = max_envelope_difference(displayed1, displayed2, smoothing_window)
     history = {
         "before1": amps1.tolist(),
         "before2": amps2.tolist(),
-        "after1": optimized1.tolist(),
-        "after2": optimized2.tolist(),
-        "after_diff": float(final_diff),
+        "after1": displayed1.tolist(),
+        "after2": displayed2.tolist(),
+        "after_diff": float(displayed_diff),
         "has_optimization": True,
     }
 
-    if reason == "target" or final_diff <= TARGET_DIFF:
-        status = f"Concluído: diferença máxima entre envelopes = {final_diff:.4f}"
-    elif reason == "limit":
-        status = f"Parada pelo limite de {int(max_iterations)} iterações. Diferença = {final_diff:.4f}"
-    elif reason == "blocked":
+    if reason == "blocked":
         status = "Nenhuma frequência ficou disponível para variar na janela escolhida."
+    elif displayed_diff <= TARGET_DIFF:
+        status = f"Concluído: diferença máxima entre envelopes = {displayed_diff:.4f}"
+    elif reason == "limit":
+        status = f"Parada pelo limite de {int(max_iterations)} iterações. Diferença = {displayed_diff:.4f}"
     else:
-        status = f"Otimização parcial: diferença máxima = {final_diff:.4f}"
+        status = f"Otimização parcial: diferença máxima = {displayed_diff:.4f}"
 
-    return amps_to_table_data(optimized1, optimized2), history, status
+    return optimized_table, history, status
 
 
 @app.callback(
