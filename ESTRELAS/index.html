@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evolução Estelar – Material Interativo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page-shell">
+    <header class="hero">
+        <p class="hero-kicker">Astronomia e astrofísica</p>
+        <h1>🌌 Evolução Estelar – Conteúdo Interativo</h1>
+        <p class="hero-summary">
+            Um painel único para estudar teoria, diagramas HR, pulsares, fusão nuclear e comparações de escala estelar
+            sem sair da mesma página.
+        </p>
+    </header>
+
+    <div class="tab-container">
+        <div class="intro">
+            Este material foi organizado para ajudar você a estudar evolução estelar de forma guiada.
+            Use a aba Teoria como texto-base de consulta e, ao longo da leitura, abra as abas com gráficos e figuras para visualizar cada ideia física.
+        </div>
+        <div class="tab-strip">
+            <div class="tabs" id="tab-buttons"></div>
+        </div>
+        <div id="tab-contents"></div>
+    </div>
+</div>
+
+<script>
+    // Definição das abas usando apenas arquivos existentes na pasta local.
+    const tabs = [
+        {
+            label: "Teoria",
+            type: "theory",
+            title: "Fundamentação teórica da evolução estelar",
+            content: [
+                '<div class="theory-layout">',
+                '<div class="theory-main">',
+                '<h3>Teoria para orientar seu estudo</h3>',
+                '<p>Esta aba foi escrita para conversar diretamente com você, estudante. A ideia é que ela funcione como um texto de apoio para estudo dirigido: você lê uma explicação, observa uma figura ou gráfico relacionado e volta ao texto com uma compreensão mais clara do fenômeno.</p>',
+                '<p>Ao longo da leitura, aparecem indicações como <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Barreira Coulombiana\'); return false;">veja a aba Barreira Coulombiana</a>. Use essas passagens como convite para comparar teoria e visualização.</p>',
+                '<section>',
+                '<h4>1. O que define a vida de uma estrela?</h4>',
+                '<p>Uma estrela nasce quando uma grande nuvem de gás e poeira sofre colapso gravitacional. A gravidade tende a puxar a matéria para o centro, comprimindo e aquecendo o gás. Esse processo continua até que a temperatura e a pressão centrais se tornem suficientemente altas para iniciar reações de fusão nuclear.</p>',
+                '<p>O ponto central é o seguinte: a estrela existe como um equilíbrio entre duas tendências opostas. A gravidade tenta contrair a estrela; a energia liberada pela fusão aquece o plasma e contribui para sustentar camadas internas e externas. Esse estado recebe o nome de equilíbrio hidrostático.</p>',
+                '<div class="theory-highlight"><strong>Ideia-chave:</strong> a estrela não é um objeto parado, mas um sistema em equilíbrio dinâmico. Quando esse equilíbrio muda, a estrela evolui.</div>',
+                '<p>Para começar a visualizar o problema da estabilidade, veja também a aba <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Energia da Fusão\'); return false;">Energia da Fusão</a>.</p>',
+                '</section>',
+                '<section>',
+                '<h4>2. Por que a fusão nuclear é tão importante?</h4>',
+                '<p>Núcleos atômicos possuem carga elétrica positiva. Por isso, tendem a se repelir. Para que dois núcleos se aproximem o bastante e se fundam, é preciso superar a repulsão elétrica chamada barreira coulombiana. Em estrelas, isso acontece porque o interior atinge temperaturas extremamente elevadas e porque efeitos quânticos, como o tunelamento, aumentam a chance de fusão mesmo quando a energia clássica pareceria insuficiente.</p>',
+                '<div class="theory-equation">E = m . c<sup>2</sup></div>',
+                '<p>Nessa expressão, <strong>E</strong> representa energia, <strong>m</strong> representa massa e <strong>c</strong> é a velocidade da luz. A ideia física é simples e poderosa: uma pequena quantidade de massa pode se transformar em uma enorme quantidade de energia.</p>',
+                '<p>As imagens das abas <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Barreira Coulombiana\'); return false;">Barreira Coulombiana</a>, <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Pico de Gamow\'); return false;">Pico de Gamow</a> e <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Energia x Temperatura\'); return false;">Energia x Temperatura</a> ajudam a mostrar justamente essa transição: a natureza precisa encontrar uma forma de fazer os núcleos chegarem perto o suficiente para que a força nuclear forte passe a dominar.</p>',
+                '</section>',
+                '<section>',
+                '<h4>3. Massa: a variável mais importante da evolução estelar</h4>',
+                '<p>Se fosse necessário escolher uma única grandeza para prever a história de uma estrela, a melhor candidata seria a massa inicial. Estrelas mais massivas têm maior compressão gravitacional no núcleo, atingem temperaturas centrais maiores e, por isso, consomem combustível nuclear muito mais rapidamente.</p>',
+                '<p>Isso cria um resultado que costuma surpreender estudantes: estrelas maiores vivem menos. Embora tenham mais combustível, elas o gastam em ritmo muito mais intenso. Já estrelas menos massivas brilham menos intensamente e podem permanecer ativas por tempos muito mais longos.</p>',
+                '<div class="theory-equation">tempo de vida ≈ combustível disponível / ritmo de consumo</div>',
+                '<p>Mesmo sem usar matemática avançada, essa relação ajuda bastante. Se o consumo cresce muito, o tempo de vida diminui. Agora compare essa ideia com as abas <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Tempo de Vida\'); return false;">Tempo de Vida</a>, <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Tempo de Vida Linear\'); return false;">Tempo de Vida Linear</a> e <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Tempo de Vida Log\'); return false;">Tempo de Vida Log</a>.</p>',
+                '<p>Se você quiser uma comparação visual direta entre estrelas menores que o Sol, o próprio Sol e estrelas muito maiores, veja a aba <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Escala Estelar\'); return false;">Escala Estelar</a>.</p>',
+                '<div class="theory-question"><strong>Pergunta para discussão:</strong> por que um carro com tanque maior pode ter autonomia menor se o motor consumir combustível muito mais rapidamente? Essa comparação ajuda a interpretar os gráficos de tempo de vida estelar.</div>',
+                '</section>',
+                '<section>',
+                '<h4>4. O que o diagrama HR revela?</h4>',
+                '<p>O diagrama de Hertzsprung-Russell organiza estrelas de acordo com luminosidade, temperatura e, indiretamente, estágio evolutivo. Ele não é apenas um gráfico; é quase um mapa da vida estelar.</p>',
+                '<p>Na sequência principal, as estrelas passam a maior parte de sua existência fundindo hidrogênio em hélio no núcleo. Quando o hidrogênio central se esgota, a estrutura interna muda, e a estrela se desloca no diagrama. Dependendo da massa, ela pode se tornar gigante vermelha, supergigante, anã branca, estrela de nêutrons ou até evoluir para um buraco negro após eventos mais extremos.</p>',
+                '<div class="theory-equation">Luminosidade = energia emitida por segundo</div>',
+                '<p>Os diagramas HR do painel permitem relacionar posição no gráfico com estado físico interno: temperatura superficial, brilho observado e fase evolutiva não são dados isolados; contam uma história conjunta. Veja a aba <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'HR Massivas\'); return false;">HR Massivas</a>.</p>',
+                '</section>',
+                '<section>',
+                '<h4>5. Estrelas massivas e o destino extremo</h4>',
+                '<p>Estrelas muito massivas conseguem fundir elementos progressivamente mais pesados em seu interior, em camadas sucessivas. Porém, esse processo encontra um limite físico importante: a fusão de ferro não libera energia líquida para sustentar a estrela. Quando o núcleo se torna dominado por ferro, a sustentação energética entra em colapso.</p>',
+                '<p>Nesse cenário, o núcleo pode colapsar violentamente, levando a uma supernova. Dependendo da massa remanescente, o resultado pode ser uma estrela de nêutrons ou um buraco negro. Esse trecho da evolução mostra como a astrofísica conecta termodinâmica, mecânica quântica, gravitação e estrutura da matéria. Para enxergar como a massa influencia os tempos de evolução, veja também a aba <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Tempo Restante\'); return false;">Tempo Restante</a>.</p>',
+                '</section>',
+                '<section>',
+                '<h4>6. Pulsares: faróis cósmicos</h4>',
+                '<p>Um pulsar é, em geral, uma estrela de nêutrons altamente magnetizada e em rotação. O campo magnético canaliza emissão eletromagnética em feixes. Se esses feixes cruzam a direção da Terra periodicamente, observamos pulsos regulares, como se fosse um farol cósmico.</p>',
+                '<div class="theory-equation">v = 2 . π . R / T</div>',
+                '<p>Essa relação mostra uma ideia importante da rotação: quanto menor o período <strong>T</strong>, mais rapidamente um ponto da superfície gira. No caso dos pulsares, os períodos podem ser extremamente pequenos, o que ajuda a explicar a regularidade dos pulsos observados.</p>',
+                '<p>O diagrama P-Pdot representa duas grandezas centrais: o período de rotação <strong>P</strong> e a taxa de variação desse período, indicada por <strong>P ponto</strong>. Com ele, podemos inferir idade característica, intensidade aproximada do campo magnético e classes de objetos, como pulsares comuns, pulsares de milissegundo e magnetars. Veja as abas <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Farol Cósmico\'); return false;">Farol Cósmico</a>, <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Sinal do Farol\'); return false;">Sinal do Farol</a>, <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Rotação do Pulsar\'); return false;">Rotação do Pulsar</a>, <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Pulsar 3D\'); return false;">Pulsar 3D</a> e <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Diagrama P-Pdot\'); return false;">Diagrama P-Pdot</a>.</p>',
+                '<p>Esse é um excelente exemplo de como um gráfico permite extrair física: a observação do sinal não fica restrita ao aspecto visual; ela revela propriedades internas e históricas do objeto.</p>',
+                '</section>',
+                '<section>',
+                '<h4>7. Como ler este painel com olhar científico</h4>',
+                '<p>O ideal é usar a aba teórica em conjunto com as demais abas visuais. Em vez de apenas mostrar uma figura, tente responder a três perguntas para cada gráfico:</p>',
+                '<ol>',
+                '<li>Quais grandezas físicas estão sendo comparadas?</li>',
+                '<li>Que tendência geral o gráfico sugere?</li>',
+                '<li>Que explicação física pode justificar essa tendência?</li>',
+                '</ol>',
+                '<p>Esse procedimento ajuda a transformar observação em interpretação. É exatamente esse passo que diferencia olhar um gráfico de realmente compreender o que ele comunica.</p>',
+                '</section>',
+                '<section>',
+                '<h4>8. Síntese conceitual</h4>',
+                '<p>A evolução estelar pode ser entendida como a história do confronto entre gravidade, pressão, temperatura, composição química e produção de energia. A massa inicial determina as condições centrais, essas condições definem o ritmo das reações nucleares, e esse ritmo controla a luminosidade, o tempo de vida e o destino final da estrela.</p>',
+                '<p>Por isso, cada figura do painel não representa um tema isolado. Todas elas são partes de uma mesma narrativa física: como a matéria interestelar pode dar origem a objetos capazes de produzir luz, elementos químicos e fenômenos extremos observáveis em escala cósmica.</p>',
+                '</section>',
+                '</div>',
+                '<aside class="theory-side">',
+                '<h3>Como estudar esta página</h3>',
+                '<ul>',
+                '<li>Comece pela seção 1 e tente resumir, com suas palavras, o que mantém uma estrela estável.</li>',
+                '<li>Abra as abas indicadas no texto sempre que aparecer a expressão veja a aba.</li>',
+                '<li>Compare dois gráficos diferentes e pergunte o que muda e o que permanece igual.</li>',
+                '<li>Use o vocabulário essencial para revisar os principais conceitos antes de uma atividade ou avaliação.</li>',
+                '<li>No final, tente responder sem consultar o texto às perguntas de autoavaliação.</li>',
+                '</ul>',
+                '<h3>Vocabulário essencial</h3>',
+                '<ul>',
+                '<li><strong>Equilíbrio hidrostático:</strong> balanço entre gravidade e pressão interna.</li>',
+                '<li><strong>Fusão nuclear:</strong> união de núcleos leves com liberação de energia.</li>',
+                '<li><strong>Barreira coulombiana:</strong> repulsão elétrica entre núcleos positivos.</li>',
+                '<li><strong>Diagrama HR:</strong> gráfico que relaciona luminosidade e temperatura estelar.</li>',
+                '<li><strong>Pulsar:</strong> estrela de nêutrons em rotação com emissão periódica observável.</li>',
+                '</ul>',
+                '<h3>Perguntas para você se testar</h3>',
+                '<ul>',
+                '<li>Se a gravidade só puxa para dentro, o que impede a estrela de desabar?</li>',
+                '<li>Por que aumentar a temperatura favorece a fusão nuclear?</li>',
+                '<li>Por que estrelas mais massivas têm vida mais curta?</li>',
+                '<li>O que a posição de uma estrela no diagrama HR sugere sobre sua fase evolutiva?</li>',
+                '<li>Como um gráfico como o P-Pdot pode revelar propriedades não visíveis diretamente?</li>',
+                '</ul>',
+                '<h3>Referências confiáveis</h3>',
+                '<ul>',
+                '<li><a href="https://science.nasa.gov/universe/stars/" target="_blank" rel="noopener noreferrer">NASA Science: Stars</a></li>',
+                '<li><a href="https://esahubble.org/science/" target="_blank" rel="noopener noreferrer">ESA/Hubble: Science Topics</a></li>',
+                '<li><a href="https://openstax.org/details/books/astronomy-2e" target="_blank" rel="noopener noreferrer">OpenStax Astronomy 2e</a></li>',
+                '<li><a href="https://imagine.gsfc.nasa.gov/science/objects/neutron_stars1.html" target="_blank" rel="noopener noreferrer">NASA Imagine the Universe: Neutron Stars and Pulsars</a></li>',
+                '<li><a href="https://skyandtelescope.org/astronomy-resources/" target="_blank" rel="noopener noreferrer">Sky & Telescope: Astronomy Resources</a></li>',
+                '<li><a href="https://www.iau.org/public/themes/stars/" target="_blank" rel="noopener noreferrer">International Astronomical Union: Stars</a></li>',
+                '</ul>',
+                '</aside>',
+                '</div>'
+            ].join('')
+        },
+        {
+            label: "Escala Estelar",
+            type: "custom",
+            title: "Comparação visual entre estrelas menores e maiores que o Sol",
+            content: [
+                '<div class="star-scale-layout">',
+                '<div class="star-scale-card">',
+                '<h3>Comparando estrelas: menores que o Sol, o Sol e gigantes estelares</h3>',
+                '<p class="star-scale-note">Esta figura foi construída para ajudar você a formar uma intuição visual sobre o tamanho relativo de diferentes estrelas. Os desenhos abaixo são <strong>representações didáticas</strong>: preservam a ideia de menor, semelhante e muito maior que o Sol, mas não seguem escala linear exata de tela, porque as estrelas gigantes ficariam grandes demais para caber bem na página.</p>',
+                '<div class="star-visual-grid">',
+                '<div class="star-visual-item">',
+                '<div class="star-figure-wrap"><div class="star-figure star-red-dwarf"></div></div>',
+                '<p class="star-caption"><strong>Anã vermelha</strong><br>Exemplo: Próxima Centauri<br>Raio aproximado: 0,15 R☉</p>',
+                '</div>',
+                '<div class="star-visual-item">',
+                '<div class="star-figure-wrap"><div class="star-figure star-sun"></div></div>',
+                '<p class="star-caption"><strong>Sol</strong><br>Referência do sistema solar<br>Raio: 1 R☉</p>',
+                '</div>',
+                '<div class="star-visual-item">',
+                '<div class="star-figure-wrap"><div class="star-figure star-sirius"></div></div>',
+                '<p class="star-caption"><strong>Estrela maior que o Sol</strong><br>Exemplo: Sirius A<br>Raio aproximado: 1,7 R☉</p>',
+                '</div>',
+                '<div class="star-visual-item">',
+                '<div class="star-figure-wrap"><div class="star-figure star-rigel"></div></div>',
+                '<p class="star-caption"><strong>Supergigante azul</strong><br>Exemplo: Rigel<br>Raio aproximado: 79 R☉</p>',
+                '</div>',
+                '<div class="star-visual-item">',
+                '<div class="star-figure-wrap"><div class="star-figure star-betelgeuse"></div></div>',
+                '<p class="star-caption"><strong>Supergigante vermelha</strong><br>Exemplo: Betelgeuse<br>Raio aproximado: 764 R☉</p>',
+                '</div>',
+                '</div>',
+                '</div>',
+                '<div class="star-scale-card">',
+                '<h3>Comparação por raio em relação ao Sol</h3>',
+                '<p class="star-scale-note">Aqui, o Sol vale 1. Quando dizemos que uma estrela tem 79 R☉, isso significa que seu raio é cerca de 79 vezes o raio solar.</p>',
+                '<div class="star-bars">',
+                '<div class="star-bar-row"><strong>Próxima Centauri</strong><div class="star-bar-track"><div class="star-bar-fill" style="width: 4%;"></div></div></div>',
+                '<div class="star-bar-row"><strong>Sol</strong><div class="star-bar-track"><div class="star-bar-fill" style="width: 10%;"></div></div></div>',
+                '<div class="star-bar-row"><strong>Sirius A</strong><div class="star-bar-track"><div class="star-bar-fill" style="width: 17%;"></div></div></div>',
+                '<div class="star-bar-row"><strong>Rigel</strong><div class="star-bar-track"><div class="star-bar-fill" style="width: 58%;"></div></div></div>',
+                '<div class="star-bar-row"><strong>Betelgeuse</strong><div class="star-bar-track"><div class="star-bar-fill" style="width: 100%;"></div></div></div>',
+                '</div>',
+                '<p class="star-scale-note">Observe que, à medida que saímos de estrelas pequenas para gigantes e supergigantes, a diferença de tamanho cresce de forma impressionante. Isso ajuda a explicar por que o diagrama HR e os gráficos de evolução estelar mostram comportamentos tão distintos para estrelas de massas diferentes. Depois desta comparação, vale abrir novamente as abas <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'HR Massivas\'); return false;">HR Massivas</a> e <a href="#" class="theory-link-inline" onclick="openTabByLabel(\'Tempo de Vida\'); return false;">Tempo de Vida</a>.</p>',
+                '</div>',
+                '</div>'
+            ].join('')
+        },
+        { label: "Energia da Fusão", type: "image", file: "EnergiaFausaoEstrela.png", title: "Energia da fusão estelar" },
+        { label: "Energia x Temperatura", type: "image", file: "EnergiaTemeraturaFusaoEstrela.png", title: "Energia e temperatura da fusão" },
+        { label: "Barreira Coulombiana", type: "image", file: "BarreiraCoulombiana.png", title: "Barreira coulombiana" },
+        { label: "Pico de Gamow", type: "image", file: "PicodeGamow.png", title: "Pico de Gamow" },
+        { label: "Farol Cósmico", type: "image", file: "FarolCosmico.png", title: "Esquema do farol cósmico" },
+        { label: "Sinal do Farol", type: "image", file: "SinalFarolCosmico.png", title: "Sinal observado do pulsar" },
+        { label: "Tempo de Vida", type: "image", file: "TempodeVidadasEstrelas.png", title: "Tempo de vida das estrelas" },
+        { label: "Tempo de Vida Linear", type: "image", file: "TempodeVidadasEstrelasLinear.png", title: "Tempo de vida em escala linear" },
+        { label: "Tempo de Vida Log", type: "image", file: "TempodeVidadasEstrelasLinearLog.png", title: "Tempo de vida em escala logarítmica" },
+        { label: "Pulsar 3D", type: "html", file: "pulsar_3d.html", title: "Modelo 3D do pulsar" },
+        { label: "Diagrama P-Pdot", type: "html", file: "diagrama_ppdot.html", title: "Diagrama P-Pdot" },
+        { label: "Rotação do Pulsar", type: "html", file: "pulsar_rotacao.html", title: "Rotação do pulsar" },
+        { label: "HR Massivas", type: "html", file: "diagrama_hr_massivas.html", title: "Diagrama HR para estrelas massivas" },
+        { label: "Tempo Restante", type: "html", file: "tempo_vida_restante.html", title: "Tempo de vida restante" }
+    ];
+
+    const tabButtonsContainer = document.getElementById('tab-buttons');
+    const tabContentsContainer = document.getElementById('tab-contents');
+
+    function tabSlug(label) {
+        return label
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
+    function getInitialTabIndex() {
+        const currentHash = window.location.hash.replace(/^#/, '');
+        if (!currentHash) {
+            return 0;
+        }
+
+        const index = tabs.findIndex((tab) => tabSlug(tab.label) === currentHash);
+        return index >= 0 ? index : 0;
+    }
+
+    function renderContent(tab) {
+        if (tab.content) {
+            return tab.content;
+        }
+
+        const fileLink = '<a class="file-link" href="' + tab.file + '" target="_blank" rel="noopener noreferrer">Abrir arquivo em outra aba</a>';
+
+        if (tab.type === 'html') {
+            return [
+                '<h3 class="viewer-title">' + tab.title + '</h3>',
+                '<p class="viewer-note">Página interativa carregada a partir do arquivo local ' + tab.file + '.</p>',
+                fileLink,
+                '<iframe class="media-frame" src="' + tab.file + '" title="' + tab.title + '" loading="lazy"></iframe>'
+            ].join('');
+        }
+
+        if (tab.type === 'image') {
+            return [
+                '<h3 class="viewer-title">' + tab.title + '</h3>',
+                '<p class="viewer-note">Imagem gerada localmente a partir do arquivo ' + tab.file + '.</p>',
+                fileLink,
+                '<img class="media-image" src="' + tab.file + '" alt="' + tab.title + '" loading="lazy" onerror="this.outerHTML=\'<div class=&quot;missing-file&quot;>Não foi possível abrir a imagem ' + tab.file + '. Verifique se o arquivo continua nesta pasta.</div>\'">'
+            ].join('');
+        }
+
+        return '<div class="missing-file">Tipo de conteúdo não reconhecido.</div>';
+    }
+
+    tabs.forEach((tab, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-button';
+        btn.textContent = tab.label;
+        btn.addEventListener('click', () => switchTab(index));
+        tabButtonsContainer.appendChild(btn);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'tab-content';
+        contentDiv.innerHTML = renderContent(tab);
+        tabContentsContainer.appendChild(contentDiv);
+    });
+
+    function switchTab(index, options = {}) {
+        if (index < 0 || index >= tabs.length) {
+            return;
+        }
+
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-button')[index].classList.add('active');
+        document.querySelectorAll('.tab-content')[index].classList.add('active');
+
+        if (!options.skipHash) {
+            history.replaceState(null, '', '#' + tabSlug(tabs[index].label));
+        }
+
+        if (options.scrollToTop) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
+    function openTabByLabel(label) {
+        const index = tabs.findIndex(tab => tab.label === label);
+        if (index >= 0) {
+            switchTab(index, { scrollToTop: true });
+        }
+    }
+
+    switchTab(getInitialTabIndex(), { skipHash: true });
+
+    window.addEventListener('hashchange', () => {
+        const index = getInitialTabIndex();
+        switchTab(index, { skipHash: true });
+    });
+</script>
+
+</body>
+</html>
