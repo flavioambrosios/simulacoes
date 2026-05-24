@@ -79,6 +79,12 @@ def smooth_signal(signal, smoothing_window):
     return np.convolve(padded, kernel, mode="valid")
 
 
+def optimization_smoothing_window(smoothing_window):
+    base_window = sanitize_smoothing_window(smoothing_window, len(T))
+    scaled_window = max(1, int(round(base_window * len(T_OPT) / len(T))))
+    return sanitize_smoothing_window(scaled_window, len(T_OPT))
+
+
 def compute_envelope(wave, smoothing_window=DEFAULT_SMOOTHING):
     envelope = np.abs(hilbert(wave))
     return smooth_signal(envelope, smoothing_window)
@@ -95,8 +101,9 @@ def max_envelope_difference(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
 def max_envelope_difference_fast(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     wave1 = generate_wave(amps1, BASIS_OPT)
     wave2 = generate_wave(amps2, BASIS_OPT)
+    optimization_window = optimization_smoothing_window(smoothing_window)
     return float(np.max(np.abs(
-        compute_envelope(wave1, smoothing_window) - compute_envelope(wave2, smoothing_window)
+        compute_envelope(wave1, optimization_window) - compute_envelope(wave2, optimization_window)
     )))
 
 
@@ -560,9 +567,8 @@ def optimize_amplitudes(
             options={"maxiter": int(max_iterations)},
         )
         final_amps1, final_amps2 = merge_optimized_values(result.x, initial_amps1, initial_amps2, optimize_masks)
-        fast_diff = max_envelope_difference_fast(final_amps1, final_amps2, smoothing_window)
         final_diff = max_envelope_difference(final_amps1, final_amps2, smoothing_window)
-        if fast_diff <= TARGET_DIFF or final_diff <= TARGET_DIFF:
+        if final_diff <= TARGET_DIFF:
             reason = "target"
         elif getattr(result, "nit", 0) >= max_iterations:
             reason = "limit"
