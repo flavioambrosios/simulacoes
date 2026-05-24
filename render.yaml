@@ -5,3 +5,9 @@ services:
     rootDir: SomadeCores
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app_web:server
+  - type: web
+    name: estrelas-web
+    runtime: static
+    rootDir: ESTRELAS
+    buildCommand: echo "Static site ready"
+    staticPublishPath: ESTRELAS
