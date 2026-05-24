@@ -24,6 +24,7 @@ BASIS_OPT = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T_OPT[None, :])
 MAX_FREQ_DELTA = int(FREQS[-1] - FREQS[0])
 DEFAULT_SMOOTHING = 1
 DEFAULT_FREQ_DELTA = MAX_FREQ_DELTA
+TABLE_DECIMALS = 3
 
 
 def clamp_amp(value):
@@ -38,8 +39,8 @@ def amps_to_table_data(amps1, amps2):
     return [
         {
             "frequencia": int(freq),
-            "onda1": round(float(amp1), 1),
-            "onda2": round(float(amp2), 1),
+            "onda1": round(float(amp1), TABLE_DECIMALS),
+            "onda2": round(float(amp2), TABLE_DECIMALS),
         }
         for freq, amp1, amp2 in zip(FREQS, amps1, amps2)
     ]
@@ -533,9 +534,12 @@ def optimize_amplitudes(
         amps1, amps2 = merge_optimized_values(xk, initial_amps1, initial_amps2, optimize_masks)
         current_diff = max_envelope_difference_fast(amps1, amps2, smoothing_window)
         if current_diff <= TARGET_DIFF:
-            raise OptimizationStopped(xk, current_diff, "target")
+            displayed_diff = max_envelope_difference(amps1, amps2, smoothing_window)
+            if displayed_diff <= TARGET_DIFF:
+                raise OptimizationStopped(xk, displayed_diff, "target")
         if iteration_counter["count"] >= max_iterations:
-            raise OptimizationStopped(xk, current_diff, "limit")
+            displayed_diff = max_envelope_difference(amps1, amps2, smoothing_window)
+            raise OptimizationStopped(xk, displayed_diff, "limit")
 
     x0 = np.concatenate([initial_amps1[optimize_mask1], initial_amps2[optimize_mask2]])
     bounds = [(AMP_MIN, AMP_MAX) for _ in range(free_count)]
@@ -543,7 +547,8 @@ def optimize_amplitudes(
     initial_diff = max_envelope_difference_fast(initial_amps1, initial_amps2, smoothing_window)
     if initial_diff <= TARGET_DIFF:
         final_diff = max_envelope_difference(initial_amps1, initial_amps2, smoothing_window)
-        return initial_amps1.copy(), initial_amps2.copy(), final_diff, "target"
+        if final_diff <= TARGET_DIFF:
+            return initial_amps1.copy(), initial_amps2.copy(), final_diff, "target"
 
     try:
         result = minimize(
@@ -565,7 +570,7 @@ def optimize_amplitudes(
             reason = "partial"
     except OptimizationStopped as stopped:
         final_amps1, final_amps2 = merge_optimized_values(stopped.amps_flat, initial_amps1, initial_amps2, optimize_masks)
-        final_diff = stopped.diff
+        final_diff = max_envelope_difference(final_amps1, final_amps2, smoothing_window)
         reason = stopped.reason
 
     return final_amps1, final_amps2, final_diff, reason
@@ -1578,8 +1583,8 @@ def handle_actions(
         current_frequency = int(mobile_frequency or FREQS[0])
         updated_table = [dict(row) for row in table_data]
         selected_index = int(np.where(FREQS == current_frequency)[0][0])
-        updated_table[selected_index]["onda1"] = round(clamp_amp(mobile_amp1), 1)
-        updated_table[selected_index]["onda2"] = round(clamp_amp(mobile_amp2), 1)
+        updated_table[selected_index]["onda1"] = round(clamp_amp(mobile_amp1), TABLE_DECIMALS)
+        updated_table[selected_index]["onda2"] = round(clamp_amp(mobile_amp2), TABLE_DECIMALS)
         status = f"Frequência {current_frequency} THz atualizada pelo editor móvel."
         return updated_table, history_data, status
 
