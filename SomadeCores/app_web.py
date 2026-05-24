@@ -109,11 +109,11 @@ def format_frequency_delta(freq_delta):
     return f"+-{int(freq_delta)} THz"
 
 
-def build_optimization_mask(initial_amps1, initial_amps2, freq_delta):
+def build_single_wave_optimization_mask(initial_amps, freq_delta):
     if is_frequency_delta_unrestricted(freq_delta):
         return np.ones(N_FREQS, dtype=bool)
 
-    active_mask = (np.abs(initial_amps1) > 1e-12) | (np.abs(initial_amps2) > 1e-12)
+    active_mask = np.abs(initial_amps) > 1e-12
     if not np.any(active_mask):
         return np.ones(N_FREQS, dtype=bool)
 
@@ -122,12 +122,20 @@ def build_optimization_mask(initial_amps1, initial_amps2, freq_delta):
     return np.min(distances, axis=1) <= int(freq_delta)
 
 
-def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_mask):
-    free_count = int(np.sum(optimize_mask))
+def build_optimization_masks(initial_amps1, initial_amps2, freq_delta):
+    return (
+        build_single_wave_optimization_mask(initial_amps1, freq_delta),
+        build_single_wave_optimization_mask(initial_amps2, freq_delta),
+    )
+
+
+def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_masks):
+    optimize_mask1, optimize_mask2 = optimize_masks
+    free_count1 = int(np.sum(optimize_mask1))
     amps1 = base_amps1.copy()
     amps2 = base_amps2.copy()
-    amps1[optimize_mask] = optimized_values[:free_count]
-    amps2[optimize_mask] = optimized_values[free_count:]
+    amps1[optimize_mask1] = optimized_values[:free_count1]
+    amps2[optimize_mask2] = optimized_values[free_count1:]
     return amps1, amps2
 
 
@@ -246,6 +254,20 @@ def rgb_to_hex(rgb):
 
 def format_rgb(rgb):
     return f"{rgb_to_hex(rgb)} | R={rgb[0]:.2f} G={rgb[1]:.2f} B={rgb[2]:.2f}"
+
+
+def has_valid_optimization_result(current1, current2, history_data):
+    if not history_data or not bool(history_data.get("has_optimization", False)):
+        return False
+
+    after1 = np.array(history_data.get("after1", current1.tolist()), dtype=float)
+    after2 = np.array(history_data.get("after2", current2.tolist()), dtype=float)
+    return (
+        after1.shape == current1.shape
+        and after2.shape == current2.shape
+        and np.allclose(current1, after1, atol=1e-9)
+        and np.allclose(current2, after2, atol=1e-9)
+    )
 
 
 GRAPH_CONFIG = {
@@ -457,6 +479,26 @@ def build_rgb_card(amps, wave_name, stage_name, mode):
     )
 
 
+def build_pending_rgb_card(wave_name, stage_name):
+    return html.Div(
+        [
+            html.Strong(f"{wave_name} | {stage_name}"),
+            html.Div("Aguardando otimização", style={"marginTop": "6px"}),
+            html.Div("Este cartão só é preenchido depois que a otimização é executada.", style={"marginTop": "10px"}),
+        ],
+        style={
+            "background": "#e2e8f0",
+            "color": "#334155",
+            "padding": "16px",
+            "borderRadius": "12px",
+            "border": "1px dashed rgba(51, 65, 85, 0.35)",
+            "boxShadow": "0 8px 18px rgba(15, 23, 42, 0.04)",
+            "lineHeight": "1.6",
+            "minHeight": "140px",
+        },
+    )
+
+
 def optimize_amplitudes(
     initial_amps1,
     initial_amps2,
@@ -470,30 +512,33 @@ def optimize_amplitudes(
             self.diff = diff
             self.reason = reason
 
-    optimize_mask = build_optimization_mask(initial_amps1, initial_amps2, freq_delta)
-    free_count = int(np.sum(optimize_mask))
+    optimize_masks = build_optimization_masks(initial_amps1, initial_amps2, freq_delta)
+    optimize_mask1, optimize_mask2 = optimize_masks
+    free_count1 = int(np.sum(optimize_mask1))
+    free_count2 = int(np.sum(optimize_mask2))
+    free_count = free_count1 + free_count2
 
     if free_count == 0:
         final_diff = max_envelope_difference(initial_amps1, initial_amps2, smoothing_window)
         return initial_amps1.copy(), initial_amps2.copy(), final_diff, "blocked"
 
     def cost_function(amps_flat):
-        amps1, amps2 = merge_optimized_values(amps_flat, initial_amps1, initial_amps2, optimize_mask)
+        amps1, amps2 = merge_optimized_values(amps_flat, initial_amps1, initial_amps2, optimize_masks)
         return max_envelope_difference_fast(amps1, amps2, smoothing_window)
 
     iteration_counter = {"count": 0}
 
     def iteration_callback(xk):
         iteration_counter["count"] += 1
-        amps1, amps2 = merge_optimized_values(xk, initial_amps1, initial_amps2, optimize_mask)
+        amps1, amps2 = merge_optimized_values(xk, initial_amps1, initial_amps2, optimize_masks)
         current_diff = max_envelope_difference_fast(amps1, amps2, smoothing_window)
         if current_diff <= TARGET_DIFF:
             raise OptimizationStopped(xk, current_diff, "target")
         if iteration_counter["count"] >= max_iterations:
             raise OptimizationStopped(xk, current_diff, "limit")
 
-    x0 = np.concatenate([initial_amps1[optimize_mask], initial_amps2[optimize_mask]])
-    bounds = [(AMP_MIN, AMP_MAX) for _ in range(2 * free_count)]
+    x0 = np.concatenate([initial_amps1[optimize_mask1], initial_amps2[optimize_mask2]])
+    bounds = [(AMP_MIN, AMP_MAX) for _ in range(free_count)]
 
     initial_diff = max_envelope_difference_fast(initial_amps1, initial_amps2, smoothing_window)
     if initial_diff <= TARGET_DIFF:
@@ -509,7 +554,7 @@ def optimize_amplitudes(
             callback=iteration_callback,
             options={"maxiter": int(max_iterations)},
         )
-        final_amps1, final_amps2 = merge_optimized_values(result.x, initial_amps1, initial_amps2, optimize_mask)
+        final_amps1, final_amps2 = merge_optimized_values(result.x, initial_amps1, initial_amps2, optimize_masks)
         fast_diff = max_envelope_difference_fast(final_amps1, final_amps2, smoothing_window)
         final_diff = max_envelope_difference(final_amps1, final_amps2, smoothing_window)
         if fast_diff <= TARGET_DIFF or final_diff <= TARGET_DIFF:
@@ -519,7 +564,7 @@ def optimize_amplitudes(
         else:
             reason = "partial"
     except OptimizationStopped as stopped:
-        final_amps1, final_amps2 = merge_optimized_values(stopped.amps_flat, initial_amps1, initial_amps2, optimize_mask)
+        final_amps1, final_amps2 = merge_optimized_values(stopped.amps_flat, initial_amps1, initial_amps2, optimize_masks)
         final_diff = stopped.diff
         reason = stopped.reason
 
@@ -545,8 +590,8 @@ def generate_random_exercise(previous_id=None):
     seed = int(datetime.now().timestamp() * 1000000) % 1000000000
     rng = np.random.default_rng(seed)
     target_diff = float(rng.choice([0.35, 0.30, 0.25]))
-    target_smoothing = int(rng.choice([9, 15, 21, 31]))
-    target_delta = int(rng.choice([20, 30, 40, 60]))
+    target_smoothing = int(rng.choice([5, 9, 13, 17]))
+    target_delta = int(rng.choice([40, 60, 80, 100]))
 
     exercises = [
         {
@@ -556,16 +601,16 @@ def generate_random_exercise(previous_id=None):
             "prompt": (
                 f"Tente fazer os dois envelopes ficarem mais parecidos. Voce pode ajustar manualmente ou usar a otimizacao. "
                 f"O objetivo e deixar a diferenca maxima menor ou igual a {target_diff:.2f}. "
-                "Ao final, escreva com suas palavras o que aconteceu com a diferenca entre os envelopes."
+                "Ao final, escreva uma conclusao bem curta dizendo o que aconteceu com a diferenca entre os envelopes."
             ),
             "checklist": [
                 f"A meta e: diferenca maxima <= {target_diff:.2f}.",
                 "Observe se os envelopes ficaram mais proximos ao longo do tempo.",
-                "Escreva uma conclusao curta antes de enviar.",
+                "Escreva uma conclusao bem curta antes de enviar.",
             ],
             "keyword_groups": [["envelope", "envelopes"], ["diferenca", "aproximou", "reduziu"]],
-            "min_keyword_groups": 2,
-            "min_words": 12,
+            "min_keyword_groups": 0,
+            "min_words": 4,
             "target_diff": target_diff,
         },
         {
@@ -574,16 +619,16 @@ def generate_random_exercise(previous_id=None):
             "difficulty": "intermediario",
             "prompt": (
                 f"Aumente a suavizacao de Hilbert para pelo menos {target_smoothing} pontos e observe com calma o grafico dos envelopes. "
-                "Depois, descreva o que mudou nos picos e nas variacoes mais rapidas do grafico."
+                "Depois, descreva em uma frase curta o que mudou nos picos e nas variacoes mais rapidas do grafico."
             ),
             "checklist": [
                 f"Ajuste o controle para suavizacao >= {target_smoothing} pontos.",
                 "Descreva o efeito visual da suavizacao no grafico.",
-                "Use uma explicacao simples e objetiva.",
+                "Use uma explicacao curta e objetiva.",
             ],
             "keyword_groups": [["suavizacao", "suavizar", "media"], ["pico", "variacao", "oscilacao"]],
-            "min_keyword_groups": 2,
-            "min_words": 14,
+            "min_keyword_groups": 0,
+            "min_words": 4,
             "target_smoothing": target_smoothing,
         },
         {
@@ -592,7 +637,7 @@ def generate_random_exercise(previous_id=None):
             "difficulty": "intermediario",
             "prompt": (
                 f"Defina delta f em no maximo {target_delta} THz. Deixe pelo menos uma frequencia ativa em cada onda e execute a otimizacao. "
-                "Na conclusao, explique por que esse limite ajuda a evitar frequencias novas muito distantes das iniciais."
+                "Na conclusao, explique em uma frase curta por que esse limite ajuda a evitar frequencias novas muito distantes das iniciais."
             ),
             "checklist": [
                 f"Ajuste o controle para delta f <= {target_delta} THz.",
@@ -600,8 +645,8 @@ def generate_random_exercise(previous_id=None):
                 "Explique a ideia da restricao espectral com suas palavras.",
             ],
             "keyword_groups": [["frequencia", "espectral", "delta"], ["distante", "janela", "restricao"]],
-            "min_keyword_groups": 2,
-            "min_words": 14,
+            "min_keyword_groups": 0,
+            "min_words": 4,
             "target_delta": target_delta,
         },
         {
@@ -610,7 +655,7 @@ def generate_random_exercise(previous_id=None):
             "difficulty": "avancado",
             "prompt": (
                 f"Use a otimizacao para atingir diferenca maxima menor ou igual a {target_diff:.2f}. Depois, abra o Lab RGB e compare os cartoes Antes da otimizacao e Depois da otimizacao. "
-                "Na conclusao, diga se a aproximacao dos envelopes mudou muito ou pouco a cor mostrada na tela."
+                "Na conclusao, diga em uma frase curta se a aproximacao dos envelopes mudou muito ou pouco a cor mostrada na tela."
             ),
             "checklist": [
                 f"A meta e: diferenca maxima <= {target_diff:.2f}.",
@@ -618,8 +663,8 @@ def generate_random_exercise(previous_id=None):
                 "Explique a relacao observada entre envelopes e cor.",
             ],
             "keyword_groups": [["cor", "rgb", "cartao"], ["envelope", "mudanca", "comparacao"]],
-            "min_keyword_groups": 2,
-            "min_words": 16,
+            "min_keyword_groups": 0,
+            "min_words": 4,
             "target_diff": target_diff,
         },
     ]
@@ -746,14 +791,23 @@ def collect_simulation_metrics(table_data, history_data, smoothing_window, freq_
     envelope2 = compute_envelope(wave2, smoothing_window)
     active_count1 = int(np.sum(np.abs(amps1) > 1e-12))
     active_count2 = int(np.sum(np.abs(amps2) > 1e-12))
+    valid_optimization = has_valid_optimization_result(amps1, amps2, history_data)
+
+    if valid_optimization:
+        optimized_diff = history_data.get("after_diff")
+        if optimized_diff is None:
+            optimized_diff = max_envelope_difference(amps1, amps2, smoothing_window)
+        max_diff = float(optimized_diff)
+    else:
+        max_diff = float(np.max(np.abs(envelope1 - envelope2)))
 
     return {
-        "max_diff": float(np.max(np.abs(envelope1 - envelope2))),
+        "max_diff": max_diff,
         "smoothing_window": sanitize_smoothing_window(smoothing_window, len(T)),
         "freq_delta": int(freq_delta),
         "active_count1": active_count1,
         "active_count2": active_count2,
-        "has_optimization": bool((history_data or {}).get("has_optimization", False)),
+        "has_optimization": valid_optimization,
     }
 
 
@@ -771,11 +825,11 @@ def evaluate_exercise(exercise, metrics, answer_text):
             missing_topics.append(group[0])
 
     min_keyword_groups = int(exercise.get("min_keyword_groups", len(keyword_groups)))
-    min_words = int(exercise.get("min_words", 12))
+    min_words = int(exercise.get("min_words", 4))
     keyword_score = 0.0 if len(keyword_groups) == 0 else matched_groups / len(keyword_groups)
     depth_score = min(1.0, answer_word_count / max(1, min_words))
-    text_score = 0.7 * keyword_score + 0.3 * depth_score
-    text_pass = matched_groups >= min_keyword_groups and answer_word_count >= min_words
+    text_score = max(depth_score, 0.45 * keyword_score + 0.55 * depth_score)
+    text_pass = answer_word_count >= min_words and (min_keyword_groups <= 0 or matched_groups >= min_keyword_groups)
     numeric_pass = False
     metric_message = ""
     numeric_score = 0.0
@@ -799,7 +853,6 @@ def evaluate_exercise(exercise, metrics, answer_text):
             metrics["freq_delta"] <= int(exercise["target_delta"])
             and metrics["active_count1"] > 0
             and metrics["active_count2"] > 0
-            and metrics["has_optimization"]
         )
         numeric_score = 0.5 * delta_ratio + 0.25 * active_ratio + 0.25 * optimization_ratio
         metric_message = (
@@ -807,7 +860,7 @@ def evaluate_exercise(exercise, metrics, answer_text):
             f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
         )
     elif exercise["type"] == "color-compare":
-        numeric_pass = metrics["has_optimization"] and metrics["max_diff"] <= float(exercise["target_diff"])
+        numeric_pass = metrics["max_diff"] <= float(exercise["target_diff"])
         diff_ratio = min(1.0, float(exercise["target_diff"]) / max(metrics["max_diff"], 1e-9))
         optimization_ratio = 1.0 if metrics["has_optimization"] else 0.0
         numeric_score = 0.75 * diff_ratio + 0.25 * optimization_ratio
@@ -839,16 +892,16 @@ def evaluate_exercise(exercise, metrics, answer_text):
         }
     elif partial:
         feedback = {
-            "title": "Avanco parcial registrado",
-            "message": "A tentativa mostrou progresso, mas ainda falta consolidar a meta numerica ou aprofundar a conclusao.",
+            "title": "Envio registrado com avanço parcial",
+            "message": "A conclusao foi salva. Houve progresso, mas a meta numerica ou a analise textual ainda pode melhorar.",
             "details": details,
             "accent": "#b45309",
             "background": "#fffbeb",
         }
     else:
         feedback = {
-            "title": "Tentativa registrada",
-            "message": "O envio foi salvo, mas ainda falta atender pelo menos um dos criterios do exercicio.",
+            "title": "Envio registrado",
+            "message": "A conclusao foi salva mesmo sem atingir a meta do exercicio nesta tentativa.",
             "details": details,
             "accent": "#c2410c",
             "background": "#fff7ed",
@@ -886,13 +939,19 @@ def build_mobile_active_summary(table_data):
 
 
 def clone_figure_for_mobile(figure, height, top_margin=58):
-        cloned = go.Figure(figure)
-        cloned.update_layout(
-                height=height,
+    cloned = go.Figure(figure)
+    for trace in cloned.data:
+        if getattr(trace, "type", None) == "scatter" and "lines" in str(getattr(trace, "mode", "")):
+            trace.line.width = 1.4
+    for shape in cloned.layout.shapes or []:
+        if hasattr(shape, "line"):
+            shape.line.width = min(getattr(shape.line, "width", 1), 1)
+    cloned.update_layout(
+        height=height,
         margin=dict(l=18, r=18, t=top_margin, b=18),
         legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="center", x=0.5),
-        )
-        return cloned
+    )
+    return cloned
 
 
 def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_figure, cards, summary_box, control_note):
@@ -975,6 +1034,7 @@ initial_history = {
     "before2": ZERO_AMPS.tolist(),
     "after1": ZERO_AMPS.tolist(),
     "after2": ZERO_AMPS.tolist(),
+    "after_diff": None,
     "has_optimization": False,
 }
 
@@ -1530,6 +1590,7 @@ def handle_actions(
             "before2": ZERO_AMPS.tolist(),
             "after1": ZERO_AMPS.tolist(),
             "after2": ZERO_AMPS.tolist(),
+            "after_diff": None,
             "has_optimization": False,
         }
         return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
@@ -1546,6 +1607,7 @@ def handle_actions(
         "before2": amps2.tolist(),
         "after1": optimized1.tolist(),
         "after2": optimized2.tolist(),
+        "after_diff": float(final_diff),
         "has_optimization": True,
     }
 
@@ -1611,7 +1673,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     before2 = np.array(history_data.get("before2", current2.tolist()), dtype=float)
     after1 = np.array(history_data.get("after1", current1.tolist()), dtype=float)
     after2 = np.array(history_data.get("after2", current2.tolist()), dtype=float)
-    has_optimization = bool(history_data.get("has_optimization", False))
+    has_optimization = has_valid_optimization_result(current1, current2, history_data)
     control_smoothing = sanitize_smoothing_window(smoothing_window, len(T))
     hilbert_smoothing_note, hilbert_delta_note = build_hilbert_notes(smoothing_window, freq_delta)
 
@@ -1627,14 +1689,14 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     if not has_optimization:
         before1 = current1.copy()
         before2 = current2.copy()
-        after1 = current1.copy()
-        after2 = current2.copy()
+        after1 = ZERO_AMPS.copy()
+        after2 = ZERO_AMPS.copy()
 
     cards = [
         build_rgb_card(before1, "Onda 1", "Antes da otimização", rgb_mode),
-        build_rgb_card(after1, "Onda 1", "Depois da otimização", rgb_mode),
+        build_rgb_card(after1, "Onda 1", "Depois da otimização", rgb_mode) if has_optimization else build_pending_rgb_card("Onda 1", "Depois da otimização"),
         build_rgb_card(before2, "Onda 2", "Antes da otimização", rgb_mode),
-        build_rgb_card(after2, "Onda 2", "Depois da otimização", rgb_mode),
+        build_rgb_card(after2, "Onda 2", "Depois da otimização", rgb_mode) if has_optimization else build_pending_rgb_card("Onda 2", "Depois da otimização"),
     ]
 
     intensity_figure = build_intensity_figure(current1, current2)
