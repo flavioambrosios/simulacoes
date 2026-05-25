@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacao de Fluxo de Calor e Lei de Fourier</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 400px;
+            background: #08121c;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #heatCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .hot { background: #ff6b35; }
+        .cold { background: #3fa7ff; }
+        .flow { background: #ffd166; }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulacao de Fluxo de Calor e Lei de Fourier</h1>
+            <p class="subtitle">Prof. Flavio Ambrosio</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Conducao de Calor em uma Barra</h2>
+                <div class="simulation-container">
+                    <canvas id="heatCanvas"></canvas>
+                </div>
+
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color hot"></div>
+                        <span>Regiao quente</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color cold"></div>
+                        <span>Regiao fria</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color flow"></div>
+                        <span>Fluxo de calor</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+
+                <div class="control-group">
+                    <label for="materialSelect">Material:</label>
+                    <select id="materialSelect">
+                        <option value="400">Cobre (400 W/m.K)</option>
+                        <option value="205">Aluminio (205 W/m.K)</option>
+                        <option value="50">Aco (50 W/m.K)</option>
+                        <option value="1.0">Vidro (1,0 W/m.K)</option>
+                        <option value="0.12">Madeira (0,12 W/m.K)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="conductivityInput">Condutividade termica (k):</label>
+                    <input type="range" id="conductivityInput" min="0.1" max="450" value="400" step="0.1">
+                    <div class="value-display"><span id="conductivityValue">400.0</span> W/m.K</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="hotTempInput">Temperatura quente:</label>
+                    <input type="range" id="hotTempInput" min="40" max="200" value="120" step="1">
+                    <div class="value-display"><span id="hotTempValue">120</span> °C</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="coldTempInput">Temperatura fria:</label>
+                    <input type="range" id="coldTempInput" min="0" max="100" value="20" step="1">
+                    <div class="value-display"><span id="coldTempValue">20</span> °C</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="lengthInput">Comprimento da barra (L):</label>
+                    <input type="range" id="lengthInput" min="0.2" max="2.0" value="1.0" step="0.05">
+                    <div class="value-display"><span id="lengthValue">1.00</span> m</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="areaInput">Area de secao (A):</label>
+                    <input type="range" id="areaInput" min="0.001" max="0.020" value="0.010" step="0.001">
+                    <div class="value-display"><span id="areaValue">0.010</span> m²</div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Lei de Fourier</h3>
+                    <p>Q/t = -k.A.(dT/dx)</p>
+                    <p>Para gradiente uniforme:</p>
+                    <p>Q/t = k.A.(DeltaT/L)</p>
+                    <p>O sinal negativo indica fluxo do quente para o frio.</p>
+                </div>
+
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medicoes e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Material</div>
+                        <div class="measurement-value" id="materialDisplay">Cobre</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">DeltaT</div>
+                        <div class="measurement-value" id="deltaTempDisplay">100 °C</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Gradiente termico</div>
+                        <div class="measurement-value" id="gradientDisplay">-100.00 °C/m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fluxo de calor (Q/t)</div>
+                        <div class="measurement-value" id="heatRateDisplay">4000.00 W</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Densidade de fluxo</div>
+                        <div class="measurement-value" id="heatFluxDensityDisplay">400000.00 W/m²</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Sentido do fluxo</div>
+                        <div class="measurement-value" id="directionDisplay">Quente → Frio</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tempo para 10 kJ</div>
+                        <div class="measurement-value" id="energyTimeDisplay">2.50 s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Regime</div>
+                        <div class="measurement-value" id="regimeDisplay">Conducao 1D estacionaria</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios sobre Fluxo de Calor e Lei de Fourier</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusao de Estudo</h3>
+                <p>Escreva abaixo tudo o que voce aprendeu com os exercicios.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..." style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+            </div>
+
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercicios</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Serie:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua serie</option>
+                            <option value="1o ano">1o ano</option>
+                            <option value="2o ano">2o ano</option>
+                            <option value="3o ano">3o ano</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para copia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="criticismInput">Criticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestoes:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                    </div>
+
+                    <div id="emailStatus" class="email-status"></div>
+
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios Resolvidos - Fluxo de Calor e Lei de Fourier</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Calculo do fluxo de calor</h4>
+                    <p><strong>Problema:</strong> Uma barra de cobre tem k = 400 W/m.K, area de 0,010 m², comprimento de 1,0 m e diferenca de temperatura de 80 °C. Qual e o fluxo de calor?</p>
+                    <div class="solution-step"><strong>Formula:</strong> Q/t = k.A.(DeltaT/L)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: Q/t = 400 . 0,010 . 80 / 1,0</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: Q/t = 320 W</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor e 320 W.</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Efeito do comprimento</h4>
+                    <p><strong>Problema:</strong> Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> Na Lei de Fourier, o comprimento aparece no denominador.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Se L dobra, a razao DeltaT/L fica pela metade.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> O fluxo de calor tambem cai pela metade.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor fica igual a metade do valor inicial.</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Sentido do fluxo</h4>
+                    <p><strong>Problema:</strong> Uma extremidade da barra esta a 150 °C e a outra a 30 °C. Para onde o calor flui?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Identificar a regiao mais quente e a mais fria.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> O calor sempre flui espontaneamente do maior para o menor valor de temperatura.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O calor flui da extremidade a 150 °C para a extremidade a 30 °C.</div>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Fluxo de Calor e Lei de Fourier</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Conducao de calor</h3>
+                    <p>A conducao termica e o processo de transferencia de energia termica por interacao microscopica entre particulas de um material, sem transporte macroscopia do proprio material. Em uma barra metalica, por exemplo, a energia se propaga da extremidade mais quente para a mais fria.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Lei de Fourier</h3>
+                    <p>A Lei de Fourier descreve quantitativamente o fluxo de calor por conducao:</p>
+                    <div class="theory-formula">Q/t = -k.A.(dT/dx)</div>
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">Q/t</span> = taxa de transferencia de calor, em watts</li>
+                        <li><span class="highlight">k</span> = condutividade termica do material</li>
+                        <li><span class="highlight">A</span> = area da secao transversal</li>
+                        <li><span class="highlight">dT/dx</span> = gradiente de temperatura ao longo da barra</li>
+                    </ul>
+                    <p>O sinal negativo indica que o calor flui no sentido de diminuicao da temperatura.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Barra com gradiente uniforme</h3>
+                    <p>Quando a barra tem secao constante e as temperaturas das extremidades sao fixas, podemos usar a forma simplificada:</p>
+                    <div class="theory-formula">Q/t = k.A.(DeltaT/L)</div>
+                    <p>Nessa forma, o valor calculado representa a intensidade do fluxo de calor. O sentido fisico continua sendo do quente para o frio.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Como cada parametro afeta o fluxo</h3>
+                    <ul>
+                        <li><span class="highlight">k maior:</span> materiais melhores condutores transferem calor mais rapidamente.</li>
+                        <li><span class="highlight">A maior:</span> uma barra mais grossa permite maior transferencia de energia por segundo.</li>
+                        <li><span class="highlight">DeltaT maior:</span> quanto maior a diferenca de temperatura, maior o fluxo.</li>
+                        <li><span class="highlight">L maior:</span> barras mais longas dificultam a transferencia, reduzindo o fluxo.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Aplicacoes praticas</h3>
+                    <ul>
+                        <li>isolamento termico em construcoes</li>
+                        <li>projeto de panelas, dissipadores e trocadores de calor</li>
+                        <li>estudo de perdas termicas em tubos e paredes</li>
+                        <li>engenharia de refrigeracao e climatizacao</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canvas, ctx;
+        let conductivity = 400.0;
+        let hotTemp = 120;
+        let coldTemp = 20;
+        let lengthBar = 1.0;
+        let area = 0.010;
+        let deltaTemp = 100;
+        let gradient = -100;
+        let heatRate = 4000;
+        let heatFluxDensity = 400000;
+        let timeForTenKilojoules = 2.5;
+        let simulationTime = 0;
+        let isRunning = false;
+        let animationId = null;
+        let particles = [];
+
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        const materialNames = {
+            '400': 'Cobre',
+            '205': 'Aluminio',
+            '50': 'Aco',
+            '1.0': 'Vidro',
+            '0.12': 'Madeira'
+        };
+
+        function init() {
+            canvas = document.getElementById('heatCanvas');
+            ctx = canvas.getContext('2d');
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            resetParticles();
+            updateCalculatedParameters();
+            drawSystem();
+            updateMeasurements();
+            setupEventListeners();
+            setupExerciseEventListeners();
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawSystem();
+        }
+
+        function resetParticles() {
+            particles = [];
+            syncParticlePopulation(true);
+        }
+
+        function createParticle(progress) {
+            return {
+                progress: typeof progress === 'number' ? progress : Math.random() * 1.16 - 0.08,
+                laneSeed: Math.random(),
+                speedFactor: 0.7 + Math.random() * 0.8
+            };
+        }
+
+        function syncParticlePopulation(reset) {
+            const flowIntensity = clamp(Math.abs(heatRate) / 9000, 0, 1);
+            const targetCount = 6 + Math.round(flowIntensity * 30);
+
+            if (reset) {
+                particles = [];
+            }
+
+            while (particles.length < targetCount) {
+                const progress = targetCount > 1 ? particles.length / (targetCount - 1) : 0.5;
+                particles.push(createParticle(reset ? progress : undefined));
+            }
+
+            if (particles.length > targetCount) {
+                particles = particles.slice(0, targetCount);
+            }
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function interpolateColor(start, end, t) {
+            const r = Math.round(lerp(start[0], end[0], t));
+            const g = Math.round(lerp(start[1], end[1], t));
+            const b = Math.round(lerp(start[2], end[2], t));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function drawSystem() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawBar();
+            drawThermometers();
+            drawParticles();
+            drawTemperatureGraph();
+            drawCrossSectionInset();
+            drawLabels();
+        }
+
+        function drawBackground() {
+            const gradientBackground = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradientBackground.addColorStop(0, '#08121c');
+            gradientBackground.addColorStop(1, '#14283b');
+            ctx.fillStyle = gradientBackground;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getBarGeometry() {
+            const minArea = 0.001;
+            const maxArea = 0.020;
+            const minLength = 0.2;
+            const maxLength = 2.0;
+            const crossSectionPanelWidth = 180;
+            const rightMargin = 12;
+            const reservedGap = 96;
+            const minSide = Math.sqrt(minArea);
+            const maxSide = Math.sqrt(maxArea);
+            const sideMeters = Math.sqrt(area);
+            const normalizedArea = clamp((area - minArea) / (maxArea - minArea), 0, 1);
+            const normalizedSide = clamp((sideMeters - minSide) / (maxSide - minSide), 0, 1);
+            const normalizedLength = clamp((lengthBar - minLength) / (maxLength - minLength), 0, 1);
+            const height = canvas.height * (0.10 + normalizedSide * 0.14);
+            const depth = height * 0.78;
+            const topLift = depth * 0.42;
+            const x = canvas.width * 0.12;
+            const desiredWidth = canvas.width * (0.34 + normalizedLength * 0.28);
+            const maxProjectionRight = canvas.width - rightMargin - crossSectionPanelWidth - reservedGap;
+            const maxWidth = Math.max(canvas.width * 0.24, maxProjectionRight - x - depth);
+            const width = Math.min(desiredWidth, maxWidth);
+
+            return {
+                x: x,
+                y: canvas.height * 0.58 - height / 2,
+                width: width,
+                height: height,
+                depth: depth,
+                topLift: topLift,
+                normalizedArea: normalizedArea,
+                normalizedSide: normalizedSide,
+                normalizedLength: normalizedLength,
+                sideMeters: sideMeters,
+                reservedGap: reservedGap,
+                crossSectionPanelWidth: crossSectionPanelWidth,
+                rightMargin: rightMargin
+            };
+        }
+
+        function drawBar() {
+            const geometry = getBarGeometry();
+            const x = geometry.x;
+            const y = geometry.y;
+            const width = geometry.width;
+            const height = geometry.height;
+            const depth = geometry.depth;
+            const topLift = geometry.topLift;
+            const hotColor = [255, 105, 56];
+            const coldColor = [60, 156, 255];
+            const segments = 40;
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + depth, y - topLift);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.beginPath();
+            ctx.moveTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + width + depth, y + height - topLift);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+
+            for (let index = 0; index < segments; index++) {
+                const t = index / (segments - 1);
+                ctx.fillStyle = interpolateColor(hotColor, coldColor, t);
+                const segmentWidth = width / segments;
+                ctx.fillRect(x + index * segmentWidth, y, segmentWidth + 1, height);
+            }
+
+            const topGradient = ctx.createLinearGradient(x, y - topLift, x + width, y);
+            topGradient.addColorStop(0, 'rgba(255, 156, 94, 0.62)');
+            topGradient.addColorStop(1, 'rgba(104, 183, 255, 0.5)');
+            ctx.fillStyle = topGradient;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + depth, y - topLift);
+            ctx.closePath();
+            ctx.fill();
+
+            const sideGradient = ctx.createLinearGradient(x + width, y, x + width + depth, y + height);
+            sideGradient.addColorStop(0, 'rgba(90, 160, 235, 0.72)');
+            sideGradient.addColorStop(1, 'rgba(34, 74, 125, 0.9)');
+            ctx.fillStyle = sideGradient;
+            ctx.beginPath();
+            ctx.moveTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + width + depth, y + height - topLift);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.strokeStyle = '#d9e2ec';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, width, height);
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + depth, y - topLift);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + width + depth, y + height - topLift);
+            ctx.lineTo(x + width, y + height);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+            ctx.beginPath();
+            ctx.moveTo(x, y + height);
+            ctx.lineTo(x + depth, y + height - topLift);
+            ctx.lineTo(x + width + depth, y + height - topLift);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x + width, y);
+            ctx.lineTo(x + width + depth, y - topLift);
+            ctx.lineTo(x + width + depth, y + height - topLift);
+            ctx.lineTo(x + width, y + height);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function drawThermometers() {
+            const geometry = getBarGeometry();
+            const rodY = geometry.y;
+            const rodHeight = geometry.height;
+            drawThermometer(canvas.width * 0.06, rodY - 15, hotTemp, '#ff6b35');
+            drawThermometer(geometry.x + geometry.width + geometry.depth + canvas.width * 0.04, rodY - 15, coldTemp, '#3fa7ff');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Fonte quente', canvas.width * 0.11, rodY + rodHeight + 28);
+            ctx.fillText('Fonte fria', geometry.x + geometry.width + geometry.depth + canvas.width * 0.04, rodY + rodHeight + 28);
+        }
+
+        function drawThermometer(x, y, temp, color) {
+            const bulbRadius = 16;
+            const tubeHeight = 115;
+            const fillPercent = Math.max(0, Math.min(1, temp / 200));
+
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 8);
+            ctx.lineTo(x, y + tubeHeight);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(x, y + tubeHeight + 12, bulbRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.moveTo(x, y + tubeHeight - tubeHeight * fillPercent);
+            ctx.lineTo(x, y + tubeHeight);
+            ctx.stroke();
+
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y + tubeHeight + 12, bulbRadius - 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawParticles() {
+            const geometry = getBarGeometry();
+            const rodX = geometry.x;
+            const rodY = geometry.y;
+            const rodWidth = geometry.width;
+            const rodHeight = geometry.height;
+            const direction = 1;
+            const flowIntensity = clamp(Math.abs(heatRate) / 9000, 0, 1);
+            const laneCount = 3 + Math.round(geometry.normalizedArea * 3);
+
+            particles.forEach(function(particle) {
+                const t = particle.progress;
+                const x = rodX + t * rodWidth;
+                const lanePosition = (Math.floor(particle.laneSeed * laneCount) + 1) / (laneCount + 1);
+                const y = rodY + rodHeight * lanePosition;
+
+                ctx.fillStyle = 'rgba(255, 209, 102, 0.85)';
+                ctx.beginPath();
+                ctx.arc(x, y, 3.5 + flowIntensity * 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(255, 209, 102, 0.55)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x - (8 + flowIntensity * 6) * direction, y);
+                ctx.lineTo(x + (10 + flowIntensity * 8) * direction, y);
+                ctx.stroke();
+
+                const headX = x + (10 + flowIntensity * 8) * direction;
+                ctx.beginPath();
+                ctx.moveTo(headX, y);
+                ctx.lineTo(headX - 5 * direction, y - 4);
+                ctx.lineTo(headX - 5 * direction, y + 4);
+                ctx.closePath();
+                ctx.fill();
+            });
+        }
+
+        function drawTemperatureGraph() {
+            const panelX = 12;
+            const panelY = 8;
+            const panelWidth = Math.min(250, canvas.width * 0.34);
+            const panelHeight = 120;
+            const graphPadding = 18;
+            const graphX = panelX + graphPadding;
+            const graphY = panelY + graphPadding;
+            const graphWidth = panelWidth - graphPadding * 2;
+            const graphHeight = panelHeight - graphPadding * 2;
+            const xEnd = graphX + graphWidth;
+            const yHot = graphY + graphHeight * (1 - hotTemp / 200);
+            const yCold = graphY + graphHeight * (1 - coldTemp / 200);
+
+            ctx.fillStyle = 'rgba(6, 17, 28, 0.82)';
+            ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+            ctx.strokeStyle = 'rgba(207, 232, 255, 0.28)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
+
+            ctx.fillStyle = '#d9e2ec';
+            ctx.font = 'bold 13px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Perfil de temperatura T(x)', panelX + 12, panelY + 16);
+
+            ctx.strokeStyle = 'rgba(217, 226, 236, 0.45)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(graphX, graphY);
+            ctx.lineTo(graphX, graphY + graphHeight);
+            ctx.lineTo(xEnd, graphY + graphHeight);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(graphX, yHot);
+            ctx.lineTo(xEnd, yCold);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ff8c5a';
+            ctx.beginPath();
+            ctx.arc(graphX, yHot, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#5ab2ff';
+            ctx.beginPath();
+            ctx.arc(xEnd, yCold, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffcf70';
+            ctx.font = '12px Arial';
+            ctx.fillText(`Th = ${hotTemp.toFixed(0)} °C`, graphX, panelY + panelHeight - 10);
+            ctx.textAlign = 'right';
+            ctx.fillText(`Tc = ${coldTemp.toFixed(0)} °C`, xEnd, panelY + panelHeight - 10);
+
+            ctx.fillStyle = '#cfe8ff';
+            ctx.textAlign = 'left';
+            ctx.fillText('0 m', graphX, graphY + graphHeight + 16);
+            ctx.textAlign = 'right';
+            ctx.fillText(`${lengthBar.toFixed(2)} m`, xEnd, graphY + graphHeight + 16);
+            ctx.textAlign = 'left';
+            ctx.fillText(`dT/dx = ${gradient.toFixed(1)} °C/m`, graphX, graphY + 12);
+        }
+
+        function drawCrossSectionInset() {
+            const geometry = getBarGeometry();
+            const panelWidth = geometry.crossSectionPanelWidth;
+            const panelHeight = 140;
+            const safeMargin = geometry.rightMargin;
+            const panelX = canvas.width - panelWidth - safeMargin;
+            const panelY = 8;
+            const side = 34 + geometry.normalizedSide * 56;
+            const squareX = panelX + (panelWidth - side) / 2;
+            const squareY = panelY + 40;
+
+            ctx.fillStyle = 'rgba(6, 17, 28, 0.82)';
+            ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+            ctx.strokeStyle = 'rgba(207, 232, 255, 0.28)';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
+
+            ctx.fillStyle = '#d9e2ec';
+            ctx.font = 'bold 13px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Secao transversal', panelX + panelWidth / 2, panelY + 18);
+
+            ctx.fillStyle = 'rgba(255, 209, 102, 0.22)';
+            ctx.fillRect(squareX, squareY, side, side);
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(squareX, squareY, side, side);
+
+            ctx.strokeStyle = '#ffefb0';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(squareX, squareY + side + 10);
+            ctx.lineTo(squareX + side, squareY + side + 10);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(squareX, squareY + side + 6);
+            ctx.lineTo(squareX, squareY + side + 14);
+            ctx.moveTo(squareX + side, squareY + side + 6);
+            ctx.lineTo(squareX + side, squareY + side + 14);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffefb0';
+            ctx.font = '12px Arial';
+            ctx.fillText(`lado a = ${geometry.sideMeters.toFixed(3)} m`, panelX + panelWidth / 2, squareY + side + 28);
+            ctx.fillStyle = '#cfe8ff';
+            ctx.fillText(`A = a² = ${area.toFixed(3)} m²`, panelX + panelWidth / 2, panelY + panelHeight - 12);
+        }
+
+        function drawLabels() {
+            const geometry = getBarGeometry();
+            const rodX = geometry.x;
+            const rodY = geometry.y;
+            const rodWidth = geometry.width;
+
+            ctx.fillStyle = '#d9e2ec';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Barra condutora com vista 3D', canvas.width / 2, rodY - 30);
+
+            ctx.font = '13px Arial';
+            ctx.fillStyle = '#cfe8ff';
+            ctx.fillText(`Area visivel da secao: ${area.toFixed(3)} m²`, canvas.width / 2, rodY - 10);
+
+            ctx.fillStyle = '#d9e2ec';
+            ctx.fillText('x = 0', rodX, rodY + geometry.height + 44);
+            ctx.fillText(`x = ${lengthBar.toFixed(2)} m`, rodX + rodWidth, rodY + geometry.height + 44);
+
+            ctx.strokeStyle = '#d9e2ec';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(rodX, rodY + geometry.height + 20);
+            ctx.lineTo(rodX + rodWidth, rodY + geometry.height + 20);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(rodX, rodY + geometry.height + 20);
+            ctx.lineTo(rodX + 7, rodY + geometry.height + 15);
+            ctx.moveTo(rodX, rodY + geometry.height + 20);
+            ctx.lineTo(rodX + 7, rodY + geometry.height + 25);
+            ctx.moveTo(rodX + rodWidth, rodY + geometry.height + 20);
+            ctx.lineTo(rodX + rodWidth - 7, rodY + geometry.height + 15);
+            ctx.moveTo(rodX + rodWidth, rodY + geometry.height + 20);
+            ctx.lineTo(rodX + rodWidth - 7, rodY + geometry.height + 25);
+            ctx.stroke();
+
+            ctx.fillStyle = '#d9e2ec';
+            ctx.fillText(`Comprimento visual L = ${lengthBar.toFixed(2)} m`, rodX + rodWidth / 2, rodY + geometry.height + 16);
+
+            ctx.strokeStyle = '#ffe08a';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(rodX + rodWidth + geometry.depth * 0.5, rodY + geometry.height * 0.5 - geometry.topLift * 0.5);
+            ctx.lineTo(rodX + rodWidth + geometry.depth + 38, rodY + geometry.height * 0.1 - geometry.topLift);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffe08a';
+            ctx.textAlign = 'left';
+            ctx.fillText('Secao A', rodX + rodWidth + geometry.depth + 44, rodY + geometry.height * 0.1 - geometry.topLift + 4);
+
+            ctx.fillStyle = '#ffd166';
+            ctx.font = 'bold 15px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Fluxo: ${formatHeatRate(heatRate)}`, canvas.width / 2, rodY + geometry.height + 70);
+        }
+
+        function updateCalculatedParameters() {
+            deltaTemp = hotTemp - coldTemp;
+            gradient = (coldTemp - hotTemp) / lengthBar;
+
+            heatRate = conductivity * area * deltaTemp / lengthBar;
+            heatFluxDensity = heatRate / area;
+            timeForTenKilojoules = 10000 / heatRate;
+            syncParticlePopulation(false);
+        }
+
+        function formatHeatRate(value) {
+            return value.toFixed(2) + ' W';
+        }
+
+        function animate() {
+            if (isRunning) {
+                simulationTime += 0.016;
+                const drift = 0.004 + clamp(Math.abs(heatRate) / 9000, 0, 1) * 0.016;
+                particles.forEach(function(particle) {
+                    particle.progress += drift * particle.speedFactor;
+                    if (particle.progress > 1.08) {
+                        particle.progress = -0.08;
+                    }
+                });
+                drawSystem();
+                updateMeasurements();
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function updateMeasurements() {
+            document.getElementById('conductivityValue').textContent = conductivity.toFixed(1);
+            document.getElementById('hotTempValue').textContent = hotTemp.toFixed(0);
+            document.getElementById('coldTempValue').textContent = coldTemp.toFixed(0);
+            document.getElementById('lengthValue').textContent = lengthBar.toFixed(2);
+            document.getElementById('areaValue').textContent = area.toFixed(3);
+
+            const selectedMaterial = document.getElementById('materialSelect').value;
+            document.getElementById('materialDisplay').textContent = materialNames[selectedMaterial] || 'Personalizado';
+            document.getElementById('deltaTempDisplay').textContent = deltaTemp.toFixed(0) + ' °C';
+            document.getElementById('gradientDisplay').textContent = gradient.toFixed(2) + ' °C/m';
+            document.getElementById('heatRateDisplay').textContent = heatRate.toFixed(2) + ' W';
+            document.getElementById('heatFluxDensityDisplay').textContent = heatFluxDensity.toFixed(2) + ' W/m²';
+            document.getElementById('directionDisplay').textContent = 'Quente → Frio';
+            document.getElementById('energyTimeDisplay').textContent = timeForTenKilojoules.toFixed(2) + ' s';
+            document.getElementById('regimeDisplay').textContent = 'Conducao 1D estacionaria';
+        }
+
+        function resetSimulation() {
+            isRunning = false;
+            simulationTime = 0;
+            conductivity = 400.0;
+            hotTemp = 120;
+            coldTemp = 20;
+            lengthBar = 1.0;
+            area = 0.010;
+
+            document.getElementById('materialSelect').value = '400';
+            document.getElementById('conductivityInput').value = conductivity;
+            document.getElementById('hotTempInput').value = hotTemp;
+            document.getElementById('coldTempInput').value = coldTemp;
+            document.getElementById('lengthInput').value = lengthBar;
+            document.getElementById('areaInput').value = area;
+
+            resetParticles();
+            updateCalculatedParameters();
+            drawSystem();
+            updateMeasurements();
+        }
+
+        function syncMaterialSelect() {
+            const materialOptions = Array.from(document.getElementById('materialSelect').options);
+            const match = materialOptions.find(function(option) {
+                return Math.abs(parseFloat(option.value) - conductivity) < 0.05;
+            });
+            if (!match) {
+                return;
+            }
+            document.getElementById('materialSelect').value = match.value;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('materialSelect').addEventListener('change', function() {
+                conductivity = parseFloat(this.value);
+                document.getElementById('conductivityInput').value = conductivity;
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('conductivityInput').addEventListener('input', function() {
+                conductivity = parseFloat(this.value);
+                syncMaterialSelect();
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('hotTempInput').addEventListener('input', function() {
+                hotTemp = parseFloat(this.value);
+                if (hotTemp <= coldTemp) {
+                    coldTemp = hotTemp - 1;
+                    document.getElementById('coldTempInput').value = coldTemp;
+                }
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('coldTempInput').addEventListener('input', function() {
+                coldTemp = parseFloat(this.value);
+                if (coldTemp >= hotTemp) {
+                    hotTemp = coldTemp + 1;
+                    document.getElementById('hotTempInput').value = hotTemp;
+                }
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('lengthInput').addEventListener('input', function() {
+                lengthBar = parseFloat(this.value);
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('areaInput').addEventListener('input', function() {
+                area = parseFloat(this.value);
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                if (!animationId) {
+                    animate();
+                }
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert('Como usar:\n\n• Escolha o material ou ajuste manualmente a condutividade termica.\n• Defina as temperaturas das extremidades da barra.\n• Ajuste o comprimento e a area da secao transversal.\n• A barra agora muda visualmente de comprimento quando L varia.\n• A secao transversal aparece como quadrada, com lado ligado a area A.\n• O grafico mostra o perfil de temperatura T(x) ao longo da barra.\n• Quanto maior o fluxo de calor, maior a quantidade e a velocidade das particulas animadas.\n\nDica: compare uma barra curta e grossa com uma barra longa e fina.');
+            });
+        }
+
+        function setupExerciseEventListeners() {
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target === document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target === document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+
+        function generateExercises() {
+            exercises = [];
+            for (let i = 0; i < 2; i++) {
+                const k = [0.12, 1.0, 50, 205, 400][Math.floor(Math.random() * 5)];
+                const a = ((Math.floor(Math.random() * 9) + 2) / 1000).toFixed(3);
+                const delta = (Math.floor(Math.random() * 10) + 3) * 10;
+                const length = ((Math.floor(Math.random() * 8) + 4) / 10).toFixed(1);
+                const flow = (k * parseFloat(a) * delta / parseFloat(length)).toFixed(2);
+
+                exercises.push({
+                    type: 'calcular_fluxo',
+                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura DeltaT = ${delta} °C. Qual e o fluxo de calor?`,
+                    answer: `${flow} W`,
+                    options: generateOptions(parseFloat(flow), 'W')
+                });
+
+                const ratioType = Math.random() < 0.5 ? 'comprimento' : 'area';
+                const ratioAnswer = ratioType === 'comprimento' ? 'metade do valor inicial' : 'dobro do valor inicial';
+                exercises.push({
+                    type: 'proporcionalidade',
+                    question: ratioType === 'comprimento'
+                        ? 'Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?'
+                        : 'Se a area da secao transversal dobrar, mantendo k, L e DeltaT constantes, o que acontece com o fluxo de calor?',
+                    answer: ratioAnswer,
+                    options: shuffleArray(['metade do valor inicial', 'dobro do valor inicial', 'permanece igual', 'cai para um quarto', 'quadruplica'])
+                });
+
+                const hot = (Math.floor(Math.random() * 8) + 8) * 10;
+                const cold = (Math.floor(Math.random() * 4) + 1) * 10;
+                exercises.push({
+                    type: 'sentido_fluxo',
+                    question: `Uma extremidade da barra esta a ${hot} °C e a outra esta a ${cold} °C. Qual e o sentido do fluxo de calor?`,
+                    answer: `de ${hot} °C para ${cold} °C`,
+                    options: shuffleArray([
+                        `de ${hot} °C para ${cold} °C`,
+                        `de ${cold} °C para ${hot} °C`,
+                        'nao ha fluxo de calor',
+                        'o fluxo alterna de sentido',
+                        'depende apenas da area'
+                    ])
+                });
+            }
+            exercises = shuffleArray(exercises);
+        }
+
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 15;
+            const formattedCorrect = correctValue.toFixed(2) + ' ' + unit;
+            options.push(formattedCorrect);
+
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    unique = !options.includes(formattedOption);
+                    attempts++;
+                    if (attempts > maxAttempts) {
+                        formattedOption = formattedOption + ' (opcao ' + (i + 1) + ')';
+                        unique = true;
+                    }
+                } while (!unique);
+                options.push(formattedOption);
+            }
+
+            return shuffleArray(options);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercicio ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map(function(option) {
+                            return `<div class="option" data-value="${option}">${option}</div>`;
+                        }).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+
+            container.addEventListener('click', function handler(event) {
+                if (!event.target.classList.contains('option')) {
+                    return;
+                }
+                container.querySelectorAll('.option').forEach(function(option) {
+                    option.classList.remove('selected');
+                });
+                event.target.classList.add('selected');
+            }, { once: true });
+
+            container.querySelectorAll('.option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(function(item) {
+                        item.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opcao.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(function(option) {
+                option.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabens!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: true,
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercicio</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            if (currentType === 'calcular_fluxo') {
+                const k = [0.12, 1.0, 50, 205, 400][Math.floor(Math.random() * 5)];
+                const a = ((Math.floor(Math.random() * 9) + 2) / 1000).toFixed(3);
+                const delta = (Math.floor(Math.random() * 10) + 3) * 10;
+                const length = ((Math.floor(Math.random() * 8) + 4) / 10).toFixed(1);
+                const flow = (k * parseFloat(a) * delta / parseFloat(length)).toFixed(2);
+                exercises[currentExercise] = {
+                    type: 'calcular_fluxo',
+                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura DeltaT = ${delta} °C. Qual e o fluxo de calor?`,
+                    answer: `${flow} W`,
+                    options: generateOptions(parseFloat(flow), 'W')
+                };
+                return;
+            }
+
+            if (currentType === 'proporcionalidade') {
+                const ratioType = Math.random() < 0.5 ? 'comprimento' : 'area';
+                const ratioAnswer = ratioType === 'comprimento' ? 'metade do valor inicial' : 'dobro do valor inicial';
+                exercises[currentExercise] = {
+                    type: 'proporcionalidade',
+                    question: ratioType === 'comprimento'
+                        ? 'Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?'
+                        : 'Se a area da secao transversal dobrar, mantendo k, L e DeltaT constantes, o que acontece com o fluxo de calor?',
+                    answer: ratioAnswer,
+                    options: shuffleArray(['metade do valor inicial', 'dobro do valor inicial', 'permanece igual', 'cai para um quarto', 'quadruplica'])
+                };
+                return;
+            }
+
+            const hot = (Math.floor(Math.random() * 8) + 8) * 10;
+            const cold = (Math.floor(Math.random() * 4) + 1) * 10;
+            exercises[currentExercise] = {
+                type: 'sentido_fluxo',
+                question: `Uma extremidade da barra esta a ${hot} °C e a outra esta a ${cold} °C. Qual e o sentido do fluxo de calor?`,
+                answer: `de ${hot} °C para ${cold} °C`,
+                options: shuffleArray([
+                    `de ${hot} °C para ${cold} °C`,
+                    `de ${cold} °C para ${hot} °C`,
+                    'nao ha fluxo de calor',
+                    'o fluxo alterna de sentido',
+                    'depende apenas da area'
+                ])
+            };
+        }
+
+        function skipExercise() {
+            if (confirm('Deseja pular este exercicio? Um erro sera registrado em seu relatorio.')) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i + 1}`);
+                progressItem.classList.remove('active', 'completed');
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            }, { once: true });
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) {
+                return result.correct;
+            }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercicios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercicios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+
+            document.getElementById('finalConclusion').value = conclusion;
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet, { once: true });
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatorios.');
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) {
+                return result.correct;
+            }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Fluxo de Calor e Lei de Fourier',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(function() {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(function() {
+                if (!studentEmail) {
+                    return null;
+                }
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Nao informado',
+                    serie: studentGrade || 'Nao informado',
+                    turma: studentClass || 'Nao informado',
+                    nota: scorePercentage + '%' || '0%',
+                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                    questoes_puladas: skippedQuestions || 0,
+                    conclusao: finalConclusion || 'Nao informado',
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulacao: 'Fluxo de Calor e Lei de Fourier',
+                    mensagem: `Confirmacao de Envio - Fluxo de Calor e Lei de Fourier\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulacoes Fisicas`
+                };
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailDataAluno)
+                });
+            })
+            .then(function() {
+                emailStatus.textContent = studentEmail ? 'Dados salvos e emails enviados!' : 'Dados salvos e email enviado ao professor!';
+                emailStatus.className = 'email-status sent';
+                setTimeout(function() {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(function(error) {
+                console.error('Erro:', error);
+                emailStatus.textContent = 'Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        window.addEventListener('load', init);
+    </script>
+    <script>
+        let studentNameFluxoDeCalor = localStorage.getItem('studentNameFluxoDeCalor') || '';
+
+        function ensureStudentNameFluxoDeCalor() {
+            if (!studentNameFluxoDeCalor) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                } catch (error) {
+                    promptedName = '';
+                }
+                studentNameFluxoDeCalor = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameFluxoDeCalor', studentNameFluxoDeCalor);
+            }
+        }
+
+        const tracks = [
+            function() {
+                ensureStudentNameFluxoDeCalor();
+                return `Ola, ${studentNameFluxoDeCalor}. Esta simulacao mostra o fluxo de calor em uma barra e organiza a leitura da Lei de Fourier em um painel lateral. A barra colorida representa a variacao de temperatura, enquanto as setas animadas indicam o sentido da transferencia de energia.`;
+            },
+            function() {
+                return 'O primeiro ponto importante e lembrar que calor nao e a mesma coisa que temperatura. Temperatura mede um estado termico, enquanto calor e energia em transito. Quando existe diferenca de temperatura entre duas regioes, surge transferencia de energia termica.';
+            },
+            function() {
+                return 'A Lei de Fourier afirma que a taxa de transferencia de calor depende da condutividade do material, da area da secao transversal e do gradiente de temperatura. Em uma barra uniforme, essa relacao pode ser escrita como Q sobre t igual a k vezes A vezes Delta T sobre L.';
+            },
+            function() {
+                return 'Observe que o comprimento aparece no denominador. Isso significa que barras mais longas dificultam a passagem de calor. Ja barras mais curtas facilitam a transferencia de energia termica.';
+            },
+            function() {
+                return 'A area aparece multiplicando o fluxo. Por isso, uma barra mais grossa permite maior transferencia de calor por segundo. Esse efeito pode ser comparado diretamente nos controles da simulacao.';
+            },
+            function() {
+                return 'A condutividade termica diferencia bons condutores e bons isolantes. Materiais como cobre e aluminio transferem calor muito mais rapidamente do que madeira ou vidro.';
+            },
+            function() {
+                return 'Depois da exploracao, use os exercicios para consolidar tres ideias: como calcular o fluxo, como interpretar as proporcionalidades e como identificar o sentido fisico da transferencia de calor.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, substituimos diretamente os valores na forma simplificada da Lei de Fourier. O objetivo e perceber como cada grandeza contribui para o resultado final do fluxo de calor.',
+            '2': 'No segundo exemplo, a ideia central e a proporcionalidade inversa com o comprimento. Nao e preciso recalcular tudo do zero quando apenas um parametro muda de maneira simples.',
+            '3': 'No terceiro exemplo, o foco e o sentido fisico do processo. O calor sempre flui espontaneamente da regiao de maior temperatura para a regiao de menor temperatura.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Fluxo de Calor e Lei de Fourier',
+            storageKey: 'fluxo-de-calor'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>

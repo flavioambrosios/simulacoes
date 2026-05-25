@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indice das Simulacoes de Fisica</title>
+    <style>
+        :root {
+            --ink: #17324d;
+            --deep: #10202f;
+            --gold: #d18a2f;
+            --mist: rgba(255, 255, 255, 0.8);
+            --line: rgba(23, 50, 77, 0.12);
+            --shadow: 0 20px 48px rgba(16, 32, 47, 0.14);
+            --muted: #5f7080;
+            --hero: linear-gradient(140deg, rgba(16, 32, 47, 0.96), rgba(31, 83, 117, 0.94));
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--deep);
+            background:
+                radial-gradient(circle at top left, rgba(209, 138, 47, 0.23), transparent 26%),
+                radial-gradient(circle at bottom right, rgba(23, 50, 77, 0.18), transparent 24%),
+                linear-gradient(135deg, #f8f3e8, #e7edf4 52%, #f2ece2);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(16, 32, 47, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 32, 47, 0.028) 1px, transparent 1px);
+            background-size: 30px 30px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.46), transparent 84%);
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 28px 18px 56px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 30px;
+            background: var(--hero);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: auto -40px -80px auto;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 209, 102, 0.36), transparent 68%);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 209, 102, 0.14);
+            color: #ffd166;
+            font-size: 0.84rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            max-width: 820px;
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: clamp(2rem, 4.2vw, 3.45rem);
+            line-height: 1.07;
+            margin-bottom: 14px;
+        }
+
+        .hero p {
+            max-width: 820px;
+            font-size: 1.03rem;
+            line-height: 1.68;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr 0.9fr;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .hero-card {
+            position: relative;
+            z-index: 1;
+            padding: 18px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            line-height: 1.62;
+        }
+
+        .hero-card strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffd166;
+        }
+
+        .hero-card a {
+            color: white;
+            word-break: break-all;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1.4fr 0.9fr 0.9fr;
+            gap: 14px;
+            margin: 24px 0 18px;
+        }
+
+        .field {
+            background: var(--mist);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 12px 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+            font-weight: bold;
+            color: var(--ink);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(23, 50, 77, 0.18);
+            background: white;
+            color: var(--deep);
+            font-size: 1rem;
+        }
+
+        .summary-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .summary {
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .mode-pill {
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: rgba(23, 50, 77, 0.08);
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-top: 34px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .section h2 {
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: clamp(1.45rem, 3vw, 2rem);
+            color: var(--ink);
+        }
+
+        .section-note {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            min-height: 340px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+        }
+
+        .card-media {
+            position: relative;
+            min-height: 128px;
+            padding: 18px;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.34), transparent 28%),
+                linear-gradient(135deg, color-mix(in srgb, var(--accent, #d18a2f) 88%, #ffffff 12%), color-mix(in srgb, var(--accent, #d18a2f) 46%, #0f2230 54%));
+            color: white;
+        }
+
+        .card-media::after {
+            content: "";
+            position: absolute;
+            width: 118px;
+            height: 118px;
+            right: -22px;
+            top: -18px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .media-kicker {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            margin-bottom: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.16);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .media-mark {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 12px;
+        }
+
+        .thumb-stage {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 10px;
+        }
+
+        .thumb-topline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .thumb-symbol {
+            font-size: clamp(1.9rem, 4vw, 2.7rem);
+            line-height: 0.95;
+            font-family: "Palatino Linotype", Georgia, serif;
+            letter-spacing: 0.04em;
+        }
+
+        .thumb-caption {
+            max-width: 150px;
+            text-align: right;
+            font-size: 0.82rem;
+            line-height: 1.35;
+            color: rgba(255, 255, 255, 0.86);
+        }
+
+        .thumb-equation {
+            padding: 8px 10px;
+            border-radius: 12px;
+            background: rgba(10, 18, 28, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            font-family: "Courier New", monospace;
+            font-size: 0.88rem;
+            letter-spacing: 0.02em;
+        }
+
+        .thumb-chart {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            align-items: end;
+            gap: 6px;
+            min-height: 56px;
+        }
+
+        .thumb-bar {
+            border-radius: 10px 10px 4px 4px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.28));
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            min-height: 12px;
+        }
+
+        .thumb-footer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .thumb-footer span {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 0.76rem;
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            flex: 1;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            line-height: 1.3;
+            color: var(--deep);
+        }
+
+        .card p {
+            color: var(--muted);
+            line-height: 1.58;
+            font-size: 0.95rem;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(23, 50, 77, 0.08);
+            color: var(--ink);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .link-box {
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: rgba(23, 50, 77, 0.05);
+            border: 1px solid rgba(23, 50, 77, 0.08);
+        }
+
+        .link-box strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ink);
+        }
+
+        .link-box a {
+            color: var(--ink);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.86rem;
+            line-height: 1.45;
+        }
+
+        .link-box a:hover {
+            text-decoration: underline;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .card-actions small {
+            color: var(--muted);
+        }
+
+        .card-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 14px;
+            border-radius: 12px;
+            background: var(--deep);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .card-actions a:hover {
+            transform: translateY(-2px);
+            background: var(--ink);
+        }
+
+        .empty-state {
+            display: none;
+            padding: 28px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px dashed rgba(23, 50, 77, 0.18);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .footer {
+            margin-top: 42px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(23, 50, 77, 0.12);
+            color: var(--muted);
+            line-height: 1.72;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 18px 12px 42px;
+            }
+
+            .hero {
+                padding: 22px;
+                border-radius: 24px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header,
+            .summary-bar,
+            .card-actions,
+            .thumb-topline {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .thumb-caption {
+                text-align: left;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <span class="eyebrow">Portal das simulacoes</span>
+            <h1>Menu central do acervo com visual mais limpo, miniaturas e links prontos para a versao online</h1>
+            <p>Este indice foi organizado para funcionar bem em aula e tambem quando o material estiver publicado no GitHub Pages. O modo padrao prioriza as paginas principais, enquanto as paginas de apoio continuam acessiveis pelos filtros quando voce quiser expandir o acervo.</p>
+            <div class="hero-grid">
+                <div class="hero-card">
+                    <strong>Base online do projeto</strong>
+                    <a href="https://flavioambrosios.github.io/simulacoes/" target="_blank" rel="noreferrer">https://flavioambrosios.github.io/simulacoes/</a>
+                </div>
+                <div class="hero-card">
+                    <strong>Modo padrao do menu</strong>
+                    O filtro inicial agora abre em paginas principais para deixar a navegacao mais clara para os alunos. Colecoes e paginas de apoio continuam disponiveis no seletor.
+                </div>
+                <div class="hero-card">
+                    <strong>Publicacao online</strong>
+                    O repositorio ja possui workflow de GitHub Pages publicando a raiz do projeto, entao este index pode atuar como pagina inicial do site sem outro ajuste estrutural.
+                </div>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <div class="field">
+                <label for="searchInput">Buscar simulacao</label>
+                <input id="searchInput" type="search" placeholder="Ex.: corpo negro, coulomb, espectrometro, ondas">
+            </div>
+            <div class="field">
+                <label for="categorySelect">Filtrar por area</label>
+                <select id="categorySelect">
+                    <option value="all">Todas as areas</option>
+                    <option value="novidades">Novidades</option>
+                    <option value="eletricidade">Eletricidade e magnetismo</option>
+                    <option value="termologia">Termologia e radiacao</option>
+                    <option value="ondas">Ondas, cor e optica</option>
+                    <option value="moderna">Fisica moderna</option>
+                    <option value="colecoes">Colecoes e apoio</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="levelSelect">Modo do menu</label>
+                <select id="levelSelect">
+                    <option value="principal" selected>Somente paginas principais</option>
+                    <option value="all">Mostrar tudo</option>
+                    <option value="colecao">Somente colecoes</option>
+                    <option value="apoio">Somente apoio</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="summary-bar">
+            <p id="summaryText" class="summary">Carregando simulacoes...</p>
+            <span id="modePill" class="mode-pill">Modo atual: paginas principais</span>
+        </div>
+
+        <div id="sectionsRoot"></div>
+        <div id="emptyState" class="empty-state">Nenhuma simulacao corresponde ao filtro atual.</div>
+
+        <footer class="footer">
+            <p><strong>Arquivo de entrada:</strong> este index.html na raiz de simulacoes.</p>
+            <p><strong>Formato dos links online:</strong> o menu agora exibe o endereco completo no padrao do GitHub Pages, por exemplo https://flavioambrosios.github.io/simulacoes/EspectrometrodeMassa/EspectrometrodeMassa.html.</p>
+        </footer>
+    </main>
+
+    <script>
+        const onlineBaseUrl = 'https://flavioambrosios.github.io/simulacoes/';
+        const isLocalRuntime = location.protocol === 'file:';
+
+        const simulations = [
+            { title: 'Circuitos Eletricos DC', description: 'Simulacao com iframe do PhET para montar circuitos, comparar serie e paralelo e praticar Lei de Ohm.', href: 'CircuitosEletricosDC/CircuitosEletricosDC.html', section: 'novidades', type: 'principal', accent: '#2a9d8f', badge: 'Nova' },
+            { title: 'Lei de Coulomb', description: 'Exploracao da forca eletrica entre cargas com simulacao PhET, cenarios guiados e exercicios.', href: 'LeiDeCoulomb/LeiDeCoulomb.html', section: 'novidades', type: 'principal', accent: '#e76f51', badge: 'Nova' },
+            { title: 'Lei de Ohm', description: 'Pagina dedicada ao estudo da relacao entre tensao, corrente e resistencia.', href: 'LeideOhm/LeideOhm.html', section: 'eletricidade', type: 'principal', accent: '#1d3557', badge: 'Eletricidade' },
+            { title: 'Resistencia Eletrica', description: 'Atividade focada em resistencia, variacao de parametros e interpretacao de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade' },
+            { title: 'Forca Magnetica', description: 'Estudo da forca magnetica com pagina principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo' },
+            { title: 'Lei de Ampere', description: 'Exploracao do campo magnetico associado a correntes eletricas.', href: 'LeideAmpere/LeideAmpere.html', section: 'eletricidade', type: 'principal', accent: '#264653', badge: 'Magnetismo' },
+            { title: 'Lei de Faraday', description: 'Simulacao para inducao eletromagnetica e interpretacao da variacao de fluxo.', href: 'LeideFaraday/LeideFaraday.html', section: 'eletricidade', type: 'principal', accent: '#3a5a40', badge: 'Inducao' },
+            { title: 'Solenoide', description: 'Pagina para explorar campo magnetico em solenoides e relacoes associadas.', href: 'Solenoide/Solenoide.html', section: 'eletricidade', type: 'principal', accent: '#588157', badge: 'Magnetismo' },
+            { title: 'Transformadores', description: 'Atividade sobre transformadores e variacao entre tensoes e espiras.', href: 'Transformadores/Transforamdores.html', section: 'eletricidade', type: 'principal', accent: '#bc6c25', badge: 'Aplicacao' },
+            { title: 'Radiacao de Corpo Negro', description: 'Outra versao disponivel do tema radiacao de corpo negro.', href: 'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html', section: 'termologia', type: 'principal', accent: '#ae2012', badge: 'Radiacao' },
+            { title: 'Calorimetria', description: 'Pagina principal para misturas termicas, trocas de calor e exercicios.', href: 'Calorimetria/Calorimetria.html', section: 'termologia', type: 'principal', accent: '#ee9b00', badge: 'Termologia' },
+            { title: 'Fluxo de Calor e Lei de Fourier', description: 'Simulacao propria em canvas para estudar conducao termica em uma barra, gradiente de temperatura e Lei de Fourier.', href: 'FluxoDeCalor/FluxoDeCalor.html', section: 'termologia', type: 'principal', accent: '#f77f00', badge: 'Fourier' },
+            { title: 'Dilatacao Termica', description: 'Estudo da variacao dimensional com mudanca de temperatura.', href: 'DilatacaoTermica/DilatacaoTermica.html', section: 'termologia', type: 'principal', accent: '#ca6702', badge: 'Termologia' },
+            { title: 'Escalas Termometricas', description: 'Conversoes entre escalas e interpretacao de medidas de temperatura.', href: 'EscalasTermom%C3%A9tricas/EscalasTermometricas.html', section: 'termologia', type: 'principal', accent: '#bb3e03', badge: 'Temperatura' },
+            { title: 'Maquina de Carnot', description: 'Pagina sobre ciclo de Carnot, rendimento e maquinas termicas.', href: 'MaquinadeCarnot/CiclodeCarnot.html', section: 'termologia', type: 'principal', accent: '#b08968', badge: 'Termodinamica' },
+            { title: 'Ondas 1D', description: 'Simulacao para propagacao unidimensional de ondas.', href: 'Ondas/Ondas1D/Ondas1D.html', section: 'ondas', type: 'principal', accent: '#006d77', badge: 'Ondas' },
+            { title: 'Ondas 2D', description: 'Visualizacao bidimensional de frentes de onda e propagacao.', href: 'Ondas/Ondas2D/Ondas2D.html', section: 'ondas', type: 'principal', accent: '#118ab2', badge: 'Ondas' },
+            { title: 'Optica Geometrica', description: 'Atividade de optica com conceitos de reflexao, refracao e formacao de imagens.', href: 'OpticaGeometrica/OpticaGeometrica.html', section: 'ondas', type: 'principal', accent: '#8338ec', badge: 'Optica' },
+            { title: 'Atomo de Hidrogenio', description: 'Simulacao sobre estrutura atomica e niveis de energia.', href: 'AtomodeHidrogenio/AtomodeHidrogenio.html', section: 'moderna', type: 'principal', accent: '#3d5a80', badge: 'Modelo atomico' },
+            { title: 'Efeito Fotoeletrico', description: 'Estudo do efeito fotoeletrico e relacao entre frequencia e emissao de eletrons.', href: 'EfeitoFotoEletrico/EfeitoFotoEletrico.html', section: 'moderna', type: 'principal', accent: '#7b2cbf', badge: 'Fisica moderna' },
+            { title: 'Espectrometro de Massa', description: 'Simulacao para interpretar trajetorias e razao carga-massa.', href: 'EspectrometrodeMassa/EspectrometrodeMassa.html', section: 'moderna', type: 'principal', accent: '#5a189a', badge: 'Fisica moderna' },
+            { title: 'Relatividade Especial', description: 'Pagina principal para dilatacao temporal, contracao e referenciais.', href: 'RelatividadeEspecial/RelatividadeEspecial.html', section: 'moderna', type: 'principal', accent: '#4a4e69', badge: 'Relatividade' },
+            { title: 'Estrelas', description: 'Colecao principal de paginas sobre estrelas e evolucao estelar.', href: 'ESTRELAS/index.html', section: 'colecoes', type: 'colecao', accent: '#1d3557', badge: 'Colecao' },
+            { title: 'Avaliacao Bimestral - Educacao Digital', description: 'Pagina principal da avaliacao de Educacao Digital.', href: 'AvaliacaoBimestralEducacaoDigital/index.html', section: 'colecoes', type: 'colecao', accent: '#e9c46a', badge: 'Avaliacao' },
+            { title: 'Avaliacao Bimestral - Sustentabilidade', description: 'Pagina principal da avaliacao de Sustentabilidade.', href: 'AvaliacaoBimestralSustentabilidade/index.html', section: 'colecoes', type: 'colecao', accent: '#8ab17d', badge: 'Avaliacao' },
+            { title: 'Diagrama HR - Estrelas Massivas', description: 'Subpagina da colecao ESTRELAS dedicada ao diagrama HR.', href: 'ESTRELAS/diagrama_hr_massivas.html', section: 'colecoes', type: 'apoio', accent: '#577590', badge: 'Apoio' },
+            { title: 'Pulsar 3D', description: 'Subpagina visual da colecao ESTRELAS.', href: 'ESTRELAS/pulsar_3d.html', section: 'colecoes', type: 'apoio', accent: '#277da1', badge: 'Apoio' },
+            { title: 'Pulsar - Rotacao', description: 'Subpagina de apoio da colecao ESTRELAS.', href: 'ESTRELAS/pulsar_rotacao.html', section: 'colecoes', type: 'apoio', accent: '#4d908e', badge: 'Apoio' },
+            { title: 'Tempo de Vida Restante', description: 'Subpagina da colecao ESTRELAS com calculos e visualizacao.', href: 'ESTRELAS/tempo_vida_restante.html', section: 'colecoes', type: 'apoio', accent: '#43aa8b', badge: 'Apoio' },
+            { title: 'PP Dot', description: 'Subpagina da colecao ESTRELAS para leitura de diagrama PP dot.', href: 'ESTRELAS/diagrama_ppdot.html', section: 'colecoes', type: 'apoio', accent: '#90be6d', badge: 'Apoio' },
+            { title: 'Calorimetria - Versao AU', description: 'Versao alternativa da pagina de calorimetria.', href: 'Calorimetria/Calorimetria_AU.html', section: 'colecoes', type: 'apoio', accent: '#f8961e', badge: 'Alternativa' },
+            { title: 'Forca Magnetica - Versao AU', description: 'Versao alternativa da pagina de forca magnetica.', href: 'ForcaMagnetica/ForcaMagnetica_AU.html', section: 'colecoes', type: 'apoio', accent: '#f9844a', badge: 'Alternativa' },
+            { title: 'Lei de Ampere - Versao AU', description: 'Versao alternativa da pagina da Lei de Ampere.', href: 'LeideAmpere/LeideAmpere-AU.html', section: 'colecoes', type: 'apoio', accent: '#f3722c', badge: 'Alternativa' }
+        ];
+
+        const sectionLabels = {
+            novidades: { title: 'Novidades', note: 'Entradas mais recentes, destacadas no novo padrao visual.' },
+            eletricidade: { title: 'Eletricidade e Magnetismo', note: 'Cargas, circuitos, corrente, inducao e campo magnetico.' },
+            termologia: { title: 'Termologia e Radiacao', note: 'Temperatura, calor, radiacao termica e termodinamica.' },
+            ondas: { title: 'Ondas, Cor e Optica', note: 'Propagacao, cor, imagens e fenomenos ondulatorios.' },
+            moderna: { title: 'Fisica Moderna', note: 'Modelos atomicos, relatividade, espectrometria e topicos especiais.' },
+            colecoes: { title: 'Colecoes e Apoio', note: 'Colecoes maiores, avaliacoes e versoes alternativas.' }
+        };
+
+        const typeLabels = {
+            principal: 'Pagina principal',
+            colecao: 'Colecao',
+            apoio: 'Apoio'
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const levelSelect = document.getElementById('levelSelect');
+        const sectionsRoot = document.getElementById('sectionsRoot');
+        const summaryText = document.getElementById('summaryText');
+        const modePill = document.getElementById('modePill');
+        const emptyState = document.getElementById('emptyState');
+
+        function buildOnlineUrl(path) {
+            return onlineBaseUrl + path;
+        }
+
+        function buildPrimaryUrl(path) {
+            return isLocalRuntime ? path : buildOnlineUrl(path);
+        }
+
+        function getInitials(title) {
+            const words = title.split(/\s+/).filter(function(word) {
+                return word.length > 2;
+            });
+            const picked = words.slice(0, 2);
+            return picked.map(function(word) {
+                return word.charAt(0).toUpperCase();
+            }).join('');
+        }
+
+        function getPreviewText(item) {
+            if (item.section === 'eletricidade') {
+                return 'Experimentos com cargas, corrente e campo';
+            }
+            if (item.section === 'termologia') {
+                return 'Modelos termicos, energia e radiacao';
+            }
+            if (item.section === 'ondas') {
+                return 'Visualizacoes de propagacao, cor e optica';
+            }
+            if (item.section === 'moderna') {
+                return 'Modelos atomicos, relatividade e topicos especiais';
+            }
+            if (item.section === 'colecoes') {
+                return 'Colecoes completas e paginas auxiliares';
+            }
+            return 'Novas simulacoes em destaque';
+        }
+
+        function getThumbnailData(item) {
+            const title = item.title.toLowerCase();
+
+            if (title.includes('circuitos')) {
+                return {
+                    symbol: 'DC',
+                    caption: 'Circuito, corrente e brilho',
+                    equation: 'V = R.I',
+                    bars: [30, 54, 82, 54, 30],
+                    chips: ['serie', 'paralelo', 'potencia']
+                };
+            }
+
+            if (title.includes('coulomb') || title.includes('forca eletrica')) {
+                return {
+                    symbol: 'q',
+                    caption: 'Interacao entre cargas',
+                    equation: 'F = k.|q1.q2|/r²',
+                    bars: [82, 62, 40, 24, 12],
+                    chips: ['atracao', 'repulsao', 'distancia']
+                };
+            }
+
+            if (title.includes('ohm') || title.includes('resistencia')) {
+                return {
+                    symbol: 'V',
+                    caption: 'Tensao, corrente e resistencia',
+                    equation: 'V = R.I',
+                    bars: [24, 42, 60, 78, 94],
+                    chips: ['tensao', 'corrente', 'ohms']
+                };
+            }
+
+            if (title.includes('magnetica') || title.includes('ampere') || title.includes('faraday') || title.includes('solenoide') || title.includes('transformadores')) {
+                return {
+                    symbol: 'B',
+                    caption: 'Campo magnetico e inducao',
+                    equation: 'Phi = B.A.cos(theta)',
+                    bars: [20, 66, 22, 66, 20],
+                    chips: ['campo', 'fluxo', 'espiras']
+                };
+            }
+
+            if (title.includes('corpo negro') || title.includes('radiacao')) {
+                return {
+                    symbol: 'λ',
+                    caption: 'Espectro e temperatura',
+                    equation: 'λmax.T = b',
+                    bars: [18, 34, 60, 88, 58],
+                    chips: ['wien', 'planck', 'espectro']
+                };
+            }
+
+            if (title.includes('calorimetria') || title.includes('dilatacao') || title.includes('escalas') || title.includes('carnot')) {
+                return {
+                    symbol: 'T',
+                    caption: 'Calor, temperatura e energia',
+                    equation: 'Q = m.c.deltaT',
+                    bars: [22, 38, 56, 72, 90],
+                    chips: ['calor', 'temperatura', 'energia']
+                };
+            }
+
+            if (title.includes('ondas') || title.includes('cores') || title.includes('optica')) {
+                return {
+                    symbol: 'f',
+                    caption: 'Propagacao e formacao de imagens',
+                    equation: 'v = lambda.f',
+                    bars: [56, 20, 68, 28, 80],
+                    chips: ['ondas', 'luz', 'optica']
+                };
+            }
+
+            if (title.includes('hidrogenio') || title.includes('fotoeletrico') || title.includes('espectrometro') || title.includes('relatividade') || title.includes('spinor')) {
+                return {
+                    symbol: 'h',
+                    caption: 'Modelos e fenomenos modernos',
+                    equation: 'E = h.f',
+                    bars: [28, 50, 84, 62, 34],
+                    chips: ['quantico', 'moderno', 'modelo']
+                };
+            }
+
+            return {
+                symbol: 'Fx',
+                caption: 'Colecoes e paginas de apoio',
+                equation: 'Acesso organizado ao acervo',
+                bars: [24, 44, 64, 44, 24],
+                chips: ['colecao', 'apoio', 'menu']
+            };
+        }
+
+        function renderThumbnail(item) {
+            const thumb = getThumbnailData(item);
+            return `
+                <div class="thumb-stage">
+                    <div class="thumb-topline">
+                        <strong class="thumb-symbol">${thumb.symbol}</strong>
+                        <span class="thumb-caption">${thumb.caption}</span>
+                    </div>
+                    <div class="thumb-equation">${thumb.equation}</div>
+                    <div class="thumb-chart">
+                        ${thumb.bars.map(function(height) {
+                            return `<span class="thumb-bar" style="height:${height}%"></span>`;
+                        }).join('')}
+                    </div>
+                    <div class="thumb-footer">
+                        ${thumb.chips.map(function(chip) {
+                            return `<span>${chip}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function matchesFilters(item) {
+            const term = searchInput.value.trim().toLowerCase();
+            const category = categorySelect.value;
+            const level = levelSelect.value;
+            const searchable = `${item.title} ${item.description} ${item.badge} ${item.type}`.toLowerCase();
+            const matchesText = !term || searchable.includes(term);
+            const matchesCategory = category === 'all' || item.section === category;
+            const matchesLevel = level === 'all' || item.type === level;
+            return matchesText && matchesCategory && matchesLevel;
+        }
+
+        function groupBySection(items) {
+            return items.reduce(function(map, item) {
+                if (!map[item.section]) {
+                    map[item.section] = [];
+                }
+                map[item.section].push(item);
+                return map;
+            }, {});
+        }
+
+        function updateModePill() {
+            if (levelSelect.value === 'principal') {
+                modePill.textContent = 'Modo atual: paginas principais';
+                return;
+            }
+            if (levelSelect.value === 'all') {
+                modePill.textContent = 'Modo atual: acervo completo';
+                return;
+            }
+            if (levelSelect.value === 'colecao') {
+                modePill.textContent = 'Modo atual: colecoes';
+                return;
+            }
+            modePill.textContent = 'Modo atual: apoio';
+        }
+
+        function render() {
+            const filtered = simulations.filter(matchesFilters);
+            const grouped = groupBySection(filtered);
+            sectionsRoot.innerHTML = '';
+            emptyState.style.display = filtered.length ? 'none' : 'block';
+            updateModePill();
+
+            const visibleCount = filtered.length;
+            const totalCount = simulations.length;
+            summaryText.textContent = `${visibleCount} de ${totalCount} paginas exibidas. Os cartoes mostram um botao de abertura e o link online completo.`;
+
+            Object.keys(sectionLabels).forEach(function(sectionKey) {
+                const items = grouped[sectionKey] || [];
+                if (!items.length) {
+                    return;
+                }
+
+                const section = document.createElement('section');
+                section.className = 'section';
+                section.innerHTML = `
+                    <div class="section-header">
+                        <div>
+                            <h2>${sectionLabels[sectionKey].title}</h2>
+                            <p class="section-note">${sectionLabels[sectionKey].note}</p>
+                        </div>
+                        <div class="section-note">${items.length} pagina(s)</div>
+                    </div>
+                    <div class="cards"></div>
+                `;
+
+                const cards = section.querySelector('.cards');
+                items.forEach(function(item) {
+                    const onlineUrl = buildOnlineUrl(item.href);
+                    const openUrl = buildPrimaryUrl(item.href);
+                    const card = document.createElement('article');
+                    card.className = 'card';
+                    card.style.setProperty('--accent', item.accent);
+                    card.innerHTML = `
+                        <div class="card-media">
+                            <span class="media-kicker">${item.badge}</span>
+                            <div class="media-mark">
+                                ${renderThumbnail(item)}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3>${item.title}</h3>
+                            <div class="meta-row">
+                                <span class="meta-chip">${typeLabels[item.type]}</span>
+                                <span class="meta-chip">${sectionLabels[item.section].title}</span>
+                            </div>
+                            <p>${item.description}</p>
+                            <div class="link-box">
+                                <strong>Link online</strong>
+                                <a href="${onlineUrl}" target="_blank" rel="noreferrer">${onlineUrl}</a>
+                            </div>
+                            <div class="card-actions">
+                                <small>${isLocalRuntime ? 'Abertura local disponivel' : 'Ambiente online detectado'}</small>
+                                <a href="${openUrl}" ${isLocalRuntime ? '' : 'target="_blank" rel="noreferrer"'}>${isLocalRuntime ? 'Abrir simulacao' : 'Abrir online'}</a>
+                            </div>
+                        </div>
+                    `;
+                    cards.appendChild(card);
+                });
+
+                sectionsRoot.appendChild(section);
+            });
+        }
+
+        searchInput.addEventListener('input', render);
+        categorySelect.addEventListener('change', render);
+        levelSelect.addEventListener('change', render);
+
+        render();
+    </script>
+</body>
+</html>

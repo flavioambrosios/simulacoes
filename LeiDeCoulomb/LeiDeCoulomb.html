@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacao da Lei de Coulomb com Exercicios</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #13293d, #1b4965, #f4a261);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .subtitle {
+            color: #ffd166;
+            font-weight: bold;
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #07131d;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .simulation-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .legend {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            line-height: 1.6;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd166;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.92);
+            border: none;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffd166;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffe29a;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0 0;
+            justify-content: center;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .scenario-note {
+            background: rgba(255, 255, 255, 0.08);
+            border-left: 4px solid #ffd166;
+            padding: 12px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffd166;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .exercise-btn {
+            padding: 12px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.82);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #16324f, #355070);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 820px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffd166;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffd166;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 209, 102, 0.3);
+            border: 1px solid #ffd166;
+        }
+        .correct {
+            background: rgba(0, 255, 153, 0.2);
+            border: 1px solid #00ff99;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6b6b;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.75;
+        }
+        .check-btn, .skip-btn, .try-again-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn {
+            background: #ffd166;
+            color: #000;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            background: #6c757d;
+            color: white;
+        }
+        .try-again-btn {
+            background: #13293d;
+            color: white;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 153, 0.2);
+            color: #c3ffe8;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffd3d3;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 4px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .progress-item.active {
+            background: rgba(255, 209, 102, 0.35);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 153, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffd166;
+        }
+        .required::after {
+            content: " *";
+            color: #ff5a5a;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.92);
+            font-size: 16px;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 209, 102, 0.3);
+            color: #fff0c2;
+        }
+        .sent {
+            background: rgba(0, 255, 153, 0.2);
+            color: #c3ffe8;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffd3d3;
+        }
+        .solved-exercise,
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4,
+        .theory-section h3 {
+            color: #ffd166;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffd166;
+            line-height: 1.5;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .theory-content {
+            line-height: 1.65;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 209, 102, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.15rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel,
+            .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+            .simulation-container {
+                height: 380px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulacao da Lei de Coulomb com Exercicios</h1>
+            <p class="subtitle">Prof. Flavio Ambrosio</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Laboratorio Virtual - PhET</h2>
+                <div class="simulation-container">
+                    <iframe src="https://phet.colorado.edu/sims/html/coulombs-law/latest/coulombs-law_pt_BR.html"
+                            width="800"
+                            height="600"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Como Usar a Simulacao</button>
+                </div>
+
+                <div class="legend">
+                    <p><strong>Roteiro rapido:</strong> altere os valores das cargas, aproxime e afaste as esferas e observe como a forca muda de intensidade e de sentido. Compare cargas de mesmo sinal com cargas de sinais opostos.</p>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h2 class="panel-title">Conceitos Fundamentais</h2>
+
+                <div class="control-group">
+                    <label for="scenarioSelect">Cenario de Estudo:</label>
+                    <select id="scenarioSelect">
+                        <option value="atracao">Cargas opostas em aproximacao</option>
+                        <option value="repulsao">Cargas iguais em afastamento</option>
+                        <option value="distancia">Dobrar a distancia</option>
+                        <option value="carga">Dobrar uma das cargas</option>
+                    </select>
+                </div>
+
+                <div class="scenario-note" id="scenarioDescription">
+                    Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com forca de 0,054 N. A interacao e de atracao.
+                </div>
+
+                <div class="formula-box">
+                    <h3>Lei de Coulomb</h3>
+                    <p>F = k . |q1 . q2| / r²</p>
+                    <p>k = 9 . 10^9 N.m²/C²</p>
+                    <p>q1 e q2 em coulombs</p>
+                    <p>r = distancia entre as cargas</p>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Sinal da Interacao</h3>
+                    <p>Sinais iguais -> repulsao</p>
+                    <p>Sinais opostos -> atracao</p>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Dependencia com a Distancia</h3>
+                    <p>F e inversamente proporcional a r²</p>
+                    <p>Se r dobra, F cai para 1/4</p>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Campo Eletrico</h3>
+                    <p>E = F / q</p>
+                    <p>ou E = k . |Q| / r²</p>
+                    <p>Unidade: N/C</p>
+                </div>
+
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                </div>
+            </div>
+
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medicoes e Resultados Esperados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Carga 1</div>
+                        <div class="measurement-value" id="charge1Display">+2 uC</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Carga 2</div>
+                        <div class="measurement-value" id="charge2Display">-3 uC</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Distancia</div>
+                        <div class="measurement-value" id="distanceDisplay">1,0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Forca Eletrostatica</div>
+                        <div class="measurement-value" id="forceDisplay">0,054 N</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Tipo de Interacao</div>
+                        <div class="measurement-value" id="interactionDisplay">Atracao</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Foco Didatico</div>
+                        <div class="measurement-value" id="focusDisplay">Lei de Coulomb</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios sobre a Lei de Coulomb</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusao de Estudo</h3>
+                <p>Escreva abaixo o que voce percebeu sobre a relacao entre cargas, distancia e intensidade da forca.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..."
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+            </div>
+
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercicios</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados.</p>
+
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Serie:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua serie</option>
+                            <option value="1o ano">1o ano</option>
+                            <option value="2o ano">2o ano</option>
+                            <option value="3o ano">3o ano</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para copia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="criticismInput">Criticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestoes:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                    </div>
+
+                    <div id="emailStatus" class="email-status"></div>
+
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios Resolvidos - Lei de Coulomb</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Calculo da forca entre duas cargas</h4>
+                    <p><strong>Problema:</strong> Duas cargas puntiformes de 2 uC e 3 uC estao separadas por 1 m. Qual e a intensidade da forca eletrostatica entre elas?</p>
+                    <div class="solution-step"><strong>Formula:</strong> F = k . |q1 . q2| / r²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter as cargas: 2 uC = 2 . 10^-6 C e 3 uC = 3 . 10^-6 C.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir na formula: F = 9 . 10^9 . (2 . 10^-6 . 3 . 10^-6) / 1².</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: F = 0,054 N.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A intensidade da forca eletrostatica e 0,054 N.</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Efeito da distancia</h4>
+                    <p><strong>Problema:</strong> Se a distancia entre duas cargas dobrar, o que acontece com a intensidade da forca eletrostatica?</p>
+                    <div class="solution-step"><strong>Ideia central:</strong> A forca varia com o inverso do quadrado da distancia.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Se a distancia passa de r para 2r, o denominador vira (2r)² = 4r².</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Isso torna a nova forca igual a F / 4.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Ao dobrar a distancia, a forca cai para um quarto do valor inicial.</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Atracao ou repulsao</h4>
+                    <p><strong>Problema:</strong> Uma carga positiva interage com uma carga negativa. A interacao e de atracao ou repulsao?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Identificar os sinais das cargas.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Cargas de sinais opostos se atraem.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A interacao e de atracao.</div>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Lei de Coulomb</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que estuda a Lei de Coulomb?</h3>
+                    <p>A Lei de Coulomb descreve a intensidade da forca eletrica entre duas cargas puntiformes. Essa forca pode ser de atracao ou de repulsao, dependendo do sinal das cargas envolvidas.</p>
+                    <p>Na simulacao do PhET, voce pode modificar o valor das cargas e a distancia entre elas. Isso permite observar diretamente como a forca aumenta ou diminui e como o sentido da interacao depende do sinal de cada carga.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Expressao matematica</h3>
+                    <p>A intensidade da forca eletrostatica e dada por:</p>
+                    <div class="theory-formula">F = k . |q1 . q2| / r²</div>
+                    <ul>
+                        <li><span class="highlight">F</span> e a intensidade da forca eletrica, em newtons.</li>
+                        <li><span class="highlight">k</span> e a constante eletrostatica no vacuo.</li>
+                        <li><span class="highlight">q1</span> e <span class="highlight">q2</span> sao as cargas eletricas, em coulombs.</li>
+                        <li><span class="highlight">r</span> e a distancia entre as cargas, em metros.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Sinal das cargas</h3>
+                    <p>O sinal nao altera a intensidade numerica calculada pela formula, mas determina o tipo de interacao:</p>
+                    <ul>
+                        <li>Cargas com sinais iguais se repelem.</li>
+                        <li>Cargas com sinais opostos se atraem.</li>
+                    </ul>
+                    <p>Na simulacao, isso aparece visualmente no sentido da forca sobre cada esfera.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Importancia da distancia</h3>
+                    <p>A forca eletrica varia com o inverso do quadrado da distancia. Isso significa que pequenas mudancas em r podem provocar grandes mudancas na intensidade da forca.</p>
+                    <div class="theory-formula">F proporcional a 1 / r²</div>
+                    <p>Se a distancia dobra, a forca cai para um quarto. Se a distancia reduz pela metade, a forca quadruplica.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Campo eletrico</h3>
+                    <p>O campo eletrico representa a influencia que uma carga cria ao seu redor. Uma carga de prova colocada nesse campo sofre uma forca eletrica.</p>
+                    <div class="theory-formula">E = F / q</div>
+                    <p>Para uma carga puntiforme isolada, tambem podemos usar a relacao <span class="highlight">E = k . |Q| / r²</span>.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>O que observar no PhET</h3>
+                    <ul>
+                        <li>Mude o sinal de uma das cargas para comparar atracao e repulsao.</li>
+                        <li>Aproxime as cargas e veja como a forca cresce rapidamente.</li>
+                        <li>Dobre a distancia e compare com a previsao de queda para um quarto.</li>
+                        <li>Dobre uma das cargas e observe que a forca tambem dobra.</li>
+                        <li>Use a simulacao para verificar previsoes feitas antes do experimento.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        const kMicro = 0.009;
+
+        const scenarios = {
+            atracao: {
+                charge1: '+2 uC',
+                charge2: '-3 uC',
+                distance: '1,0 m',
+                force: '0,054 N',
+                interaction: 'Atracao',
+                focus: 'Lei de Coulomb',
+                description: 'Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com forca de 0,054 N. A interacao e de atracao.'
+            },
+            repulsao: {
+                charge1: '+4 uC',
+                charge2: '+4 uC',
+                distance: '2,0 m',
+                force: '0,036 N',
+                interaction: 'Repulsao',
+                focus: 'Sinal das cargas',
+                description: 'Duas cargas positivas de 4 uC, separadas por 2 m, interagem com forca de 0,036 N. Como os sinais sao iguais, a interacao e de repulsao.'
+            },
+            distancia: {
+                charge1: '+3 uC',
+                charge2: '-3 uC',
+                distance: '1,0 m -> 2,0 m',
+                force: '0,081 N -> 0,020 N',
+                interaction: 'Atracao menor',
+                focus: 'Inverso do quadrado da distancia',
+                description: 'Ao dobrar a distancia entre duas cargas de 3 uC e -3 uC, a forca cai de aproximadamente 0,081 N para cerca de 0,020 N, isto e, para um quarto do valor inicial.'
+            },
+            carga: {
+                charge1: '+2 uC -> +4 uC',
+                charge2: '-5 uC',
+                distance: '1,0 m',
+                force: '0,090 N -> 0,180 N',
+                interaction: 'Atracao mais intensa',
+                focus: 'Proporcionalidade com a carga',
+                description: 'Se a carga 1 dobra de 2 uC para 4 uC, mantendo a distancia e a outra carga constantes, a intensidade da forca tambem dobra.'
+            }
+        };
+
+        function setupEventListeners() {
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert('Como usar a simulacao:\n\n• Ajuste o valor das cargas no PhET.\n• Observe se a interacao e de atracao ou repulsao.\n• Aproxime e afaste as cargas para comparar a intensidade da forca.\n• Teste o efeito de dobrar a distancia.\n• Compare os resultados com a Lei de Coulomb antes de medir.\n\nDica: use primeiro numeros pequenos e depois faca previsoes antes de alterar os controles.');
+            });
+
+            document.getElementById('scenarioSelect').addEventListener('change', updateScenarioPanel);
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target === document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target === document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+
+        function updateScenarioPanel() {
+            const scenario = scenarios[document.getElementById('scenarioSelect').value];
+            document.getElementById('scenarioDescription').textContent = scenario.description;
+            document.getElementById('charge1Display').textContent = scenario.charge1;
+            document.getElementById('charge2Display').textContent = scenario.charge2;
+            document.getElementById('distanceDisplay').textContent = scenario.distance;
+            document.getElementById('forceDisplay').textContent = scenario.force;
+            document.getElementById('interactionDisplay').textContent = scenario.interaction;
+            document.getElementById('focusDisplay').textContent = scenario.focus;
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            document.getElementById('exerciseContainer').innerHTML = '';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('conclusionText').value = '';
+            document.getElementById('resultsSummary').innerHTML = '';
+        }
+
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+
+        function calculateForceMicro(q1Micro, q2Micro, distanceMeters) {
+            return kMicro * Math.abs(q1Micro * q2Micro) / (distanceMeters * distanceMeters);
+        }
+
+        function formatForce(value) {
+            return `${value.toFixed(3).replace('.', ',')} N`;
+        }
+
+        function formatRatio(value) {
+            const rounded = Number.isInteger(value) ? value.toFixed(0) : value.toFixed(2);
+            return `${rounded.replace('.', ',')} vezes`;
+        }
+
+        function generateOptions(correctValue, formatter, variations) {
+            const options = [formatter(correctValue)];
+            let attempts = 0;
+
+            while (options.length < 5 && attempts < 40) {
+                const candidate = variations(correctValue, attempts);
+                if (candidate <= 0) {
+                    attempts++;
+                    continue;
+                }
+                const formatted = formatter(candidate);
+                if (!options.includes(formatted)) {
+                    options.push(formatted);
+                }
+                attempts++;
+            }
+
+            return shuffleArray(options);
+        }
+
+        function shuffleArray(array) {
+            const copy = [...array];
+            for (let index = copy.length - 1; index > 0; index--) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+            }
+            return copy;
+        }
+
+        function createForceExercise() {
+            const charges = [1, 2, 3, 4, 5, 6];
+            const q1 = charges[Math.floor(Math.random() * charges.length)];
+            const q2 = charges[Math.floor(Math.random() * charges.length)];
+            const distance = [1, 2, 3][Math.floor(Math.random() * 3)];
+            const force = calculateForceMicro(q1, q2, distance);
+            return {
+                type: 'forca',
+                question: `Duas cargas puntiformes de ${q1} uC e ${q2} uC estao separadas por ${distance} m. Qual e a intensidade da forca eletrica entre elas?`,
+                answer: formatForce(force),
+                options: generateOptions(force, formatForce, function(correctValue, attempts) {
+                    if (attempts % 3 === 0) {
+                        return correctValue * 2;
+                    }
+                    if (attempts % 3 === 1) {
+                        return correctValue / 2;
+                    }
+                    return correctValue * (Math.random() * 0.8 + 0.6);
+                })
+            };
+        }
+
+        function createDistanceExercise() {
+            const distanceMultiplier = [2, 3, 4][Math.floor(Math.random() * 3)];
+            const ratio = 1 / (distanceMultiplier * distanceMultiplier);
+            return {
+                type: 'distancia',
+                question: `Se a distancia entre duas cargas for multiplicada por ${distanceMultiplier}, a nova forca eletrica passara a valer quanto da forca inicial?`,
+                answer: formatRatio(ratio),
+                options: shuffleArray([
+                    formatRatio(ratio),
+                    formatRatio(distanceMultiplier),
+                    formatRatio(1 / distanceMultiplier),
+                    formatRatio(distanceMultiplier * distanceMultiplier),
+                    formatRatio(1 / (distanceMultiplier + 1))
+                ])
+            };
+        }
+
+        function createInteractionExercise() {
+            const combinations = [
+                { first: 'positiva', second: 'positiva', answer: 'Repulsao' },
+                { first: 'negativa', second: 'negativa', answer: 'Repulsao' },
+                { first: 'positiva', second: 'negativa', answer: 'Atracao' },
+                { first: 'negativa', second: 'positiva', answer: 'Atracao' }
+            ];
+            const choice = combinations[Math.floor(Math.random() * combinations.length)];
+            return {
+                type: 'interacao',
+                question: `Uma carga ${choice.first} interage com uma carga ${choice.second}. Qual e o tipo de interacao entre elas?`,
+                answer: choice.answer,
+                options: shuffleArray(['Atracao', 'Repulsao', 'Forca nula', 'Campo uniforme', 'Equilibrio eletrico'])
+            };
+        }
+
+        function generateExercises() {
+            exercises = [
+                createForceExercise(),
+                createForceExercise(),
+                createDistanceExercise(),
+                createDistanceExercise(),
+                createInteractionExercise(),
+                createInteractionExercise()
+            ];
+            exercises = shuffleArray(exercises);
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercicio ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map(option => `<div class="option" data-value="${option}">${option}</div>`).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(item => item.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opcao.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: true,
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1200);
+                return;
+            }
+
+            currentExerciseAttempts++;
+            selectedOption.classList.add('incorrect');
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente ou pule o exercicio.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercicio</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            if (currentType === 'forca') {
+                exercises[currentExercise] = createForceExercise();
+                return;
+            }
+            if (currentType === 'distancia') {
+                exercises[currentExercise] = createDistanceExercise();
+                return;
+            }
+            exercises[currentExercise] = createInteractionExercise();
+        }
+
+        function skipExercise() {
+            if (!confirm('Deseja pular este exercicio? Um erro sera registrado em seu relatorio.')) {
+                return;
+            }
+
+            exerciseResults.push({
+                exercise: currentExercise,
+                correct: false,
+                skipped: true,
+                attempts: currentExerciseAttempts
+            });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function updateProgressBar() {
+            for (let index = 0; index < 6; index++) {
+                const progressItem = document.getElementById(`progress${index + 1}`);
+                progressItem.classList.remove('active', 'completed');
+
+                if (index === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (index < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+
+            const submitButton = document.getElementById('submitConclusion');
+            submitButton.onclick = function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            };
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(result => result.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercicios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercicios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+
+            document.getElementById('finalConclusion').value = conclusion;
+            document.getElementById('sendResults').onclick = sendResultsToSheet;
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatorios.');
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(result => result.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Lei de Coulomb',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (!studentEmail) {
+                    return null;
+                }
+
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Nao informado',
+                    serie: studentGrade || 'Nao informado',
+                    turma: studentClass || 'Nao informado',
+                    nota: scorePercentage + '%' || '0%',
+                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                    questoes_puladas: skippedQuestions || 0,
+                    conclusao: finalConclusion || 'Nao informado',
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulacao: 'Lei de Coulomb',
+                    mensagem: `Confirmacao de Envio - Simulacao da Lei de Coulomb\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulacoes Fisicas`
+                };
+
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailDataAluno)
+                });
+            })
+            .then(() => {
+                emailStatus.textContent = studentEmail
+                    ? 'Dados salvos e emails enviados!'
+                    : 'Dados salvos e email enviado ao professor!';
+                emailStatus.className = 'email-status sent';
+
+                setTimeout(() => {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                emailStatus.textContent = 'Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        window.addEventListener('load', function() {
+            setupEventListeners();
+            updateScenarioPanel();
+        });
+    </script>
+    <script>
+        let studentNameLeiDeCoulomb = localStorage.getItem('studentNameLeiDeCoulomb') || '';
+
+        function ensureStudentNameLeiDeCoulomb() {
+            if (!studentNameLeiDeCoulomb) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameLeiDeCoulomb = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameLeiDeCoulomb', studentNameLeiDeCoulomb);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameLeiDeCoulomb();
+                return `Ola, ${studentNameLeiDeCoulomb}. Esta pagina usa a simulacao do PhET para estudar a Lei de Coulomb. O objetivo e observar como a forca eletrica depende do valor das cargas, da distancia entre elas e do sinal de cada carga.`;
+            },
+            function () {
+                return 'A Lei de Coulomb descreve a intensidade da forca entre duas cargas puntiformes. Quanto maiores forem as cargas, maior sera a forca eletrica. Quanto maior for a distancia entre elas, menor sera essa forca.';
+            },
+            function () {
+                return 'O sinal das cargas determina o tipo de interacao. Cargas com o mesmo sinal se repelem. Cargas com sinais opostos se atraem. Essa e uma das observacoes mais importantes para fazer no simulador.';
+            },
+            function () {
+                return 'Outro ponto central e a dependencia com o inverso do quadrado da distancia. Isso significa que a forca nao diminui de modo linear. Se a distancia dobra, a forca passa a valer apenas um quarto do valor inicial.';
+            },
+            function () {
+                return 'No painel lateral desta pagina, voce encontra cenarios de estudo com valores esperados. A ideia e prever o resultado, testar no PhET e depois comparar a observacao com o calculo teorico.';
+            },
+            function () {
+                return 'O campo eletrico aparece como uma extensao natural dessa discussao. Ele representa a influencia exercida por uma carga sobre a regiao ao seu redor e pode ser relacionado a forca que atuaria sobre uma carga de prova.';
+            },
+            function () {
+                return 'Depois da exploracao, resolva os exercicios e tente justificar cada resposta. Mais importante do que acertar um numero e saber por que a forca aumentou, diminuiu, atraiu ou repeliu.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, calculamos a intensidade da forca entre duas cargas conhecidas. O passo essencial e converter microcoulombs para coulombs e depois aplicar corretamente a Lei de Coulomb. Esse exemplo mostra que a forca pode ser numericamente pequena, mas ainda assim representar uma interacao importante.',
+            '2': 'No segundo exemplo, o foco nao esta em substituir valores, mas em compreender a relacao inversa com o quadrado da distancia. Essa ideia aparece muitas vezes na eletrostatica e precisa ser consolidada com calma.',
+            '3': 'No terceiro exemplo, a resposta depende apenas do sinal das cargas. Isso mostra que, na eletrostatica, a intensidade e o tipo de interacao sao aspectos diferentes: a formula fornece a intensidade, e os sinais dizem se a forca e de atracao ou de repulsao.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Lei de Coulomb',
+            storageKey: 'lei-de-coulomb'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>
