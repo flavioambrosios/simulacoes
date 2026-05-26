@@ -1,0 +1,1879 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacao de Diodo Emissor de Luz - LED e OLED</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #07121d, #21314d, #432d63);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.45);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.45);
+        }
+
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.58);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .simulation-container {
+            width: 100%;
+            height: 420px;
+            background: #02070d;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #deviceCanvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.58);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd166;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="range"],
+        select {
+            width: 100%;
+        }
+
+        input[type="range"] {
+            margin-bottom: 5px;
+        }
+
+        select,
+        input,
+        textarea {
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffd166;
+        }
+
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #ffd166;
+            color: #131313;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #ffe199;
+        }
+
+        .formula-box,
+        .legend,
+        .measurement-panel,
+        .theory-section,
+        .solved-exercise,
+        .exercise {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+        }
+
+        .formula-box {
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+            padding: 10px;
+            width: 100%;
+        }
+
+        .canvas-hint {
+            margin-top: 10px;
+            text-align: center;
+            color: #cfe8ff;
+            font-size: 0.95rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+
+        .chip { background: #cfd8dc; }
+        .light { background: #ffd166; }
+        .panel { background: #8ecae6; }
+
+        .measurement-panel {
+            width: 100%;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.58);
+        }
+
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .measurement-value {
+            color: #ffd166;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1f3550, #314e73);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffd166;
+            padding-bottom: 10px;
+        }
+
+        .close {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .exercise,
+        .solved-exercise,
+        .theory-section {
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        .exercise h3,
+        .solved-exercise h4,
+        .theory-section h3 {
+            color: #ffd166;
+            margin-bottom: 10px;
+        }
+
+        .options {
+            display: grid;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .selected {
+            background: rgba(255, 209, 102, 0.3);
+            border: 1px solid #ffd166;
+        }
+
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff88;
+        }
+
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6b6b;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.75;
+        }
+
+        .check-btn,
+        .skip-btn,
+        .try-again-btn {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .skip-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .try-again-btn {
+            background: #1b4965;
+            color: white;
+        }
+
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #8bffb0;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff9e9e;
+        }
+
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            margin-bottom: 15px;
+        }
+
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .progress-item.active {
+            background: rgba(255, 209, 102, 0.3);
+        }
+
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.16);
+        }
+
+        .button-group,
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .theory-content,
+        .solved-exercise,
+        .theory-section {
+            line-height: 1.6;
+        }
+
+        .theory-content ul {
+            padding-left: 20px;
+        }
+
+        .highlight {
+            background: rgba(255, 209, 102, 0.22);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .theory-formula,
+        .solution-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid #ffd166;
+            border-radius: 4px;
+        }
+
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        .email-status {
+            display: none;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sending { background: rgba(255, 209, 102, 0.22); color: #ffd166; }
+        .sent { background: rgba(0, 255, 0, 0.2); color: #8bffb0; }
+        .error-status { background: rgba(255, 0, 0, 0.2); color: #ff9e9e; }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .simulation-panel,
+            .controls-panel {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulacao de Diodo Emissor de Luz - LED e OLED</h1>
+            <p class="subtitle">Prof. Flavio Ambrosio</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Emissao de luz em dispositivos semicondutores</h2>
+                <div class="simulation-container">
+                    <canvas id="deviceCanvas"></canvas>
+                </div>
+
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color chip"></div>
+                        <span>Dispositivo</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color light"></div>
+                        <span>Fotons emitidos</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color panel"></div>
+                        <span>Camada emissora OLED</span>
+                    </div>
+                </div>
+                <p class="canvas-hint">Clique nas cores do quadro de niveis de energia para mudar o salto quantico diretamente no desenho.</p>
+            </div>
+
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+
+                <div class="control-group">
+                    <label for="technologySelect">Tecnologia:</label>
+                    <select id="technologySelect">
+                        <option value="led">LED</option>
+                        <option value="oled">OLED</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="colorSelect">Cor emitida:</label>
+                    <select id="colorSelect">
+                        <option value="650">Vermelho (650 nm)</option>
+                        <option value="610">Laranja (610 nm)</option>
+                        <option value="590">Amarelo (590 nm)</option>
+                        <option value="530">Verde (530 nm)</option>
+                        <option value="470">Azul (470 nm)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="currentInput">Corrente eletrica:</label>
+                    <input type="range" id="currentInput" min="2" max="40" value="18" step="1">
+                    <div class="value-display"><span id="currentValue">18</span> mA</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="areaInput">Area emissora:</label>
+                    <input type="range" id="areaInput" min="0.2" max="12.0" value="1.2" step="0.1">
+                    <div class="value-display"><span id="areaValue">1.2</span> cm²</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="efficiencyInput">Eficiencia luminosa relativa:</label>
+                    <input type="range" id="efficiencyInput" min="15" max="95" value="62" step="1">
+                    <div class="value-display"><span id="efficiencyValue">62</span> %</div>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Relacoes principais</h3>
+                    <p>E = h . f</p>
+                    <p>c = lambda . f</p>
+                    <p>E = h . c / lambda</p>
+                    <p>E(eV) ~= 1240 / lambda(nm)</p>
+                    <p>q . V ~= Delta E</p>
+                    <p>P eletrica = V . I</p>
+                    <p>Brilho relativo ~= corrente . eficiencia</p>
+                    <p>No LED, o salto quantico ocorre no semicondutor. No OLED, em materiais organicos excitados.</p>
+                </div>
+
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medicoes e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item"><div class="measurement-label">Tecnologia</div><div class="measurement-value" id="technologyDisplay">LED</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Cor</div><div class="measurement-value" id="colorDisplay">Vermelho</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Comprimento de onda</div><div class="measurement-value" id="wavelengthDisplay">650 nm</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Frequencia</div><div class="measurement-value" id="frequencyDisplay">461.2 THz</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Energia do foton</div><div class="measurement-value" id="photonEnergyDisplay">1.91 eV</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Salto quantico (Delta E)</div><div class="measurement-value" id="gapDisplay">1.91 eV</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Tensao direta estimada</div><div class="measurement-value" id="forwardVoltageDisplay">1.91 V</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Potencia eletrica</div><div class="measurement-value" id="electricalPowerDisplay">34.4 mW</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Taxa de fotons</div><div class="measurement-value" id="photonRateDisplay">6.97 x 10^16 /s</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Brilho relativo</div><div class="measurement-value" id="brightnessDisplay">11.2 u.a.</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Tipo de emissao</div><div class="measurement-value" id="emissionDisplay">Focal e direcional</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Brilho por area</div><div class="measurement-value" id="densityDisplay">9.3 u.a./cm²</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Aplicacao tipica</div><div class="measurement-value" id="applicationDisplay">Indicadores e lampadas</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios sobre LED e OLED</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="progress" id="progressBar"></div>
+
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusao de estudo</h3>
+                <p>Escreva abaixo o que voce aprendeu sobre LED e OLED.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+            </div>
+
+            <div id="resultsContainer" style="display:none;">
+                <h3>Resultados dos Exercicios</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Serie:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua serie</option>
+                            <option value="1o ano">1o ano</option>
+                            <option value="2o ano">2o ano</option>
+                            <option value="3o ano">3o ano</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para copia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    <div class="form-row">
+                        <label for="criticismInput">Criticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestoes:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                    </div>
+
+                    <div id="emailStatus" class="email-status"></div>
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios Resolvidos - LED e OLED</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="solved-exercise">
+                <h4>Exemplo 1: Energia do foton</h4>
+                <p><strong>Problema:</strong> Um LED azul emite luz com comprimento de onda de 470 nm. Qual e a energia aproximada de cada foton?</p>
+                <div class="solution-step"><strong>Formula:</strong> E(eV) ~= 1240 / lambda(nm)</div>
+                <div class="solution-step"><strong>Calculo:</strong> E ~= 1240 / 470 ~= 2.64 eV</div>
+                <div class="solution-step"><strong>Conclusao:</strong> Como a energia e maior, a cor azul precisa de uma diferenca de energia maior do que a vermelha.</div>
+            </div>
+
+            <div class="solved-exercise">
+                <h4>Exemplo 2: Potencia eletrica</h4>
+                <p><strong>Problema:</strong> Um LED opera com tensao de 2.0 V e corrente de 20 mA. Qual e a potencia eletrica?</p>
+                <div class="solution-step"><strong>Passo 1:</strong> Converter 20 mA para ampere: 0.020 A</div>
+                <div class="solution-step"><strong>Passo 2:</strong> P = V . I = 2.0 . 0.020 = 0.040 W</div>
+                <div class="solution-step"><strong>Resposta:</strong> A potencia eletrica e 40 mW.</div>
+            </div>
+
+            <div class="solved-exercise">
+                <h4>Exemplo 3: De onde vem E ~= 1240 / lambda?</h4>
+                <p><strong>Problema:</strong> Justifique a formula pratica usada para calcular a energia do foton em eletron-volts.</p>
+                <div class="solution-step"><strong>Passo 1:</strong> Comecamos com E = h . f.</div>
+                <div class="solution-step"><strong>Passo 2:</strong> Como c = lambda . f, entao f = c / lambda.</div>
+                <div class="solution-step"><strong>Passo 3:</strong> Substituindo em E = h . f, obtemos E = h . c / lambda.</div>
+                <div class="solution-step"><strong>Passo 4:</strong> Trocando joule por eV e metro por nm, surge a aproximacao E(eV) ~= 1240 / lambda(nm).</div>
+            </div>
+
+            <div class="solved-exercise">
+                <h4>Exemplo 4: Ligacao entre ddp e cor emitida</h4>
+                <p><strong>Problema:</strong> Se a diferenca de energia responsavel pela emissao for de 2.2 eV, qual comprimento de onda aproximado esperamos?</p>
+                <div class="solution-step"><strong>Ideia:</strong> No modelo simplificado do LED, q . V ~= Delta E e Delta E ~= E do foton.</div>
+                <div class="solution-step"><strong>Calculo:</strong> lambda ~= 1240 / 2.2 ~= 564 nm.</div>
+                <div class="solution-step"><strong>Conclusao:</strong> Esse valor fica na regiao do amarelo-esverdeado, mostrando a ligacao entre salto quantico e cor emitida.</div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - LED e OLED</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que e um LED?</h3>
+                    <p>LED significa <span class="highlight">diodo emissor de luz</span>. Ele e um componente eletronico que transforma parte da energia eletrica em luz. Em uma linguagem um pouco mais fisica, eletrons e lacunas se recombinam no material semicondutor e a diferenca de energia pode ser emitida na forma de fotons.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Saltos quanticos e niveis de energia</h3>
+                    <p>A emissao luminosa pode ser interpretada como um <span class="highlight">salto quantico</span>. O sistema passa de um nivel de energia mais alto para outro mais baixo. A diferenca entre esses niveis e <span class="highlight">Delta E</span>, e essa energia aparece no foton emitido:</p>
+                    <div class="theory-formula">Delta E = E do foton = h . f</div>
+                    <p>No LED, essa diferenca esta ligada ao <span class="highlight">gap de energia</span> do semicondutor. No OLED, a ideia continua parecida, mas a emissao acontece em estados excitados de moleculas organicas.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>De onde vem E(eV) ~= 1240 / lambda(nm)?</h3>
+                    <p>Essa expressao nao surge do nada. Ela vem de duas relacoes fundamentais da fisica moderna:</p>
+                    <div class="theory-formula">E = h . f</div>
+                    <div class="theory-formula">c = lambda . f</div>
+                    <p>Isolando a frequencia, obtemos <span class="highlight">f = c / lambda</span>. Substituindo na expressao da energia:</p>
+                    <div class="theory-formula">E = h . c / lambda</div>
+                    <p>Se usarmos <span class="highlight">h = 6.63 x 10^-34 J.s</span>, <span class="highlight">c = 3.0 x 10^8 m/s</span>, <span class="highlight">1 eV = 1.60 x 10^-19 J</span> e convertermos metro para nanometro, aparece a forma pratica:</p>
+                    <div class="theory-formula">E(eV) ~= 1240 / lambda(nm)</div>
+                    <p>Por isso, quando o comprimento de onda diminui, a energia do foton aumenta. Assim, a luz azul transporta mais energia por foton do que a vermelha.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Ligacao com a ddp aplicada</h3>
+                    <p>Quando uma carga elementar <span class="highlight">q</span> atravessa uma diferenca de potencial <span class="highlight">V</span>, a variacao de energia eletrica vale:</p>
+                    <div class="theory-formula">Delta E_eletrica = q . V</div>
+                    <p>No modelo simplificado do LED, essa energia pode ser associada ao salto quantico que gera o foton. Por isso usamos a aproximacao:</p>
+                    <div class="theory-formula">q . V ~= Delta E ~= h . f ~= h . c / lambda</div>
+                    <p>Na pratica, nao e uma igualdade perfeita, porque parte da energia pode virar calor. Mesmo assim, essa relacao ajuda muito a estimar a cor emitida e a ordem de grandeza da tensao direta.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>O que muda no OLED?</h3>
+                    <p>O OLED tambem emite luz por excitacao eletrica, mas usa materiais organicos em camadas muito finas. Em vez de um ponto luminoso pequeno, a emissao pode acontecer em uma <span class="highlight">area maior e mais uniforme</span>, o que favorece telas finas.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Conexao com o efeito fotoeletrico</h3>
+                    <p>No efeito fotoeletrico, a luz chega ao material e pode arrancar eletrons. Aqui acontece o processo inverso: a energia eletrica chega ao material e pode produzir luz. Nos dois casos, a ideia central do <span class="highlight">foton com energia E = h . f</span> continua a mesma.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Equacoes uteis para esta atividade</h3>
+                    <ul>
+                        <li><span class="highlight">Energia do foton:</span> E = h . f</li>
+                        <li><span class="highlight">Relacao ondulatoria:</span> c = lambda . f</li>
+                        <li><span class="highlight">Forma pratica:</span> E(eV) ~= 1240 / lambda(nm)</li>
+                        <li><span class="highlight">Energia eletrica por carga:</span> Delta E = q . V</li>
+                        <li><span class="highlight">Potencia eletrica:</span> P = V . I</li>
+                        <li><span class="highlight">Numero de fotons por segundo:</span> N ~= potencia luminosa / energia de cada foton</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Diferencas que valem para o 3o ano</h3>
+                    <ul>
+                        <li><span class="highlight">LED:</span> pequeno, resistente, muito usado em lampadas, sinais e indicadores.</li>
+                        <li><span class="highlight">OLED:</span> camada luminosa espalhada, muito usado em telas modernas.</li>
+                        <li><span class="highlight">Corrente maior:</span> tende a aumentar o brilho, mas tambem aumenta o consumo e o aquecimento.</li>
+                        <li><span class="highlight">Maior Delta E:</span> significa fotons mais energeticos e, em geral, comprimentos de onda menores.</li>
+                        <li><span class="highlight">Area maior:</span> no OLED ajuda a espalhar a emissao por uma superficie maior.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Aplicacoes praticas</h3>
+                    <ul>
+                        <li>indicadores luminosos e semaforos</li>
+                        <li>lampadas de alta eficiencia</li>
+                        <li>telas de celulares, tablets e televisores</li>
+                        <li>paineis finos e projetos de design de iluminacao</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PLANCK_CONSTANT = 6.62607015e-34;
+        const LIGHT_SPEED = 2.99792458e8;
+        const ELEMENTARY_CHARGE = 1.602176634e-19;
+
+        let canvas, ctx;
+        let technology = 'led';
+        let wavelength = 650;
+        let currentmA = 18;
+        let areaCm2 = 1.2;
+        let efficiencyPercent = 62;
+        let photonEnergyEV = 1.91;
+        let frequencyTHz = 461.2;
+        let quantumJumpEV = 1.91;
+        let forwardVoltage = 1.91;
+        let electricalPowerW = 0.0344;
+        let photonRate = 6.97e16;
+        let relativeBrightness = 11.16;
+        let brightnessDensity = 9.3;
+        let isRunning = false;
+        let animationId = null;
+        let photons = [];
+        let energyDiagramRegions = [];
+        let selectedEnergyPart = 'transition';
+
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        const colorMap = {
+            '650': { name: 'Vermelho', glow: '#ff5a5f' },
+            '610': { name: 'Laranja', glow: '#ff8c42' },
+            '590': { name: 'Amarelo', glow: '#ffd166' },
+            '530': { name: 'Verde', glow: '#7ae582' },
+            '470': { name: 'Azul', glow: '#62b6ff' }
+        };
+
+        const wavelengthOptions = [650, 610, 590, 530, 470];
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function init() {
+            canvas = document.getElementById('deviceCanvas');
+            ctx = canvas.getContext('2d');
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            updateCalculatedParameters();
+            resetPhotons(true);
+            drawSystem();
+            updateMeasurements();
+            setupEventListeners();
+            setupExerciseEventListeners();
+        }
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawSystem();
+        }
+
+        function setSelectedWavelength(nextWavelength) {
+            wavelength = nextWavelength;
+            document.getElementById('colorSelect').value = String(nextWavelength);
+            updateCalculatedParameters();
+            drawSystem();
+            updateMeasurements();
+        }
+
+        function resetPhotons(forceRedistribute) {
+            const flowFactor = clamp(relativeBrightness / 16, 0.2, 1);
+            const count = Math.max(8, Math.round(10 + flowFactor * 34));
+            if (forceRedistribute) {
+                photons = [];
+            }
+            while (photons.length < count) {
+                photons.push({
+                    xSeed: Math.random(),
+                    progress: Math.random(),
+                    speed: 0.004 + Math.random() * 0.01,
+                    spread: Math.random() * 2 - 1
+                });
+            }
+            if (photons.length > count) {
+                photons = photons.slice(0, count);
+            }
+        }
+
+        function updateCalculatedParameters() {
+            frequencyTHz = LIGHT_SPEED / (wavelength * 1e-9) / 1e12;
+            photonEnergyEV = 1240 / wavelength;
+            quantumJumpEV = photonEnergyEV;
+            forwardVoltage = photonEnergyEV;
+            electricalPowerW = forwardVoltage * (currentmA / 1000);
+            photonRate = ((efficiencyPercent / 100) * electricalPowerW) / (photonEnergyEV * ELEMENTARY_CHARGE);
+            relativeBrightness = (currentmA * efficiencyPercent) / 100;
+            brightnessDensity = relativeBrightness / areaCm2;
+            resetPhotons(false);
+        }
+
+        function drawSystem() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawCircuit();
+            if (technology === 'led') {
+                drawLedDevice();
+            } else {
+                drawOledDevice();
+            }
+            drawPhotons();
+            drawEnergyDiagram();
+            drawLabels();
+        }
+
+        function drawBackground() {
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#031018');
+            gradient.addColorStop(1, '#121f33');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function getDeviceColor() {
+            return colorMap[String(wavelength)].glow;
+        }
+
+        function getDeviceCenterX() {
+            return canvas.width * 0.43;
+        }
+
+        function getEmissionOrigin(particle) {
+            if (technology === 'led') {
+                return {
+                    x: getDeviceCenterX(),
+                    y: canvas.height * 0.44
+                };
+            }
+
+            const panelWidth = canvas.width * 0.34;
+            const panelHeight = canvas.height * clamp(0.15 + areaCm2 / 30, 0.16, 0.38);
+            return {
+                x: getDeviceCenterX() - panelWidth / 2 + particle.xSeed * panelWidth,
+                y: canvas.height * 0.5 - panelHeight / 2 + particle.xSeed * panelHeight * 0.35
+            };
+        }
+
+        function drawCircuit() {
+            const y = canvas.height * 0.76;
+            ctx.strokeStyle = '#cfd8dc';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.12, y);
+            ctx.lineTo(canvas.width * 0.32, y);
+            ctx.lineTo(canvas.width * 0.32, canvas.height * 0.6);
+            ctx.lineTo(canvas.width * 0.68, canvas.height * 0.6);
+            ctx.lineTo(canvas.width * 0.68, y);
+            ctx.lineTo(canvas.width * 0.88, y);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width * 0.15, y - 20);
+            ctx.lineTo(canvas.width * 0.15, y + 20);
+            ctx.moveTo(canvas.width * 0.18, y - 12);
+            ctx.lineTo(canvas.width * 0.18, y + 12);
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffd166';
+            ctx.font = 'bold 15px Arial';
+            ctx.fillText('Fonte', canvas.width * 0.12, y + 40);
+
+            ctx.strokeStyle = '#f4a261';
+            ctx.lineWidth = 4;
+            const resistorX = canvas.width * 0.27;
+            ctx.beginPath();
+            ctx.moveTo(resistorX, y);
+            ctx.lineTo(resistorX + 10, y - 14);
+            ctx.lineTo(resistorX + 20, y + 14);
+            ctx.lineTo(resistorX + 30, y - 14);
+            ctx.lineTo(resistorX + 40, y + 14);
+            ctx.lineTo(resistorX + 50, y);
+            ctx.stroke();
+            ctx.fillStyle = '#f4a261';
+            ctx.fillText('R', resistorX + 18, y - 24);
+        }
+
+        function drawLedDevice() {
+            const cx = getDeviceCenterX();
+            const cy = canvas.height * 0.46;
+            const glow = getDeviceColor();
+            const currentFactor = clamp(relativeBrightness / 16, 0.2, 1);
+
+            const halo = ctx.createRadialGradient(cx, cy, 10, cx, cy, 90 + currentFactor * 80);
+            halo.addColorStop(0, hexToRgba(glow, 0.55));
+            halo.addColorStop(1, hexToRgba(glow, 0));
+            ctx.fillStyle = halo;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 95 + currentFactor * 70, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#cfd8dc';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(cx - 22, canvas.height * 0.6);
+            ctx.lineTo(cx - 22, canvas.height * 0.72);
+            ctx.moveTo(cx + 22, canvas.height * 0.6);
+            ctx.lineTo(cx + 22, canvas.height * 0.72);
+            ctx.stroke();
+
+            ctx.fillStyle = '#cfd8dc';
+            ctx.fillRect(cx - 36, cy + 24, 72, 10);
+            ctx.beginPath();
+            ctx.moveTo(cx - 40, cy + 24);
+            ctx.lineTo(cx - 40, cy - 15);
+            ctx.arc(cx, cy - 15, 40, Math.PI, 0);
+            ctx.lineTo(cx + 40, cy + 24);
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(224, 242, 254, 0.55)';
+            ctx.fill();
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.stroke();
+
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(cx, cy - 4, 18, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = hexToRgba(glow, 0.85);
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cx + 42, cy - 6);
+            ctx.lineTo(cx + 72, cy - 28);
+            ctx.moveTo(cx + 42, cy + 10);
+            ctx.lineTo(cx + 76, cy - 10);
+            ctx.stroke();
+        }
+
+        function drawOledDevice() {
+            const cx = getDeviceCenterX();
+            const cy = canvas.height * 0.47;
+            const panelWidth = canvas.width * 0.34;
+            const panelHeight = canvas.height * clamp(0.15 + areaCm2 / 30, 0.16, 0.38);
+            const glow = getDeviceColor();
+            const currentFactor = clamp(relativeBrightness / 16, 0.25, 1);
+
+            const halo = ctx.createRadialGradient(cx, cy, 40, cx, cy, panelWidth * 0.6);
+            halo.addColorStop(0, hexToRgba(glow, 0.5));
+            halo.addColorStop(1, hexToRgba(glow, 0));
+            ctx.fillStyle = halo;
+            ctx.fillRect(cx - panelWidth * 0.9, cy - panelHeight * 1.1, panelWidth * 1.8, panelHeight * 2.2);
+
+            ctx.fillStyle = '#9aa4b2';
+            ctx.fillRect(cx - panelWidth / 2 - 12, cy - panelHeight / 2 - 8, panelWidth + 24, panelHeight + 16);
+            ctx.fillStyle = 'rgba(142, 202, 230, 0.85)';
+            ctx.fillRect(cx - panelWidth / 2, cy - panelHeight / 2, panelWidth, panelHeight);
+
+            ctx.fillStyle = hexToRgba(glow, 0.32 + currentFactor * 0.25);
+            ctx.fillRect(cx - panelWidth / 2 + 12, cy - panelHeight / 2 + 12, panelWidth - 24, panelHeight - 24);
+
+            for (let index = 0; index < 5; index++) {
+                const layerY = cy - panelHeight / 2 + 18 + index * ((panelHeight - 36) / 4);
+                ctx.strokeStyle = index === 2 ? hexToRgba(glow, 0.85) : 'rgba(255,255,255,0.28)';
+                ctx.lineWidth = index === 2 ? 3 : 1.5;
+                ctx.beginPath();
+                ctx.moveTo(cx - panelWidth / 2 + 14, layerY);
+                ctx.lineTo(cx + panelWidth / 2 - 14, layerY);
+                ctx.stroke();
+            }
+        }
+
+        function drawPhotons() {
+            const glow = getDeviceColor();
+            const spreadScale = technology === 'led' ? 0.55 : 0.18;
+            const rise = technology === 'led' ? canvas.height * 0.28 : canvas.height * 0.16;
+
+            photons.forEach(function(photon) {
+                const origin = getEmissionOrigin(photon);
+                const x = origin.x + photon.spread * spreadScale * photon.progress * canvas.width * 0.3;
+                const y = origin.y - photon.progress * rise;
+                const alpha = 1 - photon.progress;
+                ctx.fillStyle = hexToRgba(glow, alpha * 0.85);
+                ctx.beginPath();
+                ctx.arc(x, y, 3 + alpha * 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        function drawEnergyDiagram() {
+            const boxWidth = Math.min(250, Math.max(210, canvas.width * 0.32));
+            const boxHeight = 220;
+            const boxX = canvas.width - boxWidth - 20;
+            const boxY = 76;
+            const minEnergy = 1240 / 650;
+            const maxEnergy = 1240 / 470;
+            const normalizedGap = clamp((quantumJumpEV - minEnergy) / (maxEnergy - minEnergy), 0, 1);
+            const lowerY = boxY + 138;
+            const gapSize = 46 + normalizedGap * 54;
+            const upperY = lowerY - gapSize;
+            const lineStartX = boxX + 18;
+            const lineEndX = boxX + boxWidth - 92;
+            const arrowX = boxX + boxWidth - 70;
+            const colorX = boxX + boxWidth - 52;
+            const colorStartY = boxY + 56;
+            const colorSize = 18;
+            const colorGap = 28;
+            const arrowMidY = (upperY + lowerY) / 2;
+            const tagWidth = 84;
+            const tagHeight = 36;
+            const tagX = arrowX - tagWidth - 18;
+            const tagY = clamp(arrowMidY - tagHeight / 2, boxY + 48, boxY + boxHeight - tagHeight - 14);
+            const glow = getDeviceColor();
+            const colorName = colorMap[String(wavelength)].name;
+            const upperLabel = technology === 'led' ? 'Nivel alto: conducao' : 'Nivel alto: LUMO';
+            const lowerLabel = technology === 'led' ? 'Nivel baixo: valencia' : 'Nivel baixo: HOMO';
+            const diagramNote = technology === 'led' ? 'Gap do semicondutor' : 'Transicao molecular';
+
+            energyDiagramRegions = [];
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(7, 18, 29, 0.94)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+            ctx.lineWidth = 1.5;
+            ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+            ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
+
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ffd166';
+            ctx.font = 'bold 15px Arial';
+            ctx.fillText('Niveis de energia', boxX + 12, boxY + 22);
+            ctx.font = '11px Arial';
+            ctx.fillStyle = '#e0fbfc';
+            ctx.fillText(diagramNote, boxX + 12, boxY + 40);
+
+            ctx.strokeStyle = '#cfd8dc';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(lineStartX, upperY);
+            ctx.lineTo(lineEndX, upperY);
+            ctx.moveTo(lineStartX, lowerY);
+            ctx.lineTo(lineEndX, lowerY);
+            ctx.stroke();
+
+            ctx.fillStyle = '#e0fbfc';
+            ctx.font = '11px Arial';
+            ctx.fillText(upperLabel, boxX + 18, upperY - 8);
+            ctx.fillText(lowerLabel, boxX + 18, lowerY + 18);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            ctx.fillRect(lineStartX, upperY, lineEndX - lineStartX, lowerY - upperY);
+
+            ctx.strokeStyle = selectedEnergyPart === 'upper' ? '#ffd166' : '#cfd8dc';
+            ctx.lineWidth = selectedEnergyPart === 'upper' ? 3.5 : 2;
+            ctx.beginPath();
+            ctx.moveTo(lineStartX, upperY);
+            ctx.lineTo(lineEndX, upperY);
+            ctx.stroke();
+
+            ctx.strokeStyle = selectedEnergyPart === 'lower' ? '#ffd166' : '#cfd8dc';
+            ctx.lineWidth = selectedEnergyPart === 'lower' ? 3.5 : 2;
+            ctx.beginPath();
+            ctx.moveTo(lineStartX, lowerY);
+            ctx.lineTo(lineEndX, lowerY);
+            ctx.stroke();
+
+            ctx.strokeStyle = selectedEnergyPart === 'transition' ? glow : hexToRgba(glow, 0.8);
+            ctx.lineWidth = selectedEnergyPart === 'transition' ? 4 : 3;
+            ctx.beginPath();
+            ctx.moveTo(arrowX, upperY + 6);
+            ctx.lineTo(arrowX, lowerY - 10);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(arrowX - 7, lowerY - 18);
+            ctx.lineTo(arrowX, lowerY - 6);
+            ctx.lineTo(arrowX + 7, lowerY - 18);
+            ctx.stroke();
+
+            ctx.fillStyle = hexToRgba(glow, 0.2 + normalizedGap * 0.22);
+            ctx.fillRect(tagX, tagY, tagWidth, tagHeight);
+            ctx.strokeStyle = hexToRgba(glow, 0.9);
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(tagX, tagY, tagWidth, tagHeight);
+
+            ctx.fillStyle = glow;
+            ctx.font = 'bold 11px Arial';
+            ctx.fillText(colorName, tagX + 10, tagY + 14);
+            ctx.fillStyle = '#ffd166';
+            ctx.font = '10px Arial';
+            ctx.fillText(quantumJumpEV.toFixed(2) + ' eV', tagX + 10, tagY + 28);
+
+            ctx.strokeStyle = hexToRgba(glow, 0.85);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(tagX + tagWidth, tagY + tagHeight / 2);
+            ctx.lineTo(arrowX - 8, arrowMidY);
+            ctx.stroke();
+
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(boxX + 26, boxY + boxHeight - 24, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffd166';
+            ctx.font = 'bold 11px Arial';
+            ctx.fillText('Delta E = ' + quantumJumpEV.toFixed(2) + ' eV', boxX + 40, boxY + boxHeight - 52);
+            ctx.fillText('lambda = ' + wavelength.toFixed(0) + ' nm', boxX + 40, boxY + boxHeight - 34);
+            ctx.fillText('f = ' + frequencyTHz.toFixed(1) + ' THz', boxX + 40, boxY + boxHeight - 16);
+
+            ctx.fillStyle = '#cfe8ff';
+            ctx.font = '10px Arial';
+            ctx.fillText('Clique nas cores', boxX + boxWidth - 68, boxY + 38);
+
+            wavelengthOptions.forEach(function(option, index) {
+                const chipY = colorStartY + index * colorGap;
+                const chipGlow = colorMap[String(option)].glow;
+                const isSelected = option === wavelength;
+
+                ctx.fillStyle = chipGlow;
+                ctx.fillRect(colorX, chipY, colorSize, colorSize);
+                ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(255,255,255,0.35)';
+                ctx.lineWidth = isSelected ? 2.5 : 1;
+                ctx.strokeRect(colorX, chipY, colorSize, colorSize);
+
+                ctx.fillStyle = isSelected ? '#ffffff' : '#cfe8ff';
+                ctx.font = '10px Arial';
+                ctx.fillText(String(option), colorX - 28, chipY + 13);
+
+                energyDiagramRegions.push({
+                    type: 'color',
+                    wavelength: option,
+                    x: colorX,
+                    y: chipY,
+                    width: colorSize,
+                    height: colorSize
+                });
+            });
+
+            energyDiagramRegions.push({ type: 'level', part: 'upper', x: lineStartX, y: upperY - 10, width: lineEndX - lineStartX, height: 20 });
+            energyDiagramRegions.push({ type: 'level', part: 'lower', x: lineStartX, y: lowerY - 10, width: lineEndX - lineStartX, height: 20 });
+            energyDiagramRegions.push({ type: 'level', part: 'transition', x: arrowX - 10, y: upperY, width: 20, height: lowerY - upperY });
+
+            ctx.restore();
+        }
+
+        function getCanvasCoordinates(event) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            return {
+                x: (event.clientX - rect.left) * scaleX,
+                y: (event.clientY - rect.top) * scaleY
+            };
+        }
+
+        function findEnergyDiagramRegion(point) {
+            return energyDiagramRegions.find(function(region) {
+                return point.x >= region.x && point.x <= region.x + region.width && point.y >= region.y && point.y <= region.y + region.height;
+            });
+        }
+
+        function handleCanvasClick(event) {
+            const point = getCanvasCoordinates(event);
+            const region = findEnergyDiagramRegion(point);
+            if (!region) {
+                return;
+            }
+
+            if (region.type === 'color') {
+                selectedEnergyPart = 'transition';
+                setSelectedWavelength(region.wavelength);
+                return;
+            }
+
+            if (region.type === 'level') {
+                selectedEnergyPart = region.part;
+                drawSystem();
+            }
+        }
+
+        function handleCanvasPointer(event) {
+            const point = getCanvasCoordinates(event);
+            const region = findEnergyDiagramRegion(point);
+            canvas.style.cursor = region ? 'pointer' : 'default';
+        }
+
+        function drawLabels() {
+            ctx.fillStyle = '#e0fbfc';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(technology === 'led' ? 'LED: emissao em ponto pequeno' : 'OLED: emissao em camada espalhada', canvas.width / 2, 34);
+
+            ctx.font = '14px Arial';
+            ctx.fillStyle = '#ffd166';
+            ctx.fillText('Cor selecionada: ' + colorMap[String(wavelength)].name, canvas.width / 2, 58);
+
+            ctx.fillStyle = '#cfd8dc';
+            ctx.fillText('Corrente = ' + currentmA.toFixed(0) + ' mA  |  Area = ' + areaCm2.toFixed(1) + ' cm²  |  Delta E = ' + quantumJumpEV.toFixed(2) + ' eV', canvas.width / 2, canvas.height - 18);
+        }
+
+        function hexToRgba(hex, alpha) {
+            const value = hex.replace('#', '');
+            const bigint = parseInt(value, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+        }
+
+        function formatScientific(value) {
+            if (!isFinite(value) || value <= 0) {
+                return '0';
+            }
+            const parts = value.toExponential(2).split('e');
+            const mantissa = parts[0];
+            const exponent = parseInt(parts[1], 10);
+            return mantissa + ' x 10^' + exponent;
+        }
+
+        function animate() {
+            if (isRunning) {
+                photons.forEach(function(photon) {
+                    photon.progress += photon.speed * (0.8 + relativeBrightness / 18);
+                    if (photon.progress > 1) {
+                        photon.progress = 0;
+                        photon.xSeed = Math.random();
+                        photon.spread = Math.random() * 2 - 1;
+                    }
+                });
+                drawSystem();
+                updateMeasurements();
+            }
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function updateMeasurements() {
+            document.getElementById('currentValue').textContent = currentmA.toFixed(0);
+            document.getElementById('areaValue').textContent = areaCm2.toFixed(1);
+            document.getElementById('efficiencyValue').textContent = efficiencyPercent.toFixed(0);
+
+            document.getElementById('technologyDisplay').textContent = technology.toUpperCase();
+            document.getElementById('colorDisplay').textContent = colorMap[String(wavelength)].name;
+            document.getElementById('wavelengthDisplay').textContent = wavelength.toFixed(0) + ' nm';
+            document.getElementById('frequencyDisplay').textContent = frequencyTHz.toFixed(1) + ' THz';
+            document.getElementById('photonEnergyDisplay').textContent = photonEnergyEV.toFixed(2) + ' eV';
+            document.getElementById('gapDisplay').textContent = quantumJumpEV.toFixed(2) + ' eV';
+            document.getElementById('forwardVoltageDisplay').textContent = forwardVoltage.toFixed(2) + ' V';
+            document.getElementById('electricalPowerDisplay').textContent = (electricalPowerW * 1000).toFixed(1) + ' mW';
+            document.getElementById('photonRateDisplay').textContent = formatScientific(photonRate) + ' /s';
+            document.getElementById('brightnessDisplay').textContent = relativeBrightness.toFixed(1) + ' u.a.';
+            document.getElementById('emissionDisplay').textContent = technology === 'led' ? 'Focal e direcional' : 'Difusa e superficial';
+            document.getElementById('densityDisplay').textContent = brightnessDensity.toFixed(1) + ' u.a./cm²';
+            document.getElementById('applicationDisplay').textContent = technology === 'led' ? 'Indicadores e lampadas' : 'Telas e paineis finos';
+        }
+
+        function resetSimulation() {
+            isRunning = false;
+            technology = 'led';
+            wavelength = 650;
+            currentmA = 18;
+            areaCm2 = 1.2;
+            efficiencyPercent = 62;
+
+            document.getElementById('technologySelect').value = technology;
+            document.getElementById('colorSelect').value = String(wavelength);
+            document.getElementById('currentInput').value = currentmA;
+            document.getElementById('areaInput').value = areaCm2;
+            document.getElementById('efficiencyInput').value = efficiencyPercent;
+
+            updateCalculatedParameters();
+            resetPhotons(true);
+            drawSystem();
+            updateMeasurements();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('technologySelect').addEventListener('change', function() {
+                technology = this.value;
+                if (technology === 'oled' && areaCm2 < 2.0) {
+                    areaCm2 = 2.0;
+                    document.getElementById('areaInput').value = areaCm2;
+                }
+                selectedEnergyPart = 'transition';
+                updateCalculatedParameters();
+                resetPhotons(true);
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('colorSelect').addEventListener('change', function() {
+                selectedEnergyPart = 'transition';
+                setSelectedWavelength(parseFloat(this.value));
+            });
+
+            document.getElementById('currentInput').addEventListener('input', function() {
+                currentmA = parseFloat(this.value);
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('areaInput').addEventListener('input', function() {
+                areaCm2 = parseFloat(this.value);
+                updateCalculatedParameters();
+                resetPhotons(true);
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('efficiencyInput').addEventListener('input', function() {
+                efficiencyPercent = parseFloat(this.value);
+                updateCalculatedParameters();
+                drawSystem();
+                updateMeasurements();
+            });
+
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                if (!animationId) {
+                    animate();
+                }
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert('Como usar:\n\n• Escolha a tecnologia LED ou OLED.\n• Mude a cor emitida para comparar comprimento de onda, frequencia e energia do foton.\n• Clique nas cores do quadro de niveis de energia para trocar rapidamente o salto quantico.\n• Clique nos niveis ou na seta para destacar estado excitado, estado final e transicao.\n• Ajuste a corrente para observar o aumento do brilho e da potencia.\n• Ajuste a area emissora para perceber a diferenca entre ponto luminoso e painel emissor.\n• Use a eficiencia relativa para discutir que nem toda energia eletrica vira luz util.\n\nDica: compare um LED azul com um LED vermelho e relacione a mudanca de cor com Delta E.');
+            });
+
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('mousemove', handleCanvasPointer);
+            canvas.addEventListener('mouseleave', function() {
+                canvas.style.cursor = 'default';
+            });
+        }
+
+        function setupExerciseEventListeners() {
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target === document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target === document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        }
+
+        function generateExercises() {
+            exercises = [];
+
+            const sampleLambda = [650, 610, 590, 530, 470][Math.floor(Math.random() * 5)];
+            const sampleEnergyValue = 1240 / sampleLambda;
+            const sampleEnergy = sampleEnergyValue.toFixed(2);
+            exercises.push({
+                type: 'energia',
+                question: 'Um dispositivo emite luz de ' + sampleLambda + ' nm. Qual e a energia aproximada do foton?',
+                answer: sampleEnergy + ' eV',
+                options: shuffleArray([sampleEnergy + ' eV', (sampleEnergyValue * 0.8).toFixed(2) + ' eV', (sampleEnergyValue * 1.2).toFixed(2) + ' eV', (sampleEnergyValue + 1.5).toFixed(2) + ' eV'])
+            });
+
+            exercises.push({
+                type: 'derivacao',
+                question: 'Qual sequencia de equacoes leva corretamente a forma E = h . c / lambda?',
+                answer: 'E = h . f e c = lambda . f',
+                options: shuffleArray(['E = h . f e c = lambda . f', 'P = V . I e F = q . v . B', 'V = R . I e Q = m . c . Delta T', 'F = m . a e c = lambda / f'])
+            });
+
+            const sampleVoltage = (Math.random() * 1.5 + 1.8).toFixed(1);
+            const sampleCurrent = [10, 15, 20, 25][Math.floor(Math.random() * 4)];
+            const samplePowerValue = parseFloat(sampleVoltage) * (sampleCurrent / 1000) * 1000;
+            const samplePower = samplePowerValue.toFixed(1);
+            exercises.push({
+                type: 'potencia',
+                question: 'Se a tensao direta e ' + sampleVoltage + ' V e a corrente e ' + sampleCurrent + ' mA, qual e a potencia eletrica?',
+                answer: samplePower + ' mW',
+                options: shuffleArray([samplePower + ' mW', (samplePowerValue / 2).toFixed(1) + ' mW', (samplePowerValue * 2).toFixed(1) + ' mW', (samplePowerValue + 20).toFixed(1) + ' mW'])
+            });
+
+            exercises.push({
+                type: 'cor',
+                question: 'Qual cor, em geral, corresponde a fotons de maior energia?',
+                answer: 'Azul',
+                options: shuffleArray(['Azul', 'Vermelho', 'Laranja', 'Amarelo'])
+            });
+
+            exercises.push({
+                type: 'fotoeletrico',
+                question: 'Qual comparacao entre esta simulacao e o efeito fotoeletrico esta mais correta?',
+                answer: 'No fotoeletrico a luz fornece energia ao eletron; aqui a energia eletrica pode gerar fotons.',
+                options: shuffleArray([
+                    'No fotoeletrico a luz fornece energia ao eletron; aqui a energia eletrica pode gerar fotons.',
+                    'Nos dois casos a corrente eletrica sempre desaparece completamente.',
+                    'No LED a luz arranca eletrons do metal exatamente como no fotoeletrico.',
+                    'Os dois fenomenos nao usam a ideia de foton.'
+                ])
+            });
+
+            const sampleGap = [1.9, 2.1, 2.3, 2.6][Math.floor(Math.random() * 4)];
+            const sampleGapLambda = 1240 / sampleGap;
+            const sampleGapColor = sampleGapLambda > 620 ? 'Vermelho' : sampleGapLambda > 585 ? 'Amarelo' : sampleGapLambda > 500 ? 'Verde' : 'Azul';
+            exercises.push({
+                type: 'gap',
+                question: 'Se o salto quantico for de ' + sampleGap.toFixed(1) + ' eV, qual cor aproximada fica mais proxima da emissao esperada?',
+                answer: sampleGapColor,
+                options: shuffleArray(['Vermelho', 'Amarelo', 'Verde', 'Azul'])
+            });
+
+            exercises.push({
+                type: 'area',
+                question: 'Qual tecnologia e mais apropriada para uma tela fina que brilha em uma area maior?',
+                answer: 'OLED',
+                options: shuffleArray(['OLED', 'LED comum', 'Resistor', 'Bateria'])
+            });
+        }
+
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = exercises.map(function(_, index) {
+                return '<div class="progress-item" id="progress' + (index + 1) + '">' + (index + 1) + '</div>';
+            }).join('');
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = '\n                <div class="exercise">\n                    <h3>Exercicio ' + (currentExercise + 1) + ' de ' + exercises.length + '</h3>\n                    <p>' + exercise.question + '</p>\n                    <div class="options">' + exercise.options.map(function(option) { return '<div class="option" data-value="' + option + '">' + option + '</div>'; }).join('') + '</div>\n                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>\n                    <div class="result"></div>\n                </div>\n            ';
+
+            container.querySelectorAll('.option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(function(item) {
+                        item.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opcao.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(function(option) {
+                option.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1200);
+            } else {
+                resultDiv.innerHTML = '<div class="error">Incorreto. Tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercicio</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>';
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    currentExerciseAttempts++;
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function skipExercise() {
+            if (confirm('Deseja pular este exercicio? Um erro sera registrado.')) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function updateProgressBar() {
+            for (let i = 0; i < exercises.length; i++) {
+                const item = document.getElementById('progress' + (i + 1));
+                item.classList.remove('active', 'completed');
+                if (i === currentExercise) {
+                    item.classList.add('active');
+                } else if (i < currentExercise) {
+                    item.classList.add('completed');
+                }
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            document.getElementById('submitConclusion').addEventListener('click', function handler() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (!conclusionText.trim()) {
+                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    return;
+                }
+                document.getElementById('submitConclusion').removeEventListener('click', handler);
+                showResults(conclusionText);
+            });
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) { return result.correct; }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            document.getElementById('resultsSummary').innerHTML = '<p>Exercicios respondidos: ' + totalExercises + '</p><p>Respostas corretas: ' + correctAnswers + '</p><p>Exercicios pulados: ' + skippedQuestions + '</p><p>Nota: ' + scorePercentage + '%</p>';
+            document.getElementById('finalConclusion').value = conclusion;
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet, { once: true });
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatorios.');
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) { return result.correct; }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'LED e OLED',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: correctAnswers + '/' + (totalExercises - correctAnswers),
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: correctAnswers + '/' + totalExercises,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(function() {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(function() {
+                if (!studentEmail) {
+                    return null;
+                }
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Nao informado',
+                    serie: studentGrade || 'Nao informado',
+                    turma: studentClass || 'Nao informado',
+                    nota: scorePercentage + '%',
+                    acertos: correctAnswers + '/' + totalExercises,
+                    questoes_puladas: skippedQuestions || 0,
+                    conclusao: finalConclusion || 'Nao informado',
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulacao: 'LED e OLED',
+                    mensagem: 'Confirmacao de Envio - LED e OLED\n\nPrezado(a) ' + studentName + ',\n\nConfirmamos o recebimento dos seus resultados.\n\nNota: ' + scorePercentage + '%\nAcertos: ' + correctAnswers + ' de ' + totalExercises + ' questoes\nQuestoes puladas: ' + skippedQuestions + '\n\nAtenciosamente,\nSistema de Simulacoes Fisicas'
+                };
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailDataAluno)
+                });
+            })
+            .then(function() {
+                emailStatus.textContent = studentEmail ? 'Dados salvos e emails enviados!' : 'Dados salvos e email enviado ao professor!';
+                emailStatus.className = 'email-status sent';
+                setTimeout(function() {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(function(error) {
+                console.error('Erro:', error);
+                emailStatus.textContent = 'Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            renderProgressBar();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('conclusionText').value = '';
+            showCurrentExercise();
+        }
+
+        window.addEventListener('load', init);
+    </script>
+    <script>
+        let studentNameLEDOLED = localStorage.getItem('studentNameLEDOLED') || '';
+
+        function ensureStudentNameLEDOLED() {
+            if (!studentNameLEDOLED) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                } catch (error) {
+                    promptedName = '';
+                }
+                studentNameLEDOLED = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameLEDOLED', studentNameLEDOLED);
+            }
+        }
+
+        const tracks = [
+            function() {
+                ensureStudentNameLEDOLED();
+                return 'Ola, ' + studentNameLEDOLED + '. Esta simulacao compara LED e OLED com linguagem introdutoria. A ideia principal e observar como corrente, cor emitida, area emissora e eficiencia alteram o brilho e o tipo de emissao.';
+            },
+            function() {
+                return 'No LED comum, a luz sai de uma regiao pequena. No quadro de niveis de energia, isso aparece como uma transicao entre dois estados do semicondutor. No OLED, a ideia do salto quantico continua, mas agora em materiais organicos excitados.';
+            },
+            function() {
+                return 'A cor emitida esta ligada ao comprimento de onda. Quando o comprimento de onda diminui, a energia do foton aumenta. Por isso, a luz azul carrega mais energia por foton do que a vermelha. Essa e a ideia resumida pela formula E igual a h c sobre lambda.';
+            },
+            function() {
+                return 'A formula E igual a h f, junto com c igual a lambda f, leva a E igual a h c sobre lambda. Quando a energia esta em eletron-volts e o comprimento de onda em nanometros, aparece a forma pratica E aproximadamente igual a 1240 sobre lambda.';
+            },
+            function() {
+                return 'A corrente eletrica influencia o brilho. Em geral, mais corrente significa mais emissao luminosa, mas tambem mais consumo e mais aquecimento do dispositivo. A potencia eletrica pode ser estimada por P igual a V vezes I.';
+            },
+            function() {
+                return 'A eficiencia relativa foi colocada aqui como forma simples de discutir que nem toda energia eletrica vira luz visivel. Parte dessa energia pode aparecer em forma de calor, entao q vezes V nao se converte integralmente em luz util.';
+            },
+            function() {
+                return 'Quando voce aumentar a area emissora em modo OLED, repare que a luz fica distribuida em uma superficie maior. Isso ajuda a explicar por que essa tecnologia e tao importante para telas.';
+            },
+            function() {
+                return 'Depois da exploracao, use os exercicios para consolidar ideias centrais: energia do foton, origem da formula E igual a h c sobre lambda, potencia eletrica, salto quantico e diferenca estrutural entre LED e OLED.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'O primeiro exemplo mostra como usar a relacao aproximada entre energia e comprimento de onda. O objetivo nao e memorizar uma conta, mas perceber que a cor da luz revela uma diferenca de energia.',
+            '2': 'O segundo exemplo usa potencia eletrica para ligar fisica moderna e eletronica basica. Essa conta ajuda o estudante a ver que o dispositivo consome energia mesmo quando o foco da atividade e a luz emitida.',
+            '3': 'O terceiro exemplo reconstrui a origem da formula E aproximadamente igual a 1240 sobre lambda. Isso ajuda a mostrar que a expressao pratica vem de E igual a h f e c igual a lambda f.',
+            '4': 'O quarto exemplo faz a ponte entre diferenca de potencial, salto quantico e cor emitida. Essa e a conexao mais importante entre o circuito eletrico e a fisica da luz nesta atividade.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'LED e OLED',
+            storageKey: 'led-e-oled'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>
