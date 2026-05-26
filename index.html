@@ -55,8 +55,8 @@
         .hero {
             position: relative;
             overflow: hidden;
-            padding: 28px;
-            border-radius: 30px;
+            padding: 22px 24px;
+            border-radius: 24px;
             background: var(--hero);
             color: white;
             box-shadow: var(--shadow);
@@ -76,58 +76,59 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+            padding: 7px 11px;
             border-radius: 999px;
             background: rgba(255, 209, 102, 0.14);
             color: #ffd166;
-            font-size: 0.84rem;
+            font-size: 0.78rem;
             letter-spacing: 0.04em;
             text-transform: uppercase;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         h1 {
-            max-width: 820px;
+            max-width: 720px;
             font-family: "Palatino Linotype", Georgia, serif;
-            font-size: clamp(2rem, 4.2vw, 3.45rem);
-            line-height: 1.07;
-            margin-bottom: 14px;
+            font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+            line-height: 1.08;
+            margin-bottom: 10px;
         }
 
         .hero p {
-            max-width: 820px;
-            font-size: 1.03rem;
-            line-height: 1.68;
+            max-width: 860px;
+            font-size: 0.98rem;
+            line-height: 1.62;
             color: rgba(255, 255, 255, 0.92);
         }
 
-        .hero-grid {
+        .hero-inline {
             display: grid;
-            grid-template-columns: 1.2fr 0.9fr 0.9fr;
-            gap: 16px;
-            margin-top: 24px;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 14px;
+            margin-top: 16px;
         }
 
-        .hero-card {
+        .hero-note {
             position: relative;
             z-index: 1;
-            padding: 18px;
-            border-radius: 18px;
+            padding: 14px 16px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(8px);
-            line-height: 1.62;
+            line-height: 1.56;
         }
 
-        .hero-card strong {
+        .hero-note strong {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #ffd166;
+            font-size: 0.9rem;
         }
 
-        .hero-card a {
-            color: white;
-            word-break: break-all;
+        .hero-note p {
+            font-size: 0.92rem;
+            max-width: none;
         }
 
         .toolbar {
@@ -220,7 +221,7 @@
         .card {
             display: flex;
             flex-direction: column;
-            min-height: 340px;
+            min-height: 320px;
             border-radius: 24px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.84);
@@ -230,8 +231,11 @@
 
         .card-media {
             position: relative;
-            min-height: 128px;
-            padding: 18px;
+            min-height: 122px;
+            padding: 14px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
             background:
                 radial-gradient(circle at top right, rgba(255, 255, 255, 0.34), transparent 28%),
                 linear-gradient(135deg, color-mix(in srgb, var(--accent, #d18a2f) 88%, #ffffff 12%), color-mix(in srgb, var(--accent, #d18a2f) 46%, #0f2230 54%));
@@ -241,10 +245,10 @@
         .card-media::after {
             content: "";
             position: absolute;
-            width: 118px;
-            height: 118px;
-            right: -22px;
-            top: -18px;
+            width: 92px;
+            height: 92px;
+            right: -18px;
+            top: -16px;
             border-radius: 50%;
             border: 1px solid rgba(255, 255, 255, 0.18);
             background: rgba(255, 255, 255, 0.08);
@@ -254,11 +258,11 @@
             position: relative;
             z-index: 1;
             display: inline-flex;
-            margin-bottom: 12px;
-            padding: 6px 10px;
+            margin-bottom: 8px;
+            padding: 5px 9px;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.16);
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -266,78 +270,67 @@
         .media-mark {
             position: relative;
             z-index: 1;
-            display: grid;
-            gap: 12px;
+            margin-left: auto;
+            width: min(100%, 176px);
         }
 
-        .thumb-stage {
+        .thumb-shot {
             position: relative;
-            z-index: 1;
-            display: grid;
-            gap: 10px;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(10, 18, 28, 0.22);
+            box-shadow: 0 10px 18px rgba(10, 18, 28, 0.22);
         }
 
-        .thumb-topline {
+        .thumb-shot img {
+            display: block;
+            width: 100%;
+            height: 98px;
+            object-fit: cover;
+        }
+
+        .thumb-meta {
+            position: absolute;
+            inset: auto 8px 8px 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+            padding: 6px 8px;
+            border-radius: 10px;
+            background: rgba(10, 18, 28, 0.7);
+            backdrop-filter: blur(6px);
         }
 
-        .thumb-symbol {
-            font-size: clamp(1.9rem, 4vw, 2.7rem);
-            line-height: 0.95;
-            font-family: "Palatino Linotype", Georgia, serif;
-            letter-spacing: 0.04em;
+        .thumb-type {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.82);
         }
 
-        .thumb-caption {
-            max-width: 150px;
-            text-align: right;
-            font-size: 0.82rem;
-            line-height: 1.35;
-            color: rgba(255, 255, 255, 0.86);
-        }
-
-        .thumb-equation {
-            padding: 8px 10px;
-            border-radius: 12px;
-            background: rgba(10, 18, 28, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            font-family: "Courier New", monospace;
-            font-size: 0.88rem;
-            letter-spacing: 0.02em;
-        }
-
-        .thumb-chart {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            align-items: end;
-            gap: 6px;
-            min-height: 56px;
-        }
-
-        .thumb-bar {
-            border-radius: 10px 10px 4px 4px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.28));
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            min-height: 12px;
-        }
-
-        .thumb-footer {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-        }
-
-        .thumb-footer span {
+        .thumb-badge-mini {
             display: inline-flex;
             align-items: center;
-            padding: 5px 8px;
+            justify-content: center;
+            padding: 4px 7px;
             border-radius: 999px;
-            font-size: 0.76rem;
+            font-size: 0.68rem;
             background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+
+        .thumb-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 98px;
+            padding: 12px;
+            text-align: center;
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .card-body {
@@ -454,7 +447,7 @@
         }
 
         @media (max-width: 1024px) {
-            .hero-grid {
+            .hero-inline {
                 grid-template-columns: 1fr;
             }
         }
@@ -481,15 +474,9 @@
 
             .section-header,
             .summary-bar,
-            .card-actions,
-            .thumb-topline {
+            .card-actions {
                 flex-direction: column;
                 align-items: flex-start;
-            }
-
-            .thumb-caption {
-                text-align: left;
-                max-width: none;
             }
         }
     </style>
@@ -498,20 +485,16 @@
     <main class="page">
         <section class="hero">
             <span class="eyebrow">Portal das simulacoes</span>
-            <h1>Menu central do acervo com visual mais limpo, miniaturas e links prontos para a versao online</h1>
-            <p>Este indice foi organizado para funcionar bem em aula e tambem quando o material estiver publicado no GitHub Pages. O modo padrao prioriza as paginas principais, enquanto as paginas de apoio continuam acessiveis pelos filtros quando voce quiser expandir o acervo.</p>
-            <div class="hero-grid">
-                <div class="hero-card">
-                    <strong>Base online do projeto</strong>
-                    <a href="https://flavioambrosios.github.io/simulacoes/" target="_blank" rel="noreferrer">https://flavioambrosios.github.io/simulacoes/</a>
+            <h1>Prof. Flavio Ambrosio</h1>
+            <p>Acervo de simulacoes de Fisica para aula, estudo orientado e atividades guiadas. Use a busca e os filtros para localizar rapidamente a simulacao indicada.</p>
+            <div class="hero-inline">
+                <div class="hero-note">
+                    <strong>Comunicado aos estudantes</strong>
+                    <p>Abra apenas a atividade solicitada, leia as instrucoes da propria pagina e registre suas observacoes com cuidado antes de responder aos exercicios.</p>
                 </div>
-                <div class="hero-card">
-                    <strong>Modo padrao do menu</strong>
-                    O filtro inicial agora abre em paginas principais para deixar a navegacao mais clara para os alunos. Colecoes e paginas de apoio continuam disponiveis no seletor.
-                </div>
-                <div class="hero-card">
-                    <strong>Publicacao online</strong>
-                    O repositorio ja possui workflow de GitHub Pages publicando a raiz do projeto, entao este index pode atuar como pagina inicial do site sem outro ajuste estrutural.
+                <div class="hero-note">
+                    <strong>Acesso ao portal</strong>
+                    <p>As simulacoes podem ser abertas diretamente daqui. Por enquanto, o indice funciona apenas como catalogo de acesso rapido, sem opcoes de download ou incorporacao.</p>
                 </div>
             </div>
         </section>
@@ -565,6 +548,7 @@
         const simulations = [
             { title: 'Circuitos Eletricos DC', description: 'Simulacao com iframe do PhET para montar circuitos, comparar serie e paralelo e praticar Lei de Ohm.', href: 'CircuitosEletricosDC/CircuitosEletricosDC.html', section: 'novidades', type: 'principal', accent: '#2a9d8f', badge: 'Nova' },
             { title: 'Lei de Coulomb', description: 'Exploracao da forca eletrica entre cargas com simulacao PhET, cenarios guiados e exercicios.', href: 'LeiDeCoulomb/LeiDeCoulomb.html', section: 'novidades', type: 'principal', accent: '#e76f51', badge: 'Nova' },
+            { title: 'Simulacao em Python', description: 'Versao web do simulador de ondas, Fourier e envelopes de Hilbert, publicada separadamente em aplicativo Python convertido para navegador.', href: 'https://simulacoes-web.onrender.com', section: 'novidades', type: 'principal', accent: '#5c7cfa', badge: 'Python' },
             { title: 'Lei de Ohm', description: 'Pagina dedicada ao estudo da relacao entre tensao, corrente e resistencia.', href: 'LeideOhm/LeideOhm.html', section: 'eletricidade', type: 'principal', accent: '#1d3557', badge: 'Eletricidade' },
             { title: 'Resistencia Eletrica', description: 'Atividade focada em resistencia, variacao de parametros e interpretacao de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade' },
             { title: 'Forca Magnetica', description: 'Estudo da forca magnetica com pagina principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo' },
@@ -613,6 +597,43 @@
             apoio: 'Apoio'
         };
 
+        const thumbnailMap = {
+            'CircuitosEletricosDC/CircuitosEletricosDC.html': '_shared/index-thumbs/circuitos-eletricos-dc.png',
+            'LeiDeCoulomb/LeiDeCoulomb.html': '_shared/index-thumbs/lei-de-coulomb.png',
+            'https://simulacoes-web.onrender.com': '_shared/index-thumbs/simulacoes-python.png',
+            'LeideOhm/LeideOhm.html': '_shared/index-thumbs/lei-de-ohm.png',
+            'Resistencia/Resistencia.html': '_shared/index-thumbs/resistencia-eletrica.png',
+            'ForcaMagnetica/ForcaMagnetica.html': '_shared/index-thumbs/forca-magnetica.png',
+            'LeideAmpere/LeideAmpere.html': '_shared/index-thumbs/lei-de-ampere.png',
+            'LeideFaraday/LeideFaraday.html': '_shared/index-thumbs/lei-de-faraday.png',
+            'Solenoide/Solenoide.html': '_shared/index-thumbs/solenoide.png',
+            'Transformadores/Transforamdores.html': '_shared/index-thumbs/transformadores.png',
+            'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html': '_shared/index-thumbs/radiacao-de-corpo-negro.png',
+            'Calorimetria/Calorimetria.html': '_shared/index-thumbs/calorimetria.png',
+            'FluxoDeCalor/FluxoDeCalor.html': '_shared/index-thumbs/fluxo-de-calor.png',
+            'DilatacaoTermica/DilatacaoTermica.html': '_shared/index-thumbs/dilatacao-termica.png',
+            'EscalasTermom%C3%A9tricas/EscalasTermometricas.html': '_shared/index-thumbs/escalas-termometricas.png',
+            'MaquinadeCarnot/CiclodeCarnot.html': '_shared/index-thumbs/maquina-de-carnot.png',
+            'Ondas/Ondas1D/Ondas1D.html': '_shared/index-thumbs/ondas-1d.png',
+            'Ondas/Ondas2D/Ondas2D.html': '_shared/index-thumbs/ondas-2d.png',
+            'OpticaGeometrica/OpticaGeometrica.html': '_shared/index-thumbs/optica-geometrica.png',
+            'AtomodeHidrogenio/AtomodeHidrogenio.html': '_shared/index-thumbs/atomo-de-hidrogenio.png',
+            'EfeitoFotoEletrico/EfeitoFotoEletrico.html': '_shared/index-thumbs/efeito-fotoeletrico.png',
+            'EspectrometrodeMassa/EspectrometrodeMassa.html': '_shared/index-thumbs/espectrometro-de-massa.png',
+            'RelatividadeEspecial/RelatividadeEspecial.html': '_shared/index-thumbs/relatividade-especial.png',
+            'ESTRELAS/index.html': '_shared/index-thumbs/estrelas.png',
+            'AvaliacaoBimestralEducacaoDigital/index.html': '_shared/index-thumbs/avaliacao-educacao-digital.png',
+            'AvaliacaoBimestralSustentabilidade/index.html': '_shared/index-thumbs/avaliacao-sustentabilidade.png',
+            'ESTRELAS/diagrama_hr_massivas.html': '_shared/index-thumbs/diagrama-hr-massivas.png',
+            'ESTRELAS/pulsar_3d.html': '_shared/index-thumbs/pulsar-3d.png',
+            'ESTRELAS/pulsar_rotacao.html': '_shared/index-thumbs/pulsar-rotacao.png',
+            'ESTRELAS/tempo_vida_restante.html': '_shared/index-thumbs/tempo-de-vida-restante.png',
+            'ESTRELAS/diagrama_ppdot.html': '_shared/index-thumbs/pp-dot.png',
+            'Calorimetria/Calorimetria_AU.html': '_shared/index-thumbs/calorimetria-au.png',
+            'ForcaMagnetica/ForcaMagnetica_AU.html': '_shared/index-thumbs/forca-magnetica-au.png',
+            'LeideAmpere/LeideAmpere-AU.html': '_shared/index-thumbs/lei-de-ampere-au.png'
+        };
+
         const searchInput = document.getElementById('searchInput');
         const categorySelect = document.getElementById('categorySelect');
         const levelSelect = document.getElementById('levelSelect');
@@ -621,11 +642,18 @@
         const modePill = document.getElementById('modePill');
         const emptyState = document.getElementById('emptyState');
 
+        function isAbsoluteUrl(path) {
+            return /^https?:\/\//i.test(path);
+        }
+
         function buildOnlineUrl(path) {
-            return onlineBaseUrl + path;
+            return isAbsoluteUrl(path) ? path : onlineBaseUrl + path;
         }
 
         function buildPrimaryUrl(path) {
+            if (isAbsoluteUrl(path)) {
+                return path;
+            }
             return isLocalRuntime ? path : buildOnlineUrl(path);
         }
 
@@ -639,135 +667,14 @@
             }).join('');
         }
 
-        function getPreviewText(item) {
-            if (item.section === 'eletricidade') {
-                return 'Experimentos com cargas, corrente e campo';
-            }
-            if (item.section === 'termologia') {
-                return 'Modelos termicos, energia e radiacao';
-            }
-            if (item.section === 'ondas') {
-                return 'Visualizacoes de propagacao, cor e optica';
-            }
-            if (item.section === 'moderna') {
-                return 'Modelos atomicos, relatividade e topicos especiais';
-            }
-            if (item.section === 'colecoes') {
-                return 'Colecoes completas e paginas auxiliares';
-            }
-            return 'Novas simulacoes em destaque';
-        }
-
-        function getThumbnailData(item) {
-            const title = item.title.toLowerCase();
-
-            if (title.includes('circuitos')) {
-                return {
-                    symbol: 'DC',
-                    caption: 'Circuito, corrente e brilho',
-                    equation: 'V = R.I',
-                    bars: [30, 54, 82, 54, 30],
-                    chips: ['serie', 'paralelo', 'potencia']
-                };
-            }
-
-            if (title.includes('coulomb') || title.includes('forca eletrica')) {
-                return {
-                    symbol: 'q',
-                    caption: 'Interacao entre cargas',
-                    equation: 'F = k.|q1.q2|/r²',
-                    bars: [82, 62, 40, 24, 12],
-                    chips: ['atracao', 'repulsao', 'distancia']
-                };
-            }
-
-            if (title.includes('ohm') || title.includes('resistencia')) {
-                return {
-                    symbol: 'V',
-                    caption: 'Tensao, corrente e resistencia',
-                    equation: 'V = R.I',
-                    bars: [24, 42, 60, 78, 94],
-                    chips: ['tensao', 'corrente', 'ohms']
-                };
-            }
-
-            if (title.includes('magnetica') || title.includes('ampere') || title.includes('faraday') || title.includes('solenoide') || title.includes('transformadores')) {
-                return {
-                    symbol: 'B',
-                    caption: 'Campo magnetico e inducao',
-                    equation: 'Phi = B.A.cos(theta)',
-                    bars: [20, 66, 22, 66, 20],
-                    chips: ['campo', 'fluxo', 'espiras']
-                };
-            }
-
-            if (title.includes('corpo negro') || title.includes('radiacao')) {
-                return {
-                    symbol: 'λ',
-                    caption: 'Espectro e temperatura',
-                    equation: 'λmax.T = b',
-                    bars: [18, 34, 60, 88, 58],
-                    chips: ['wien', 'planck', 'espectro']
-                };
-            }
-
-            if (title.includes('calorimetria') || title.includes('dilatacao') || title.includes('escalas') || title.includes('carnot')) {
-                return {
-                    symbol: 'T',
-                    caption: 'Calor, temperatura e energia',
-                    equation: 'Q = m.c.deltaT',
-                    bars: [22, 38, 56, 72, 90],
-                    chips: ['calor', 'temperatura', 'energia']
-                };
-            }
-
-            if (title.includes('ondas') || title.includes('cores') || title.includes('optica')) {
-                return {
-                    symbol: 'f',
-                    caption: 'Propagacao e formacao de imagens',
-                    equation: 'v = lambda.f',
-                    bars: [56, 20, 68, 28, 80],
-                    chips: ['ondas', 'luz', 'optica']
-                };
-            }
-
-            if (title.includes('hidrogenio') || title.includes('fotoeletrico') || title.includes('espectrometro') || title.includes('relatividade') || title.includes('spinor')) {
-                return {
-                    symbol: 'h',
-                    caption: 'Modelos e fenomenos modernos',
-                    equation: 'E = h.f',
-                    bars: [28, 50, 84, 62, 34],
-                    chips: ['quantico', 'moderno', 'modelo']
-                };
-            }
-
-            return {
-                symbol: 'Fx',
-                caption: 'Colecoes e paginas de apoio',
-                equation: 'Acesso organizado ao acervo',
-                bars: [24, 44, 64, 44, 24],
-                chips: ['colecao', 'apoio', 'menu']
-            };
-        }
-
         function renderThumbnail(item) {
-            const thumb = getThumbnailData(item);
+            const thumbPath = thumbnailMap[item.href];
             return `
-                <div class="thumb-stage">
-                    <div class="thumb-topline">
-                        <strong class="thumb-symbol">${thumb.symbol}</strong>
-                        <span class="thumb-caption">${thumb.caption}</span>
-                    </div>
-                    <div class="thumb-equation">${thumb.equation}</div>
-                    <div class="thumb-chart">
-                        ${thumb.bars.map(function(height) {
-                            return `<span class="thumb-bar" style="height:${height}%"></span>`;
-                        }).join('')}
-                    </div>
-                    <div class="thumb-footer">
-                        ${thumb.chips.map(function(chip) {
-                            return `<span>${chip}</span>`;
-                        }).join('')}
+                <div class="thumb-shot">
+                    ${thumbPath ? `<img src="${thumbPath}" alt="Miniatura da simulacao ${item.title}" loading="lazy">` : `<div class="thumb-fallback">${getInitials(item.title)}</div>`}
+                    <div class="thumb-meta">
+                        <span class="thumb-type">${typeLabels[item.type]}</span>
+                        <span class="thumb-badge-mini">${item.badge}</span>
                     </div>
                 </div>
             `;
@@ -819,7 +726,7 @@
 
             const visibleCount = filtered.length;
             const totalCount = simulations.length;
-            summaryText.textContent = `${visibleCount} de ${totalCount} paginas exibidas. Os cartoes mostram um botao de abertura e o link online completo.`;
+            summaryText.textContent = `${visibleCount} de ${totalCount} paginas exibidas. Os cartoes usam miniaturas reais das telas e mantem apenas o acesso direto a cada simulacao.`;
 
             Object.keys(sectionLabels).forEach(function(sectionKey) {
                 const items = grouped[sectionKey] || [];
@@ -844,6 +751,7 @@
                 items.forEach(function(item) {
                     const onlineUrl = buildOnlineUrl(item.href);
                     const openUrl = buildPrimaryUrl(item.href);
+                    const externalLink = isAbsoluteUrl(item.href);
                     const card = document.createElement('article');
                     card.className = 'card';
                     card.style.setProperty('--accent', item.accent);
@@ -866,8 +774,8 @@
                                 <a href="${onlineUrl}" target="_blank" rel="noreferrer">${onlineUrl}</a>
                             </div>
                             <div class="card-actions">
-                                <small>${isLocalRuntime ? 'Abertura local disponivel' : 'Ambiente online detectado'}</small>
-                                <a href="${openUrl}" ${isLocalRuntime ? '' : 'target="_blank" rel="noreferrer"'}>${isLocalRuntime ? 'Abrir simulacao' : 'Abrir online'}</a>
+                                <small>${externalLink ? 'Acesso em site externo' : (isLocalRuntime ? 'Abertura local disponivel' : 'Ambiente online detectado')}</small>
+                                <a href="${openUrl}" ${externalLink || !isLocalRuntime ? 'target="_blank" rel="noreferrer"' : ''}>${externalLink ? 'Abrir site' : (isLocalRuntime ? 'Abrir simulacao' : 'Abrir online')}</a>
                             </div>
                         </div>
                     `;
