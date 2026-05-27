@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -197,15 +198,43 @@ def is_google_sheets_configured():
     )
 
 
+def parse_service_account_json(raw_value):
+    candidates = [raw_value]
+
+    stripped = raw_value.strip()
+    if stripped.startswith(("'", '"')) and stripped.endswith(("'", '"')):
+        candidates.append(stripped[1:-1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            if isinstance(parsed, dict):
+                return parsed
+        except (TypeError, ValueError, json.JSONDecodeError):
+            pass
+
+    for candidate in candidates:
+        try:
+            decoded = base64.b64decode(candidate).decode("utf-8")
+            parsed = json.loads(decoded)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
+
+    raise RuntimeError(
+        "GOOGLE_SERVICE_ACCOUNT_JSON invalido. Use JSON bruto, JSON serializado em uma linha ou base64."
+    )
+
+
 def load_service_account_info():
     service_account_json = (os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON") or "").strip()
     service_account_file = (os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE") or "").strip()
 
     if service_account_json:
-        try:
-            return json.loads(service_account_json)
-        except json.JSONDecodeError as exc:
-            raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON invalido.") from exc
+        return parse_service_account_json(service_account_json)
 
     if service_account_file:
         with open(service_account_file, "r", encoding="utf-8") as file_obj:

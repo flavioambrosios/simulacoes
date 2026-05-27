@@ -1,4 +1,5 @@
 import argparse
+import base64
 import csv
 import json
 import re
@@ -89,6 +90,37 @@ def parse_timestamp(value):
         return datetime.min
 
 
+def parse_service_account_json(raw_value):
+    candidates = [raw_value]
+
+    stripped = raw_value.strip()
+    if stripped.startswith(("'", '"')) and stripped.endswith(("'", '"')):
+        candidates.append(stripped[1:-1])
+
+    for candidate in candidates:
+        try:
+            parsed = json.loads(candidate)
+            if isinstance(parsed, str):
+                parsed = json.loads(parsed)
+            if isinstance(parsed, dict):
+                return parsed
+        except (TypeError, ValueError, json.JSONDecodeError):
+            pass
+
+    for candidate in candidates:
+        try:
+            decoded = base64.b64decode(candidate).decode("utf-8")
+            parsed = json.loads(decoded)
+            if isinstance(parsed, dict):
+                return parsed
+        except Exception:
+            pass
+
+    raise RuntimeError(
+        "GOOGLE_SERVICE_ACCOUNT_JSON invalido. Use JSON bruto, JSON serializado em uma linha ou base64."
+    )
+
+
 def load_service_account_info():
     from os import getenv
 
@@ -96,7 +128,7 @@ def load_service_account_info():
     service_account_file = (getenv("GOOGLE_SERVICE_ACCOUNT_FILE") or "").strip()
 
     if service_account_json:
-        return json.loads(service_account_json)
+        return parse_service_account_json(service_account_json)
     if service_account_file:
         return json.loads(Path(service_account_file).read_text(encoding="utf-8"))
 
