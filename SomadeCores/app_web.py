@@ -1,9 +1,14 @@
+import json
+import logging
 import os
 import unicodedata
 from datetime import datetime
+from functools import lru_cache
 
 import numpy as np
 from dash import Dash, Input, Output, State, ctx, dcc, html, dash_table
+import gspread
+from google.oauth2.service_account import Credentials
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 from scipy.optimize import minimize
@@ -25,6 +30,31 @@ MAX_FREQ_DELTA = int(FREQS[-1] - FREQS[0])
 DEFAULT_SMOOTHING = 1
 DEFAULT_FREQ_DELTA = MAX_FREQ_DELTA
 TABLE_DECIMALS = 3
+GOOGLE_SHEETS_SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+SHEET_HEADERS = [
+    "timestamp",
+    "student_name",
+    "student_group",
+    "exercise_id",
+    "exercise_type",
+    "exercise_title",
+    "difficulty",
+    "result",
+    "score",
+    "metric_summary",
+    "max_diff",
+    "smoothing_window",
+    "freq_delta",
+    "has_optimization",
+    "active_count1",
+    "active_count2",
+    "answer_text",
+    "table_data_json",
+    "history_data_json",
+]
 
 
 def clamp_amp(value):
@@ -150,6 +180,130 @@ def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_ma
 def normalize_text(text):
     normalized = unicodedata.normalize("NFKD", text or "")
     return normalized.encode("ascii", "ignore").decode("ascii").lower()
+
+
+def serialize_json_value(value):
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    if isinstance(value, np.generic):
+        return value.item()
+    raise TypeError(f"Tipo nao serializavel: {type(value)!r}")
+
+
+def is_google_sheets_configured():
+    return bool(
+        (os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON") or "").strip()
+        or (os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE") or "").strip()
+    )
+
+
+def load_service_account_info():
+    service_account_json = (os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON") or "").strip()
+    service_account_file = (os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE") or "").strip()
+
+    if service_account_json:
+        try:
+            return json.loads(service_account_json)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON invalido.") from exc
+
+    if service_account_file:
+        with open(service_account_file, "r", encoding="utf-8") as file_obj:
+            return json.load(file_obj)
+
+    raise RuntimeError("Credenciais do Google Sheets nao configuradas.")
+
+
+@lru_cache(maxsize=1)
+def get_google_sheets_client():
+    credentials = Credentials.from_service_account_info(
+        load_service_account_info(),
+        scopes=GOOGLE_SHEETS_SCOPES,
+    )
+    return gspread.authorize(credentials)
+
+
+def get_google_worksheet():
+    client = get_google_sheets_client()
+    spreadsheet_id = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID") or "").strip()
+    spreadsheet_name = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_NAME") or "Notas CEAN 2026").strip()
+    worksheet_name = (os.getenv("GOOGLE_SHEETS_WORKSHEET_NAME") or "app web").strip()
+
+    spreadsheet = client.open_by_key(spreadsheet_id) if spreadsheet_id else client.open(spreadsheet_name)
+
+    try:
+        worksheet = spreadsheet.worksheet(worksheet_name)
+    except gspread.WorksheetNotFound:
+        worksheet = spreadsheet.add_worksheet(
+            title=worksheet_name,
+            rows=2000,
+            cols=max(26, len(SHEET_HEADERS) + 4),
+        )
+
+    if not worksheet.row_values(1):
+        worksheet.append_row(SHEET_HEADERS, value_input_option="USER_ENTERED")
+
+    return worksheet
+
+
+def send_submission_to_google_sheets(submission):
+    if not is_google_sheets_configured():
+        return False, "Integracao com Google Sheets nao configurada neste deploy."
+
+    try:
+        worksheet = get_google_worksheet()
+        row = [submission.get(header, "") for header in SHEET_HEADERS]
+        worksheet.append_row(row, value_input_option="USER_ENTERED")
+        return True, f"Dados enviados para a planilha {worksheet.spreadsheet.title} / {worksheet.title}."
+    except Exception as exc:
+        logging.exception("Falha ao enviar submissao para Google Sheets.")
+        reason = str(exc).strip() or exc.__class__.__name__
+        return False, f"Registro na planilha nao concluido: {reason}"
+
+
+def append_feedback_detail(feedback, detail):
+    if not detail:
+        return feedback
+
+    updated_feedback = dict(feedback)
+    updated_feedback["details"] = list(updated_feedback.get("details", [])) + [detail]
+    return updated_feedback
+
+
+def build_exercise_submission(
+    exercise,
+    metrics,
+    answer_text,
+    total_score,
+    metric_summary,
+    result_label,
+    table_data,
+    history_data,
+    student_name,
+    student_group,
+    submitted_at,
+):
+    return {
+        "timestamp": submitted_at.isoformat(timespec="seconds"),
+        "student_name": (student_name or "").strip() or "Nao informado",
+        "student_group": (student_group or "").strip() or "Nao informado",
+        "exercise_id": exercise.get("id", ""),
+        "exercise_type": exercise.get("type", ""),
+        "exercise_title": exercise.get("title", ""),
+        "difficulty": exercise.get("difficulty", "fundamental"),
+        "result": result_label,
+        "score": int(total_score),
+        "metric_summary": metric_summary,
+        "max_diff": round(float(metrics.get("max_diff", 0.0)), 6),
+        "smoothing_window": int(metrics.get("smoothing_window", DEFAULT_SMOOTHING)),
+        "freq_delta": int(metrics.get("freq_delta", DEFAULT_FREQ_DELTA)),
+        "has_optimization": "sim" if metrics.get("has_optimization") else "nao",
+        "active_count1": int(metrics.get("active_count1", 0)),
+        "active_count2": int(metrics.get("active_count2", 0)),
+        "answer_text": answer_text or "",
+        "table_data_json": json.dumps(table_data or [], ensure_ascii=False, default=serialize_json_value),
+        "history_data_json": json.dumps(history_data or {}, ensure_ascii=False, default=serialize_json_value),
+    }
 
 
 def generate_fourier_equation(amps, wave_name):
@@ -1459,6 +1613,53 @@ app.layout = html.Div(
                                         ),
                                         html.Div(
                                             [
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Nome do estudante"),
+                                                                dcc.Input(
+                                                                    id="student-name",
+                                                                    type="text",
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Ex.: Ana Souza",
+                                                                    style={
+                                                                        "width": "100%",
+                                                                        "marginTop": "8px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "2 1 260px"},
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Turma ou código"),
+                                                                dcc.Input(
+                                                                    id="student-group",
+                                                                    type="text",
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Ex.: 2A ou 2026-01",
+                                                                    style={
+                                                                        "width": "100%",
+                                                                        "marginTop": "8px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 180px"},
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
+                                                ),
                                                 html.Label("Conclusão do estudante"),
                                                 dcc.Textarea(
                                                     id="exercise-answer",
@@ -1800,6 +2001,8 @@ def sync_mobile_editor(table_data, mobile_frequency):
     State("exercise-store", "data"),
     State("exercise-progress-store", "data"),
     State("amp-table", "data"),
+    State("student-name", "value"),
+    State("student-group", "value"),
     State("exercise-answer", "value"),
     State("smoothing-slider", "value"),
     State("freq-delta-slider", "value"),
@@ -1812,6 +2015,8 @@ def handle_exercises(
     exercise_data,
     progress_data,
     table_data,
+    student_name,
+    student_group,
     answer_text,
     smoothing_window,
     freq_delta,
@@ -1846,7 +2051,8 @@ def handle_exercises(
 
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
     passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(exercise_data, metrics, answer_text)
-    timestamp = datetime.now().strftime("%H:%M:%S")
+    submitted_at = datetime.now()
+    timestamp = submitted_at.strftime("%H:%M:%S")
     next_streak = int(progress_data.get("streak", 0)) + 1 if passed else 0
     updated_progress = {
         "attempts": int(progress_data.get("attempts", 0)) + 1,
@@ -1868,6 +2074,28 @@ def handle_exercises(
         ],
     }
     updated_progress["history"] = updated_progress["history"][-12:]
+
+    submission = build_exercise_submission(
+        exercise_data,
+        metrics,
+        answer_text,
+        total_score,
+        metric_summary,
+        result_label,
+        table_data,
+        history_data,
+        student_name,
+        student_group,
+        submitted_at,
+    )
+    _, sheet_status_message = send_submission_to_google_sheets(submission)
+    feedback_data = append_feedback_detail(feedback_data, sheet_status_message)
+
+    if not (student_name or "").strip():
+        feedback_data = append_feedback_detail(
+            feedback_data,
+            "Preencha o nome do estudante nos proximos envios para identificar a nota na planilha.",
+        )
 
     return (
         exercise_data,
