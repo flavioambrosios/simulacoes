@@ -41,6 +41,90 @@ Start Command: gunicorn app_web:server
 
 1. Depois do deploy, o Render vai gerar um link publico.
 
+## Envio para a planilha Notas CEAN 2026
+
+O app agora pode registrar cada envio da aba Exercicios em uma planilha do Google Sheets.
+
+### O que o app envia
+
+- Data e hora do envio.
+- Nome do estudante e turma ou codigo informados na tela.
+- Identificacao do exercicio, tipo, dificuldade, resultado e pontuacao.
+- Resumo da metrica numerica.
+- Texto da conclusao do estudante.
+- Dados da tabela de amplitudes e historico da otimizacao em formato JSON.
+
+### Variaveis de ambiente
+
+No Render, abra o servico e cadastre estas variaveis em Environment.
+
+```text
+GOOGLE_SERVICE_ACCOUNT_JSON=JSON_COMPLETO_DA_CONTA_DE_SERVICO
+GOOGLE_SHEETS_SPREADSHEET_NAME=Notas CEAN 2026
+GOOGLE_SHEETS_WORKSHEET_NAME=app web
+```
+
+Opcionalmente, voce pode usar o identificador da planilha em vez do nome:
+
+```text
+GOOGLE_SHEETS_SPREADSHEET_ID=ID_DA_PLANILHA
+```
+
+Tambem e possivel usar um arquivo de credenciais no lugar do JSON em variavel:
+
+```text
+GOOGLE_SERVICE_ACCOUNT_FILE=/caminho/para/service-account.json
+```
+
+### Como preparar a planilha
+
+1. Crie ou abra a planilha Notas CEAN 2026 no Google Sheets.
+1. Crie uma conta de servico no Google Cloud com acesso ao Google Sheets e ao Google Drive.
+1. Compartilhe a planilha com o email da conta de servico, com permissao de editor.
+1. No app, a aba configurada por GOOGLE_SHEETS_WORKSHEET_NAME sera criada automaticamente se ainda nao existir.
+
+Sem essas variaveis, o app continua funcionando normalmente, mas o feedback do exercicio vai informar que a integracao com a planilha nao esta configurada.
+
+## Consolidar notas por turma
+
+O script [consolidar_notas_turmas.py](consolidar_notas_turmas.py) le os registros brutos da aba app web e monta um resumo por turma.
+
+### Regra usada na consolidacao
+
+- Para cada estudante, o script guarda a melhor tentativa geral entre todos os envios feitos.
+- Todos os exercicios passam a ter o mesmo peso, porque a nota final vem diretamente dessa melhor tentativa.
+- final_score_100 e a melhor pontuacao encontrada na escala de 0 a 100.
+- final_grade_10 converte final_score_100 para a escala de 0 a 10.
+- O resumo tambem informa qual exercicio gerou a melhor nota e quando isso aconteceu.
+
+### Exemplos de uso
+
+Exportar CSVs de todas as turmas detectadas:
+
+```bash
+python consolidar_notas_turmas.py
+```
+
+Exportar apenas uma turma:
+
+```bash
+python consolidar_notas_turmas.py --group 2A
+```
+
+Exportar e atualizar as abas das turmas na mesma planilha:
+
+```bash
+python consolidar_notas_turmas.py --write-sheets
+```
+
+Criar abas com prefixo, por exemplo Turma 2A, Turma 2B:
+
+```bash
+python consolidar_notas_turmas.py --write-sheets --worksheet-prefix "Turma "
+```
+
+Os CSVs sao gerados por padrao na pasta exports_turmas.
+
 ## Comandos de Git para enviar ao GitHub
 
 Se esta pasta ainda nao estiver conectada ao seu repositorio remoto no GitHub, voce pode usar a sequencia abaixo dentro da pasta do projeto.
