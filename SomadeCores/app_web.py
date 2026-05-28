@@ -2,10 +2,12 @@ import base64
 import json
 import logging
 import os
+import re
 import unicodedata
 import urllib.request
 from datetime import datetime
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 from dash import Dash, Input, Output, State, ctx, dcc, html, dash_table
@@ -66,6 +68,18 @@ SESSION_EXERCISE_TYPES = [
     "smoothing-observe",
     "frequency-window",
     "color-compare",
+]
+STUDENT_DATABASE_PATH = Path(__file__).resolve().parents[1] / "AvaliacaoBimestralEducacaoDigital" / "alunos.js"
+GRADE_OPTIONS = [
+    {"label": "1o ano", "value": "1o ano"},
+    {"label": "2o ano", "value": "2o ano"},
+    {"label": "3o ano", "value": "3o ano"},
+]
+BIMESTER_OPTIONS = [
+    {"label": "1o bimestre", "value": "1o bimestre"},
+    {"label": "2o bimestre", "value": "2o bimestre"},
+    {"label": "3o bimestre", "value": "3o bimestre"},
+    {"label": "4o bimestre", "value": "4o bimestre"},
 ]
 
 
@@ -192,6 +206,80 @@ def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_ma
 def normalize_text(text):
     normalized = unicodedata.normalize("NFKD", text or "")
     return normalized.encode("ascii", "ignore").decode("ascii").lower()
+
+
+def infer_grade_class_from_track(track_name):
+    match = re.search(r"([123]o ano)\s+([A-Z])$", (track_name or "").strip())
+    if not match:
+        return "", ""
+    return match.group(1), match.group(2)
+
+
+def load_student_database():
+    empty_database = {"bySerieTurma": {}, "byTrilha": {}}
+
+    try:
+        file_text = STUDENT_DATABASE_PATH.read_text(encoding="utf-8")
+    except OSError:
+        logging.exception("Nao foi possivel ler o banco de alunos em %s.", STUDENT_DATABASE_PATH)
+        return empty_database
+
+    match = re.search(r"const\s+STUDENT_DATABASE\s*=\s*(\{.*\})\s*;\s*$", file_text, re.DOTALL)
+    if not match:
+        logging.warning("Formato inesperado no arquivo de alunos: %s", STUDENT_DATABASE_PATH)
+        return empty_database
+
+    try:
+        parsed = json.loads(match.group(1))
+    except json.JSONDecodeError:
+        logging.exception("Nao foi possivel interpretar o arquivo de alunos em %s.", STUDENT_DATABASE_PATH)
+        return empty_database
+
+    return {
+        "bySerieTurma": parsed.get("bySerieTurma", {}),
+        "byTrilha": parsed.get("byTrilha", {}),
+    }
+
+
+def build_track_options(student_database):
+    options = [{"label": "Turma regular (sem trilha)", "value": ""}]
+    track_names = sorted(student_database.get("byTrilha", {}).keys(), key=normalize_text)
+    options.extend({"label": track_name, "value": track_name} for track_name in track_names)
+    return options
+
+
+def build_class_options(student_database):
+    classes = set()
+    for key in student_database.get("bySerieTurma", {}):
+        parts = key.split("|", 1)
+        if len(parts) == 2 and parts[1].strip():
+            classes.add(parts[1].strip().upper())
+
+    for track_name in student_database.get("byTrilha", {}):
+        _, track_class = infer_grade_class_from_track(track_name)
+        if track_class:
+            classes.add(track_class)
+
+    return [{"label": student_class, "value": student_class} for student_class in sorted(classes)]
+
+
+def build_student_name_options(track_name, student_grade, student_class):
+    names = []
+
+    if track_name:
+        names = list(STUDENT_DATABASE.get("byTrilha", {}).get(track_name, []))
+
+    if not names and student_grade and student_class:
+        key = f"{student_grade.strip()}|{student_class.strip().upper()}"
+        names = list(STUDENT_DATABASE.get("bySerieTurma", {}).get(key, []))
+
+    unique_names = sorted({name.strip() for name in names if (name or "").strip()}, key=normalize_text)
+    return [{"label": name, "value": name} for name in unique_names]
+
+
+STUDENT_DATABASE = load_student_database()
+TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
+CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
 
 
 def serialize_json_value(value):
@@ -348,7 +436,18 @@ def post_json_to_apps_script(url, data):
         return False, reason
 
 
-def build_final_session_payload(session_data, student_name, student_grade, student_class, student_email, criticism, suggestion, final_conclusion):
+def build_final_session_payload(
+    session_data,
+    student_name,
+    student_track,
+    student_grade,
+    student_class,
+    student_bimester,
+    student_email,
+    criticism,
+    suggestion,
+    final_conclusion,
+):
     exercises = list(session_data.get("exercises", []))
     results = list(session_data.get("results", []))
     total = len(exercises)
@@ -371,8 +470,10 @@ def build_final_session_payload(session_data, student_name, student_grade, stude
 
     return {
         "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "trilha": (student_track or "").strip() or "Turma regular",
         "serie": (student_grade or "").strip() or "Nao informado",
         "turma": (student_class or "").strip() or "Nao informado",
+        "bimestre": (student_bimester or "").strip() or "Nao informado",
         "estudante": (student_name or "").strip() or "Nao informado",
         "simulacao": SIMULATION_NAME,
         "questoes_puladas": skipped,
@@ -2039,41 +2140,75 @@ app.layout = html.Div(
                                                     [
                                                         html.Div(
                                                             [
-                                                                html.Label("Nome do estudante"),
-                                                                dcc.Input(
-                                                                    id="student-name",
-                                                                    type="text",
+                                                                html.Label("Trilha"),
+                                                                dcc.Dropdown(
+                                                                    id="student-track",
+                                                                    options=TRACK_OPTIONS,
                                                                     value="",
                                                                     persistence=True,
                                                                     persistence_type="local",
-                                                                    placeholder="Ex.: Ana Souza",
+                                                                    clearable=False,
                                                                     style={
-                                                                        "width": "100%",
                                                                         "marginTop": "8px",
-                                                                        "padding": "10px 12px",
-                                                                        "borderRadius": "12px",
-                                                                        "border": "1px solid #cbd5e1",
                                                                     },
                                                                 ),
                                                             ],
-                                                            style={"flex": "2 1 260px"},
+                                                            style={"flex": "2 1 320px"},
                                                         ),
                                                         html.Div(
                                                             [
-                                                                html.Label("Série"),
-                                                                dcc.Input(
-                                                                    id="student-grade",
-                                                                    type="text",
+                                                                html.Label("Bimestre"),
+                                                                dcc.Dropdown(
+                                                                    id="student-bimester",
+                                                                    options=BIMESTER_OPTIONS,
                                                                     value="",
                                                                     persistence=True,
                                                                     persistence_type="local",
-                                                                    placeholder="Ex.: 2o ano",
+                                                                    placeholder="Selecione o bimestre",
+                                                                    clearable=False,
                                                                     style={
-                                                                        "width": "100%",
                                                                         "marginTop": "8px",
-                                                                        "padding": "10px 12px",
-                                                                        "borderRadius": "12px",
-                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 180px"},
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Serie"),
+                                                                dcc.Dropdown(
+                                                                    id="student-grade",
+                                                                    options=GRADE_OPTIONS,
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Selecione a serie",
+                                                                    clearable=False,
+                                                                    style={
+                                                                        "marginTop": "8px",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 180px"},
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Turma"),
+                                                                dcc.Dropdown(
+                                                                    id="student-class",
+                                                                    options=CLASS_OPTIONS,
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Selecione a turma",
+                                                                    clearable=False,
+                                                                    style={
+                                                                        "marginTop": "8px",
                                                                     },
                                                                 ),
                                                             ],
@@ -2081,24 +2216,27 @@ app.layout = html.Div(
                                                         ),
                                                         html.Div(
                                                             [
-                                                                html.Label("Turma"),
-                                                                dcc.Input(
-                                                                    id="student-class",
-                                                                    type="text",
+                                                                html.Label("Nome do estudante"),
+                                                                dcc.Dropdown(
+                                                                    id="student-name",
+                                                                    options=[],
                                                                     value="",
                                                                     persistence=True,
                                                                     persistence_type="local",
-                                                                    placeholder="Ex.: A",
+                                                                    placeholder="Selecione o nome do estudante",
+                                                                    searchable=True,
+                                                                    clearable=False,
                                                                     style={
-                                                                        "width": "100%",
                                                                         "marginTop": "8px",
-                                                                        "padding": "10px 12px",
-                                                                        "borderRadius": "12px",
-                                                                        "border": "1px solid #cbd5e1",
                                                                     },
                                                                 ),
+                                                                html.Div(
+                                                                    id="student-name-helper",
+                                                                    children="Selecione trilha ou serie/turma para carregar a lista de estudantes.",
+                                                                    style={"marginTop": "8px", "color": "#475569", "fontSize": "0.92rem", "lineHeight": "1.6"},
+                                                                ),
                                                             ],
-                                                            style={"flex": "1 1 140px"},
+                                                            style={"flex": "2 1 320px"},
                                                         ),
                                                     ],
                                                     style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
@@ -2718,13 +2856,55 @@ def handle_exercises(
 
 
 @app.callback(
+    Output("student-grade", "value"),
+    Output("student-class", "value"),
+    Input("student-track", "value"),
+    State("student-grade", "value"),
+    State("student-class", "value"),
+    prevent_initial_call=False,
+)
+def sync_student_group_with_track(student_track, current_grade, current_class):
+    if not student_track:
+        return current_grade or "", current_class or ""
+
+    inferred_grade, inferred_class = infer_grade_class_from_track(student_track)
+    return inferred_grade or current_grade or "", inferred_class or current_class or ""
+
+
+@app.callback(
+    Output("student-name", "options"),
+    Output("student-name", "value"),
+    Output("student-name-helper", "children"),
+    Input("student-track", "value"),
+    Input("student-grade", "value"),
+    Input("student-class", "value"),
+    State("student-name", "value"),
+)
+def sync_student_name_options(student_track, student_grade, student_class, current_name):
+    options = build_student_name_options(student_track, student_grade, student_class)
+    option_values = {option["value"] for option in options}
+    selected_name = current_name if current_name in option_values else ""
+
+    if options:
+        helper_text = f"{len(options)} estudante(s) disponivel(is) para a selecao atual."
+    elif student_track or (student_grade and student_class):
+        helper_text = "Nenhum estudante encontrado para essa combinacao. Confira trilha, serie e turma."
+    else:
+        helper_text = "Selecione trilha ou serie/turma para carregar a lista de estudantes."
+
+    return options, selected_name, helper_text
+
+
+@app.callback(
     Output("send-results-status", "children"),
     Output("send-results-status", "style"),
     Input("send-results-btn", "n_clicks"),
     State("exercise-store", "data"),
     State("student-name", "value"),
+    State("student-track", "value"),
     State("student-grade", "value"),
     State("student-class", "value"),
+    State("student-bimester", "value"),
     State("student-email", "value"),
     State("criticism-input", "value"),
     State("suggestion-input", "value"),
@@ -2735,8 +2915,10 @@ def handle_final_results_send(
     send_results_clicks,
     exercise_data,
     student_name,
+    student_track,
     student_grade,
     student_class,
+    student_bimester,
     student_email,
     criticism,
     suggestion,
@@ -2748,14 +2930,22 @@ def handle_final_results_send(
     if session_data.get("stage") != "results":
         return "Finalize primeiro a sessão de exercícios para liberar o envio.", dict(status_style, color="#b91c1c")
 
-    if not (student_name or "").strip() or not (student_grade or "").strip() or not (student_class or "").strip() or not (final_conclusion or "").strip():
-        return "Preencha nome, série, turma e conclusão final antes de enviar.", dict(status_style, color="#b91c1c")
+    if (
+        not (student_name or "").strip()
+        or not (student_grade or "").strip()
+        or not (student_class or "").strip()
+        or not (student_bimester or "").strip()
+        or not (final_conclusion or "").strip()
+    ):
+        return "Preencha nome, serie, turma, bimestre e conclusao final antes de enviar.", dict(status_style, color="#b91c1c")
 
     payload = build_final_session_payload(
         session_data,
         student_name,
+        student_track,
         student_grade,
         student_class,
+        student_bimester,
         student_email,
         criticism,
         suggestion,
