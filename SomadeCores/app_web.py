@@ -59,6 +59,29 @@ SHEET_HEADERS = [
     "table_data_json",
     "history_data_json",
 ]
+FINAL_SESSION_HEADERS = [
+    "timestamp",
+    "trilha",
+    "serie",
+    "turma",
+    "bimestre",
+    "estudante",
+    "simulacao",
+    "questoes_puladas",
+    "acertos_erros",
+    "nota",
+    "conclusao",
+    "criticas",
+    "sugestoes",
+    "email",
+    "to_email",
+    "nome_aluno",
+    "acertos",
+    "data_envio",
+    "total_questoes",
+    "tentativas_totais",
+    "detalhes_exercicios",
+]
 SIMULATION_NAME = "Soma de Cores - App Web"
 PROFESSOR_EMAIL = "flavio.ambrosio@edu.se.df.gov.br"
 PLANILHA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec"
@@ -380,11 +403,10 @@ def open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name):
     raise RuntimeError("Nenhum identificador de planilha foi configurado.")
 
 
-def get_google_worksheet():
+def get_google_worksheet_with_headers(worksheet_name, headers):
     client = get_google_sheets_client()
     spreadsheet_id = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID") or "").strip()
     spreadsheet_name = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_NAME") or "Notas CEAN 2026").strip()
-    worksheet_name = (os.getenv("GOOGLE_SHEETS_WORKSHEET_NAME") or "app web").strip()
 
     spreadsheet = open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name)
 
@@ -394,13 +416,23 @@ def get_google_worksheet():
         worksheet = spreadsheet.add_worksheet(
             title=worksheet_name,
             rows=2000,
-            cols=max(26, len(SHEET_HEADERS) + 4),
+            cols=max(26, len(headers) + 4),
         )
 
     if not worksheet.row_values(1):
-        worksheet.append_row(SHEET_HEADERS, value_input_option="USER_ENTERED")
+        worksheet.append_row(headers, value_input_option="USER_ENTERED")
 
     return worksheet
+
+
+def get_google_worksheet():
+    worksheet_name = (os.getenv("GOOGLE_SHEETS_WORKSHEET_NAME") or "app web").strip()
+    return get_google_worksheet_with_headers(worksheet_name, SHEET_HEADERS)
+
+
+def get_google_final_results_worksheet():
+    worksheet_name = (os.getenv("GOOGLE_SHEETS_RESULTS_WORKSHEET_NAME") or "app web resultados").strip()
+    return get_google_worksheet_with_headers(worksheet_name, FINAL_SESSION_HEADERS)
 
 
 def send_submission_to_google_sheets(submission):
@@ -416,6 +448,21 @@ def send_submission_to_google_sheets(submission):
         logging.exception("Falha ao enviar submissao para Google Sheets.")
         reason = str(exc).strip() or exc.__class__.__name__
         return False, f"Registro na planilha nao concluido: {reason}"
+
+
+def send_final_session_to_google_sheets(payload):
+    if not is_google_sheets_configured():
+        return False, "Integracao com Google Sheets nao configurada neste deploy."
+
+    try:
+        worksheet = get_google_final_results_worksheet()
+        row = [payload.get(header, "") for header in FINAL_SESSION_HEADERS]
+        worksheet.append_row(row, value_input_option="USER_ENTERED")
+        return True, f"Dados enviados para a planilha {worksheet.spreadsheet.title} / {worksheet.title}."
+    except Exception as exc:
+        logging.exception("Falha ao enviar resultados finais para Google Sheets.")
+        reason = str(exc).strip() or exc.__class__.__name__
+        return False, f"planilha: {reason}"
 
 
 def post_json_to_apps_script(url, data):
@@ -497,7 +544,7 @@ def send_final_session_results(payload, student_email):
     messages = []
     success = True
 
-    sheet_ok, sheet_message = post_json_to_apps_script(PLANILHA_SCRIPT_URL, payload)
+    sheet_ok, sheet_message = send_final_session_to_google_sheets(payload)
     success = success and sheet_ok
     messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
 
@@ -2093,6 +2140,11 @@ app.layout = html.Div(
                                                     n_clicks=0,
                                                 ),
                                                 html.Button(
+                                                    "Avançar etapa",
+                                                    id="next-exercise-btn",
+                                                    n_clicks=0,
+                                                ),
+                                                html.Button(
                                                     "Pular etapa",
                                                     id="skip-exercise-btn",
                                                     n_clicks=0,
@@ -2649,6 +2701,7 @@ def sync_mobile_editor(table_data, mobile_frequency):
     Output("final-conclusion-input", "value"),
     Input("new-exercise-btn", "n_clicks"),
     Input("submit-exercise-btn", "n_clicks"),
+    Input("next-exercise-btn", "n_clicks"),
     Input("skip-exercise-btn", "n_clicks"),
     Input("submit-session-conclusion-btn", "n_clicks"),
     State("exercise-store", "data"),
@@ -2664,6 +2717,7 @@ def sync_mobile_editor(table_data, mobile_frequency):
 def handle_exercises(
     new_exercise_clicks,
     submit_exercise_clicks,
+    next_exercise_clicks,
     skip_exercise_clicks,
     submit_session_conclusion_clicks,
     exercise_data,
@@ -2813,6 +2867,7 @@ def handle_exercises(
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
     current_exercise = get_current_session_exercise(session_data)
     passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(current_exercise, metrics, answer_text)
+    advance_requested = trigger == "next-exercise-btn"
     submitted_at = datetime.now()
     timestamp = submitted_at.strftime("%H:%M:%S")
     next_streak = int(progress_data.get("streak", 0)) + 1 if passed else 0
@@ -2839,10 +2894,10 @@ def handle_exercises(
 
     session_data["current_attempts"] = int(session_data.get("current_attempts", 0)) + 1
 
-    if passed:
+    if passed or advance_requested:
         completed_count = len(session_data.get("results", [])) + 1
         session_data["results"] = list(session_data.get("results", [])) + [{
-            "correct": True,
+            "correct": passed,
             "skipped": False,
             "attempts": int(session_data.get("current_attempts", 0)),
             "score": total_score,
@@ -2854,7 +2909,10 @@ def handle_exercises(
             feedback_data = append_feedback_detail(feedback_data, "Todas as etapas guiadas foram concluídas. Agora escreva a conclusão final da sessão.")
         else:
             session_data["current_index"] = int(session_data.get("current_index", 0)) + 1
-            feedback_data = append_feedback_detail(feedback_data, "Etapa concluída. A próxima atividade já está disponível.")
+            if passed:
+                feedback_data = append_feedback_detail(feedback_data, "Etapa concluída. A próxima atividade já está disponível.")
+            else:
+                feedback_data = append_feedback_detail(feedback_data, "A etapa foi registrada e a sessão avançou para a próxima atividade, mesmo sem atingir totalmente a meta.")
         return build_exercise_stage_outputs(session_data, updated_progress, feedback_data, answer_value="", session_conclusion_value=session_conclusion_text or "")
 
     feedback_data = append_feedback_detail(
