@@ -27,7 +27,8 @@ const STUDENT_DATABASE = {
             "PEDRO LUIS CASTRO RODRIGUES",
             "RAFAEL MACEDO PENNA",
             "SAMARA BORGES RAMOS",
-            "WILLIANY CAVALCANTE DOS SANTOS"
+            "WILLIANY CAVALCANTE DOS SANTOS",
+            "Guilherme de Farias Cordeiro Pereira"
         ],
         "2o ano B": [
             "ALICIA GABRIELA MEDEIROS DE ARAUJO",
@@ -57,7 +58,11 @@ const STUDENT_DATABASE = {
             "SOFIA LOPES ROSIMO",
             "SOPHIA LIS SILVA MACHADO",
             "SUELLEN DA SILVA REZENDE",
-            "TALYS GABRIEL ALVES DOS SANTOS"
+            "TALYS GABRIEL ALVES DOS SANTOS",
+            "LOURDES VITÓRIA FERNANDES PINHEIRO",
+            "LUÍS ANTÔNIO GOMES FONTANA",
+            "THEO PINHEIRO ALVES",
+            "YASMIN DA SILVA SARAIVA"
         ],
         "3o ano A": [
             "AISLAN BARBOSA DE OLIVEIRA",
