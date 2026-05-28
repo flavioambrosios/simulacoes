@@ -13,15 +13,15 @@ GOOGLE_SHEETS_SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 DEFAULT_SPREADSHEET_NAME = "Notas CEAN 2026"
-DEFAULT_SOURCE_WORKSHEET = "app web"
+DEFAULT_SOURCE_WORKSHEET = "app web resultados"
 DEFAULT_EXPORT_DIR = "exports_turmas"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description=(
-            "Le os envios brutos da aba 'app web', consolida a melhor tentativa geral "
-            "em cada turma e exporta um resumo final."
+            "Le os relatórios finais da aba 'app web resultados', calcula a média das etapas "
+            "em escala 0 a 10 e exporta um resumo por turma."
         )
     )
     parser.add_argument(
@@ -81,13 +81,73 @@ def parse_score(value):
         return 0
 
 
+def parse_percentage_score(value):
+    cleaned = (value or "").strip().replace("%", "")
+    try:
+        return float(cleaned)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def parse_timestamp(value):
     if not value:
         return datetime.min
     try:
         return datetime.fromisoformat(value)
     except ValueError:
-        return datetime.min
+        pass
+
+    for fmt in ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            pass
+
+    return datetime.min
+
+
+def build_group_name(serie, turma):
+    serie_text = (serie or "").strip()
+    turma_text = (turma or "").strip()
+    if not serie_text and not turma_text:
+        return ""
+    if not serie_text:
+        return turma_text
+    if not turma_text:
+        return serie_text
+    return f"{serie_text} {turma_text}"
+
+
+def parse_stage_details(value):
+    if not value:
+        return []
+
+    try:
+        parsed = json.loads(value)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return []
+
+    if not isinstance(parsed, list):
+        return []
+
+    return [item for item in parsed if isinstance(item, dict)]
+
+
+def compute_stage_average_100(stage_details):
+    if not stage_details:
+        return 0.0
+
+    scores = []
+    for item in stage_details:
+        try:
+            scores.append(float(item.get("score", 0) or 0))
+        except (TypeError, ValueError):
+            scores.append(0.0)
+
+    if not scores:
+        return 0.0
+
+    return round(sum(scores) / len(scores), 2)
 
 
 def parse_service_account_json(raw_value):
@@ -198,7 +258,7 @@ def read_source_rows(spreadsheet, worksheet_name):
 def select_groups(rows, requested_groups):
     available = {}
     for row in rows:
-        group_name = (row.get("student_group") or "").strip()
+        group_name = build_group_name(row.get("serie", ""), row.get("turma", ""))
         if not group_name or normalize_text(group_name) == "nao informado":
             continue
         available.setdefault(normalize_text(group_name), group_name)
@@ -221,18 +281,20 @@ def summarize_group(rows, group_name):
     skipped_rows = 0
 
     for row in rows:
-        if normalize_text(row.get("student_group", "")) != group_key:
+        row_group_name = build_group_name(row.get("serie", ""), row.get("turma", ""))
+        if normalize_text(row_group_name) != group_key:
             continue
 
-        student_name = normalize_student_name(row.get("student_name", ""))
+        student_name = normalize_student_name(row.get("estudante", ""))
         if not student_name or normalize_text(student_name) == "nao informado":
             skipped_rows += 1
             continue
 
         student_key = normalize_text(student_name)
-        score = parse_score(row.get("score"))
-        exercise_type = (row.get("exercise_type") or "").strip() or "sem-tipo"
-        timestamp = parse_timestamp(row.get("timestamp"))
+        stage_details = parse_stage_details(row.get("detalhes_exercicios"))
+        average_score_100 = compute_stage_average_100(stage_details)
+        reported_score_100 = parse_percentage_score(row.get("nota"))
+        timestamp = parse_timestamp(row.get("timestamp") or row.get("data_envio"))
         student = students.setdefault(
             student_key,
             {
@@ -251,32 +313,46 @@ def summarize_group(rows, group_name):
         current_best = student["best_attempt"]
         should_replace = current_best is None
         if current_best is not None:
-            best_score = current_best["score"]
+            best_score = current_best["average_score_100"]
             best_timestamp = current_best["timestamp"]
-            should_replace = score > best_score or (score == best_score and timestamp >= best_timestamp)
+            should_replace = average_score_100 > best_score or (average_score_100 == best_score and timestamp >= best_timestamp)
 
         if should_replace:
             student["best_attempt"] = {
-                "score": score,
+                "average_score_100": average_score_100,
+                "reported_score_100": reported_score_100,
                 "timestamp": timestamp,
-                "exercise_type": exercise_type,
-                "exercise_title": (row.get("exercise_title") or "").strip(),
-                "result": (row.get("result") or "").strip(),
-                "metric_summary": (row.get("metric_summary") or "").strip(),
+                "trilha": (row.get("trilha") or "").strip(),
+                "bimestre": (row.get("bimestre") or "").strip(),
+                "acertos": (row.get("acertos") or "").strip(),
+                "acertos_erros": (row.get("acertos_erros") or "").strip(),
+                "total_questoes": parse_score(row.get("total_questoes")),
+                "tentativas_totais": parse_score(row.get("tentativas_totais")),
+                "questoes_puladas": parse_score(row.get("questoes_puladas")),
+                "conclusao": (row.get("conclusao") or "").strip(),
+                "email": (row.get("email") or "").strip(),
+                "stage_count": len(stage_details),
             }
 
     summary_rows = []
     for student in sorted(students.values(), key=lambda item: normalize_text(item["student_name"])):
         best_attempt = student["best_attempt"] or {
-            "score": 0,
+            "average_score_100": 0.0,
+            "reported_score_100": 0.0,
             "timestamp": datetime.min,
-            "exercise_type": "",
-            "exercise_title": "",
-            "result": "",
-            "metric_summary": "",
+            "trilha": "",
+            "bimestre": "",
+            "acertos": "",
+            "acertos_erros": "",
+            "total_questoes": 0,
+            "tentativas_totais": 0,
+            "questoes_puladas": 0,
+            "conclusao": "",
+            "email": "",
+            "stage_count": 0,
         }
-        completed_attempts = 1 if best_attempt["score"] > 0 else 0
-        final_score_100 = round(float(best_attempt["score"]), 2)
+        completed_attempts = 1 if best_attempt["stage_count"] > 0 else 0
+        final_score_100 = round(float(best_attempt["average_score_100"]), 2)
         final_grade_10 = round(final_score_100 / 10.0, 2)
         latest_submission = ""
         if student["latest_submission"] != datetime.min:
@@ -290,12 +366,17 @@ def summarize_group(rows, group_name):
             "student_group": student["student_group"],
             "attempts": student["attempts"],
             "completed_attempts": completed_attempts,
+            "stage_count": best_attempt["stage_count"],
             "final_score_100": final_score_100,
             "final_grade_10": final_grade_10,
-            "best_result": best_attempt["result"],
-            "best_exercise_type": best_attempt["exercise_type"],
-            "best_exercise_title": best_attempt["exercise_title"],
-            "best_metric_summary": best_attempt["metric_summary"],
+            "reported_score_100": round(float(best_attempt["reported_score_100"]), 2),
+            "track": best_attempt["trilha"],
+            "bimester": best_attempt["bimestre"],
+            "acertos": best_attempt["acertos"],
+            "acertos_erros": best_attempt["acertos_erros"],
+            "total_questoes": best_attempt["total_questoes"],
+            "tentativas_totais": best_attempt["tentativas_totais"],
+            "questoes_puladas": best_attempt["questoes_puladas"],
             "best_submission": best_submission,
             "latest_submission": latest_submission,
         }
@@ -310,12 +391,17 @@ def build_output_table(summary_rows):
         "student_group",
         "attempts",
         "completed_attempts",
+        "stage_count",
         "final_score_100",
         "final_grade_10",
-        "best_result",
-        "best_exercise_type",
-        "best_exercise_title",
-        "best_metric_summary",
+        "reported_score_100",
+        "track",
+        "bimester",
+        "acertos",
+        "acertos_erros",
+        "total_questoes",
+        "tentativas_totais",
+        "questoes_puladas",
         "best_submission",
         "latest_submission",
     ]

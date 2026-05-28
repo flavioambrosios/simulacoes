@@ -91,11 +91,12 @@ O script [consolidar_notas_turmas.py](consolidar_notas_turmas.py) le os registro
 
 ### Regra usada na consolidacao
 
-- Para cada estudante, o script guarda a melhor tentativa geral entre todos os envios feitos.
-- Todos os exercicios passam a ter o mesmo peso, porque a nota final vem diretamente dessa melhor tentativa.
-- final_score_100 e a melhor pontuacao encontrada na escala de 0 a 100.
+- O script agora le a aba app web resultados, onde cada envio final da sessao guarda todas as etapas resolvidas.
+- Para cada estudante, o script calcula a media das notas das etapas registradas em detalhes_exercicios.
+- Se houver mais de um envio final do mesmo estudante, o script guarda o melhor envio com base nessa media das etapas.
+- final_score_100 e a media das etapas na escala de 0 a 100.
 - final_grade_10 converte final_score_100 para a escala de 0 a 10.
-- O resumo tambem informa qual exercicio gerou a melhor nota e quando isso aconteceu.
+- O resumo tambem informa trilha, bimestre, acertos e o horario do melhor envio.
 
 ### Exemplos de uso
 
