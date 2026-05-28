@@ -2738,13 +2738,22 @@ def handle_exercises(
         )
 
     if session_data.get("stage") != "exercise":
-        feedback = {
-            "title": "Fluxo em etapa diferente",
-            "message": "No momento, a sessão não está na etapa de resolução dos exercícios guiados.",
-            "details": [],
-            "accent": "#b45309",
-            "background": "#fffbeb",
-        }
+        if session_data.get("stage") == "conclusion":
+            feedback = {
+                "title": "Conclusão final pendente",
+                "message": "As etapas guiadas já terminaram. Agora escreva a conclusão final da sessão e avance para os resultados.",
+                "details": ["Depois disso, o envio do relatório completo será liberado."],
+                "accent": "#2563eb",
+                "background": "#eff6ff",
+            }
+        else:
+            feedback = {
+                "title": "Resultados prontos para envio",
+                "message": "A sessão já foi consolidada. Complete os dados finais e envie o relatório para a planilha e para os e-mails.",
+                "details": ["Se os campos finais já estiverem preenchidos, basta clicar em Enviar resultados."],
+                "accent": "#15803d",
+                "background": "#ecfdf5",
+            }
         return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
 
     if trigger == "skip-exercise-btn":
