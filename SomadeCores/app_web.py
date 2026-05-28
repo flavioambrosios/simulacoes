@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import unicodedata
+import urllib.request
 from datetime import datetime
 from functools import lru_cache
 
@@ -55,6 +56,16 @@ SHEET_HEADERS = [
     "answer_text",
     "table_data_json",
     "history_data_json",
+]
+SIMULATION_NAME = "Soma de Cores - App Web"
+PROFESSOR_EMAIL = "flavio.ambrosio@edu.se.df.gov.br"
+PLANILHA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec"
+EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec"
+SESSION_EXERCISE_TYPES = [
+    "envelope-target",
+    "smoothing-observe",
+    "frequency-window",
+    "color-compare",
 ]
 
 
@@ -252,13 +263,42 @@ def get_google_sheets_client():
     return gspread.authorize(credentials)
 
 
+def open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name):
+    if spreadsheet_id:
+        try:
+            return client.open_by_key(spreadsheet_id)
+        except Exception as exc:
+            if spreadsheet_name:
+                try:
+                    return client.open(spreadsheet_name)
+                except Exception:
+                    pass
+
+            status_code = getattr(getattr(exc, "response", None), "status_code", None)
+            if status_code == 404:
+                raise RuntimeError(
+                    "Planilha nao encontrada pelo GOOGLE_SHEETS_SPREADSHEET_ID. Confira o ID ou remova essa variavel para usar o nome da planilha."
+                ) from exc
+            raise RuntimeError(f"Nao foi possivel abrir a planilha pelo ID informado: {exc}") from exc
+
+    if spreadsheet_name:
+        try:
+            return client.open(spreadsheet_name)
+        except Exception as exc:
+            raise RuntimeError(
+                "Planilha nao encontrada pelo nome informado. Confira GOOGLE_SHEETS_SPREADSHEET_NAME e o compartilhamento com a conta de servico."
+            ) from exc
+
+    raise RuntimeError("Nenhum identificador de planilha foi configurado.")
+
+
 def get_google_worksheet():
     client = get_google_sheets_client()
     spreadsheet_id = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID") or "").strip()
     spreadsheet_name = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_NAME") or "Notas CEAN 2026").strip()
     worksheet_name = (os.getenv("GOOGLE_SHEETS_WORKSHEET_NAME") or "app web").strip()
 
-    spreadsheet = client.open_by_key(spreadsheet_id) if spreadsheet_id else client.open(spreadsheet_name)
+    spreadsheet = open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name)
 
     try:
         worksheet = spreadsheet.worksheet(worksheet_name)
@@ -288,6 +328,97 @@ def send_submission_to_google_sheets(submission):
         logging.exception("Falha ao enviar submissao para Google Sheets.")
         reason = str(exc).strip() or exc.__class__.__name__
         return False, f"Registro na planilha nao concluido: {reason}"
+
+
+def post_json_to_apps_script(url, data):
+    try:
+        payload = json.dumps(data, ensure_ascii=False, default=serialize_json_value).encode("utf-8")
+        request = urllib.request.Request(
+            url,
+            data=payload,
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=20) as response:
+            body = response.read().decode("utf-8", errors="ignore").strip()
+            return True, body or f"HTTP {getattr(response, 'status', 200)}"
+    except Exception as exc:
+        logging.exception("Falha ao enviar dados para Apps Script.")
+        reason = str(exc).strip() or exc.__class__.__name__
+        return False, reason
+
+
+def build_final_session_payload(session_data, student_name, student_grade, student_class, student_email, criticism, suggestion, final_conclusion):
+    exercises = list(session_data.get("exercises", []))
+    results = list(session_data.get("results", []))
+    total = len(exercises)
+    correct = sum(1 for item in results if item.get("correct"))
+    skipped = int(session_data.get("skipped_questions", 0))
+    total_attempts = sum(int(item.get("attempts", 0)) for item in results)
+    score_percent = int(round((correct / total) * 100)) if total else 0
+    exercise_snapshot = []
+
+    for index, exercise in enumerate(exercises):
+        result = results[index] if index < len(results) else {}
+        exercise_snapshot.append({
+            "ordem": index + 1,
+            "tipo": exercise.get("type", ""),
+            "titulo": exercise.get("title", ""),
+            "resultado": "acerto" if result.get("correct") else "pulado" if result.get("skipped") else "pendente",
+            "tentativas": int(result.get("attempts", 0)),
+            "score": int(result.get("score", 0)),
+        })
+
+    return {
+        "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "serie": (student_grade or "").strip() or "Nao informado",
+        "turma": (student_class or "").strip() or "Nao informado",
+        "estudante": (student_name or "").strip() or "Nao informado",
+        "simulacao": SIMULATION_NAME,
+        "questoes_puladas": skipped,
+        "acertos_erros": f"{correct}/{max(total - correct, 0)}",
+        "nota": f"{score_percent}%",
+        "conclusao": (final_conclusion or "").strip(),
+        "criticas": (criticism or "").strip(),
+        "sugestoes": (suggestion or "").strip(),
+        "email": (student_email or "").strip(),
+        "to_email": PROFESSOR_EMAIL,
+        "nome_aluno": (student_name or "").strip() or "Nao informado",
+        "acertos": f"{correct}/{total}",
+        "data_envio": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "total_questoes": total,
+        "tentativas_totais": total_attempts,
+        "detalhes_exercicios": json.dumps(exercise_snapshot, ensure_ascii=False),
+    }
+
+
+def send_final_session_results(payload, student_email):
+    messages = []
+    success = True
+
+    sheet_ok, sheet_message = post_json_to_apps_script(PLANILHA_SCRIPT_URL, payload)
+    success = success and sheet_ok
+    messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
+
+    email_ok, email_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, payload)
+    success = success and email_ok
+    messages.append("email do professor ok" if email_ok else f"email professor: {email_message}")
+
+    student_email = (student_email or "").strip()
+    if student_email:
+        student_copy = dict(payload)
+        student_copy["to_email"] = student_email
+        student_copy["mensagem"] = (
+            f"Confirmação de envio - {SIMULATION_NAME}\n"
+            f"Nota: {payload.get('nota', '0%')}\n"
+            f"Acertos: {payload.get('acertos', '0/0')}\n"
+            f"Questões puladas: {payload.get('questoes_puladas', 0)}"
+        )
+        copy_ok, copy_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, student_copy)
+        success = success and copy_ok
+        messages.append("copia para estudante ok" if copy_ok else f"copia estudante: {copy_message}")
+
+    return success, " | ".join(messages)
 
 
 def append_feedback_detail(feedback, detail):
@@ -780,7 +911,7 @@ def build_hilbert_notes(smoothing_window, freq_delta):
     return smoothing_text, delta_text
 
 
-def generate_random_exercise(previous_id=None):
+def generate_random_exercise(previous_id=None, forced_type=None):
     seed = int(datetime.now().timestamp() * 1000000) % 1000000000
     rng = np.random.default_rng(seed)
     target_diff = float(rng.choice([0.35, 0.30, 0.25]))
@@ -869,6 +1000,11 @@ def generate_random_exercise(previous_id=None):
         if filtered:
             exercises = filtered
 
+    if forced_type:
+        filtered = [exercise for exercise in exercises if exercise["type"] == forced_type]
+        if filtered:
+            exercises = filtered
+
     index = int(rng.integers(0, len(exercises)))
     exercise = exercises[index]
     exercise["id"] = f"{exercise['type']}-{seed}"
@@ -908,6 +1044,177 @@ def build_exercise_feedback(feedback=None):
             "padding": "14px 16px",
             "marginTop": "14px",
         },
+    )
+
+
+def create_exercise_session():
+    return {
+        "exercises": [generate_random_exercise(forced_type=exercise_type) for exercise_type in SESSION_EXERCISE_TYPES],
+        "current_index": 0,
+        "results": [],
+        "skipped_questions": 0,
+        "current_attempts": 0,
+        "stage": "exercise",
+        "final_conclusion": "",
+    }
+
+
+def normalize_exercise_session(session_data):
+    if not isinstance(session_data, dict) or not isinstance(session_data.get("exercises"), list) or not session_data.get("exercises"):
+        return create_exercise_session()
+
+    exercises = list(session_data.get("exercises", []))
+    max_index = max(len(exercises) - 1, 0)
+    try:
+        current_index = int(session_data.get("current_index", 0))
+    except (TypeError, ValueError):
+        current_index = 0
+
+    return {
+        "exercises": exercises,
+        "current_index": max(0, min(current_index, max_index)),
+        "results": list(session_data.get("results", [])),
+        "skipped_questions": int(session_data.get("skipped_questions", 0) or 0),
+        "current_attempts": int(session_data.get("current_attempts", 0) or 0),
+        "stage": session_data.get("stage") if session_data.get("stage") in {"exercise", "conclusion", "results"} else "exercise",
+        "final_conclusion": session_data.get("final_conclusion", "") or "",
+    }
+
+
+def get_current_session_exercise(session_data):
+    normalized = normalize_exercise_session(session_data)
+    exercises = normalized["exercises"]
+    return exercises[normalized["current_index"]]
+
+
+def build_stage_rubric(stage, exercise=None):
+    if stage == "exercise" and exercise:
+        return build_exercise_rubric(exercise)
+
+    if stage == "conclusion":
+        return html.Ul(
+            [
+                html.Li("Explique o que mudou nos envelopes, na cor ou na janela espectral ao longo da sessão."),
+                html.Li("Relacione pelo menos uma decisão sua de ajuste aos resultados observados na simulação."),
+                html.Li("Escreva uma conclusão um pouco mais desenvolvida do que as respostas curtas das etapas."),
+            ],
+            style={"margin": "0", "paddingLeft": "18px", "lineHeight": "1.8"},
+        )
+
+    return html.Ul(
+        [
+            html.Li("Confira o resumo da sessão antes de enviar os dados."),
+            html.Li("Preencha nome, série, turma e conclusão final."),
+            html.Li("Se desejar, acrescente críticas, sugestões e e-mail para cópia."),
+        ],
+        style={"margin": "0", "paddingLeft": "18px", "lineHeight": "1.8"},
+    )
+
+
+def build_session_results_summary(session_data):
+    normalized = normalize_exercise_session(session_data)
+    exercises = normalized["exercises"]
+    results = normalized["results"]
+    total = len(exercises)
+    correct = sum(1 for item in results if item.get("correct"))
+    skipped = int(normalized.get("skipped_questions", 0))
+    incorrect = sum(1 for item in results if not item.get("correct"))
+    attempts = sum(int(item.get("attempts", 0)) for item in results)
+    pending = max(0, total - len(results))
+    percent = int(round((correct / total) * 100)) if total else 0
+
+    return html.Div(
+        [
+            html.P(f"Exercícios previstos: {total}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Etapas concluídas com acerto: {correct}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Etapas puladas: {skipped}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Etapas sem acerto registrado: {incorrect}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Tentativas acumuladas nesta sessão: {attempts}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Etapas ainda pendentes: {pending}", style={"margin": "0 0 8px 0"}),
+            html.P(f"Nota final da sessão: {percent}%", style={"margin": "0", "fontWeight": "bold"}),
+        ],
+        style={
+            "border": "1px solid #d7deea",
+            "borderRadius": "12px",
+            "padding": "16px",
+            "background": "#ffffff",
+            "lineHeight": "1.7",
+        },
+    )
+
+
+def build_exercise_stage_outputs(session_data, progress_data, feedback_data, answer_value="", session_conclusion_value=None, final_conclusion_value=None):
+    normalized = normalize_exercise_session(session_data)
+    current_exercise = get_current_session_exercise(normalized)
+    stage = normalized["stage"]
+
+    if stage == "exercise":
+        title = current_exercise["title"]
+        difficulty = f"Etapa {normalized['current_index'] + 1} de {len(normalized['exercises'])} | Nivel: {current_exercise.get('difficulty', 'fundamental')}"
+        prompt = current_exercise["prompt"]
+        rubric = build_stage_rubric(stage, current_exercise)
+        indicator = f"Etapa atual: {normalized['current_index'] + 1} de {len(normalized['exercises'])}"
+    elif stage == "conclusion":
+        title = "Conclusão final da sessão"
+        difficulty = "Etapa final antes do envio"
+        prompt = "As etapas guiadas já foram concluídas. Agora registre uma conclusão mais ampla sobre o que você observou na simulação e como suas escolhas alteraram os resultados."
+        rubric = build_stage_rubric(stage)
+        indicator = "Etapa atual: conclusão final"
+    else:
+        title = "Resultados e envio"
+        difficulty = "Resumo final da sessão"
+        prompt = "Confira o resumo, complete os dados do estudante e envie o relatório final para a planilha e para os e-mails."
+        rubric = build_stage_rubric(stage)
+        indicator = "Etapa atual: resultados e envio"
+
+    answer_style = {"marginTop": "18px", "display": "block"} if stage == "exercise" else {"display": "none"}
+    actions_style = {
+        "marginTop": "18px",
+        "display": "flex",
+        "gap": "10px",
+        "flexWrap": "wrap",
+    } if stage == "exercise" else {"display": "none"}
+    conclusion_style = {
+        "marginTop": "18px",
+        "display": "block",
+        "border": "1px solid #d7deea",
+        "borderRadius": "12px",
+        "padding": "16px",
+        "background": "#ffffff",
+    } if stage == "conclusion" else {"display": "none"}
+    results_style = {
+        "marginTop": "18px",
+        "display": "block",
+        "border": "1px solid #d7deea",
+        "borderRadius": "12px",
+        "padding": "16px",
+        "background": "#ffffff",
+    } if stage == "results" else {"display": "none"}
+
+    stored_conclusion = normalized.get("final_conclusion", "")
+    if session_conclusion_value is None:
+        session_conclusion_value = stored_conclusion
+    if final_conclusion_value is None:
+        final_conclusion_value = stored_conclusion
+
+    return (
+        normalized,
+        progress_data,
+        title,
+        difficulty,
+        prompt,
+        rubric,
+        build_exercise_feedback(feedback_data),
+        build_exercise_progress_panel(progress_data),
+        answer_value,
+        indicator,
+        answer_style,
+        actions_style,
+        conclusion_style,
+        results_style,
+        build_session_results_summary(normalized),
+        session_conclusion_value,
+        final_conclusion_value,
     )
 
 
@@ -1244,12 +1551,13 @@ initial_exercise_progress = {
     "history": [],
 }
 
-initial_exercise = generate_random_exercise()
+initial_exercise_session = create_exercise_session()
+initial_exercise = get_current_session_exercise(initial_exercise_session)
 
 app.layout = html.Div(
     [
         dcc.Store(id="history-store", data=initial_history),
-        dcc.Store(id="exercise-store", data=initial_exercise, storage_type="local"),
+        dcc.Store(id="exercise-store", data=initial_exercise_session, storage_type="local"),
         dcc.Store(id="exercise-progress-store", data=initial_exercise_progress, storage_type="local"),
         html.H1("Simulador de Ondas e Envelopes de Hilbert - Versão Web"),
         html.P(
@@ -1641,7 +1949,92 @@ app.layout = html.Div(
                                             },
                                         ),
                                         html.Div(
+                                            id="exercise-stage-indicator",
+                                            children=f"Etapa atual: 1 de {len(initial_exercise_session['exercises'])}",
+                                            style={
+                                                "display": "inline-block",
+                                                "marginBottom": "12px",
+                                                "padding": "6px 10px",
+                                                "borderRadius": "999px",
+                                                "background": "#ede9fe",
+                                                "color": "#312e81",
+                                                "fontWeight": "bold",
+                                                "fontSize": "0.92rem",
+                                            },
+                                        ),
+                                        html.Div(
                                             [
+                                                html.Label("Registro da etapa"),
+                                                dcc.Textarea(
+                                                    id="exercise-answer",
+                                                    value="",
+                                                    placeholder="Escreva aqui uma resposta curta sobre a etapa atual: o que você ajustou, o que observou e como interpreta o resultado.",
+                                                    style={
+                                                        "width": "100%",
+                                                        "minHeight": "180px",
+                                                        "marginTop": "8px",
+                                                        "padding": "12px",
+                                                        "borderRadius": "12px",
+                                                        "border": "1px solid #cbd5e1",
+                                                        "lineHeight": "1.7",
+                                                    },
+                                                ),
+                                            ],
+                                            id="exercise-answer-section",
+                                            style={"marginTop": "18px"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Button("Nova sessão de exercícios", id="new-exercise-btn", n_clicks=0),
+                                                html.Button(
+                                                    "Verificar etapa",
+                                                    id="submit-exercise-btn",
+                                                    n_clicks=0,
+                                                ),
+                                                html.Button(
+                                                    "Pular etapa",
+                                                    id="skip-exercise-btn",
+                                                    n_clicks=0,
+                                                ),
+                                            ],
+                                            id="exercise-step-actions",
+                                            style={"marginTop": "18px", "display": "flex", "gap": "10px", "flexWrap": "wrap"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.H4("Conclusão final da sessão", style={"marginTop": "0"}),
+                                                html.P(
+                                                    "Depois de concluir as etapas guiadas, escreva uma síntese mais ampla do que você aprendeu com a simulação.",
+                                                    style={"lineHeight": "1.7"},
+                                                ),
+                                                dcc.Textarea(
+                                                    id="session-conclusion-text",
+                                                    value="",
+                                                    placeholder="Explique aqui, com um pouco mais de detalhe, o que você aprendeu na sessão completa.",
+                                                    style={
+                                                        "width": "100%",
+                                                        "minHeight": "180px",
+                                                        "marginTop": "8px",
+                                                        "padding": "12px",
+                                                        "borderRadius": "12px",
+                                                        "border": "1px solid #cbd5e1",
+                                                        "lineHeight": "1.7",
+                                                    },
+                                                ),
+                                                html.Button(
+                                                    "Avançar para resultados",
+                                                    id="submit-session-conclusion-btn",
+                                                    n_clicks=0,
+                                                    style={"marginTop": "14px"},
+                                                ),
+                                            ],
+                                            id="exercise-conclusion-section",
+                                            style={"display": "none"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.H4("Resultados da sessão", style={"marginTop": "0"}),
+                                                html.Div(id="exercise-results-summary", children=build_session_results_summary(initial_exercise_session)),
                                                 html.Div(
                                                     [
                                                         html.Div(
@@ -1667,14 +2060,14 @@ app.layout = html.Div(
                                                         ),
                                                         html.Div(
                                                             [
-                                                                html.Label("Turma ou código"),
+                                                                html.Label("Série"),
                                                                 dcc.Input(
-                                                                    id="student-group",
+                                                                    id="student-grade",
                                                                     type="text",
                                                                     value="",
                                                                     persistence=True,
                                                                     persistence_type="local",
-                                                                    placeholder="Ex.: 2A ou 2026-01",
+                                                                    placeholder="Ex.: 2o ano",
                                                                     style={
                                                                         "width": "100%",
                                                                         "marginTop": "8px",
@@ -1684,40 +2077,123 @@ app.layout = html.Div(
                                                                     },
                                                                 ),
                                                             ],
-                                                            style={"flex": "1 1 180px"},
+                                                            style={"flex": "1 1 160px"},
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Turma"),
+                                                                dcc.Input(
+                                                                    id="student-class",
+                                                                    type="text",
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Ex.: A",
+                                                                    style={
+                                                                        "width": "100%",
+                                                                        "marginTop": "8px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 140px"},
                                                         ),
                                                     ],
                                                     style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
                                                 ),
-                                                html.Label("Conclusão do estudante"),
-                                                dcc.Textarea(
-                                                    id="exercise-answer",
-                                                    value="",
-                                                    placeholder="Escreva aqui sua conclusão, observação ou justificativa física.",
-                                                    style={
-                                                        "width": "100%",
-                                                        "minHeight": "180px",
-                                                        "marginTop": "8px",
-                                                        "padding": "12px",
-                                                        "borderRadius": "12px",
-                                                        "border": "1px solid #cbd5e1",
-                                                        "lineHeight": "1.7",
-                                                    },
+                                                html.Div(
+                                                    [
+                                                        html.Label("E-mail para cópia"),
+                                                        dcc.Input(
+                                                            id="student-email",
+                                                            type="email",
+                                                            value="",
+                                                            persistence=True,
+                                                            persistence_type="local",
+                                                            placeholder="seu@email.com",
+                                                            style={
+                                                                "width": "100%",
+                                                                "marginTop": "8px",
+                                                                "padding": "10px 12px",
+                                                                "borderRadius": "12px",
+                                                                "border": "1px solid #cbd5e1",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Label("Críticas"),
+                                                        dcc.Textarea(
+                                                            id="criticism-input",
+                                                            value="",
+                                                            placeholder="O que poderia ser melhorado na simulação ou na dinâmica dos exercícios?",
+                                                            style={
+                                                                "width": "100%",
+                                                                "minHeight": "110px",
+                                                                "marginTop": "8px",
+                                                                "padding": "12px",
+                                                                "borderRadius": "12px",
+                                                                "border": "1px solid #cbd5e1",
+                                                                "lineHeight": "1.7",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Label("Sugestões"),
+                                                        dcc.Textarea(
+                                                            id="suggestion-input",
+                                                            value="",
+                                                            placeholder="Tem alguma sugestão para melhorar a experiência de aprendizagem?",
+                                                            style={
+                                                                "width": "100%",
+                                                                "minHeight": "110px",
+                                                                "marginTop": "8px",
+                                                                "padding": "12px",
+                                                                "borderRadius": "12px",
+                                                                "border": "1px solid #cbd5e1",
+                                                                "lineHeight": "1.7",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Label("Conclusão final"),
+                                                        dcc.Textarea(
+                                                            id="final-conclusion-input",
+                                                            value="",
+                                                            placeholder="Escreva aqui sua conclusão final sobre a sessão completa.",
+                                                            style={
+                                                                "width": "100%",
+                                                                "minHeight": "180px",
+                                                                "marginTop": "8px",
+                                                                "padding": "12px",
+                                                                "borderRadius": "12px",
+                                                                "border": "1px solid #cbd5e1",
+                                                                "lineHeight": "1.7",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "18px"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Button("Enviar resultados", id="send-results-btn", n_clicks=0),
+                                                        html.Div(id="send-results-status", style={"minHeight": "24px", "fontWeight": "bold"}),
+                                                    ],
+                                                    style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap", "alignItems": "center"},
                                                 ),
                                             ],
-                                            style={"marginTop": "18px"},
-                                        ),
-                                        html.Div(
-                                            [
-                                                html.Button("Sortear novo exercício", id="new-exercise-btn", n_clicks=0),
-                                                html.Button(
-                                                    "Enviar resposta e dados",
-                                                    id="submit-exercise-btn",
-                                                    n_clicks=0,
-                                                    style={"marginLeft": "10px"},
-                                                ),
-                                            ],
-                                            style={"marginTop": "18px", "display": "flex", "gap": "10px", "flexWrap": "wrap"},
+                                            id="exercise-results-section",
+                                            style={"display": "none"},
                                         ),
                                         html.Div(id="exercise-feedback", children=build_exercise_feedback()),
                                     ],
@@ -1741,11 +2217,11 @@ app.layout = html.Div(
                                             [
                                                 html.H3("Dinâmica da aba"),
                                                 html.P(
-                                                    "Os exercícios já seguem uma lógica de sorteio, envio, correção automática e histórico local salvo no navegador. A parte visual foi adaptada à identidade desta simulação de ondas e cores.",
+                                                    "A aba agora segue uma sessão em etapas: resolver cada desafio com a simulação, escrever uma conclusão final e só então enviar o relatório completo, em fluxo mais próximo ao modelo das simulações HTML.",
                                                     style={"lineHeight": "1.8"},
                                                 ),
                                                 html.P(
-                                                    "Cada envio compara os dados atuais da simulação com os critérios do exercício e também verifica a conclusão escrita por palavras-chave conceituais.",
+                                                    "Cada etapa ainda usa os critérios automáticos da própria simulação, mas o envio para planilha e e-mails passou a acontecer no fim da sessão, junto com o resumo final do estudante.",
                                                     style={"lineHeight": "1.8"},
                                                 ),
                                             ],
@@ -2025,14 +2501,23 @@ def sync_mobile_editor(table_data, mobile_frequency):
     Output("exercise-feedback", "children"),
     Output("exercise-progress-panel", "children"),
     Output("exercise-answer", "value"),
+    Output("exercise-stage-indicator", "children"),
+    Output("exercise-answer-section", "style"),
+    Output("exercise-step-actions", "style"),
+    Output("exercise-conclusion-section", "style"),
+    Output("exercise-results-section", "style"),
+    Output("exercise-results-summary", "children"),
+    Output("session-conclusion-text", "value"),
+    Output("final-conclusion-input", "value"),
     Input("new-exercise-btn", "n_clicks"),
     Input("submit-exercise-btn", "n_clicks"),
+    Input("skip-exercise-btn", "n_clicks"),
+    Input("submit-session-conclusion-btn", "n_clicks"),
     State("exercise-store", "data"),
     State("exercise-progress-store", "data"),
     State("amp-table", "data"),
-    State("student-name", "value"),
-    State("student-group", "value"),
     State("exercise-answer", "value"),
+    State("session-conclusion-text", "value"),
     State("smoothing-slider", "value"),
     State("freq-delta-slider", "value"),
     State("history-store", "data"),
@@ -2041,45 +2526,146 @@ def sync_mobile_editor(table_data, mobile_frequency):
 def handle_exercises(
     new_exercise_clicks,
     submit_exercise_clicks,
+    skip_exercise_clicks,
+    submit_session_conclusion_clicks,
     exercise_data,
     progress_data,
     table_data,
-    student_name,
-    student_group,
     answer_text,
+    session_conclusion_text,
     smoothing_window,
     freq_delta,
     history_data,
 ):
     trigger = ctx.triggered_id
-    exercise_data = exercise_data or generate_random_exercise()
+    session_data = normalize_exercise_session(exercise_data)
     progress_data = progress_data or initial_exercise_progress.copy()
 
     if trigger == "new-exercise-btn":
-        new_exercise = generate_random_exercise(exercise_data.get("id"))
-        feedback = build_exercise_feedback(
-            {
-                "title": "Novo exercício sorteado",
-                "message": "A estrutura da atividade foi atualizada. Ajuste a simulação e envie quando terminar.",
-                "details": ["O progresso já salvo foi mantido."],
-                "accent": "#2563eb",
-                "background": "#eff6ff",
-            }
-        )
-        return (
-            new_exercise,
+        session_data = create_exercise_session()
+        feedback = {
+            "title": "Nova sessão sorteada",
+            "message": "Um novo conjunto de etapas foi preparado. O progresso histórico do navegador foi mantido.",
+            "details": ["Resolva as etapas na ordem e escreva a conclusão final antes do envio."],
+            "accent": "#2563eb",
+            "background": "#eff6ff",
+        }
+        return build_exercise_stage_outputs(
+            session_data,
             progress_data,
-            new_exercise["title"],
-            f"Nivel atual: {new_exercise.get('difficulty', 'fundamental')}",
-            new_exercise["prompt"],
-            build_exercise_rubric(new_exercise),
             feedback,
-            build_exercise_progress_panel(progress_data),
-            "",
+            answer_value="",
+            session_conclusion_value="",
+            final_conclusion_value="",
         )
 
+    if trigger == "submit-session-conclusion-btn":
+        if session_data.get("stage") != "conclusion":
+            feedback = {
+                "title": "Conclusão fora de etapa",
+                "message": "A conclusão final só pode ser enviada depois que todas as etapas forem resolvidas ou puladas.",
+                "details": [],
+                "accent": "#b45309",
+                "background": "#fffbeb",
+            }
+            return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
+
+        final_text = (session_conclusion_text or "").strip()
+        if not final_text:
+            feedback = {
+                "title": "Conclusão obrigatória",
+                "message": "Escreva a conclusão final da sessão antes de avançar para os resultados.",
+                "details": ["Use algumas linhas para relacionar os ajustes feitos na simulação e o que você observou nos envelopes e nas cores."],
+                "accent": "#b91c1c",
+                "background": "#fef2f2",
+            }
+            return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
+
+        session_data["stage"] = "results"
+        session_data["final_conclusion"] = final_text
+        feedback = {
+            "title": "Resultados prontos",
+            "message": "A sessão foi consolidada. Agora complete os dados finais e envie o relatório.",
+            "details": ["Revise o resumo da sessão antes de clicar em Enviar resultados."],
+            "accent": "#15803d",
+            "background": "#ecfdf5",
+        }
+        return build_exercise_stage_outputs(
+            session_data,
+            progress_data,
+            feedback,
+            answer_value="",
+            session_conclusion_value=final_text,
+            final_conclusion_value=final_text,
+        )
+
+    if session_data.get("stage") != "exercise":
+        feedback = {
+            "title": "Fluxo em etapa diferente",
+            "message": "No momento, a sessão não está na etapa de resolução dos exercícios guiados.",
+            "details": [],
+            "accent": "#b45309",
+            "background": "#fffbeb",
+        }
+        return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
+
+    if trigger == "skip-exercise-btn":
+        current_exercise = get_current_session_exercise(session_data)
+        completed_count = len(session_data.get("results", [])) + 1
+        session_data["results"] = list(session_data.get("results", [])) + [{
+            "correct": False,
+            "skipped": True,
+            "attempts": int(session_data.get("current_attempts", 0)),
+            "score": 0,
+            "result": "pulado",
+        }]
+        session_data["skipped_questions"] = int(session_data.get("skipped_questions", 0)) + 1
+        session_data["current_attempts"] = 0
+        if completed_count >= len(session_data.get("exercises", [])):
+            session_data["stage"] = "conclusion"
+        else:
+            session_data["current_index"] = int(session_data.get("current_index", 0)) + 1
+
+        updated_progress = {
+            "attempts": int(progress_data.get("attempts", 0)) + 1,
+            "correct": int(progress_data.get("correct", 0)),
+            "partial": int(progress_data.get("partial", 0)),
+            "incorrect": int(progress_data.get("incorrect", 0)) + 1,
+            "streak": 0,
+            "best_streak": int(progress_data.get("best_streak", 0)),
+            "last_score": 0,
+            "best_score": int(progress_data.get("best_score", 0)),
+            "history": list(progress_data.get("history", [])) + [{
+                "timestamp": datetime.now().strftime("%H:%M:%S"),
+                "title": current_exercise["title"],
+                "result": "pulado",
+                "score": 0,
+                "metric": "etapa pulada pelo estudante",
+            }],
+        }
+        updated_progress["history"] = updated_progress["history"][-12:]
+        feedback = {
+            "title": "Etapa pulada",
+            "message": "A etapa foi registrada como pulada e a sessão seguiu para a próxima atividade.",
+            "details": ["No relatório final, esta etapa contará como não resolvida."],
+            "accent": "#b45309",
+            "background": "#fffbeb",
+        }
+        return build_exercise_stage_outputs(session_data, updated_progress, feedback, answer_value="", session_conclusion_value=session_conclusion_text or "")
+
+    if not (answer_text or "").strip():
+        feedback = {
+            "title": "Resposta curta obrigatória",
+            "message": "Escreva uma resposta curta para registrar o que você observou nesta etapa antes de verificar.",
+            "details": ["A ideia é manter uma justificativa rápida, não uma conclusão longa."],
+            "accent": "#b91c1c",
+            "background": "#fef2f2",
+        }
+        return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
+
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
-    passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(exercise_data, metrics, answer_text)
+    current_exercise = get_current_session_exercise(session_data)
+    passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(current_exercise, metrics, answer_text)
     submitted_at = datetime.now()
     timestamp = submitted_at.strftime("%H:%M:%S")
     next_streak = int(progress_data.get("streak", 0)) + 1 if passed else 0
@@ -2095,7 +2681,7 @@ def handle_exercises(
         "history": list(progress_data.get("history", [])) + [
             {
                 "timestamp": timestamp,
-                "title": exercise_data["title"],
+                "title": current_exercise["title"],
                 "result": result_label,
                 "score": total_score,
                 "metric": metric_summary,
@@ -2104,39 +2690,83 @@ def handle_exercises(
     }
     updated_progress["history"] = updated_progress["history"][-12:]
 
-    submission = build_exercise_submission(
-        exercise_data,
-        metrics,
-        answer_text,
-        total_score,
-        metric_summary,
-        result_label,
-        table_data,
-        history_data,
+    session_data["current_attempts"] = int(session_data.get("current_attempts", 0)) + 1
+
+    if passed:
+        completed_count = len(session_data.get("results", [])) + 1
+        session_data["results"] = list(session_data.get("results", [])) + [{
+            "correct": True,
+            "skipped": False,
+            "attempts": int(session_data.get("current_attempts", 0)),
+            "score": total_score,
+            "result": result_label,
+        }]
+        session_data["current_attempts"] = 0
+        if completed_count >= len(session_data.get("exercises", [])):
+            session_data["stage"] = "conclusion"
+            feedback_data = append_feedback_detail(feedback_data, "Todas as etapas guiadas foram concluídas. Agora escreva a conclusão final da sessão.")
+        else:
+            session_data["current_index"] = int(session_data.get("current_index", 0)) + 1
+            feedback_data = append_feedback_detail(feedback_data, "Etapa concluída. A próxima atividade já está disponível.")
+        return build_exercise_stage_outputs(session_data, updated_progress, feedback_data, answer_value="", session_conclusion_value=session_conclusion_text or "")
+
+    feedback_data = append_feedback_detail(
+        feedback_data,
+        "Você pode ajustar novamente a simulação e reenviar esta mesma etapa ou usar o botão de pular.",
+    )
+    return build_exercise_stage_outputs(session_data, updated_progress, feedback_data, answer_value=answer_text, session_conclusion_value=session_conclusion_text or "")
+
+
+@app.callback(
+    Output("send-results-status", "children"),
+    Output("send-results-status", "style"),
+    Input("send-results-btn", "n_clicks"),
+    State("exercise-store", "data"),
+    State("student-name", "value"),
+    State("student-grade", "value"),
+    State("student-class", "value"),
+    State("student-email", "value"),
+    State("criticism-input", "value"),
+    State("suggestion-input", "value"),
+    State("final-conclusion-input", "value"),
+    prevent_initial_call=True,
+)
+def handle_final_results_send(
+    send_results_clicks,
+    exercise_data,
+    student_name,
+    student_grade,
+    student_class,
+    student_email,
+    criticism,
+    suggestion,
+    final_conclusion,
+):
+    session_data = normalize_exercise_session(exercise_data)
+    status_style = {"minHeight": "24px", "fontWeight": "bold"}
+
+    if session_data.get("stage") != "results":
+        return "Finalize primeiro a sessão de exercícios para liberar o envio.", dict(status_style, color="#b91c1c")
+
+    if not (student_name or "").strip() or not (student_grade or "").strip() or not (student_class or "").strip() or not (final_conclusion or "").strip():
+        return "Preencha nome, série, turma e conclusão final antes de enviar.", dict(status_style, color="#b91c1c")
+
+    payload = build_final_session_payload(
+        session_data,
         student_name,
-        student_group,
-        submitted_at,
+        student_grade,
+        student_class,
+        student_email,
+        criticism,
+        suggestion,
+        final_conclusion,
     )
-    _, sheet_status_message = send_submission_to_google_sheets(submission)
-    feedback_data = append_feedback_detail(feedback_data, sheet_status_message)
+    success, message = send_final_session_results(payload, student_email)
 
-    if not (student_name or "").strip():
-        feedback_data = append_feedback_detail(
-            feedback_data,
-            "Preencha o nome do estudante nos proximos envios para identificar a nota na planilha.",
-        )
+    if success:
+        return "✅ Resultados enviados com sucesso para a planilha e para os e-mails.", dict(status_style, color="#15803d")
 
-    return (
-        exercise_data,
-        updated_progress,
-        exercise_data["title"],
-        f"Nivel atual: {exercise_data.get('difficulty', 'fundamental')}",
-        exercise_data["prompt"],
-        build_exercise_rubric(exercise_data),
-        build_exercise_feedback(feedback_data),
-        build_exercise_progress_panel(updated_progress),
-        answer_text,
-    )
+    return f"❌ O envio não foi concluído por completo: {message}", dict(status_style, color="#b91c1c")
 
 
 if __name__ == "__main__":
