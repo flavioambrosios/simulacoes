@@ -148,6 +148,35 @@ def get_google_sheets_client():
     return gspread.authorize(credentials)
 
 
+def open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name):
+    if spreadsheet_id:
+        try:
+            return client.open_by_key(spreadsheet_id)
+        except Exception as exc:
+            if spreadsheet_name:
+                try:
+                    return client.open(spreadsheet_name)
+                except Exception:
+                    pass
+
+            status_code = getattr(getattr(exc, "response", None), "status_code", None)
+            if status_code == 404:
+                raise RuntimeError(
+                    "Planilha nao encontrada pelo GOOGLE_SHEETS_SPREADSHEET_ID. Confira o ID ou remova essa variavel para usar o nome da planilha."
+                ) from exc
+            raise RuntimeError(f"Nao foi possivel abrir a planilha pelo ID informado: {exc}") from exc
+
+    if spreadsheet_name:
+        try:
+            return client.open(spreadsheet_name)
+        except Exception as exc:
+            raise RuntimeError(
+                "Planilha nao encontrada pelo nome informado. Confira GOOGLE_SHEETS_SPREADSHEET_NAME e o compartilhamento com a conta de servico."
+            ) from exc
+
+    raise RuntimeError("Nenhum identificador de planilha foi configurado.")
+
+
 def get_spreadsheet(args):
     from os import getenv
 
@@ -158,7 +187,7 @@ def get_spreadsheet(args):
         or getenv("GOOGLE_SHEETS_SPREADSHEET_NAME")
         or DEFAULT_SPREADSHEET_NAME
     ).strip()
-    return client.open_by_key(spreadsheet_id) if spreadsheet_id else client.open(spreadsheet_name)
+    return open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name)
 
 
 def read_source_rows(spreadsheet, worksheet_name):
