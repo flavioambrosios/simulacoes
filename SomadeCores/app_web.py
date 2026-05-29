@@ -1705,7 +1705,7 @@ initial_exercise = get_current_session_exercise(initial_exercise_session)
 app.layout = html.Div(
     [
         dcc.Store(id="history-store", data=initial_history),
-        dcc.Store(id="exercise-store", data=initial_exercise_session, storage_type="local"),
+        dcc.Store(id="exercise-store", data=initial_exercise_session, storage_type="memory"),
         dcc.Store(id="exercise-progress-store", data=initial_exercise_progress, storage_type="local"),
         html.H1("Simulador de Ondas e Envelopes de Hilbert - Versão Web"),
         html.P(
