@@ -1,4 +1,5 @@
 import base64
+import consolidar_notas_turmas as consolidar_notas
 import json
 import logging
 import os
@@ -404,11 +405,7 @@ def open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name):
 
 
 def get_google_worksheet_with_headers(worksheet_name, headers):
-    client = get_google_sheets_client()
-    spreadsheet_id = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID") or "").strip()
-    spreadsheet_name = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_NAME") or "Notas CEAN 2026").strip()
-
-    spreadsheet = open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name)
+    spreadsheet = get_google_spreadsheet()
 
     try:
         worksheet = spreadsheet.worksheet(worksheet_name)
@@ -423,6 +420,13 @@ def get_google_worksheet_with_headers(worksheet_name, headers):
         worksheet.append_row(headers, value_input_option="USER_ENTERED")
 
     return worksheet
+
+
+def get_google_spreadsheet():
+    client = get_google_sheets_client()
+    spreadsheet_id = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID") or "").strip()
+    spreadsheet_name = (os.getenv("GOOGLE_SHEETS_SPREADSHEET_NAME") or "Notas CEAN 2026").strip()
+    return open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name)
 
 
 def get_google_worksheet():
@@ -463,6 +467,44 @@ def send_final_session_to_google_sheets(payload):
         logging.exception("Falha ao enviar resultados finais para Google Sheets.")
         reason = str(exc).strip() or exc.__class__.__name__
         return False, f"planilha: {reason}"
+
+
+def build_class_sheet_summary_row(payload):
+    stage_details = consolidar_notas.parse_stage_details(payload.get("detalhes_exercicios"))
+    average_score_100 = consolidar_notas.compute_stage_average_100(stage_details)
+    final_grade_10 = round(average_score_100 / 10.0, 2)
+    return {
+        "student_name": (payload.get("estudante") or payload.get("nome_aluno") or "").strip(),
+        "bimester": (payload.get("bimestre") or "").strip(),
+        "final_grade_10": final_grade_10,
+    }
+
+
+def send_final_session_to_class_worksheet(payload):
+    if not is_google_sheets_configured():
+        return False, "Integracao com Google Sheets nao configurada neste deploy."
+
+    group_name = consolidar_notas.build_group_name(payload.get("serie", ""), payload.get("turma", "")).strip()
+    student_name = (payload.get("estudante") or payload.get("nome_aluno") or "").strip()
+    bimester = (payload.get("bimestre") or "").strip()
+
+    if not group_name or normalize_text(group_name) == "nao informado":
+        return False, "serie/turma nao informadas para atualizar a aba da turma"
+    if not student_name or normalize_text(student_name) == "nao informado":
+        return False, "nome do estudante nao informado para atualizar a aba da turma"
+    if not bimester or normalize_text(bimester) == "nao informado":
+        return False, "bimestre nao informado para atualizar a aba da turma"
+
+    try:
+        spreadsheet = get_google_spreadsheet()
+        worksheet_title = consolidar_notas.sanitize_worksheet_title(group_name)
+        summary_row = build_class_sheet_summary_row(payload)
+        consolidar_notas.write_group_worksheet(spreadsheet, worksheet_title, [summary_row])
+        return True, f"Aba da turma atualizada em {worksheet_title}."
+    except Exception as exc:
+        logging.exception("Falha ao atualizar a aba da turma.")
+        reason = str(exc).strip() or exc.__class__.__name__
+        return False, reason
 
 
 def post_json_to_apps_script(url, data):
@@ -547,6 +589,10 @@ def send_final_session_results(payload, student_email):
     sheet_ok, sheet_message = send_final_session_to_google_sheets(payload)
     success = success and sheet_ok
     messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
+
+    class_ok, class_message = send_final_session_to_class_worksheet(payload)
+    success = success and class_ok
+    messages.append("aba da turma ok" if class_ok else f"aba turma: {class_message}")
 
     email_ok, email_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, payload)
     success = success and email_ok

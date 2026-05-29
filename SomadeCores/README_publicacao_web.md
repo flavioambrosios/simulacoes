@@ -85,9 +85,18 @@ GOOGLE_SERVICE_ACCOUNT_FILE=/caminho/para/service-account.json
 
 Sem essas variaveis, o app continua funcionando normalmente, mas o feedback do exercicio vai informar que a integracao com a planilha nao esta configurada.
 
+## Envio automatico para a aba da turma
+
+Ao clicar em Enviar resultados no app web, o sistema agora faz duas gravacoes automaticamente na mesma planilha:
+
+- adiciona o relatorio completo na aba app web resultados
+- atualiza a coluna Soma de Cores na aba da turma correspondente, dentro do bimestre selecionado
+
+Essa atualizacao da turma preserva as outras colunas da aba e nao apaga notas de outras simulacoes.
+
 ## Consolidar notas por turma
 
-O script [consolidar_notas_turmas.py](consolidar_notas_turmas.py) le os registros brutos da aba app web e monta um resumo por turma.
+O script [consolidar_notas_turmas.py](consolidar_notas_turmas.py) continua disponivel para sincronizacao em lote, recomposicao de abas ou conferencia manual.
 
 ### Regra usada na consolidacao
 
