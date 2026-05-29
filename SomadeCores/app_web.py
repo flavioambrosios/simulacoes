@@ -1,5 +1,4 @@
 import base64
-import consolidar_notas_turmas as consolidar_notas
 import json
 import logging
 import os
@@ -87,6 +86,7 @@ SIMULATION_NAME = "Soma de Cores - App Web"
 PROFESSOR_EMAIL = "flavio.ambrosio@edu.se.df.gov.br"
 PLANILHA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec"
 EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec"
+CLASS_SHEET_SIMULATION_TITLE = "Soma de Cores"
 SESSION_EXERCISE_TYPES = [
     "envelope-target",
     "smoothing-observe",
@@ -469,9 +469,316 @@ def send_final_session_to_google_sheets(payload):
         return False, f"planilha: {reason}"
 
 
+def parse_stage_details(value):
+    if not value:
+        return []
+
+    try:
+        parsed = json.loads(value)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return []
+
+    if not isinstance(parsed, list):
+        return []
+
+    return [item for item in parsed if isinstance(item, dict)]
+
+
+def compute_stage_average_100(stage_details):
+    if not stage_details:
+        return 0.0
+
+    scores = []
+    for item in stage_details:
+        try:
+            scores.append(float(item.get("score", 0) or 0))
+        except (TypeError, ValueError):
+            scores.append(0.0)
+
+    if not scores:
+        return 0.0
+
+    return round(sum(scores) / len(scores), 2)
+
+
+def build_group_name(serie, turma):
+    serie_text = (serie or "").strip()
+    turma_text = (turma or "").strip()
+    if not serie_text and not turma_text:
+        return ""
+    if not serie_text:
+        return turma_text
+    if not turma_text:
+        return serie_text
+    return f"{serie_text} {turma_text}"
+
+
+def sanitize_worksheet_title(value):
+    cleaned = re.sub(r"[:\\/?*\[\]]", " ", value).strip()
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    return (cleaned or "Turma")[:100]
+
+
+def format_grade_10(value):
+    try:
+        numeric_value = round(float(value), 2)
+    except (TypeError, ValueError):
+        return ""
+
+    if abs(numeric_value - round(numeric_value)) < 1e-9:
+        return str(int(round(numeric_value)))
+
+    return f"{numeric_value:.2f}".rstrip("0").rstrip(".").replace(".", ",")
+
+
+def is_bimester_label(value):
+    return normalize_text(value).strip() in {
+        "1o bimestre",
+        "2o bimestre",
+        "3o bimestre",
+        "4o bimestre",
+    }
+
+
+def column_index_to_letter(index):
+    letters = ""
+    while index > 0:
+        index, remainder = divmod(index - 1, 26)
+        letters = chr(65 + remainder) + letters
+    return letters
+
+
+def ensure_worksheet_size(worksheet, min_rows, min_cols):
+    if worksheet.row_count < min_rows:
+        worksheet.add_rows(min_rows - worksheet.row_count)
+    if worksheet.col_count < min_cols:
+        worksheet.add_cols(min_cols - worksheet.col_count)
+
+
+def get_or_create_class_worksheet(spreadsheet, title):
+    try:
+        return spreadsheet.worksheet(title)
+    except gspread.WorksheetNotFound:
+        return spreadsheet.add_worksheet(title=title, rows=100, cols=30)
+
+
+def get_class_header_rows(worksheet):
+    values = worksheet.get_all_values()
+    if not values:
+        ensure_worksheet_size(worksheet, 2, 2)
+        worksheet.update(range_name="A1:B2", values=[["Nº", "ESTUDANTE"], ["", "pesos"]])
+        return ["Nº", "ESTUDANTE"], ["", "pesos"]
+
+    header_row = list(values[0])
+    weight_row = list(values[1]) if len(values) > 1 else []
+
+    if normalize_text(header_row[0] if header_row else "").strip() == "student_name":
+        raise RuntimeError(
+            f"A aba '{worksheet.title}' parece ter sido sobrescrita por um formato antigo. "
+            "Restaure a aba pelo historico de versoes do Google Sheets antes de continuar."
+        )
+
+    if len(header_row) < 2:
+        header_row += [""] * (2 - len(header_row))
+    if len(weight_row) < 2:
+        weight_row += [""] * (2 - len(weight_row))
+
+    updates = []
+    if normalize_text(header_row[0]).strip() != "no":
+        header_row[0] = "Nº"
+        updates.append(("A1", "Nº"))
+    if normalize_text(header_row[1]).strip() != "estudante":
+        header_row[1] = "ESTUDANTE"
+        updates.append(("B1", "ESTUDANTE"))
+    if normalize_text(weight_row[1]).strip() != "pesos":
+        weight_row[1] = "pesos"
+        updates.append(("B2", "pesos"))
+
+    for cell, value in updates:
+        worksheet.update_acell(cell, value)
+
+    return header_row, weight_row
+
+
+def build_class_student_row_map(worksheet):
+    names = worksheet.col_values(2)
+    student_rows = {}
+    for row_index, value in enumerate(names[2:], start=3):
+        student_name = " ".join((value or "").split()).strip()
+        if student_name:
+            student_rows[normalize_text(student_name).strip()] = row_index
+    return student_rows
+
+
+def append_missing_class_students(worksheet, summary_rows, student_rows):
+    existing_names = worksheet.col_values(2)
+    next_row = max(len(existing_names) + 1, 3)
+    next_number = max(len(student_rows) + 1, 1)
+    appended = []
+
+    for row in summary_rows:
+        student_name = " ".join((row.get("student_name", "") or "").split()).strip()
+        student_key = normalize_text(student_name).strip()
+        if not student_name or student_key in student_rows:
+            continue
+
+        appended.append([str(next_number), student_name])
+        student_rows[student_key] = next_row
+        next_row += 1
+        next_number += 1
+
+    if appended:
+        ensure_worksheet_size(worksheet, next_row - 1, 2)
+        start = len(existing_names) + 1
+        end = start + len(appended) - 1
+        worksheet.update(range_name=f"A{start}:B{end}", values=appended)
+
+    return student_rows
+
+
+def find_bimester_start(header_row, bimester_label):
+    target = normalize_text(bimester_label).strip()
+    for index, value in enumerate(header_row):
+        if normalize_text(value).strip() == target:
+            return index
+    return None
+
+
+def get_next_bimester_start(header_row, start_index):
+    for index in range(start_index + 1, len(header_row)):
+        if is_bimester_label(header_row[index]):
+            return index
+    return None
+
+
+def ensure_bimester_and_simulation_column(worksheet, header_row, weight_row, bimester_label):
+    start_index = find_bimester_start(header_row, bimester_label)
+    if start_index is None:
+        start_index = len(header_row)
+        ensure_worksheet_size(worksheet, 2, start_index + 2)
+        header_row.extend([""] * max(0, start_index + 2 - len(header_row)))
+        weight_row.extend([""] * max(0, start_index + 2 - len(weight_row)))
+        start_letter = column_index_to_letter(start_index + 1)
+        end_letter = column_index_to_letter(start_index + 2)
+        worksheet.update(
+            range_name=f"{start_letter}1:{end_letter}2",
+            values=[[bimester_label, CLASS_SHEET_SIMULATION_TITLE], ["", ""]],
+        )
+        header_row[start_index] = bimester_label
+        header_row[start_index + 1] = CLASS_SHEET_SIMULATION_TITLE
+        return start_index, start_index + 1
+
+    next_bimester_start = get_next_bimester_start(header_row, start_index)
+    search_end = next_bimester_start if next_bimester_start is not None else len(header_row)
+    simulation_index = None
+    empty_slots = []
+
+    for index in range(start_index + 1, search_end):
+        normalized_header = normalize_text(header_row[index]).strip()
+        if normalized_header == normalize_text(CLASS_SHEET_SIMULATION_TITLE).strip():
+            simulation_index = index
+            break
+        if not (header_row[index] or "").strip():
+            empty_slots.append(index)
+
+    if simulation_index is None and empty_slots:
+        simulation_index = empty_slots[0]
+        column_letter = column_index_to_letter(simulation_index + 1)
+        worksheet.update(range_name=f"{column_letter}1:{column_letter}2", values=[[CLASS_SHEET_SIMULATION_TITLE], [""]])
+        header_row[simulation_index] = CLASS_SHEET_SIMULATION_TITLE
+
+    if simulation_index is None:
+        if next_bimester_start is not None:
+            raise RuntimeError(
+                f"A aba '{worksheet.title}' nao tem espaco livre no bloco de {bimester_label} para adicionar a coluna {CLASS_SHEET_SIMULATION_TITLE}."
+            )
+
+        simulation_index = len(header_row)
+        ensure_worksheet_size(worksheet, 2, simulation_index + 1)
+        header_row.append(CLASS_SHEET_SIMULATION_TITLE)
+        if len(weight_row) < len(header_row):
+            weight_row.extend([""] * (len(header_row) - len(weight_row)))
+        column_letter = column_index_to_letter(simulation_index + 1)
+        worksheet.update(range_name=f"{column_letter}1:{column_letter}2", values=[[CLASS_SHEET_SIMULATION_TITLE], [""]])
+
+    return start_index, simulation_index
+
+
+def update_class_simulation_column(worksheet, simulation_index, summary_rows, student_rows):
+    last_row = max(student_rows.values(), default=2)
+    ensure_worksheet_size(worksheet, last_row, simulation_index + 1)
+    current_values = worksheet.col_values(simulation_index + 1)
+    column_values = list(current_values) + [""] * max(0, last_row - len(current_values))
+
+    if len(column_values) < 2:
+        column_values += [""] * (2 - len(column_values))
+    column_values[0] = CLASS_SHEET_SIMULATION_TITLE
+    column_values[1] = ""
+
+    for row in summary_rows:
+        student_key = normalize_text(row.get("student_name", "")).strip()
+        target_row = student_rows.get(student_key)
+        if target_row is None:
+            continue
+        while len(column_values) < target_row:
+            column_values.append("")
+        column_values[target_row - 1] = format_grade_10(row.get("final_grade_10"))
+
+    col_letter = column_index_to_letter(simulation_index + 1)
+    worksheet.update(range_name=f"{col_letter}1:{col_letter}{len(column_values)}", values=[[value] for value in column_values])
+
+
+def update_class_bimester_total_column(worksheet, total_index, simulation_indexes, student_rows):
+    if not simulation_indexes:
+        return
+
+    last_row = max(student_rows.values(), default=2)
+    formulas = []
+    for row_number in range(3, last_row + 1):
+        references = [f"{column_index_to_letter(index + 1)}{row_number}" for index in simulation_indexes]
+        formulas.append(["=" + "+".join(references)])
+
+    col_letter = column_index_to_letter(total_index + 1)
+    worksheet.update(
+        range_name=f"{col_letter}3:{col_letter}{last_row}",
+        values=formulas,
+        value_input_option="USER_ENTERED",
+    )
+
+
+def write_class_sheet_worksheet(spreadsheet, worksheet_title, summary_rows):
+    worksheet = get_or_create_class_worksheet(spreadsheet, worksheet_title)
+    header_row, weight_row = get_class_header_rows(worksheet)
+    student_rows = build_class_student_row_map(worksheet)
+    student_rows = append_missing_class_students(worksheet, summary_rows, student_rows)
+
+    rows_by_bimester = {}
+    for row in summary_rows:
+        bimester_label = (row.get("bimester") or "").strip()
+        if not bimester_label:
+            continue
+        rows_by_bimester.setdefault(bimester_label, []).append(row)
+
+    for bimester_label, bimester_rows in rows_by_bimester.items():
+        total_index, simulation_index = ensure_bimester_and_simulation_column(worksheet, header_row, weight_row, bimester_label)
+        update_class_simulation_column(worksheet, simulation_index, bimester_rows, student_rows)
+
+        refreshed_header = worksheet.row_values(1)
+        next_bimester_start = get_next_bimester_start(refreshed_header, total_index)
+        search_end = next_bimester_start if next_bimester_start is not None else len(refreshed_header)
+        simulation_indexes = [
+            index
+            for index in range(total_index + 1, search_end)
+            if (refreshed_header[index] or "").strip() and not is_bimester_label(refreshed_header[index])
+        ]
+        update_class_bimester_total_column(worksheet, total_index, simulation_indexes, student_rows)
+
+    return worksheet
+
+
 def build_class_sheet_summary_row(payload):
-    stage_details = consolidar_notas.parse_stage_details(payload.get("detalhes_exercicios"))
-    average_score_100 = consolidar_notas.compute_stage_average_100(stage_details)
+    stage_details = parse_stage_details(payload.get("detalhes_exercicios"))
+    average_score_100 = compute_stage_average_100(stage_details)
     final_grade_10 = round(average_score_100 / 10.0, 2)
     return {
         "student_name": (payload.get("estudante") or payload.get("nome_aluno") or "").strip(),
@@ -484,7 +791,7 @@ def send_final_session_to_class_worksheet(payload):
     if not is_google_sheets_configured():
         return False, "Integracao com Google Sheets nao configurada neste deploy."
 
-    group_name = consolidar_notas.build_group_name(payload.get("serie", ""), payload.get("turma", "")).strip()
+    group_name = build_group_name(payload.get("serie", ""), payload.get("turma", "")).strip()
     student_name = (payload.get("estudante") or payload.get("nome_aluno") or "").strip()
     bimester = (payload.get("bimestre") or "").strip()
 
@@ -497,9 +804,9 @@ def send_final_session_to_class_worksheet(payload):
 
     try:
         spreadsheet = get_google_spreadsheet()
-        worksheet_title = consolidar_notas.sanitize_worksheet_title(group_name)
+        worksheet_title = sanitize_worksheet_title(group_name)
         summary_row = build_class_sheet_summary_row(payload)
-        consolidar_notas.write_group_worksheet(spreadsheet, worksheet_title, [summary_row])
+        write_class_sheet_worksheet(spreadsheet, worksheet_title, [summary_row])
         return True, f"Aba da turma atualizada em {worksheet_title}."
     except Exception as exc:
         logging.exception("Falha ao atualizar a aba da turma.")
