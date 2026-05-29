@@ -781,13 +781,14 @@
                 
                 <div class="formula-box">
                     <h3>Equação Principal</h3>
-                    <p>q/m = 2V/(R²B²)</p>
+                    <p>|q|/m = 2V/(R²B²)</p>
                     <p>Onde:</p>
                     <p>q = carga da partícula</p>
                     <p>m = massa da partícula</p>
                     <p>V = voltagem aceleradora</p>
                     <p>B = campo magnético</p>
                     <p>R = raio da trajetória</p>
+                    <p>O módulo da carga aparece na equação porque o raio depende do tamanho da força magnética. O sinal da carga é identificado pelo sentido da curvatura da trajetória.</p>
                 </div>
                 
                 <!-- Botões para acessar exercícios e teoria -->
@@ -1020,6 +1021,8 @@
                     
                     <p>A velocidade das partículas ao saírem da fonte é determinada pela voltagem aceleradora:</p>
                     <div class="theory-formula">v = √(2|q|V/m)</div>
+                    <p>Essa expressão vem da conservação da energia. A diferença de potencial fornece energia elétrica para a partícula, e essa energia aparece como energia cinética. Em linguagem simples: quanto maior a voltagem, maior tende a ser a velocidade de saída; quanto maior a massa, mais difícil é acelerar a partícula.</p>
+                    <p>Também vale notar o uso de |q|. Na conta da energia, interessa o valor absoluto da carga, porque a energia transferida depende do módulo da interação elétrica. O sinal da carga continua importante, mas ele aparece principalmente no sentido do desvio dentro do campo magnético.</p>
                 </div>
                 
                 <div class="theory-section">
@@ -1028,20 +1031,33 @@
                     
                     <div class="theory-formula">F<sub>magnética</sub> = F<sub>centrípeta</sub></div>
                     <div class="theory-formula">|q|vB = mv²/R</div>
+                    <p>Nessa etapa, o campo magnético não aumenta nem diminui a energia cinética da partícula. Ele apenas muda a direção da velocidade. Por isso a trajetória se encurva e se torna circular. A força magnética faz o papel de força centrípeta.</p>
+                    <p>A equação |q|vB = mv²/R mostra um equilíbrio entre duas ideias: de um lado, o campo magnético tenta curvar a trajetória; do outro, a inércia da partícula resiste a essa curvatura. Se a partícula for muito rápida ou muito massiva, o raio tende a crescer. Se a carga ou o campo magnético forem maiores, a curva tende a ficar mais fechada.</p>
                     
                     <p>Isolando o raio R:</p>
                     <div class="theory-formula">R = mv/(|q|B)</div>
+                    <p>Essa forma da equação é muito útil para interpretação qualitativa. Ela permite prever, sem conta longa, que:</p>
+                    <ul>
+                        <li>R aumenta quando a massa m aumenta.</li>
+                        <li>R aumenta quando a velocidade v aumenta.</li>
+                        <li>R diminui quando o módulo da carga |q| aumenta.</li>
+                        <li>R diminui quando o campo magnético B aumenta.</li>
+                    </ul>
+                    <p>Em outras palavras, trajetória de raio grande indica desvio mais fraco; trajetória de raio pequeno indica desvio mais intenso.</p>
                     
                     <p>A energia cinética adquirida pelas partículas é resultado do trabalho realizado pela voltagem aplicada entre as placas paralelas:</p>
-                    <div class="theory-formula">𝑞𝑉 = mv²/2 </div>
+                    <div class="theory-formula">|q|V = mv²/2</div>
+                    <p>Aqui aparece a ligação entre eletricidade e movimento. A voltagem aceleradora prepara a partícula antes de ela entrar na região magnética. Esse é um ponto central do espectrômetro: primeiro a partícula é acelerada, depois ela é desviada.</p>
                     
                     <p>Utilizando a velocidade v em função da voltagem:</p>
-                    <div class="theory-formula">R = m/(|q|B) × √(2|q|V/m) = √(2mV/(qB²))</div>
+                    <div class="theory-formula">R = m/(|q|B) × √(2|q|V/m) = √(2mV/(|q|B²))</div>
+                    <p>Esse passo mostra a junção das duas etapas anteriores. Primeiro encontramos a velocidade com a energia elétrica; depois substituímos essa velocidade na expressão do raio. Assim, o raio observado no detector passa a depender apenas de grandezas controladas ou medidas no aparelho.</p>
                     
-                    <p>Rearranjando para isolar a relação carga/massa:</p>
-                    <div class="theory-formula">q/m = 2V/(R²B²)</div>
+                    <p>Rearranjando para isolar a relação carga/massa em módulo:</p>
+                    <div class="theory-formula">|q|/m = 2V/(R²B²)</div>
                     
-                    <p>Esta é a equação fundamental do espectrômetro de massa.</p>
+                    <p>Esta é a equação fundamental do espectrômetro de massa. Ela mostra que, medindo o raio da trajetória e conhecendo a voltagem aceleradora e o campo magnético, é possível obter a razão carga/massa da partícula.</p>
+                    <p>Há ainda um detalhe conceitual importante: essa equação fornece o valor em módulo. Para descobrir se a carga é positiva ou negativa, é preciso observar para qual lado a trajetória se curva no campo magnético.</p>
                 </div>
                 
                 <div class="theory-section">
@@ -1643,7 +1659,7 @@
             }).length;
             const repeatedWords = wordCount - uniqueWords.size;
 
-            const lengthScore = clamp((wordCount / 140) * 10, 0, 10);
+            const lengthScore = clamp((wordCount / 60) * 10, 0, 10);
             const semanticsScore = clamp((topicHits / 6) * 10 + Math.min(connectorHits, 3), 0, 10);
             const originalityScore = clamp((lexicalDiversity * 12) - (repeatedWords > wordCount * 0.45 ? 1.5 : 0), 0, 10);
             const learningScore = clamp((learningHits / 4) * 10 + (sentences.length >= 3 ? 1 : 0), 0, 10);
@@ -3324,7 +3340,7 @@
                 }, 3000);
             })
             .catch(error => {
-                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
                 emailStatus.className = 'email-status error-status';
                 console.error('Erro:', error);
                 
