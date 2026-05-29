@@ -1,0 +1,3684 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tunelamento Quântico - Completo com Exercícios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .simulation-container {
+            width: 100%;
+            height: 400px;
+            background: radial-gradient(circle at top left, rgba(123, 207, 255, 0.18), transparent 30%), linear-gradient(160deg, #03111f 0%, #081f35 48%, #02060b 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid #444;
+            box-shadow: inset 0 0 30px rgba(0, 255, 255, 0.08), 0 18px 40px rgba(0, 0, 0, 0.35);
+        }
+        
+        #spectrometerCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .scene-hud {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .hud-pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(4, 16, 28, 0.74);
+            border: 1px solid rgba(123, 207, 255, 0.35);
+            color: #9be9ff;
+            font-size: 0.8rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        button {
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background: #ffdd55;
+        }
+        
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .status-indicator {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .visualization-toggle {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .mode-switch {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .mode-btn {
+            background: rgba(255, 255, 255, 0.14);
+            color: #f3fbff;
+            border: 1px solid rgba(123, 207, 255, 0.45);
+        }
+
+        .mode-btn:hover {
+            background: rgba(155, 233, 255, 0.22);
+        }
+
+        .mode-btn.active {
+            background: #9be9ff;
+            color: #03111f;
+            border-color: #d8fbff;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para modais */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .resume-badge {
+            display: none;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(0, 255, 170, 0.16);
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            color: #a8ffe1;
+            font-size: 0.82rem;
+        }
+
+        .restart-btn {
+            width: auto;
+            margin-bottom: 0;
+            padding: 8px 12px;
+            background: #1a2a6c;
+            color: #fff;
+        }
+
+        .restart-btn:hover {
+            background: #273b93;
+        }
+        
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 204, 0, 0.25);
+        }
+
+        .audio-controls button {
+            width: auto;
+            margin-bottom: 0;
+            min-width: 96px;
+        }
+
+        .audio-controls span {
+            color: #ffdd88;
+            font-weight: bold;
+        }
+
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+        }
+
+        .voice-selector label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .voice-selector select {
+            width: auto;
+            min-width: 220px;
+            margin-bottom: 0;
+        }
+
+        .audio-example-btn {
+            margin-top: 12px;
+            background: #1d7f5f;
+            color: #fff;
+        }
+
+        .audio-example-btn:hover {
+            background: #249c74;
+        }
+
+        .audio-example-btn.playing {
+            background: #c96d00;
+        }
+
+        .audio-example-btn.playing:hover {
+            background: #df7a00;
+        }
+        
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        /* NOVOS ESTILOS PARA TEXTAREA MAIOR */
+        .conclusion-textarea {
+            width: 100%;
+            min-height: 300px;
+            height: 60vh;
+            max-height: 500px;
+            resize: vertical;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            border: 2px solid #ffcc00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+        }
+
+        .conclusion-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            max-height: 600px;
+        }
+
+        .conclusion-header {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .conclusion-text-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .conclusion-textarea {
+                height: 50vh;
+                min-height: 250px;
+            }
+
+            .modal-header {
+                align-items: flex-start;
+            }
+
+            .modal-header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .audio-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .audio-controls button,
+            .voice-selector select {
+                width: 100%;
+            }
+
+            .voice-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tunelamento Quântico - Completo com Exercícios</h1>
+            <p>Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação do Tunelamento</h2>
+                <div class="simulation-container">
+                    <canvas id="spectrometerCanvas"></canvas>
+                    <div class="scene-hud">
+                        
+                    </div>
+                </div>
+
+                <div class="mode-switch">
+                    <button id="particleViewBtn" class="mode-btn active">Analisar Partículas</button>
+                    <button id="waveViewBtn" class="mode-btn">Analisar Ondas</button>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar Experimento</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="addParticleBtn">Lançar Pacote</button>
+                </div>
+                
+                <div class="status-indicator" id="statusIndicator">
+                    Pronto para iniciar
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                
+                <div class="control-group">
+                    <label for="contextSelect">Contexto Experimental:</label>
+                    <select id="contextSelect">
+                        <option value="stm">Microscópio de Tunelamento - Elétron</option>
+                        <option value="josephson">Junção Josephson - Par de Cooper</option>
+                        <option value="generic">Barreira Genérica de Estudo</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="energyInput">Energia da Partícula (E):</label>
+                    <input type="range" id="energyInput" min="0.05" max="8" value="2.5" step="0.05">
+                    <div class="value-display"><span id="energyValue">2.50</span> eV</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="barrierInput">Altura da Barreira (U):</label>
+                    <input type="range" id="barrierInput" min="0.1" max="10" value="4.5" step="0.05">
+                    <div class="value-display"><span id="barrierValue">4.50</span> eV</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="widthInput">Largura da Barreira (a):</label>
+                    <input type="range" id="widthInput" min="0.1" max="2.5" value="0.8" step="0.01">
+                    <div class="value-display"><span id="widthValue">0.80</span> nm</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="fieldInput">Campo Elétrico Externo:</label>
+                    <input type="range" id="fieldInput" min="0" max="8" value="2" step="0.05">
+                    <div class="value-display"><span id="fieldValue">2.00</span> MV/m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="probabilityDisplay">Probabilidade de Transmissão (T):</label>
+                    <div class="value-display"><span id="transmissionValue">0.00</span> %</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="reflectionDisplay">Probabilidade de Reflexão (R):</label>
+                    <div class="value-display"><span id="reflectionValue">0.00</span> %</div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Equação Principal</h3>
+                    <p>T ≈ 1 / (1 + [U² sinh²(κa)] / [4E(U-E)])</p>
+                    <p>Onde:</p>
+                    <p>E = energia da partícula</p>
+                    <p>U = altura da barreira</p>
+                    <p>a = largura da barreira</p>
+                    <p>κ = fator de atenuação da onda</p>
+                    <p>T = probabilidade de transmissão</p>
+                    <p>Leitura física: quando a barreira fica mais alta ou mais larga, a onda decai mais dentro dela e T tende a diminuir. Quando a energia da partícula aumenta, T tende a crescer.</p>
+                </div>
+                
+                <!-- Botões para acessar exercícios e teoria -->
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Energia (E)</div>
+                        <div class="measurement-value" id="energyDisplay">2.50 eV</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Barreira (U)</div>
+                        <div class="measurement-value" id="barrierDisplay">4.50 eV</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Largura (a)</div>
+                        <div class="measurement-value" id="widthDisplay">0.80 nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Campo Externo</div>
+                        <div class="measurement-value" id="fieldDisplay">2.00 MV/m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Transmissão</div>
+                        <div class="measurement-value" id="transmissionDisplay">0.00 %</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Reflexão</div>
+                        <div class="measurement-value" id="reflectionDisplay2">0.00 %</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento de Onda</div>
+                        <div class="measurement-value" id="wavelengthDisplay">0.00 nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Corrente Relativa</div>
+                        <div class="measurement-value" id="currentDisplay">0.00 a.u.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Tunelamento Quântico</h2>
+                <div class="modal-header-actions">
+                    <span id="exerciseResumeBadge" class="resume-badge">Progresso salvo</span>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <!-- Barra de progresso será gerada via JavaScript -->
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <div class="conclusion-container">
+                    <div class="conclusion-header">
+                        <h3>Conclusão de Estudo</h3>
+                        <p>Escreva abaixo tudo o que você aprendeu com os exercícios. Use o espaço máximo disponível para refletir sobre o conteúdo:</p>
+                    </div>
+                    <div class="conclusion-text-container">
+                        <textarea id="conclusionText" class="conclusion-textarea" 
+                                  placeholder="Descreva aqui tudo o que você aprendeu sobre tunelamento quântico, barreira de potencial, comportamento ondulatório da matéria, probabilidade de transmissão, Nobel de Física de 2025 e qualquer outra observação importante..."></textarea>
+                        <button id="submitConclusion" class="check-btn" style="margin-top: 15px;">Enviar Conclusão</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentTrail">Trilha:</label>
+                        <select id="studentTrail">
+                            <option value="">Selecione sua trilha</option>
+                            <option value="PCA - Educação Digital 3o ano E">PCA - Educação Digital 3o ano E</option>
+                            <option value="PCA - Educação Digital 3o ano G">PCA - Educação Digital 3o ano G</option>
+                            <option value="Sustentabilidade 2o ano C">Sustentabilidade 2o ano C</option>
+                            <option value="Outra">Outra</option>
+                            <option value="Nenhuma">Nenhuma</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentNameSelect" class="required">Nome Completo:</label>
+                        <select id="studentNameSelect" required>
+                            <option value="">Selecione primeiro a série, a turma e a trilha</option>
+                        </select>
+                        <input type="hidden" id="studentName">
+                    </div>
+
+                    <div class="form-row" id="studentNameManualRow" style="display: none;">
+                        <label for="studentNameManual" class="required">Caso o nome não esteja na lista, escreva o nome completo:</label>
+                        <input type="text" id="studentNameManual">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="schoolTerm" class="required">Bimestre:</label>
+                        <select id="schoolTerm" required>
+                            <option value="">Selecione o bimestre</option>
+                            <option value="1o">1º bimestre</option>
+                            <option value="2o">2º bimestre</option>
+                            <option value="3o">3º bimestre</option>
+                            <option value="4o">4º bimestre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="3" placeholder="Tem alguma sugestão para melhorar a experiência de aprendizado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão Final:</label>
+                        <textarea id="finalConclusion" class="conclusion-textarea" required 
+                                  placeholder="Escreva aqui sua conclusão final sobre a simulação de tunelamento quântico e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Tunelamento Quântico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <!-- Exercícios resolvidos serão inseridos aqui via JavaScript -->
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Tunelamento Quântico</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Princípio de Funcionamento</h3>
+                    <p>O tunelamento quântico descreve a situação em que uma partícula pode atravessar uma barreira de potencial mesmo quando sua energia é menor que a altura dessa barreira. Isso acontece porque, na mecânica quântica, a partícula é descrita por uma função de onda.</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Fonte:</span> Representa o pacote de onda incidente.</li>
+                        <li><span class="highlight">Barreira:</span> Região onde a energia potencial é maior.</li>
+                        <li><span class="highlight">Detector:</span> Registra a fração transmitida após muitas tentativas.</li>
+                    </ul>
+                    
+                    <p>Quando a partícula chega à barreira, a função de onda não some de imediato. Ela decai dentro da barreira e, em alguns casos, ainda aparece do outro lado:</p>
+                    <div class="theory-formula">ψ(x) ∝ e<sup>-κx</sup></div>
+                    <p>Essa equação não deve ser lida como uma trajetória da partícula, mas como uma descrição da amplitude da onda quântica. O ponto principal é que a amplitude vai diminuindo à medida que avança dentro da barreira. Se a barreira for estreita o suficiente, ainda pode sobrar amplitude do outro lado, e isso significa probabilidade não nula de transmissão.</p>
+                    <p>O parâmetro κ mede quão rapidamente ocorre esse decaimento. Quanto maior for κ, mais rapidamente a onda enfraquece dentro da barreira. Em termos físicos, κ cresce quando a barreira é mais difícil de atravessar, por exemplo quando U é muito maior que E.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>O que é uma Barreira de Potencial?</h3>
+                    <p>Uma barreira de potencial não precisa ser imaginada como uma parede sólida. Em física, ela representa uma região do espaço em que a energia potencial é maior. Para atravessar essa região pela visão clássica, a partícula precisaria ter energia suficiente para "subir" esse obstáculo energético.</p>
+                    <p>Uma analogia útil é pensar em uma bola tentando passar por um morro. Se a bola não tiver energia bastante, ela sobe um pouco e volta. Na física clássica, isso corresponderia à reflexão. Na física quântica, porém, a partícula não é tratada apenas como um ponto: ela também tem descrição ondulatória. Por isso, mesmo quando E &lt; U, ainda pode existir uma chance de aparecer do outro lado da barreira.</p>
+                    <p>Na simulação, a altura da barreira indica quão difícil é atravessar essa região. Já a largura da barreira indica por quanto espaço a onda precisa decair antes de tentar reaparecer do outro lado. Isso explica por que uma barreira pouco mais larga pode reduzir muito a transmissão.</p>
+                    <p>Exemplos ajudam a concretizar essa ideia. No microscópio de tunelamento, elétrons passam entre a ponta do aparelho e a superfície estudada quando a distância é extremamente pequena. Na junção Josephson, o tunelamento acontece em dispositivos supercondutores. Em ambos os casos, a barreira de potencial não é uma parede comum, mas uma região energética que a descrição quântica permite atravessar com certa probabilidade.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Leitura Física da Barreira</h3>
+                    <p>Se a energia da partícula é menor que a barreira, a física clássica prevê reflexão total. Já a mecânica quântica prevê uma probabilidade de transmissão diferente de zero.</p>
+                    
+                    <div class="theory-formula">T ≈ 1 / (1 + [U² sinh²(κa)] / [4E(U-E)])</div>
+                    <p>Essa expressão resume a ideia central da simulação: a transmissão depende de como a onda se comporta dentro da barreira. O termo sinh²(κa) mostra que a largura da barreira a e o fator de decaimento κ aparecem juntos. Por isso, pequenas variações em a podem produzir mudanças muito grandes em T.</p>
+                    <p>Também é importante notar que E aparece no denominador do termo corretivo. Quando a energia da partícula se aproxima da barreira, a transmissão tende a aumentar. Quando a diferença entre U e E cresce, a travessia fica menos provável.</p>
+                    
+                    <p>As grandezas mais importantes são:</p>
+                    <ul>
+                        <li><span class="highlight">Energia E:</span> quanto maior, maior tende a ser a transmissão.</li>
+                        <li><span class="highlight">Barreira U:</span> quanto mais alta, menor tende a ser a transmissão.</li>
+                        <li><span class="highlight">Largura a:</span> pequenas variações podem mudar muito a probabilidade.</li>
+                        <li><span class="highlight">Campo externo:</span> pode modificar a barreira efetiva.</li>
+                    </ul>
+                    <p>Na prática, esta é a melhor forma de interpretar a tela:</p>
+                    <ul>
+                        <li>se E aumenta mantendo o resto fixo, a onda penetra mais facilmente na barreira;</li>
+                        <li>se U aumenta, a barreira se torna mais difícil de atravessar;</li>
+                        <li>se a aumenta, a onda passa mais tempo decaindo dentro da barreira;</li>
+                        <li>se o campo externo reduz a barreira efetiva, a transmissão tende a crescer.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Comprimento de Onda de de Broglie</h3>
+                    <p>A simulação também mostra o comprimento de onda associado à partícula. Isso ajuda a lembrar que, na física quântica, matéria também apresenta comportamento ondulatório.</p>
+                    <div class="theory-formula">λ = h/p = h/√(2mE)</div>
+                    <p>Essa relação indica que partículas mais energéticas têm comprimento de onda menor. Na leitura didática da simulação, isso significa que aumentar a energia não só altera a transmissão, mas também modifica a escala ondulatória associada à partícula.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Conexão com o Nobel de Física de 2025</h3>
+                    <p>O Nobel de Física de 2025 reconheceu estudos sobre tunelamento quântico macroscópico e quantização de energia em circuitos elétricos. Isso mostra que o fenômeno não é apenas uma curiosidade microscópica: ele aparece também em dispositivos modernos da física quântica.</p>
+                    
+                    <ul>
+                        <li>Microscópio de tunelamento</li>
+                        <li>Junções Josephson</li>
+                        <li>Eletrônica quântica</li>
+                        <li>Dispositivos supercondutores</li>
+                        <li>Sensores de alta precisão</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        
+
+            <div class="theory-section">
+                <h3>Contextos de Aplicação do Tunelamento</h3>
+                <p>Exemplos de situações em que o tunelamento aparece na física moderna:</p>
+                
+                <div style="overflow-x: auto; margin: 15px 0;">
+                    <table style="width: 100%; border-collapse: collapse; background: rgba(255, 255, 255, 0.1);">
+                        <thead>
+                            <tr style="background: rgba(255, 204, 0, 0.3);">
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Sistema</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">O que tunela</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">O que se mede</th>
+                                <th style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Ideia central</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Microscópio de Tunelamento</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Elétrons</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Corrente de tunelamento</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Mapear superfícies átomo a átomo</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Junção Josephson</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Pares de Cooper</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Corrente supercondutora</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Circuitos quânticos e Nobel 2025</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Barreira Genérica</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Pacote de onda</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Probabilidade de transmissão</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Construir intuição física</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Eletrônica Quântica</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Elétrons</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Corrente em nanoescala</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Sensibilidade extrema a pequenas distâncias</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Física Moderna</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Estados quânticos</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Fração detectada</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Probabilidade em vez de trajetória clássica</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <p><strong>Observações importantes:</strong></p>
+                <ul>
+                    <li>A <span class="highlight">largura da barreira</span> costuma ser a variável mais sensível da simulação</li>
+                    <li>Maior <span class="highlight">energia</span> tende a aumentar a transmissão</li>
+                    <li>Maior <span class="highlight">barreira</span> tende a reduzir a transmissão</li>
+                    <li>O <span class="highlight">detector</span> registra estatísticas, não trajetórias clássicas individuais</li>
+                </ul>
+            </div>
+        </div>    
+
+    </div>
+
+    <div class="audio-controls" id="audioControls">
+        <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+        <button id="playPauseAudioBtn" title="Iniciar ou pausar narração">▶️ Iniciar</button>
+        <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+        <span id="trackCounter">Trecho 0/6</span>
+        <div class="voice-selector">
+            <label for="voiceSelect">Voz:</label>
+            <select id="voiceSelect" aria-label="Selecionar voz da narração">
+                <option value="">Carregando vozes...</option>
+            </select>
+        </div>
+    </div>
+
+    <script src="../AvaliacaoBimestralEducacaoDigital/alunos.js"></script>
+    <script>
+        // =============================================
+        // VARIÁVEIS GLOBAIS
+        // =============================================
+        
+        const canvas = document.getElementById('spectrometerCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusIndicator = document.getElementById('statusIndicator');
+        
+        // Estado da simulação
+        let isRunning = false;
+        let animationId = null;
+
+        // Constantes físicas
+        const ELECTRON_MASS = 9.10938356e-31;
+        const ELECTRON_CHARGE = 1.602176634e-19;
+        const PLANCK = 6.62607015e-34;
+        const HBAR = 1.054571817e-34;
+
+        // Parâmetros físicos do tunelamento
+        let contextType = 'stm';
+        let energyEv = 2.5;
+        let barrierEv = 4.5;
+        let barrierWidthNm = 0.8;
+        let electricFieldMv = 2.0;
+
+        // Resultados físicos
+        let effectiveBarrierEv = 4.14;
+        let transmissionProbability = 0;
+        let reflectionProbability = 1;
+        let wavelengthNm = 0;
+        let detectorCurrent = 0;
+
+        // Sistema visual da animação
+        let packets = [];
+        let packetCounter = 0;
+        let detectorFlash = 0;
+        let sampleTransmittedCount = 0;
+        let lastTrialCount = 120;
+        let wavePhase = 0;
+        let visualizationMode = localStorage.getItem('tunelamentoQuanticoVisualizationMode') || 'particles';
+
+        // Geometria do experimento no canvas
+        let sourceX, sourceY;
+        let barrierX, barrierTop, barrierWidth, barrierHeight;
+        let detectorX, detectorY, detectorHeight;
+        const contexts = {
+            stm: {
+                label: 'Microscópio de Tunelamento',
+                mass: ELECTRON_MASS,
+                defaults: { energy: 2.5, barrier: 4.5, width: 0.8, field: 2.0 },
+                detectorGain: 1,
+                status: 'Modo STM: a corrente de tunelamento muda muito quando a distância varia muito pouco.'
+            },
+            josephson: {
+                label: 'Junção Josephson',
+                mass: 2 * ELECTRON_MASS,
+                defaults: { energy: 0.35, barrier: 0.9, width: 1.2, field: 0.6 },
+                detectorGain: 1.4,
+                status: 'Modo junção Josephson: o tunelamento aparece em circuitos supercondutores, em diálogo direto com o Nobel de Física de 2025.'
+            },
+            generic: {
+                label: 'Barreira Genérica',
+                mass: ELECTRON_MASS,
+                defaults: { energy: 3.0, barrier: 5.5, width: 0.6, field: 1.0 },
+                detectorGain: 0.9,
+                status: 'Modo genérico: use este caso para construir intuição física sem prender a discussão a um único aparelho.'
+            }
+        };
+        
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let conclusionTextSaved = '';
+
+        const EXERCISE_STORAGE_KEY = 'tunelamentoQuanticoExerciseState';
+        const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceTunelamentoQuantico';
+        const VISUALIZATION_MODE_STORAGE_KEY = 'tunelamentoQuanticoVisualizationMode';
+        const PRIMARY_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+        const LEGACY_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const TERM_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+        const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+        const SHARED_STUDENT_SOURCE = typeof STUDENT_DATABASE !== 'undefined'
+            ? STUDENT_DATABASE
+            : { bySheet: {}, bySerieTurma: {}, byTrilha: {} };
+        const SIMULATION_NAME = 'Tunelamento Quântico';
+        const TERM_COLUMN_MAP = {
+            '1o': 'J',
+            '2o': 'N',
+            '3o': 'R',
+            '4o': 'V'
+        };
+        const SCORE_WEIGHTS = {
+            exercises: 0.5,
+            conclusion: 0.5
+        };
+        const TOPIC_REFERENCE_TERMS = [
+            'tunelamento', 'quantico', 'quântico', 'barreira', 'potencial', 'funcao de onda', 'função de onda',
+            'transmissao', 'transmissão', 'reflexao', 'reflexão', 'probabilidade', 'detector', 'corrente',
+            'de broglie', 'nobel', 'josephson', 'microscopio', 'microscópio', 'onda', 'energia'
+        ];
+        const LEARNING_SIGNAL_TERMS = [
+            'aprendi', 'compreendi', 'percebi', 'observei', 'conclui', 'conclusao', 'entendi', 'relacionei',
+            'comparei', 'analisei', 'identifiquei', 'interpretei', 'expliquei', 'notei', 'verifiquei'
+        ];
+        const CONNECTOR_TERMS = [
+            'porque', 'portanto', 'assim', 'logo', 'entao', 'então', 'quando', 'se', 'pois', 'desse modo',
+            'por isso', 'ou seja', 'enquanto'
+        ];
+        let studentNameTunelamento = localStorage.getItem('studentNameTunelamento') || '';
+
+        function ensureStudentNameTunelamento() {
+            if (!studentNameTunelamento) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameTunelamento = providedName.trim();
+                    localStorage.setItem('studentNameTunelamento', studentNameTunelamento);
+                } else {
+                    studentNameTunelamento = 'estudante';
+                }
+            }
+            return studentNameTunelamento;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameTunelamento()}! Bem-vindo à simulação de tunelamento quântico. Nesta tela, o objetivo é observar como um pacote de onda encontra uma barreira de potencial e, mesmo quando a física clássica diria que a passagem é impossível, uma parte da onda ainda pode aparecer do outro lado.`,
+            'Observe os controles. Você pode variar a energia da partícula, a altura da barreira, a largura da barreira e o campo elétrico externo. Esses controles permitem comparar situações e discutir o que aumenta ou reduz a probabilidade de transmissão.',
+            'O coração físico da simulação está na diferença entre a visão clássica e a visão quântica. No modelo clássico, se a energia é menor que a barreira, a partícula volta totalmente. No modelo quântico, a função de onda penetra na barreira, decai e pode atravessá-la parcialmente.',
+            'A escolha do contexto experimental também merece atenção. No microscópio de tunelamento, elétrons atravessam uma barreira muito estreita. Na junção Josephson, pares de Cooper tunelam em circuitos supercondutores. Isso ajuda a ligar a aula ao Nobel de Física de 2025.',
+            'Na parte de medições, a simulação exibe energia, barreira efetiva, largura, probabilidade de transmissão, reflexão, comprimento de onda de de Broglie e corrente relativa no detector. O mais importante não é decorar números, mas interpretar o que mudou quando um controle foi alterado.',
+            'Depois de explorar a tela, avance para os exercícios resolvidos e para a prática. Nos exemplos, o foco deve ser a ideia física: o que muda quando aumentamos a largura da barreira, quando elevamos a energia ou quando alteramos o campo externo que modifica a barreira efetiva.'
+        ];
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a ideia é comparar a previsão clássica com a quântica. Mesmo com energia menor que a altura da barreira, a transmissão não precisa ser zero. O ponto central é entender que a função de onda se estende para dentro da barreira e isso gera uma chance de passagem.',
+            '2': 'No segundo exemplo, o foco está na largura da barreira. A simulação mostra que pequenas mudanças em nanômetros alteram bastante a transmissão. Isso explica por que o microscópio de tunelamento consegue ser tão sensível a pequenas distâncias.',
+            '3': 'No terceiro exemplo, a atenção vai para o contexto do Nobel de 2025. Na junção Josephson, não estamos apenas vendo uma partícula isolada, mas um efeito quântico em circuitos elétricos supercondutores, com grande importância para a física moderna.'
+        };
+        let selectedVoice = null;
+        let currentTrack = 0;
+        let speaking = false;
+        let audioPaused = false;
+        let currentSpeechSource = null;
+        let activeExampleButton = null;
+        let speechSessionId = 0;
+
+        // =============================================
+        // FUNÇÃO PARA FORMATAR EM NOTAÇÃO CIENTÍFICA
+        // =============================================
+
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = {
+                '-': '⁻',
+                '0': '⁰',
+                '1': '¹',
+                '2': '²',
+                '3': '³',
+                '4': '⁴',
+                '5': '⁵',
+                '6': '⁶',
+                '7': '⁷',
+                '8': '⁸',
+                '9': '⁹'
+            };
+
+            return String(exponent).split('').map(char => superscriptMap[char] || char).join('');
+        }
+        
+        function formatScientific(value, precision = 3) {
+            if (value === 0) return '0.00';
+            
+            // Determinar o expoente
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            // Calcular a mantissa
+            const mantissa = value / Math.pow(10, exponent);
+            
+            // Formatar a mantissa com 3 algarismos significativos
+            let formattedMantissa = mantissa.toPrecision(precision);
+            
+            // Se a mantissa for 10.0, ajustar para 1.00
+            if (Math.abs(parseFloat(formattedMantissa)) >= 10) {
+                formattedMantissa = (mantissa / 10).toPrecision(precision);
+                return `${formattedMantissa}×10${toSuperscriptExponent(exponent + 1)}`;
+            }
+            
+            return `${formattedMantissa}×10${toSuperscriptExponent(exponent)}`;
+        }
+        
+        // Função alternativa para valores que podem ser expressos sem notação científica
+        function formatNumber(value, precision = 3) {
+            if (value === 0) return '0.00';
+            
+            const absValue = Math.abs(value);
+            
+            // Para valores muito grandes ou muito pequenos, usar notação científica
+            if (absValue >= 1000 || absValue < 0.001) {
+                return formatScientific(value, precision);
+            }
+            
+            // Para valores intermediários, usar formato decimal
+            return value.toPrecision(precision);
+        }
+
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = '';
+        }
+
+        function getCurrentExerciseView() {
+            if (document.getElementById('resultsContainer').style.display === 'block') return 'results';
+            if (document.getElementById('conclusionContainer').style.display === 'block') return 'conclusion';
+            return 'exercise';
+        }
+
+        function getSelectedOptionValue() {
+            const selectedOption = document.querySelector('#exerciseContainer .option.selected');
+            return selectedOption ? (selectedOption.dataset.value || selectedOption.textContent.trim()) : null;
+        }
+
+        function normalizeSerieForSheet(serie) {
+            return String(serie || '').replace('º', 'o').trim();
+        }
+
+        function resolveSimulationSheetName(serie, turma, trilha) {
+            if (trilha && !['Outra', 'Nenhuma'].includes(trilha) && SHARED_STUDENT_SOURCE.bySheet[trilha]) {
+                return trilha;
+            }
+
+            const normalizedSerie = normalizeSerieForSheet(serie);
+            const serieTurmaName = normalizedSerie && turma ? `${normalizedSerie} ${turma}` : '';
+            if (serieTurmaName && SHARED_STUDENT_SOURCE.bySheet[serieTurmaName]) {
+                return serieTurmaName;
+            }
+
+            return '';
+        }
+
+        function getSimulationStudentNames(serie, turma, trilha) {
+            const names = new Set();
+            const sheetName = resolveSimulationSheetName(serie, turma, trilha);
+            const serieTurmaKey = `${serie}|${turma}`;
+
+            if (sheetName && SHARED_STUDENT_SOURCE.bySheet[sheetName]) {
+                SHARED_STUDENT_SOURCE.bySheet[sheetName].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            if (SHARED_STUDENT_SOURCE.bySerieTurma[serieTurmaKey]) {
+                SHARED_STUDENT_SOURCE.bySerieTurma[serieTurmaKey].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            if (trilha && SHARED_STUDENT_SOURCE.byTrilha[trilha]) {
+                SHARED_STUDENT_SOURCE.byTrilha[trilha].forEach(function(name) {
+                    names.add(name);
+                });
+            }
+
+            return Array.from(names).sort(function(first, second) {
+                return first.localeCompare(second, 'pt-BR');
+            });
+        }
+
+        function syncStudentNameValue() {
+            const selectedName = document.getElementById('studentNameSelect').value;
+            const manualName = document.getElementById('studentNameManual').value.trim();
+            document.getElementById('studentName').value = selectedName === '__OTHER__' ? manualName : selectedName;
+        }
+
+        function handleSimulationStudentSelectionChange() {
+            const manualMode = document.getElementById('studentNameSelect').value === '__OTHER__';
+            document.getElementById('studentNameManualRow').style.display = manualMode ? 'block' : 'none';
+            document.getElementById('studentNameManual').required = manualMode;
+            if (!manualMode) {
+                document.getElementById('studentNameManual').value = '';
+            }
+            syncStudentNameValue();
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function populateSimulationStudentOptions(preservedValue) {
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentTrail = document.getElementById('studentTrail').value;
+            const names = getSimulationStudentNames(studentGrade, studentClass, studentTrail);
+            const studentNameSelect = document.getElementById('studentNameSelect');
+
+            const placeholder = names.length
+                ? '<option value="">Selecione o nome</option>'
+                : '<option value="">Nenhum nome encontrado para este recorte</option>';
+            const options = names.map(function(name) {
+                return `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+            }).join('');
+
+            studentNameSelect.innerHTML = `${placeholder}${options}<option value="__OTHER__">Meu nome não está na lista</option>`;
+
+            if (preservedValue) {
+                studentNameSelect.value = preservedValue;
+            } else {
+                studentNameSelect.value = '';
+            }
+
+            handleSimulationStudentSelectionChange();
+        }
+
+        function getResolvedSimulationStudentName() {
+            syncStudentNameValue();
+            return document.getElementById('studentName').value.trim();
+        }
+
+        function captureFormState() {
+            return {
+                studentName: document.getElementById('studentName').value,
+                studentNameSelect: document.getElementById('studentNameSelect').value,
+                studentNameManual: document.getElementById('studentNameManual').value,
+                studentGrade: document.getElementById('studentGrade').value,
+                studentClass: document.getElementById('studentClass').value,
+                studentTrail: document.getElementById('studentTrail').value,
+                studentEmail: document.getElementById('studentEmail').value,
+                schoolTerm: document.getElementById('schoolTerm').value,
+                criticismInput: document.getElementById('criticismInput').value,
+                suggestionInput: document.getElementById('suggestionInput').value,
+                finalConclusion: document.getElementById('finalConclusion').value,
+                conclusionText: document.getElementById('conclusionText').value
+            };
+        }
+
+        function applyFormState(formState = {}) {
+            document.getElementById('studentGrade').value = formState.studentGrade || '';
+            document.getElementById('studentClass').value = formState.studentClass || '';
+            document.getElementById('studentTrail').value = formState.studentTrail || '';
+            populateSimulationStudentOptions(formState.studentNameSelect || '');
+            document.getElementById('studentNameManual').value = formState.studentNameManual || '';
+            document.getElementById('studentName').value = formState.studentName || '';
+            handleSimulationStudentSelectionChange();
+            syncStudentNameValue();
+            document.getElementById('studentEmail').value = formState.studentEmail || '';
+            document.getElementById('schoolTerm').value = formState.schoolTerm || '';
+            document.getElementById('criticismInput').value = formState.criticismInput || '';
+            document.getElementById('suggestionInput').value = formState.suggestionInput || '';
+            document.getElementById('finalConclusion').value = formState.finalConclusion || '';
+            document.getElementById('conclusionText').value = formState.conclusionText || conclusionTextSaved || '';
+        }
+
+        function getSavedExerciseState() {
+            try {
+                const rawState = localStorage.getItem(EXERCISE_STORAGE_KEY);
+                if (!rawState) return null;
+                const parsedState = JSON.parse(rawState);
+                if (!parsedState || !Array.isArray(parsedState.exercises) || !parsedState.exercises.length) {
+                    return null;
+                }
+                return parsedState;
+            } catch (error) {
+                console.warn('Não foi possível recuperar o estado salvo dos exercícios.', error);
+                return null;
+            }
+        }
+
+        function updateExerciseLauncherState() {
+            const mainExerciseBtn = document.getElementById('mainExerciseBtn');
+            if (!mainExerciseBtn) return;
+
+            const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
+            mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
+            mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
+        }
+
+        function updateExerciseResumeBadge(forceVisible) {
+            const badge = document.getElementById('exerciseResumeBadge');
+            if (!badge) return;
+
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : hasResumableExerciseState(getSavedExerciseState());
+            badge.style.display = isVisible ? 'inline-flex' : 'none';
+        }
+
+        function clearExerciseState() {
+            localStorage.removeItem(EXERCISE_STORAGE_KEY);
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(false);
+        }
+
+        function saveExerciseState() {
+            if (!exercises.length) {
+                clearExerciseState();
+                return;
+            }
+
+            conclusionTextSaved = document.getElementById('conclusionText').value || conclusionTextSaved;
+
+            const exerciseState = {
+                exercises,
+                currentExercise,
+                exerciseResults,
+                skippedQuestions,
+                currentExerciseAttempts,
+                conclusionTextSaved,
+                view: getCurrentExerciseView(),
+                selectedOptionValue: getSelectedOptionValue(),
+                formState: captureFormState()
+            };
+
+            if (!hasMeaningfulProgress(exerciseState)) {
+                clearExerciseState();
+                return;
+            }
+
+            try {
+                localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
+            } catch (error) {
+                console.warn('Não foi possível salvar o progresso dos exercícios.', error);
+            }
+
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(true);
+        }
+
+        function hasMeaningfulProgress(state) {
+            if (!state) return false;
+
+            const hasCurrentExercise = Number(state.currentExercise || 0) > 0;
+            const hasResults = Array.isArray(state.exerciseResults) && state.exerciseResults.length > 0;
+            const hasSkipped = Number(state.skippedQuestions || 0) > 0;
+            const hasAttempts = Number(state.currentExerciseAttempts || 0) > 0;
+            const hasSelection = Boolean(state.selectedOptionValue);
+            const hasConclusion = Boolean(String(state.conclusionTextSaved || '').trim());
+            const hasFormData = Boolean(state.formState && Object.keys(state.formState).some(function(key) {
+                return Boolean(String(state.formState[key] || '').trim());
+            }));
+
+            return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasFormData;
+        }
+
+        function hasResumableExerciseState(state) {
+            if (!state || !Array.isArray(state.exercises) || !state.exercises.length) return false;
+
+            const hasCurrentExercise = Number(state.currentExercise || 0) > 0;
+            const hasResults = Array.isArray(state.exerciseResults) && state.exerciseResults.length > 0;
+            const hasSkipped = Number(state.skippedQuestions || 0) > 0;
+            const hasAttempts = Number(state.currentExerciseAttempts || 0) > 0;
+            const hasSelection = Boolean(state.selectedOptionValue);
+            const hasConclusion = Boolean(String(
+                state.conclusionTextSaved || (state.formState && state.formState.finalConclusion) || ''
+            ).trim());
+            const hasCompletedView = state.view === 'conclusion' || state.view === 'results';
+
+            return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasCompletedView;
+        }
+
+        function restoreExerciseState(savedState) {
+            exercises = Array.isArray(savedState.exercises) ? savedState.exercises : [];
+            currentExercise = Math.min(savedState.currentExercise || 0, Math.max(exercises.length - 1, 0));
+            exerciseResults = Array.isArray(savedState.exerciseResults) ? savedState.exerciseResults : [];
+            skippedQuestions = savedState.skippedQuestions || 0;
+            currentExerciseAttempts = savedState.currentExerciseAttempts || 0;
+            conclusionTextSaved = savedState.conclusionTextSaved || '';
+            applyFormState(savedState.formState || {});
+        }
+
+        function setupPersistentInputs() {
+            document.getElementById('conclusionText').addEventListener('input', function() {
+                conclusionTextSaved = this.value;
+                if (exercises.length) saveExerciseState();
+            });
+
+            ['studentNameManual', 'studentEmail', 'criticismInput', 'suggestionInput', 'finalConclusion'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('input', function() {
+                    if (fieldId === 'studentNameManual') {
+                        syncStudentNameValue();
+                    }
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+
+            ['studentGrade', 'studentClass', 'studentTrail', 'schoolTerm'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('change', function() {
+                    if (fieldId !== 'schoolTerm') {
+                        populateSimulationStudentOptions();
+                    }
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+
+            document.getElementById('studentNameSelect').addEventListener('change', function() {
+                handleSimulationStudentSelectionChange();
+                if (exercises.length) saveExerciseState();
+            });
+        }
+
+        function normalizeTextForAnalysis(text) {
+            return (text || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function getTermGradeColumn(schoolTerm) {
+            return TERM_COLUMN_MAP[schoolTerm] || '';
+        }
+
+        function analyzeConclusionWithLocalAi(text) {
+            const trimmedText = (text || '').trim();
+            const normalizedText = normalizeTextForAnalysis(trimmedText);
+            const words = normalizedText.match(/[a-z0-9]+(?:\/[a-z0-9]+)?/g) || [];
+            const sentences = trimmedText.split(/[.!?]+/).map(function(sentence) {
+                return sentence.trim();
+            }).filter(Boolean);
+            const uniqueWords = new Set(words);
+
+            const wordCount = words.length;
+            const lexicalDiversity = wordCount ? uniqueWords.size / wordCount : 0;
+            const topicHits = TOPIC_REFERENCE_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const learningHits = LEARNING_SIGNAL_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const connectorHits = CONNECTOR_TERMS.filter(function(term) {
+                return normalizedText.includes(term);
+            }).length;
+            const repeatedWords = wordCount - uniqueWords.size;
+
+            const lengthScore = clamp((wordCount / 60) * 10, 0, 10);
+            const semanticsScore = clamp((topicHits / 6) * 10 + Math.min(connectorHits, 3), 0, 10);
+            const originalityScore = clamp((lexicalDiversity * 12) - (repeatedWords > wordCount * 0.45 ? 1.5 : 0), 0, 10);
+            const learningScore = clamp((learningHits / 4) * 10 + (sentences.length >= 3 ? 1 : 0), 0, 10);
+            const finalScore = Number(((lengthScore * 0.2) + (semanticsScore * 0.35) + (originalityScore * 0.2) + (learningScore * 0.25)).toFixed(1));
+
+            return {
+                wordCount,
+                sentenceCount: sentences.length,
+                lexicalDiversity: Number(lexicalDiversity.toFixed(2)),
+                lengthScore: Number(lengthScore.toFixed(1)),
+                semanticsScore: Number(semanticsScore.toFixed(1)),
+                originalityScore: Number(originalityScore.toFixed(1)),
+                learningScore: Number(learningScore.toFixed(1)),
+                finalScore,
+                feedback: [
+                    `Palavras: ${wordCount}`,
+                    `Coerência temática: ${semanticsScore.toFixed(1)}/10`,
+                    `Originalidade lexical: ${originalityScore.toFixed(1)}/10`,
+                    `Aprendizagem evidenciada: ${learningScore.toFixed(1)}/10`
+                ].join(' | ')
+            };
+        }
+
+        function calculateCompositeSimulationScore(exerciseScorePercentage, aiConclusionScore) {
+            const exerciseScore = clamp(exerciseScorePercentage / 10, 0, 10);
+            return Number(((exerciseScore * SCORE_WEIGHTS.exercises) + (aiConclusionScore * SCORE_WEIGHTS.conclusion)).toFixed(1));
+        }
+
+        function buildUnifiedSimulationPayload(studentName, studentGrade, studentClass, studentTrail, studentEmail, schoolTerm, criticism, suggestion, finalConclusion, scorePercentage, correctAnswers, totalExercises, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toISOString(),
+                serie: studentGrade,
+                turma: studentClass,
+                trilha: studentTrail || '',
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                estudante: studentName,
+                estudanteDigitado: document.getElementById('studentNameSelect').value === '__OTHER__' ? document.getElementById('studentNameManual').value.trim() : '',
+                sheetName: resolveSimulationSheetName(studentGrade, studentClass, studentTrail),
+                avaliacao: `Simulação - ${SIMULATION_NAME}`,
+                categoria: 'simulacao',
+                atividade: SIMULATION_NAME,
+                simulacao: SIMULATION_NAME,
+                scoreHeader: 'simulções',
+                nota: finalScore,
+                notaExercicios: Number((scorePercentage / 10).toFixed(1)),
+                notaConclusaoIa: aiAnalysis.finalScore,
+                notaPercentual: `${scorePercentage}%`,
+                acertosIndividuais: correctAnswers,
+                totalQuestoes: totalExercises,
+                questoes_puladas: skippedQuestions,
+                conclusao: finalConclusion,
+                analiseIa: aiAnalysis.feedback,
+                palavrasConclusao: aiAnalysis.wordCount,
+                coerenciaSemantica: aiAnalysis.semanticsScore,
+                originalidade: aiAnalysis.originalityScore,
+                significanciaAprendizagem: aiAnalysis.learningScore,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || ''
+            };
+        }
+
+        function buildLegacyBackupPayload(studentName, studentGrade, studentClass, studentEmail, schoolTerm, criticism, suggestion, finalConclusion, scorePercentage, correctAnswers, totalExercises, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                estudante: studentName,
+                simulacao: SIMULATION_NAME,
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: `${scorePercentage}%`,
+                nota_final: finalScore,
+                nota_conclusao_ia: aiAnalysis.finalScore,
+                conclusao: finalConclusion,
+                analise_ia: aiAnalysis.feedback,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+        }
+
+        function buildTermGradePayload(studentName, studentGrade, studentClass, studentTrail, studentEmail, schoolTerm, scorePercentage, correctAnswers, totalExercises, finalConclusion, aiAnalysis, finalScore) {
+            return {
+                timestamp: new Date().toISOString(),
+                serie: studentGrade,
+                turma: studentClass,
+                trilha: studentTrail || '',
+                coluna: getTermGradeColumn(schoolTerm),
+                bimestre: schoolTerm,
+                colunaBimestre: getTermGradeColumn(schoolTerm),
+                acao: 'acumular_nota_bimestral',
+                tipoLancamento: 'somar',
+                valorLancamento: finalScore,
+                estudante: studentName,
+                estudanteDigitado: document.getElementById('studentNameSelect').value === '__OTHER__' ? document.getElementById('studentNameManual').value.trim() : '',
+                sheetName: resolveSimulationSheetName(studentGrade, studentClass, studentTrail),
+                avaliacao: `Nota Bimestral - ${SIMULATION_NAME}`,
+                categoria: 'nota-bimestral',
+                atividade: SIMULATION_NAME,
+                simulacao: SIMULATION_NAME,
+                totalSimulacoesAcumuladas: 1,
+                nota: finalScore,
+                notaExercicios: Number((scorePercentage / 10).toFixed(1)),
+                notaConclusaoIa: aiAnalysis.finalScore,
+                notaPercentual: `${scorePercentage}%`,
+                acertos: correctAnswers,
+                totalQuestoes: totalExercises,
+                conclusao: finalConclusion,
+                palavrasConclusao: aiAnalysis.wordCount,
+                coerenciaSemantica: aiAnalysis.semanticsScore,
+                originalidade: aiAnalysis.originalityScore,
+                significanciaAprendizagem: aiAnalysis.learningScore,
+                analiseIa: aiAnalysis.feedback,
+                email: studentEmail || ''
+            };
+        }
+
+        function postJsonNoCors(url, data) {
+            return fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+        }
+
+        function sendProfessorEmail(data) {
+            return postJsonNoCors(EMAIL_SCRIPT_URL, data);
+        }
+
+        function sendStudentCopyEmail(studentEmail, studentName, studentGrade, studentClass, scorePercentage, correctAnswers, totalExercises, finalConclusion) {
+            const emailDataAluno = {
+                to_email: studentEmail,
+                nome_aluno: studentName || 'Não informado',
+                serie: studentGrade || 'Não informado',
+                turma: studentClass || 'Não informado',
+                nota: `${scorePercentage}%` || '0%',
+                acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                questoes_puladas: skippedQuestions || 0,
+                conclusao: finalConclusion || 'Não informado',
+                data_envio: new Date().toLocaleString('pt-BR'),
+                simulacao: 'Tunelamento Quântico',
+                mensagem: `Confirmação de Envio - Simulação de Tunelamento Quântico
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+            };
+
+            return postJsonNoCors(EMAIL_SCRIPT_URL, emailDataAluno);
+        }
+
+        function getVoiceKey(voice) {
+            return `${voice.name}__${voice.lang}`;
+        }
+
+        function getPreferredVoices(voices) {
+            const portugueseVoices = voices.filter(function(voice) {
+                return /^pt(-|$)/i.test(voice.lang);
+            });
+            return portugueseVoices.length ? portugueseVoices : voices;
+        }
+
+        function setMainAudioButtonState(state) {
+            const button = document.getElementById('playPauseAudioBtn');
+            if (!button) return;
+
+            if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+            else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+            else button.innerHTML = '▶️ Iniciar';
+        }
+
+        function setExampleButtonState(button, state) {
+            if (!button) return;
+
+            if (state === 'playing') {
+                button.innerHTML = '⏸️ Pausar resolução';
+                button.classList.add('playing');
+            } else if (state === 'paused') {
+                button.innerHTML = '▶️ Continuar resolução';
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = '🔊 Ouvir resolução';
+                button.classList.remove('playing');
+            }
+        }
+
+        function clearExampleAudioState() {
+            if (activeExampleButton) {
+                setExampleButtonState(activeExampleButton, 'idle');
+                activeExampleButton = null;
+            }
+        }
+
+        function updateTrackCounter() {
+            document.getElementById('trackCounter').textContent = speaking && currentSpeechSource === 'track'
+                ? `Trecho ${currentTrack + 1}/${tracks.length}`
+                : `Trecho 0/${tracks.length}`;
+        }
+
+        function resetAudioUi() {
+            setMainAudioButtonState('idle');
+            clearExampleAudioState();
+            updateTrackCounter();
+        }
+
+        function finishSpeech(sessionId) {
+            if (sessionId !== speechSessionId) return;
+
+            speaking = false;
+            audioPaused = false;
+            currentSpeechSource = null;
+            resetAudioUi();
+        }
+
+        function populateVoiceSelector(voices) {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            const availableVoices = getPreferredVoices(voices);
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach(function(voice) {
+                const option = document.createElement('option');
+                option.value = getVoiceKey(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+
+            if (!availableVoices.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma voz encontrada';
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                selectedVoice = null;
+                return;
+            }
+
+            voiceSelect.disabled = false;
+            const savedVoicePreference = localStorage.getItem(AUDIO_VOICE_STORAGE_KEY) || '';
+            const savedVoice = availableVoices.find(function(voice) {
+                return getVoiceKey(voice) === savedVoicePreference;
+            });
+
+            selectedVoice = savedVoice || availableVoices[0] || null;
+            voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+        }
+
+        function setupVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            voiceSelect.addEventListener('change', function() {
+                const voices = getPreferredVoices(window.speechSynthesis ? window.speechSynthesis.getVoices() : []);
+                selectedVoice = voices.find(function(voice) {
+                    return getVoiceKey(voice) === voiceSelect.value;
+                }) || null;
+
+                localStorage.setItem(AUDIO_VOICE_STORAGE_KEY, selectedVoice ? getVoiceKey(selectedVoice) : '');
+            });
+        }
+
+        function loadPreferredVoice() {
+            return new Promise(function(resolve) {
+                if (!window.speechSynthesis) {
+                    resolve(false);
+                    return;
+                }
+
+                const tryGetVoice = function() {
+                    const voices = window.speechSynthesis.getVoices();
+                    populateVoiceSelector(voices);
+                    resolve(!!selectedVoice);
+                };
+
+                if (window.speechSynthesis.getVoices().length) {
+                    tryGetVoice();
+                } else {
+                    window.speechSynthesis.onvoiceschanged = tryGetVoice;
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!window.speechSynthesis) {
+                alert('Este navegador não oferece suporte à fala sintetizada.');
+                return;
+            }
+
+            if (window.speechSynthesis.speaking || window.speechSynthesis.pending || window.speechSynthesis.paused) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+            }
+
+            const sessionId = ++speechSessionId;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.92;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            utterance.onend = function() { finishSpeech(sessionId); };
+            utterance.onerror = function() { finishSpeech(sessionId); };
+
+            window.speechSynthesis.speak(utterance);
+            speaking = true;
+            audioPaused = false;
+        }
+
+        function resolveTrackText(track) {
+            return typeof track === 'function' ? track() : track;
+        }
+
+        function speakTrack(index) {
+            currentSpeechSource = 'track';
+            clearExampleAudioState();
+            setMainAudioButtonState('playing');
+            speakText(resolveTrackText(tracks[index]));
+            if (speaking) updateTrackCounter();
+        }
+
+        function pauseAudio() {
+            if (window.speechSynthesis && speaking && !audioPaused) {
+                window.speechSynthesis.pause();
+                audioPaused = true;
+
+                if (currentSpeechSource === 'track') setMainAudioButtonState('paused');
+                else if (currentSpeechSource === 'example') setExampleButtonState(activeExampleButton, 'paused');
+            }
+        }
+
+        function resumeAudio() {
+            if (currentSpeechSource === 'track' && speaking && audioPaused && window.speechSynthesis) {
+                window.speechSynthesis.resume();
+                audioPaused = false;
+                setMainAudioButtonState('playing');
+                updateTrackCounter();
+                return;
+            }
+
+            if (!speaking || currentSpeechSource !== 'track') {
+                speakTrack(currentTrack);
+            }
+        }
+
+        function toggleExampleAudio(button) {
+            const narrationText = exampleNarrations[button.getAttribute('data-example')];
+            if (!narrationText) return;
+
+            if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+                if (audioPaused && window.speechSynthesis) {
+                    window.speechSynthesis.resume();
+                    audioPaused = false;
+                    setExampleButtonState(button, 'playing');
+                } else {
+                    pauseAudio();
+                }
+                return;
+            }
+
+            currentSpeechSource = 'example';
+            clearExampleAudioState();
+            activeExampleButton = button;
+            setMainAudioButtonState('idle');
+            setExampleButtonState(button, 'playing');
+            speakText(narrationText);
+        }
+
+        function nextTrack() {
+            if (currentTrack + 1 < tracks.length) {
+                currentTrack++;
+                speakTrack(currentTrack);
+            } else {
+                alert('Você concluiu todos os trechos de áudio.');
+            }
+        }
+
+        function previousTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                speakTrack(currentTrack);
+            } else {
+                alert('Este é o primeiro trecho.');
+            }
+        }
+
+        function toggleMainAudio() {
+            if (currentSpeechSource === 'track' && speaking) {
+                if (audioPaused) resumeAudio();
+                else pauseAudio();
+                return;
+            }
+
+            resumeAudio();
+        }
+
+        function stopExampleNarration() {
+            if (currentSpeechSource === 'example' && window.speechSynthesis) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+                speaking = false;
+                audioPaused = false;
+                currentSpeechSource = null;
+                resetAudioUi();
+            }
+        }
+
+        function setupAudioControls() {
+            document.getElementById('prevTrackBtn').addEventListener('click', previousTrack);
+            document.getElementById('playPauseAudioBtn').addEventListener('click', toggleMainAudio);
+            document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+            setupVoiceSelector();
+            updateTrackCounter();
+        }
+
+        // =============================================
+        // FUNÇÕES PRINCIPAIS
+        // =============================================
+        
+        function init() {
+            resizeCanvas();
+            setupEventListeners();
+            setupPersistentInputs();
+            populateSimulationStudentOptions();
+            setupAudioControls();
+            updateVisualizationModeUI();
+            updateParticleProperties();
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge();
+            loadPreferredVoice();
+            drawScene();
+            animate();
+        }
+        
+        function resizeCanvas() {
+            const container = document.querySelector('.simulation-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+
+            sourceX = canvas.width * 0.14;
+            sourceY = canvas.height / 2;
+            barrierX = canvas.width * 0.44;
+            barrierTop = canvas.height * 0.16;
+            barrierHeight = canvas.height * 0.68;
+            barrierWidth = 28 + barrierWidthNm * 36;
+            detectorX = canvas.width * 0.84;
+            detectorY = canvas.height * 0.16;
+            detectorHeight = canvas.height * 0.68;
+        }
+
+        function getCurrentContext() {
+            return contexts[contextType] || contexts.stm;
+        }
+
+        function calculateTransmissionProbability(currentEnergyEv, currentBarrierEv, widthNm, currentMass) {
+            const E = Math.max(currentEnergyEv, 0.001) * ELECTRON_CHARGE;
+            const U = Math.max(currentBarrierEv, 0.001) * ELECTRON_CHARGE;
+            const a = widthNm * 1e-9;
+            let transmission;
+
+            if (Math.abs(E - U) < 1e-24) {
+                transmission = 1 / (1 + (currentMass * U * a * a) / (2 * HBAR * HBAR));
+            } else if (E < U) {
+                const kappa = Math.sqrt((2 * currentMass * (U - E)) / (HBAR * HBAR));
+                const sinhTerm = Math.sinh(kappa * a);
+                transmission = 1 / (1 + ((U * U) * (sinhTerm * sinhTerm)) / (4 * E * Math.max(U - E, 1e-30)));
+            } else {
+                const waveNumber = Math.sqrt((2 * currentMass * (E - U)) / (HBAR * HBAR));
+                const sinTerm = Math.sin(waveNumber * a);
+                transmission = 1 / (1 + ((U * U) * (sinTerm * sinTerm)) / (4 * E * Math.max(E - U, 1e-30)));
+            }
+
+            return clamp(transmission, 0, 1);
+        }
+
+        function calculateWavelength(currentEnergyEv, currentMass) {
+            const energyJ = Math.max(currentEnergyEv, 0.001) * ELECTRON_CHARGE;
+            const momentum = Math.sqrt(2 * currentMass * energyJ);
+            if (!isFinite(momentum) || momentum <= 0) return 0;
+            return (PLANCK / momentum) * 1e9;
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('particleViewBtn').addEventListener('click', function() {
+                setVisualizationMode('particles');
+            });
+
+            document.getElementById('waveViewBtn').addEventListener('click', function() {
+                setVisualizationMode('waves');
+            });
+
+            document.getElementById('contextSelect').addEventListener('change', function() {
+                contextType = this.value;
+                const selectedContext = getCurrentContext();
+                energyEv = selectedContext.defaults.energy;
+                barrierEv = selectedContext.defaults.barrier;
+                barrierWidthNm = selectedContext.defaults.width;
+                electricFieldMv = selectedContext.defaults.field;
+                document.getElementById('energyInput').value = energyEv;
+                document.getElementById('barrierInput').value = barrierEv;
+                document.getElementById('widthInput').value = barrierWidthNm;
+                document.getElementById('fieldInput').value = electricFieldMv;
+                resetSimulation();
+            });
+
+            document.getElementById('energyInput').addEventListener('input', function() {
+                energyEv = parseFloat(this.value);
+                updateParticleProperties();
+            });
+
+            document.getElementById('barrierInput').addEventListener('input', function() {
+                barrierEv = parseFloat(this.value);
+                updateParticleProperties();
+            });
+
+            document.getElementById('widthInput').addEventListener('input', function() {
+                barrierWidthNm = parseFloat(this.value);
+                updateParticleProperties();
+            });
+
+            document.getElementById('fieldInput').addEventListener('input', function() {
+                electricFieldMv = parseFloat(this.value);
+                updateParticleProperties();
+            });
+
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                statusIndicator.textContent = visualizationMode === 'waves'
+                    ? 'Visualização ondulatória em andamento'
+                    : 'Experimento em andamento';
+                statusIndicator.style.background = 'rgba(255, 165, 0, 0.3)';
+                if (visualizationMode === 'particles' && packets.length === 0) {
+                    addParticle();
+                }
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+                statusIndicator.textContent = 'Pausado';
+                statusIndicator.style.background = 'rgba(255, 255, 0, 0.3)';
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                resetSimulation();
+            });
+            
+            document.getElementById('addParticleBtn').addEventListener('click', function() {
+                addParticle();
+            });
+
+            // Configurar eventos dos botões de exercícios
+            setupExerciseEventListeners();
+            
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                drawScene();
+            });
+        }
+
+        function setVisualizationMode(nextMode) {
+            if (visualizationMode === nextMode) return;
+
+            visualizationMode = nextMode;
+            localStorage.setItem(VISUALIZATION_MODE_STORAGE_KEY, visualizationMode);
+            updateVisualizationModeUI();
+            resetSimulation();
+        }
+
+        function updateVisualizationModeUI() {
+            const particleViewBtn = document.getElementById('particleViewBtn');
+            const waveViewBtn = document.getElementById('waveViewBtn');
+            const addParticleBtn = document.getElementById('addParticleBtn');
+
+            particleViewBtn.classList.toggle('active', visualizationMode === 'particles');
+            waveViewBtn.classList.toggle('active', visualizationMode === 'waves');
+            addParticleBtn.textContent = visualizationMode === 'waves' ? 'Excitar Onda' : 'Lançar Pacote';
+        }
+
+        // Configurar eventos dos botões de exercícios
+        function setupExerciseEventListeners() {
+            if (document.body.dataset.tunnelExerciseListenersBound === 'true') {
+                return;
+            }
+
+            document.body.dataset.tunnelExerciseListenersBound = 'true';
+
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').onclick = openExercisesModal;
+            document.getElementById('solvedExercisesBtn').onclick = openSolvedExercisesModal;
+            document.getElementById('theoryBtn').onclick = openTheoryModal;
+            document.getElementById('restartExercisesBtn').onclick = restartExercises;
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').onclick = closeExercisesModal;
+            document.querySelector('#solvedExercisesModal .close').onclick = closeSolvedExercisesModal;
+            document.querySelector('#theoryModal .close').onclick = closeTheoryModal;
+            document.getElementById('closeSolvedExercises').onclick = closeSolvedExercisesModal;
+            document.getElementById('closeTheory').onclick = closeTheoryModal;
+            
+            // Clique fora do modal para fechar
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            };
+        }
+        
+        function addParticle() {
+            if (visualizationMode === 'waves') {
+                isRunning = true;
+                wavePhase += 0.45;
+                detectorFlash = Math.max(detectorFlash, 0.4 + transmissionProbability * 0.5);
+                statusIndicator.textContent = 'Onda excitada para analisar transmissão e reflexão';
+                statusIndicator.style.background = 'rgba(123, 207, 255, 0.25)';
+                return;
+            }
+
+            packetCounter++;
+
+            packets.push({
+                id: packetCounter,
+                simulationTime: 0,
+                x: sourceX,
+                y: sourceY,
+                depth: 0.1,
+                active: true,
+                detected: false,
+                transmitted: null,
+                velocity: 2.6 + transmissionProbability * 2,
+                color: '#ffd166',
+                trail: [{ x: sourceX, y: sourceY, depth: 0.1 }]
+            });
+            
+            if (!isRunning) {
+                isRunning = true;
+                statusIndicator.textContent = 'Experimento em andamento';
+                statusIndicator.style.background = 'rgba(255, 165, 0, 0.3)';
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['#ffd166', '#73f0c5', '#8fd3ff', '#ff8b8b', '#f8ff7a'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function updateParticleProperties() {
+            const selectedContext = getCurrentContext();
+            effectiveBarrierEv = Math.max(0.02, barrierEv - 0.18 * electricFieldMv);
+            transmissionProbability = calculateTransmissionProbability(energyEv, effectiveBarrierEv, barrierWidthNm, selectedContext.mass);
+            reflectionProbability = 1 - transmissionProbability;
+            wavelengthNm = calculateWavelength(energyEv, selectedContext.mass);
+            detectorCurrent = transmissionProbability * selectedContext.detectorGain * (1 + electricFieldMv * 0.08);
+
+            barrierWidth = 28 + barrierWidthNm * 36;
+
+            document.getElementById('energyValue').innerHTML = formatNumber(energyEv);
+            document.getElementById('energyDisplay').innerHTML = formatNumber(energyEv) + ' eV';
+            document.getElementById('barrierValue').innerHTML = formatNumber(barrierEv);
+            document.getElementById('barrierDisplay').innerHTML = formatNumber(effectiveBarrierEv) + ' eV';
+            document.getElementById('widthValue').innerHTML = formatNumber(barrierWidthNm);
+            document.getElementById('widthDisplay').innerHTML = formatNumber(barrierWidthNm) + ' nm';
+            document.getElementById('fieldValue').innerHTML = formatNumber(electricFieldMv);
+            document.getElementById('fieldDisplay').innerHTML = formatNumber(electricFieldMv) + ' MV/m';
+            document.getElementById('transmissionValue').innerHTML = formatNumber(transmissionProbability * 100);
+            document.getElementById('reflectionValue').innerHTML = formatNumber(reflectionProbability * 100);
+            document.getElementById('transmissionDisplay').innerHTML = formatNumber(transmissionProbability * 100) + ' %';
+            document.getElementById('reflectionDisplay2').innerHTML = formatNumber(reflectionProbability * 100) + ' %';
+            document.getElementById('wavelengthDisplay').innerHTML = formatNumber(wavelengthNm) + ' nm';
+            document.getElementById('currentDisplay').innerHTML = formatNumber(detectorCurrent) + ' a.u.';
+
+            document.querySelector('.scene-hud').innerHTML = `
+                <div class="hud-pill">${selectedContext.label}</div>
+                <div class="hud-pill">${visualizationMode === 'waves' ? 'Modo: Ondas' : 'Modo: Partículas'}</div>
+                <div class="hud-pill">T = ${formatNumber(transmissionProbability * 100)}%</div>
+                <div class="hud-pill">R = ${formatNumber(reflectionProbability * 100)}%</div>
+            `;
+
+            statusIndicator.textContent = `${selectedContext.status} Barreira efetiva: ${formatNumber(effectiveBarrierEv)} eV.`;
+            resizeCanvas();
+        }
+        
+        function resetSimulation() {
+            isRunning = false;
+            packets = [];
+            packetCounter = 0;
+            detectorFlash = 0;
+            sampleTransmittedCount = 0;
+            wavePhase = 0;
+            
+            statusIndicator.textContent = 'Pronto para iniciar';
+            statusIndicator.style.background = 'rgba(255, 255, 255, 0.1)';
+            
+            updateParticleProperties();
+            drawScene();
+        }
+
+        function getPerspectiveOffset(depth = 1) {
+            const clampedDepth = Math.max(0, Math.min(1, depth));
+            return {
+                x: canvas.width * 0.12 * clampedDepth,
+                y: canvas.height * 0.10 * clampedDepth
+            };
+        }
+
+        function projectPoint(x, y, depth = 0) {
+            const offset = getPerspectiveOffset(depth);
+            return {
+                x: x + offset.x,
+                y: y - offset.y
+            };
+        }
+
+        function tracePolygon(points) {
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.closePath();
+        }
+
+        function fillAndStrokePolygon(points, fillStyle, strokeStyle, lineWidth = 1) {
+            tracePolygon(points);
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+            if (strokeStyle) {
+                ctx.lineWidth = lineWidth;
+                ctx.strokeStyle = strokeStyle;
+                ctx.stroke();
+            }
+        }
+
+        function getChamberRect() {
+            const marginX = Math.max(canvas.width * 0.04, 18);
+            const marginY = Math.max(canvas.height * 0.06, 18);
+
+            return {
+                left: barrierX - canvas.width * 0.28 - marginX,
+                top: barrierTop - marginY,
+                width: canvas.width * 0.72 + marginX * 1.6,
+                height: barrierHeight + marginY * 2
+            };
+        }
+
+        function drawDetectorPanel(x, y, width, height, depth, label, color) {
+            const front = [
+                { x, y },
+                { x: x + width, y },
+                { x: x + width, y: y + height },
+                { x, y: y + height }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(40, 70, 90, 0.65)', 'rgba(120, 220, 255, 0.18)');
+            fillAndStrokePolygon(front, color, 'rgba(255, 255, 255, 0.18)');
+
+            ctx.fillStyle = '#d8f9ff';
+            ctx.font = '11px Arial';
+            ctx.fillText(label, x + 6, y + height / 2 + 4);
+        }
+
+        function drawChamberShell() {
+            const chamber = getChamberRect();
+            const depth = 0.92;
+            const front = [
+                { x: chamber.left, y: chamber.top },
+                { x: chamber.left + chamber.width, y: chamber.top },
+                { x: chamber.left + chamber.width, y: chamber.top + chamber.height },
+                { x: chamber.left, y: chamber.top + chamber.height }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(8, 24, 40, 0.75)', 'rgba(129, 220, 255, 0.18)', 1.2);
+
+            fillAndStrokePolygon(
+                [front[0], front[1], back[1], back[0]],
+                'rgba(24, 45, 66, 0.42)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[1], front[2], back[2], back[1]],
+                'rgba(14, 32, 48, 0.45)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[0], front[3], back[3], back[0]],
+                'rgba(18, 36, 54, 0.38)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+            fillAndStrokePolygon(
+                [front[3], front[2], back[2], back[3]],
+                'rgba(10, 25, 36, 0.45)',
+                'rgba(120, 220, 255, 0.15)'
+            );
+
+            const frontGradient = ctx.createLinearGradient(chamber.left, chamber.top, chamber.left + chamber.width, chamber.top + chamber.height);
+            frontGradient.addColorStop(0, 'rgba(120, 220, 255, 0.16)');
+            frontGradient.addColorStop(1, 'rgba(0, 0, 0, 0.08)');
+            fillAndStrokePolygon(front, frontGradient, 'rgba(170, 235, 255, 0.3)', 1.5);
+        }
+
+        function drawScene() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawChamberShell();
+            drawMagneticField();
+            drawBeamSource();
+            if (visualizationMode === 'waves') {
+                drawWaveVisualization();
+            } else {
+                drawParticles();
+            }
+            drawDetectorReadout();
+        }
+        
+        function drawBeamSource() {
+            const sourceMarker = projectPoint(sourceX, sourceY, 0.1);
+
+            ctx.strokeStyle = 'rgba(255, 220, 150, 0.35)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(sourceMarker.x, sourceMarker.y, 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255, 220, 150, 0.18)';
+            ctx.beginPath();
+            ctx.arc(sourceMarker.x, sourceMarker.y, 18, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const aperture = sourceMarker;
+            ctx.fillStyle = '#fff5d0';
+            ctx.beginPath();
+            ctx.arc(aperture.x, aperture.y, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffe3a6';
+            ctx.font = '12px Arial';
+            const labelPoint = projectPoint(sourceX - 28, sourceY - 26, 0.22);
+            ctx.fillText('Fonte', labelPoint.x, labelPoint.y);
+        }
+        
+        function drawMagneticField() {
+            const depth = 0.72;
+            const front = [
+                { x: barrierX, y: barrierTop },
+                { x: barrierX + barrierWidth, y: barrierTop },
+                { x: barrierX + barrierWidth, y: barrierTop + barrierHeight },
+                { x: barrierX, y: barrierTop + barrierHeight }
+            ];
+            const back = front.map(function(point) {
+                return projectPoint(point.x, point.y, depth);
+            });
+
+            fillAndStrokePolygon(back, 'rgba(20, 74, 86, 0.4)', 'rgba(0, 255, 255, 0.18)');
+            fillAndStrokePolygon([front[0], front[1], back[1], back[0]], 'rgba(28, 120, 138, 0.18)', 'rgba(0, 255, 255, 0.16)');
+            fillAndStrokePolygon([front[1], front[2], back[2], back[1]], 'rgba(18, 100, 116, 0.16)', 'rgba(0, 255, 255, 0.16)');
+            fillAndStrokePolygon([front[3], front[2], back[2], back[3]], 'rgba(16, 86, 98, 0.16)', 'rgba(0, 255, 255, 0.16)');
+
+            const fieldGradient = ctx.createLinearGradient(barrierX, barrierTop, barrierX + barrierWidth, barrierTop + barrierHeight);
+            fieldGradient.addColorStop(0, 'rgba(143, 211, 255, 0.12)');
+            fieldGradient.addColorStop(0.5, 'rgba(143, 211, 255, 0.24)');
+            fieldGradient.addColorStop(1, 'rgba(0, 90, 110, 0.04)');
+            fillAndStrokePolygon(front, fieldGradient, 'rgba(0, 255, 255, 0.36)', 1.2);
+
+            const labelPoint = projectPoint(barrierX + barrierWidth * 0.5, barrierTop - 12, 0.34);
+            ctx.fillStyle = '#9bf1ff';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('U', labelPoint.x, labelPoint.y);
+        }
+        
+        function drawAxis() {
+            const chamber = getChamberRect();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i <= 5; i++) {
+                const ratio = i / 5;
+                const frontStart = { x: chamber.left + chamber.width * ratio, y: chamber.top };
+                const frontEnd = { x: chamber.left + chamber.width * ratio, y: chamber.top + chamber.height };
+                const backStart = projectPoint(frontStart.x, frontStart.y, 0.88);
+                const backEnd = projectPoint(frontEnd.x, frontEnd.y, 0.88);
+
+                ctx.beginPath();
+                ctx.moveTo(frontStart.x, frontStart.y);
+                ctx.lineTo(backStart.x, backStart.y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(frontEnd.x, frontEnd.y);
+                ctx.lineTo(backEnd.x, backEnd.y);
+                ctx.stroke();
+            }
+
+            for (let i = 0; i <= 4; i++) {
+                const ratio = i / 4;
+                const y = chamber.top + chamber.height * ratio;
+                const frontLeftPoint = { x: chamber.left, y };
+                const frontRightPoint = { x: chamber.left + chamber.width, y };
+                const backLeftPoint = projectPoint(frontLeftPoint.x, frontLeftPoint.y, 0.88);
+                const backRightPoint = projectPoint(frontRightPoint.x, frontRightPoint.y, 0.88);
+
+                ctx.beginPath();
+                ctx.moveTo(frontLeftPoint.x, frontLeftPoint.y);
+                ctx.lineTo(frontRightPoint.x, frontRightPoint.y);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(backLeftPoint.x, backLeftPoint.y);
+                ctx.lineTo(backRightPoint.x, backRightPoint.y);
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = 'rgba(255, 214, 120, 0.26)';
+            ctx.lineWidth = 1.5;
+            const guideStart = projectPoint(sourceX, sourceY, 0.1);
+            ctx.beginPath();
+            ctx.moveTo(guideStart.x, guideStart.y);
+            const centerGuide = projectPoint(barrierX + barrierWidth + canvas.width * 0.2, sourceY, 0.58);
+            ctx.lineTo(centerGuide.x, centerGuide.y);
+            ctx.stroke();
+        }
+        
+        function drawParticles() {
+            drawAxis();
+            packets.forEach(packet => {
+                if (packet.trail && packet.trail.length > 1) {
+                    ctx.beginPath();
+                    packet.trail.forEach(function(point, index) {
+                        const projected = projectPoint(point.x, point.y, point.depth || 0);
+                        if (index === 0) ctx.moveTo(projected.x, projected.y);
+                        else ctx.lineTo(projected.x, projected.y);
+                    });
+                    ctx.strokeStyle = packet.color + '99';
+                    ctx.lineWidth = 2;
+                    ctx.shadowColor = packet.color;
+                    ctx.shadowBlur = 8;
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+                }
+
+                if (packet.active || packet.detected) {
+                    drawParticle(packet.x, packet.y, packet.color, packet.depth || 0, packet.detected);
+                }
+            });
+        }
+
+        function drawWaveVisualization() {
+            drawAxis();
+
+            const centerY = sourceY;
+            const incidentAmplitude = 18;
+            const reflectedAmplitude = incidentAmplitude * Math.sqrt(reflectionProbability);
+            const transmittedAmplitude = incidentAmplitude * Math.sqrt(transmissionProbability);
+            const insideStartAmplitude = Math.max(10, incidentAmplitude * 0.92);
+            const insideEndAmplitude = Math.max(3, transmittedAmplitude + 2);
+
+            drawWaveSegment(sourceX, barrierX, centerY, incidentAmplitude, '#ffd166', wavePhase * 1.35, 32, 0.16, 1);
+            drawWaveSegment(sourceX, barrierX, centerY + 18, reflectedAmplitude, '#ff8b8b', -wavePhase * 1.1, 32, 0.18, -1);
+            drawWaveBarrierSegment(barrierX, barrierX + barrierWidth, centerY, insideStartAmplitude, insideEndAmplitude, '#9be9ff', wavePhase * 0.8, 26);
+            drawWaveSegment(barrierX + barrierWidth, detectorX, centerY - 14, transmittedAmplitude, '#73f0c5', wavePhase * 1.2, 30, 0.2, 1);
+
+            const sourceLabel = projectPoint(sourceX + 30, centerY - 52, 0.12);
+            const reflectedLabel = projectPoint(sourceX + 42, centerY + 58, 0.18);
+            const insideLabel = projectPoint(barrierX + barrierWidth * 0.24, centerY - 48, 0.26);
+            const transmittedLabel = projectPoint(barrierX + barrierWidth + 48, centerY - 54, 0.24);
+
+            ctx.fillStyle = '#fff0c0';
+            ctx.font = '12px Arial';
+            ctx.fillText('Onda incidente', sourceLabel.x, sourceLabel.y);
+            ctx.fillStyle = '#ffc8c8';
+            ctx.fillText('Onda refletida', reflectedLabel.x, reflectedLabel.y);
+            ctx.fillStyle = '#a7ecff';
+            ctx.fillText('Decaimento na barreira', insideLabel.x, insideLabel.y);
+            ctx.fillStyle = '#b8ffe8';
+            ctx.fillText('Onda transmitida', transmittedLabel.x, transmittedLabel.y);
+        }
+
+        function drawWaveSegment(startX, endX, baseY, amplitude, color, phase, wavelengthPx, depthBase, direction) {
+            if (endX <= startX || amplitude <= 0.1) return;
+
+            const maxDepth = Math.min(0.82, depthBase + 0.32);
+            const step = 6;
+
+            ctx.beginPath();
+            for (let x = startX; x <= endX; x += step) {
+                const progress = (x - startX) / Math.max(endX - startX, 1);
+                const depth = depthBase + (maxDepth - depthBase) * progress;
+                const phaseOffset = direction * ((x - startX) / wavelengthPx) * Math.PI * 2;
+                const y = baseY + amplitude * Math.sin(phaseOffset + phase);
+                const point = projectPoint(x, y, depth);
+
+                if (x === startX) ctx.moveTo(point.x, point.y);
+                else ctx.lineTo(point.x, point.y);
+            }
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.8;
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 12;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        function drawWaveBarrierSegment(startX, endX, baseY, startAmplitude, endAmplitude, color, phase, wavelengthPx) {
+            if (endX <= startX) return;
+
+            const step = 6;
+            ctx.beginPath();
+
+            for (let x = startX; x <= endX; x += step) {
+                const progress = (x - startX) / Math.max(endX - startX, 1);
+                const envelope = startAmplitude * Math.pow(endAmplitude / Math.max(startAmplitude, 0.01), progress);
+                const y = baseY + envelope * Math.sin(((x - startX) / wavelengthPx) * Math.PI * 2 + phase);
+                const point = projectPoint(x, y, 0.22 + progress * 0.22);
+
+                if (x === startX) ctx.moveTo(point.x, point.y);
+                else ctx.lineTo(point.x, point.y);
+            }
+
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2.4;
+            ctx.setLineDash([10, 8]);
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            ctx.setLineDash([]);
+        }
+        
+        function drawParticle(x, y, color = '#ff0000', depth = 0, detected = false) {
+            const projectedPoint = projectPoint(x, y, depth);
+            const particleRadius = detected ? 7 : 5 + depth * 2.4;
+
+            ctx.shadowColor = color;
+            ctx.shadowBlur = detected ? 14 : 10;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(projectedPoint.x, projectedPoint.y, particleRadius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(projectedPoint.x, projectedPoint.y, Math.max(2, particleRadius * 0.35), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function updateSimulation() {
+            if (!isRunning) return;
+
+            wavePhase += 0.12;
+            detectorFlash *= 0.96;
+
+            if (visualizationMode === 'waves') {
+                detectorFlash = Math.max(
+                    detectorFlash,
+                    transmissionProbability * (0.2 + 0.35 * (Math.sin(wavePhase * 1.4) + 1))
+                );
+                return;
+            }
+
+            packets.forEach(packet => {
+                if (!packet.active || packet.detected) return;
+
+                packet.simulationTime += 0.016;
+                packet.x += packet.velocity * 4;
+                packet.depth = Math.min(0.82, 0.12 + ((packet.x - sourceX) / (canvas.width - sourceX)) * 0.5);
+
+                if (packet.transmitted === null && packet.x >= barrierX) {
+                    packet.transmitted = Math.random() < transmissionProbability;
+                    packet.color = packet.transmitted ? '#73f0c5' : '#ff8b8b';
+                    if (!packet.transmitted) {
+                        packet.velocity = -(2.1 + reflectionProbability * 1.8);
+                        packet.y = sourceY + 14;
+                    } else {
+                        packet.velocity = 2.8 + transmissionProbability * 2.4;
+                        packet.y = sourceY - 10;
+                    }
+                }
+
+                packet.trail.push({ x: packet.x, y: packet.y, depth: packet.depth });
+                if (packet.trail.length > 30) {
+                    packet.trail.shift();
+                }
+
+                if (packet.transmitted && packet.x >= detectorX) {
+                    packet.active = false;
+                    packet.detected = true;
+                    sampleTransmittedCount++;
+                    detectorFlash = 1;
+                    statusIndicator.innerHTML = `Pacote ${packet.id} atravessou a barreira. Probabilidade prevista: ${formatNumber(transmissionProbability * 100)}%.`;
+                    statusIndicator.style.background = 'rgba(0, 255, 0, 0.28)';
+                }
+
+                if (packet.transmitted === false && packet.x <= sourceX - 20) {
+                    packet.active = false;
+                    packet.detected = true;
+                    statusIndicator.innerHTML = `Pacote ${packet.id} foi refletido. Reflexão prevista: ${formatNumber(reflectionProbability * 100)}%.`;
+                    statusIndicator.style.background = 'rgba(255, 80, 80, 0.26)';
+                }
+            });
+
+            const allInactive = packets.length > 0 && packets.every(p => !p.active);
+            if (allInactive) {
+                isRunning = false;
+                statusIndicator.textContent = 'Todos os pacotes desta rodada já foram detectados ou refletidos';
+                statusIndicator.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+        }
+        
+        function animate() {
+            updateSimulation();
+            drawScene();
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function drawDetectorReadout() {
+            const front = projectPoint(detectorX, detectorY, 0.2);
+            const intensity = 0.16 + detectorFlash * 0.42;
+
+            ctx.fillStyle = `rgba(115, 240, 197, ${intensity})`;
+            ctx.fillRect(front.x, front.y, 20, detectorHeight);
+            ctx.strokeStyle = 'rgba(219,255,243,0.88)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(front.x, front.y, 20, detectorHeight);
+
+            ctx.fillStyle = '#dffff2';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('Detector', front.x - 8, front.y - 12);
+            ctx.fillText(`I=${formatNumber(detectorCurrent)}`, front.x - 12, front.y + detectorHeight + 18);
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+
+        function generatePercentOptions(correctPercent) {
+            const options = [`${formatNumber(correctPercent)} %`];
+
+            while (options.length < 5) {
+                const variation = correctPercent + (Math.random() * 36 - 18);
+                const clampedVariation = clamp(variation, 0, 100);
+                const formatted = `${formatNumber(clampedVariation)} %`;
+                if (!options.includes(formatted)) {
+                    options.push(formatted);
+                }
+            }
+
+            return shuffleArray(options);
+        }
+
+        function buildRandomScenario(contextKey) {
+            const selectedContext = contexts[contextKey];
+            const localEnergy = Number((Math.random() * 3.6 + 0.5).toFixed(2));
+            const localBarrier = Number((localEnergy + Math.random() * 3 + 0.5).toFixed(2));
+            const localWidth = Number((Math.random() * 1.1 + 0.35).toFixed(2));
+            const localField = Number((Math.random() * 4.5).toFixed(2));
+            const localEffectiveBarrier = Math.max(0.02, localBarrier - 0.18 * localField);
+            const localTransmission = calculateTransmissionProbability(localEnergy, localEffectiveBarrier, localWidth, selectedContext.mass) * 100;
+
+            return {
+                context: selectedContext,
+                energy: localEnergy,
+                barrier: localBarrier,
+                width: localWidth,
+                field: localField,
+                effectiveBarrier: localEffectiveBarrier,
+                transmission: localTransmission
+            };
+        }
+
+        function generateRankingOptions(correctRanking) {
+            const variants = [
+                'A > B > C',
+                'A > C > B',
+                'B > A > C',
+                'B > C > A',
+                'C > A > B',
+                'C > B > A'
+            ].filter(function(option) {
+                return option !== correctRanking;
+            });
+
+            return shuffleArray([correctRanking].concat(shuffleArray(variants).slice(0, 3)));
+        }
+
+        function createExerciseByType(type) {
+            if (type === 'calcular_transmissao') {
+                const contextKeys = Object.keys(contexts);
+                const selectedContextKey = contextKeys[Math.floor(Math.random() * contextKeys.length)];
+                const scenario = buildRandomScenario(selectedContextKey);
+
+                return {
+                    type,
+                    question: `No contexto ${scenario.context.label}, uma partícula tem energia E=${formatNumber(scenario.energy)} eV, a barreira nominal vale ${formatNumber(scenario.barrier)} eV, a largura é ${formatNumber(scenario.width)} nm e o campo externo é ${formatNumber(scenario.field)} MV/m. A barreira efetiva fica em aproximadamente ${formatNumber(scenario.effectiveBarrier)} eV. Qual é a melhor estimativa para a probabilidade de transmissão?`,
+                    answer: `${formatNumber(scenario.transmission)} %`,
+                    options: generatePercentOptions(scenario.transmission)
+                };
+            }
+
+            if (type === 'efeito_largura') {
+                return {
+                    type,
+                    question: 'Se a energia da partícula e a altura da barreira permanecem fixas, mas a largura da barreira dobra, o que tende a acontecer com a transmissão?',
+                    answer: 'A transmissão diminui bastante.',
+                    options: shuffleArray([
+                        'A transmissão diminui bastante.',
+                        'A transmissão aumenta bastante.',
+                        'Nada muda na transmissão.',
+                        'Só a reflexão muda, a transmissão não.'
+                    ])
+                };
+            }
+
+            if (type === 'efeito_campo') {
+                return {
+                    type,
+                    question: 'Quando o campo elétrico externo aumenta e reduz a barreira efetiva, o que tende a acontecer com a probabilidade de tunelamento?',
+                    answer: 'A probabilidade de transmissão tende a aumentar.',
+                    options: shuffleArray([
+                        'A probabilidade de transmissão tende a aumentar.',
+                        'A probabilidade de transmissão tende a zerar.',
+                        'A probabilidade de transmissão fica obrigatoriamente em 50%.',
+                        'O campo externo não interfere na barreira.'
+                    ])
+                };
+            }
+
+            if (type === 'nobel_2025') {
+                return {
+                    type,
+                    question: 'Qual contexto experimental da simulação conversa mais diretamente com o Nobel de Física de 2025?',
+                    answer: 'Junção Josephson.',
+                    options: shuffleArray([
+                        'Junção Josephson.',
+                        'Campo magnético de um espectrômetro.',
+                        'Óptica geométrica de espelhos.',
+                        'Movimento circular uniforme clássico.'
+                    ])
+                };
+            }
+
+            if (type === 'efeito_energia') {
+                return {
+                    type,
+                    question: 'Se a energia da partícula aumenta, mas ainda permanece menor que a barreira efetiva, qual combinação de efeitos é a mais coerente com a simulação?',
+                    answer: 'A transmissão tende a aumentar e o comprimento de onda de de Broglie tende a diminuir.',
+                    options: shuffleArray([
+                        'A transmissão tende a aumentar e o comprimento de onda de de Broglie tende a diminuir.',
+                        'A transmissão tende a diminuir e o comprimento de onda de de Broglie tende a aumentar.',
+                        'A transmissão fica igual e o comprimento de onda não muda.',
+                        'A transmissão zera e o comprimento de onda se torna infinito.'
+                    ])
+                };
+            }
+
+            if (type === 'comparar_contextos') {
+                const localEnergy = Number((Math.random() * 2.4 + 0.6).toFixed(2));
+                const localEffectiveBarrier = Number((localEnergy + Math.random() * 2.2 + 0.5).toFixed(2));
+                const localWidth = Number((Math.random() * 0.9 + 0.4).toFixed(2));
+
+                return {
+                    type,
+                    question: `Considere a mesma energia E=${formatNumber(localEnergy)} eV, a mesma barreira efetiva U=${formatNumber(localEffectiveBarrier)} eV e a mesma largura ${formatNumber(localWidth)} nm em dois contextos: Microscópio de Tunelamento e Junção Josephson. Em qual contexto a transmissão tende a ser maior?`,
+                    answer: 'No Microscópio de Tunelamento, porque a massa efetiva considerada é menor.',
+                    options: shuffleArray([
+                        'No Microscópio de Tunelamento, porque a massa efetiva considerada é menor.',
+                        'Na Junção Josephson, porque qualquer partícula mais massiva atravessa com mais facilidade.',
+                        'Nos dois contextos a transmissão é obrigatoriamente igual.',
+                        'Na Junção Josephson, porque o Nobel de 2025 garante maior transmissão.'
+                    ])
+                };
+            }
+
+            if (type === 'ordenar_cenarios') {
+                const contextKeys = Object.keys(contexts);
+                const selectedContextKey = contextKeys[Math.floor(Math.random() * contextKeys.length)];
+                const baseScenario = buildRandomScenario(selectedContextKey);
+                const scenarioA = {
+                    label: 'A',
+                    transmission: calculateTransmissionProbability(
+                        baseScenario.energy,
+                        baseScenario.effectiveBarrier,
+                        baseScenario.width,
+                        baseScenario.context.mass
+                    )
+                };
+                const scenarioB = {
+                    label: 'B',
+                    transmission: calculateTransmissionProbability(
+                        baseScenario.energy,
+                        baseScenario.effectiveBarrier,
+                        Number((baseScenario.width + 0.35).toFixed(2)),
+                        baseScenario.context.mass
+                    )
+                };
+                const boostedEnergy = Number((baseScenario.energy + 0.7).toFixed(2));
+                const boostedBarrier = Math.max(0.02, Number((baseScenario.effectiveBarrier - 0.45).toFixed(2)));
+                const boostedWidth = Math.max(0.15, Number((baseScenario.width - 0.12).toFixed(2)));
+                const scenarioC = {
+                    label: 'C',
+                    transmission: calculateTransmissionProbability(
+                        boostedEnergy,
+                        boostedBarrier,
+                        boostedWidth,
+                        baseScenario.context.mass
+                    )
+                };
+                const ranking = [scenarioA, scenarioB, scenarioC]
+                    .sort(function(first, second) {
+                        return second.transmission - first.transmission;
+                    })
+                    .map(function(item) {
+                        return item.label;
+                    })
+                    .join(' > ');
+
+                return {
+                    type,
+                    question: `No contexto ${baseScenario.context.label}, compare três situações. A: valores de referência da tela. B: mesma energia e mesma barreira efetiva, mas largura ${formatNumber(baseScenario.width + 0.35)} nm. C: energia ${formatNumber(boostedEnergy)} eV, barreira efetiva ${formatNumber(boostedBarrier)} eV e largura ${formatNumber(boostedWidth)} nm. Qual ordenação da maior para a menor probabilidade de transmissão é a mais provável?`,
+                    answer: ranking,
+                    options: generateRankingOptions(ranking)
+                };
+            }
+
+            if (type === 'corrente_detector') {
+                return {
+                    type,
+                    question: 'Na simulação, a corrente relativa no detector serve como pista experimental do tunelamento. Se a transmissão aumenta mantendo o restante do contexto fixo, o que se espera para a leitura do detector?',
+                    answer: 'A leitura tende a aumentar, porque mais partículas atravessam a barreira.',
+                    options: shuffleArray([
+                        'A leitura tende a aumentar, porque mais partículas atravessam a barreira.',
+                        'A leitura tende a diminuir, porque o detector mede apenas reflexão.',
+                        'A leitura permanece exatamente nula em qualquer caso de tunelamento.',
+                        'A leitura só aumenta se a energia superar a barreira nominal de forma clássica.'
+                    ])
+                };
+            }
+
+            return {
+                type: 'classico_quantico',
+                question: 'Se E < U, qual alternativa descreve corretamente a diferença entre a física clássica e a mecânica quântica?',
+                answer: 'Na clássica há bloqueio total; na quântica ainda pode haver transmissão.',
+                options: shuffleArray([
+                    'Na clássica há bloqueio total; na quântica ainda pode haver transmissão.',
+                    'Na clássica e na quântica a transmissão é sempre total.',
+                    'Na clássica e na quântica a reflexão é sempre zero.',
+                    'Na quântica a partícula sempre atravessa toda a barreira.'
+                ])
+            };
+        }
+
+        // Gerar exercícios sobre Tunelamento Quântico
+        function generateExercises() {
+            exercises = [];
+
+            const types = [
+                'calcular_transmissao',
+                'efeito_largura',
+                'efeito_campo',
+                'nobel_2025',
+                'classico_quantico',
+                'efeito_energia',
+                'comparar_contextos',
+                'ordenar_cenarios',
+                'corrente_detector'
+            ];
+
+            exercises = shuffleArray(types).slice(0, 7).map(function(type) {
+                return createExerciseByType(type);
+            });
+        }
+        
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            
+            // Formatar o valor correto
+            let formattedCorrectValue = formatScientific(correctValue) + (unit ? ' ' + unit : '');
+            
+            options.push(formattedCorrectValue);
+            
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                // Garantir que as opções sejam diferentes
+                do {
+                    // Usar variações mais diversificadas
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        // Multiplicador aleatório
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        // Divisor aleatório
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        // Soma/subtração de porcentagem
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    // Garantir que o valor seja positivo para grandezas físicas
+                    if (unit === 'C/kg' || unit === 'm') {
+                        optionValue = Math.abs(optionValue);
+                    }
+                    
+                    formattedOption = formatScientific(optionValue) + (unit ? ' ' + unit : '');
+                    
+                    unique = !options.includes(formattedOption);
+                } while (!unique);
+                
+                options.push(formattedOption);
+            }
+            
+            // Embaralhar opções
+            return shuffleArray(options);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise(selectedValue = null) {
+            if (!exercises.length || !exercises[currentExercise]) return;
+
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-index="${index}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            container.onclick = function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    saveExerciseState();
+                }
+            };
+
+            if (selectedValue) {
+                const optionToRestore = Array.from(container.querySelectorAll('.option')).find(function(option) {
+                    return option.textContent.trim() === selectedValue;
+                });
+
+                if (optionToRestore) optionToRestore.classList.add('selected');
+            }
+            
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            updateProgressBar();
+            saveExerciseState();
+        }
+        
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            // Desabilitar opções
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.textContent.trim() === exercises[currentExercise].answer;
+
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+
+                // Registrar resultado
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                saveExerciseState();
+
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="enhancer-correct-answer">Resposta correta: ${exercises[currentExercise].answer}</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+
+                saveExerciseState();
+            }
+        }
+        
+        function generateNewExerciseOfSameType() {
+            const previousExercise = exercises[currentExercise];
+            const previousSignature = previousExercise ? JSON.stringify({
+                question: previousExercise.question,
+                answer: previousExercise.answer
+            }) : '';
+            const currentType = exercises[currentExercise].type;
+            let attempts = 0;
+
+            do {
+                attempts++;
+
+                exercises[currentExercise] = createExerciseByType(currentType);
+            } while (attempts < 8 && previousSignature && previousSignature === JSON.stringify({
+                question: exercises[currentExercise].question,
+                answer: exercises[currentExercise].answer
+            }));
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                saveExerciseState();
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            saveExerciseState();
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
+            
+            for (let i = 0; i < exercises.length; i++) {
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.textContent = i + 1;
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+                
+                progressBar.appendChild(progressItem);
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+
+            const conclusionField = document.getElementById('conclusionText');
+            conclusionField.value = conclusionTextSaved || conclusionField.value;
+
+            const submitButton = document.getElementById('submitConclusion');
+            const newSubmitButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+            newSubmitButton.addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                conclusionTextSaved = conclusionText;
+                showResults(conclusionText);
+            });
+
+            saveExerciseState();
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+
+            const sendResultsButton = document.getElementById('sendResults');
+            const newSendResultsButton = sendResultsButton.cloneNode(true);
+            sendResultsButton.parentNode.replaceChild(newSendResultsButton, sendResultsButton);
+            newSendResultsButton.addEventListener('click', sendResultsToSheet);
+
+            saveExerciseState();
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
+            const studentName = getResolvedSimulationStudentName();
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentTrail = document.getElementById('studentTrail').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const schoolTerm = document.getElementById('schoolTerm').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !schoolTerm || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            if (document.getElementById('studentNameSelect').value === '__OTHER__' && !document.getElementById('studentNameManual').value.trim()) {
+                alert('Digite o nome completo quando ele não estiver na lista.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            const aiAnalysis = analyzeConclusionWithLocalAi(finalConclusion);
+            const finalScore = calculateCompositeSimulationScore(scorePercentage, aiAnalysis.finalScore);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando para banco principal, backup e planilha de notas...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const primaryPayload = buildUnifiedSimulationPayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentTrail,
+                studentEmail,
+                schoolTerm,
+                criticism,
+                suggestion,
+                finalConclusion,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                aiAnalysis,
+                finalScore
+            );
+            const backupPayload = buildLegacyBackupPayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentEmail,
+                schoolTerm,
+                criticism,
+                suggestion,
+                finalConclusion,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                aiAnalysis,
+                finalScore
+            );
+            const termPayload = buildTermGradePayload(
+                studentName,
+                studentGrade,
+                studentClass,
+                studentTrail,
+                studentEmail,
+                schoolTerm,
+                scorePercentage,
+                correctAnswers,
+                totalExercises,
+                finalConclusion,
+                aiAnalysis,
+                finalScore
+            );
+
+            Promise.allSettled([
+                postJsonNoCors(PRIMARY_GRADEBOOK_URL, primaryPayload),
+                postJsonNoCors(LEGACY_BACKUP_URL, backupPayload),
+                postJsonNoCors(TERM_GRADEBOOK_URL, termPayload)
+            ])
+            .then((results) => {
+                const successfulSends = results.filter(function(result) {
+                    return result.status === 'fulfilled';
+                }).length;
+
+                if (!successfulSends) {
+                    throw new Error('Falha ao enviar para os destinos configurados.');
+                }
+
+                emailStatus.textContent = successfulSends === 3
+                    ? `Registros salvos. Nota final ${finalScore.toFixed(1)}. Enviando email...`
+                    : `Houve registro parcial. Nota final ${finalScore.toFixed(1)}. Enviando email...`;
+
+                return sendProfessorEmail(backupPayload);
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    return sendStudentCopyEmail(studentEmail, studentName, studentGrade, studentClass, scorePercentage, correctAnswers, totalExercises, finalConclusion);
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? `✅ Dados salvos e nota ${finalScore.toFixed(1)} lançada. Se o serviço de e-mail não estiver em limite, a cópia também será enviada.`
+                    : `✅ Dados salvos, nota ${finalScore.toFixed(1)} lançada e envio ao professor solicitado.`;
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    clearExerciseState();
+                    resetExerciseState();
+                    closeExercisesModal(false);
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Houve falha no envio. Se o problema persistir, retire o e-mail de cópia e peça a confirmação diretamente ao professor.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function restartExercises() {
+            if (!confirm('Deseja reiniciar os exercícios e apagar o progresso salvo desta simulação?')) {
+                return;
+            }
+
+            resetExerciseState();
+            clearExerciseState();
+            document.getElementById('emailStatus').style.display = 'none';
+            applyFormState({});
+            generateExercises();
+            showCurrentExercise();
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'flex';
+
+            const savedState = getSavedExerciseState();
+            document.getElementById('emailStatus').style.display = 'none';
+
+            if (hasResumableExerciseState(savedState)) {
+                restoreExerciseState(savedState);
+                updateExerciseResumeBadge(true);
+
+                if (savedState.view === 'results') {
+                    showResults((savedState.formState && savedState.formState.finalConclusion) || conclusionTextSaved || '');
+                    applyFormState(savedState.formState || {});
+                } else if (savedState.view === 'conclusion') {
+                    showConclusion();
+                } else {
+                    showCurrentExercise(savedState.selectedOptionValue || null);
+                }
+                return;
+            }
+
+            if (savedState) {
+                clearExerciseState();
+            }
+
+            resetExerciseState();
+            applyFormState({});
+            generateExercises();
+            showCurrentExercise();
+        }
+
+        // Fechar modal de exercícios
+        function closeExercisesModal(preserveState = true) {
+            if (preserveState && exercises.length) {
+                saveExerciseState();
+            }
+
+            document.getElementById('exercisesModal').style.display = 'none';
+            updateExerciseLauncherState();
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+            
+            // Adicionar exercícios resolvidos
+            const container = document.getElementById('solvedExercisesContainer');
+            container.innerHTML = `
+                <div class="solved-exercise">
+                    <h4>Exercício 1: Estimando a transmissão</h4>
+                    <p><strong>Problema:</strong> No contexto STM, considere E=2,0 eV, barreira efetiva U=4,0 eV e largura a=0,6 nm. Qual leitura física devemos esperar?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> Como E &lt; U, a física clássica diria bloqueio total, mas a mecânica quântica permite uma transmissão diferente de zero.</div>
+                    <div class="solution-step"><strong>Análise:</strong> A barreira não é muito estreita nem muito larga, então a transmissão não tende a ser total e também não precisa ser exatamente zero.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Esperamos uma transmissão pequena, mas mensurável, e uma reflexão predominante.</div>
+                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exercício 2: Efeito da largura</h4>
+                    <p><strong>Problema:</strong> Mantendo a energia e a altura da barreira fixas, o que acontece se a largura da barreira dobra?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> A função de onda decai dentro da barreira.</div>
+                    <div class="solution-step"><strong>Análise:</strong> Quanto maior o trecho dentro da barreira, mais intensa é a atenuação da onda.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A transmissão diminui bastante e a reflexão cresce.</div>
+                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exercício 3: Nobel de 2025 e junção Josephson</h4>
+                    <p><strong>Problema:</strong> Por que a junção Josephson aparece nesta simulação?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> O tunelamento não aparece só em partículas isoladas.</div>
+                    <div class="solution-step"><strong>Análise:</strong> Em circuitos supercondutores, estados coletivos também podem tunelar, o que foi central no Nobel de Física de 2025.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A junção Josephson liga o conteúdo escolar ao uso moderno do tunelamento em circuitos quânticos.</div>
+                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
+                </div>
+            `;
+
+            container.querySelectorAll('.audio-example-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    toggleExampleAudio(button);
+                });
+            });
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            stopExampleNarration();
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Tunelamento Quântico',
+            storageKey: 'tunelamento-quantico'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>
