@@ -1654,7 +1654,7 @@
                     closeExercisesModal();
                 }, 3000);
             })
-            .catch(err => { statusDiv.textContent = '❌ Erro ao enviar. Tente novamente.'; statusDiv.className = 'email-status error-status'; console.error(err); sendBtn.disabled = false; sendBtn.textContent = 'Enviar Resultados'; });
+            .catch(err => { statusDiv.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; statusDiv.className = 'email-status error-status'; console.error(err); sendBtn.disabled = false; sendBtn.textContent = 'Enviar Resultados'; });
     }
 
     function closeExercisesModal() {

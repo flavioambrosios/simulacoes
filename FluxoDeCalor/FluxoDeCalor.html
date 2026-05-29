@@ -1915,7 +1915,7 @@
             })
             .catch(function(error) {
                 console.error('Erro:', error);
-                emailStatus.textContent = 'Erro ao enviar. Tente novamente.';
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
                 emailStatus.className = 'email-status error-status';
                 sendButton.disabled = false;
                 sendButton.textContent = 'Enviar Resultados';

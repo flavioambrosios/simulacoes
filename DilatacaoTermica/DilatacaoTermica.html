@@ -1319,7 +1319,7 @@
                 .then(() => { statusDiv.textContent = 'Dados salvos! Enviando email...'; return fetch(emailUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(dados) }); })
                 .then(() => { if (studentEmail) { const emailAluno = {...dados, to_email: studentEmail, mensagem: `Confirmação de envio - Dilatação Térmica\nNota: ${percent}%\nAcertos: ${correct}/${total}`}; return fetch(emailUrl, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(emailAluno) }); } })
                 .then(() => { statusDiv.textContent = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!'; statusDiv.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
-                .catch(err => { statusDiv.textContent = '❌ Erro ao enviar. Tente novamente.'; statusDiv.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
+                .catch(err => { statusDiv.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; statusDiv.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
 
         function closeExercisesModal() {
