@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atividade Interativa - Física da Fotossíntese</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <style>
+        /* ===== ESTILOS COMPLETOS (mesmos do original) ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #renderer-container {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #00ff00; }
+        .green { background: #00ff00; }
+        .yellow { background: #ffcc00; }
+        .cyan { background: #00ffff; }
+        
+        .trail-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Modais e exercícios (estilos completos do original) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input, .form-row select, .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        .spectrum-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .spectrum-table th,
+        .spectrum-table td {
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+        }
+        .spectrum-table th {
+            background: rgba(255, 204, 0, 0.18);
+            color: #ffdd77;
+        }
+        .spectrum-table td {
+            color: #f3f3f3;
+        }
+        .theory-note {
+            padding: 12px;
+            border-left: 4px solid #ffcc00;
+            background: rgba(255, 204, 0, 0.08);
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        /* Painel de controle de áudio */
+        .audio-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 12px 18px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            z-index: 2000;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #ffcc00;
+        }
+        .audio-controls button {
+            background: #ffcc00;
+            color: #000;
+            font-size: 1.2rem;
+            padding: 6px 12px;
+            border-radius: 30px;
+            margin: 0;
+        }
+        .audio-controls button:hover {
+            background: #ffdd55;
+        }
+        .audio-controls span {
+            color: #ffcc00;
+            font-weight: bold;
+            margin-left: 5px;
+            line-height: 36px;
+        }
+        
+        /* Botão reiniciar dentro do modal */
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Atividade Interativa - Física da Fotossíntese</h1>
+        <p class="subtitle">Prof. Flávio Ambrósio</p>
+    </header>
+    <div class="content">
+        <div class="simulation-panel">
+            <h2 class="panel-title">Simulação 3D - Radiação Solar, Clorofila e Formação de Glicose</h2>
+            <div class="simulation-container">
+                <div id="renderer-container"></div>
+            </div>
+            <div class="visualization-toggle">
+                <button id="startBtn">Iniciar</button>
+                <button id="pauseBtn">Pausar</button>
+                <button id="resetBtn">Reiniciar</button>
+                <button id="helpBtn">Ajuda</button>
+            </div>
+            <div class="trail-controls">
+                <label for="photonToggle">Mostrar fluxo de fótons:</label>
+                <input type="checkbox" id="photonToggle" checked>
+            </div>
+        </div>
+        <div class="controls-panel">
+            <h2 class="panel-title">Controles</h2>
+            <div class="control-group">
+                <label for="pigmentSelect">Pigmento predominante:</label>
+                <select id="pigmentSelect">
+                    <option value="chlorophyllA">Clorofila a</option>
+                    <option value="chlorophyllB">Clorofila b</option>
+                    <option value="carotenoids">Carotenoides</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="wavelengthInput">Comprimento de onda da luz:</label>
+                <input type="range" id="wavelengthInput" min="400" max="700" value="680" step="5">
+                <div class="value-display"><span id="wavelengthValue">680</span> nm</div>
+            </div>
+            <div class="control-group">
+                <label for="intensityInput">Intensidade da radiação solar:</label>
+                <input type="range" id="intensityInput" min="200" max="1200" value="800" step="10">
+                <div class="value-display"><span id="intensityValue">800</span> W/m²</div>
+            </div>
+            <div class="control-group">
+                <label for="co2Input">Concentração de CO₂:</label>
+                <input type="range" id="co2Input" min="200" max="1000" value="420" step="10">
+                <div class="value-display"><span id="co2Value">420</span> ppm</div>
+            </div>
+            <div class="control-group">
+                <label for="waterInput">Água disponível:</label>
+                <input type="range" id="waterInput" min="10" max="100" value="85" step="1">
+                <div class="value-display"><span id="waterValue">85</span> %</div>
+            </div>
+            <div class="control-group">
+                <label>Energia do fóton:</label>
+                <div class="value-display" id="photonEnergyControl">1.82 eV</div>
+            </div>
+            <div class="control-group">
+                <label>Absorção estimada:</label>
+                <div class="value-display" id="absorptionControl">90 %</div>
+            </div>
+            <div class="formula-box">
+                <h3>Energia da radiação</h3>
+                <p>E = h · c / λ</p>
+            </div>
+            <div class="formula-box">
+                <h3>Fotossíntese global</h3>
+                <p>6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</p>
+            </div>
+            <div class="formula-box">
+                <h3>Energia química na glicose</h3>
+                <p>Energia ≈ n · 2803 kJ/mol</p>
+            </div>
+            <div class="exercise-buttons">
+                <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                <button class="exercise-btn" id="theoryBtn">Teoria</button>
+            </div>
+        </div>
+        <div class="measurement-panel">
+            <h2 class="panel-title">Medições e Resultados</h2>
+            <div class="measurement-grid">
+                <div class="measurement-item"><div class="measurement-label">Pigmento predominante</div><div class="measurement-value" id="pigmentDisplay">Clorofila a</div></div>
+                <div class="measurement-item"><div class="measurement-label">Faixa do espectro</div><div class="measurement-value" id="bandDisplay">Vermelho</div></div>
+                <div class="measurement-item"><div class="measurement-label">Comprimento de onda</div><div class="measurement-value" id="wavelengthDisplay">680 nm</div></div>
+                <div class="measurement-item"><div class="measurement-label">Energia do fóton</div><div class="measurement-value" id="photonEnergyDisplay">1.82 eV</div></div>
+                <div class="measurement-item"><div class="measurement-label">Absorção pela folha</div><div class="measurement-value" id="absorptionDisplay">90 %</div></div>
+                <div class="measurement-item"><div class="measurement-label">Taxa fotossintética relativa</div><div class="measurement-value" id="rateDisplay">74.0 %</div></div>
+                <div class="measurement-item"><div class="measurement-label">Produção estimada de glicose</div><div class="measurement-value" id="glucoseDisplay">7.40 mmol/h</div></div>
+                <div class="measurement-item"><div class="measurement-label">Energia química armazenada</div><div class="measurement-value" id="storedEnergyDisplay">20.74 kJ/h</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios sobre Fotossíntese - Luz, Absorção e Glicose</h2>
+            <div>
+                <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                <span class="close">&times;</span>
+            </div>
+        </div>
+        <div class="progress" id="progressBar">
+            <div class="progress-item" id="progress1">1</div>
+            <div class="progress-item" id="progress2">2</div>
+            <div class="progress-item" id="progress3">3</div>
+            <div class="progress-item" id="progress4">4</div>
+            <div class="progress-item" id="progress5">5</div>
+            <div class="progress-item" id="progress6">6</div>
+        </div>
+        <div id="exerciseContainer"></div>
+        <div id="conclusionContainer" style="display: none;">
+            <h3>Conclusão de Estudo</h3>
+            <p>Escreva o que você aprendeu sobre a transformação da radiação solar em energia química durante a fotossíntese.</p>
+            <textarea id="conclusionText" rows="6" placeholder="Explique com suas palavras a relação entre luz, absorção e glicose..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+            <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+        </div>
+        <div id="resultsContainer" style="display: none;">
+            <h3>Resultados dos Exercícios</h3>
+            <div id="resultsSummary"></div>
+            <h3>Enviar Resultados</h3>
+            <p>Preencha os dados abaixo para registrar sua atividade.</p>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione sua série</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione sua turma</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão sobre a atividade:</label><textarea id="finalConclusion" rows="4" required></textarea></div>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="check-btn">Enviar Resultados</button>
+            </div>
+            <br>
+            <label for="finalConclusion">Parabéns por concluir a atividade.</label>
+        </div>
+    </div>
+</div>
+
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2>Exercícios Resolvidos - Física da Fotossíntese</h2><span class="close">&times;</span></div>
+        <div id="solvedExercivesContainer">
+            <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Fórmula:</strong> E = 1240 / λ, com λ em nm</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 2: Absorção da clorofila e cor verde</h4><p><strong>Problema:</strong> Por que folhas geralmente parecem verdes quando recebem luz branca do Sol?</p><div class="solution-step"><strong>Observação física:</strong> A clorofila absorve melhor luz azul e vermelha.</div><div class="solution-step"><strong>Faixa menos absorvida:</strong> A região verde do espectro sofre menor absorção.</div><div class="solution-step"><strong>Conclusão:</strong> A luz verde é mais refletida ou transmitida pela folha e, por isso, chega aos nossos olhos.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2803 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2803 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 4: Comparação entre cenários fotossintéticos</h4><p><strong>Problema:</strong> Qual cenário tende a produzir maior taxa fotossintética? Cenário A: 450 nm, 930 W/m², 470 ppm de CO₂, 84% de água e Clorofila b. Cenário B: 540 nm, 800 W/m², 360 ppm de CO₂, 34% de água e Clorofila a.</p><div class="solution-step"><strong>Passo 1:</strong> Comparar a faixa do espectro. Em 450 nm a luz está na região azul, muito bem absorvida pela clorofila b. Em 540 nm a luz cai na região verde, em que a absorção tende a ser bem menor.</div><div class="solution-step"><strong>Passo 2:</strong> Comparar os reagentes e a intensidade. O cenário A também tem maior intensidade luminosa, mais CO₂ e muito mais água disponível.</div><div class="solution-step"><strong>Passo 3:</strong> Aplicando a lógica da simulação, o cenário A atinge taxa relativa aproximada de 74,8%, enquanto o cenário B fica em torno de 1,4%.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Cenário A</strong>.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 5: Classificação da absorção em 530 nm</h4><p><strong>Problema:</strong> Para um tecido vegetal em que predomina Clorofila a, a absorção de luz em 530 nm tende a ser classificada como: Alta, Baixa, Moderada ou Muito baixa?</p><div class="solution-step"><strong>Passo 1:</strong> Identificar a faixa espectral. O comprimento de onda de 530 nm está na região verde.</div><div class="solution-step"><strong>Passo 2:</strong> Lembrar do comportamento da clorofila a. Esse pigmento absorve melhor no azul e no vermelho, mas absorve pouco na região verde.</div><div class="solution-step"><strong>Passo 3:</strong> Na lógica numérica da simulação, 530 nm para clorofila a cai no nível mínimo de absorção estimada, cerca de 0,05.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Muito baixa</strong>.</div></div>
+        </div>
+        <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
+    </div>
+</div>
+
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Física da Fotossíntese</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="theory-content">
+            <div class="theory-section">
+                <h3>Radiação solar e espectro eletromagnético</h3>
+                <p>A luz solar é uma radiação eletromagnética composta por diferentes comprimentos de onda. Na fotossíntese, a região mais importante é a faixa visível, aproximadamente entre 400 nm e 700 nm, chamada de radiação fotossinteticamente ativa.</p>
+                <div class="theory-formula">E = h · c / λ</div>
+                <p>Quanto menor o comprimento de onda, maior a energia transportada por cada fóton.</p>
+                <ul>
+                    <li><span class="highlight">λ</span> representa o comprimento de onda.</li>
+                    <li><span class="highlight">h</span> é a constante de Planck.</li>
+                    <li><span class="highlight">c</span> é a velocidade da luz.</li>
+                </ul>
+                <table class="spectrum-table">
+                    <thead>
+                        <tr>
+                            <th>Comprimento de onda</th>
+                            <th>Cor</th>
+                            <th>Leitura física</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>400 a 450 nm</td>
+                            <td>Violeta-azul</td>
+                            <td>Maior energia por fóton na faixa visível</td>
+                        </tr>
+                        <tr>
+                            <td>450 a 495 nm</td>
+                            <td>Azul</td>
+                            <td>Faixa muito relevante para absorção por clorofilas</td>
+                        </tr>
+                        <tr>
+                            <td>495 a 570 nm</td>
+                            <td>Verde</td>
+                            <td>Região geralmente menos absorvida por folhas verdes</td>
+                        </tr>
+                        <tr>
+                            <td>570 a 590 nm</td>
+                            <td>Amarelo</td>
+                            <td>Faixa intermediária de absorção</td>
+                        </tr>
+                        <tr>
+                            <td>590 a 620 nm</td>
+                            <td>Laranja</td>
+                            <td>Transição para a região vermelha</td>
+                        </tr>
+                        <tr>
+                            <td>620 a 700 nm</td>
+                            <td>Vermelho</td>
+                            <td>Faixa muito eficiente para fotossíntese</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="theory-section">
+                <h3>Absorção da luz pelas plantas</h3>
+                <p>As plantas não absorvem todas as cores com a mesma eficiência. Pigmentos como a clorofila a, a clorofila b e os carotenoides apresentam curvas de absorção diferentes ao longo do espectro, e isso é exatamente o que orienta a resolução das questões sobre cor, pigmento e taxa fotossintética.</p>
+                <div class="theory-formula">Absorção depende do pigmento e do comprimento de onda</div>
+                <p>Quando a luz incide sobre a folha, uma parte é absorvida, outra pode ser refletida e outra pode atravessar o tecido. A parte absorvida é a que realmente transfere energia para o sistema fotossintético. Por isso, em uma questão, pensar em fotossíntese é pensar primeiro em <span class="highlight">quanto da luz foi absorvido</span>.</p>
+                <p>De modo geral, a faixa verde é menos absorvida, por isso muitas folhas parecem verdes. Já as regiões azul e vermelha costumam apresentar maior absorção, sobretudo quando predominam clorofilas.</p>
+                <ul>
+                    <li><span class="highlight">Clorofila a</span> absorve muito bem no azul e no vermelho profundo, sendo um dos pigmentos centrais na conversão da energia luminosa.</li>
+                    <li><span class="highlight">Clorofila b</span> amplia a faixa útil de absorção e complementa a clorofila a em comprimentos de onda próximos.</li>
+                    <li><span class="highlight">Carotenoides</span> ajudam a captar fótons em regiões mais próximas do azul e também protegem o sistema contra excesso de energia.</li>
+                </ul>
+                <div class="theory-note">
+                    <strong>Regra prática para os exercícios:</strong> se a questão destacar azul ou vermelho, pense primeiro em absorção maior. Se destacar verde, pense em absorção menor e maior reflexão. Se comparar pigmentos, procure qual deles tem o pico de absorção mais próximo do comprimento de onda informado.
+                </div>
+                <p>Nas questões comparativas, não basta observar apenas a cor da luz. A produção de glicose depende de uma combinação de fatores:</p>
+                <ul>
+                    <li><span class="highlight">energia por fóton</span>, ligada ao comprimento de onda;</li>
+                    <li><span class="highlight">eficiência de absorção</span>, ligada ao pigmento predominante;</li>
+                    <li><span class="highlight">disponibilidade de água e CO₂</span>, que limita a continuidade do processo químico.</li>
+                </ul>
+                <p>Assim, uma luz muito energética não garante, sozinha, uma taxa fotossintética maior. Se o pigmento absorver pouco aquela faixa ou se faltar CO₂ e água, a produção final de glicose pode ser menor. Esse raciocínio integrado é o principal subsídio para resolver os exercícios de comparação de cenários.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Da energia luminosa à glicose</h3>
+                <p>No cloroplasto, a energia da luz é usada para transferir elétrons, formar ATP e NADPH e, depois, fixar carbono no ciclo de Calvin. O resultado global é o armazenamento de energia química na molécula de glicose.</p>
+                <div class="theory-formula">6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</div>
+                <p>A glicose funciona como uma reserva energética e matéria-prima para muitos processos metabólicos.</p>
+            </div>
+            <div class="theory-section">
+                <h3>Alimento e biocombustíveis</h3>
+                <p>A energia química armazenada na glicose pode seguir muitos caminhos: sustentar o crescimento da planta, alimentar outros seres vivos ou ser convertida em biomassa usada na produção de etanol, biodiesel e outros biocombustíveis.</p>
+                <div class="theory-formula">1 mol de glicose ≈ 2803 kJ</div>
+                <ul>
+                    <li>Na cadeia alimentar, essa energia chega aos consumidores.</li>
+                    <li>Na indústria, açúcares e biomassa podem ser fermentados ou processados.</li>
+                    <li>Na sala de aula, esse tema conecta Física, Química, Biologia e sustentabilidade.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="buttons-container">
+            <button id="closeTheory" class="check-btn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<div class="audio-controls" id="audioControls">
+    <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+    <button id="playPauseAudioBtn" title="Iniciar/Pausar">▶️ Iniciar</button>
+    <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+    <span id="trackCounter">Trecho 0/8</span>
+</div>
+
+<script>
+    let scene, camera, renderer, controls;
+    let sun, corona, leaf, stem, leafGlow, photonBeam, storageBox;
+    let photonParticles = [];
+    let glucoseParticles = [];
+    let isRunning = false;
+    let showPhotons = true;
+    let wavelength = 680;
+    let solarIntensity = 800;
+    let co2Level = 420;
+    let waterAvailability = 85;
+    let pigmentType = 'chlorophyllA';
+    let photonEnergyEv = 0;
+    let absorptionEfficiency = 0;
+    let photosynthesisRate = 0;
+    let glucoseProduction = 0;
+    let storedEnergy = 0;
+    let photonSpawnAccumulator = 0;
+    let glucoseSpawnAccumulator = 0;
+    let simulationTime = 0;
+    const leafBaseRotationX = 0.22;
+    const leafBaseRotationY = Math.PI / 2;
+    const leafBaseRotationZ = -1.18;
+
+    function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
+    function toSuperscriptExponent(exponent) {
+        const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+        return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+    }
+
+    function formatScientificWith3Digits(value, unit = '') {
+        if (value === 0) return '0.00 ' + unit;
+        if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+            const exponent = Math.floor(Math.log10(Math.abs(value)));
+            const mantissa = value / Math.pow(10, exponent);
+            const roundedMantissa = Math.round(mantissa * 100) / 100;
+            let mantissaStr = roundedMantissa.toFixed(2);
+            if (mantissaStr === '10.00') {
+                mantissaStr = '1.00';
+                return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit;
+            }
+            return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
+        }
+        const integerPart = Math.floor(Math.abs(value));
+        let decimalPlaces = integerPart === 0 ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
+        return value.toFixed(decimalPlaces) + ' ' + unit;
+    }
+
+    function formatFixed(value, unit = '', decimals = 2) {
+        return value.toFixed(decimals) + ' ' + unit;
+    }
+
+    function gaussian(x, center, width, amplitude) {
+        return amplitude * Math.exp(-Math.pow(x - center, 2) / (2 * Math.pow(width, 2)));
+    }
+
+    function getSpectrumBand(lambda) {
+        if (lambda < 450) return 'Violeta-azul';
+        if (lambda < 495) return 'Azul';
+        if (lambda < 570) return 'Verde';
+        if (lambda < 590) return 'Amarelo';
+        if (lambda < 620) return 'Laranja';
+        return 'Vermelho';
+    }
+
+    function getPigmentLabel(type) {
+        if (type === 'chlorophyllB') return 'Clorofila b';
+        if (type === 'carotenoids') return 'Carotenoides';
+        return 'Clorofila a';
+    }
+
+    function getPhotonColor(lambda) {
+        let hue;
+        if (lambda < 450) hue = 250;
+        else if (lambda < 495) hue = 215;
+        else if (lambda < 570) hue = 120;
+        else if (lambda < 590) hue = 60;
+        else if (lambda < 620) hue = 30;
+        else hue = 0;
+        return new THREE.Color(`hsl(${hue}, 100%, 55%)`);
+    }
+
+    function calculateAbsorption(lambda, pigment) {
+        let absorption = 0.10;
+        if (pigment === 'chlorophyllA') {
+            absorption += gaussian(lambda, 430, 22, 0.75);
+            absorption += gaussian(lambda, 662, 24, 0.90);
+        } else if (pigment === 'chlorophyllB') {
+            absorption += gaussian(lambda, 453, 24, 0.72);
+            absorption += gaussian(lambda, 642, 24, 0.82);
+        } else {
+            absorption += gaussian(lambda, 470, 28, 0.85);
+            absorption += gaussian(lambda, 505, 24, 0.45);
+        }
+        absorption -= gaussian(lambda, 550, 24, 0.28);
+        return clamp(absorption, 0.05, 0.98);
+    }
+
+    function calculatePhotosynthesisRate(lambda, intensity, co2, water, pigment) {
+        const absorption = calculateAbsorption(lambda, pigment);
+        const intensityFactor = clamp(intensity / 900, 0.2, 1.3);
+        const co2Factor = clamp(co2 / 420, 0.45, 1.5);
+        const waterFactor = clamp(water / 100, 0.1, 1);
+        return clamp(absorption * intensityFactor * Math.sqrt(co2Factor) * waterFactor * 100, 0, 100);
+    }
+
+    function calculateDerivedValues() {
+        photonEnergyEv = 1240 / wavelength;
+        absorptionEfficiency = calculateAbsorption(wavelength, pigmentType);
+        photosynthesisRate = calculatePhotosynthesisRate(wavelength, solarIntensity, co2Level, waterAvailability, pigmentType);
+        glucoseProduction = photosynthesisRate / 10;
+        storedEnergy = glucoseProduction * 2.803;
+    }
+
+    function initSimulation() {
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x02050f);
+
+        const container = document.getElementById('renderer-container');
+        camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.set(0, 3, 10);
+        camera.lookAt(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.minDistance = 6;
+        controls.maxDistance = 14;
+
+        const ambientLight = new THREE.AmbientLight(0x8899aa, 0.9);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.PointLight(0xffdd88, 2.2, 50);
+        sunLight.position.set(-5, 2, 0);
+        scene.add(sunLight);
+
+        const fillLight = new THREE.DirectionalLight(0xaad8ff, 0.6);
+        fillLight.position.set(3, 6, 4);
+        scene.add(fillLight);
+
+        const ground = new THREE.Mesh(
+            new THREE.CircleGeometry(5.5, 48),
+            new THREE.MeshPhongMaterial({ color: 0x112b16, transparent: true, opacity: 0.35 })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        ground.position.y = -2.2;
+        scene.add(ground);
+
+        sun = new THREE.Mesh(
+            new THREE.SphereGeometry(0.9, 32, 32),
+            new THREE.MeshPhongMaterial({ color: 0xffc74d, emissive: 0xffa300, emissiveIntensity: 0.8 })
+        );
+        sun.position.set(-5, 2, 0);
+        scene.add(sun);
+
+        corona = new THREE.Mesh(
+            new THREE.SphereGeometry(1.25, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.18 })
+        );
+        corona.position.copy(sun.position);
+        scene.add(corona);
+
+        photonBeam = new THREE.Mesh(
+            new THREE.BoxGeometry(5.8, 0.9, 1.8),
+            new THREE.MeshBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.18 })
+        );
+        photonBeam.position.set(-1.3, 1.18, 0);
+        photonBeam.rotation.z = -0.16;
+        scene.add(photonBeam);
+
+        stem = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.12, 0.18, 2.2, 24),
+            new THREE.MeshPhongMaterial({ color: 0x4d8c3a })
+        );
+        stem.position.set(2.2, -1.1, 0);
+        stem.rotation.z = -0.15;
+        scene.add(stem);
+
+        leaf = new THREE.Mesh(
+            new THREE.SphereGeometry(1.2, 40, 40),
+            new THREE.MeshPhongMaterial({ color: 0x2fa14f, shininess: 80, emissive: 0x062f14, emissiveIntensity: 0.35 })
+        );
+        leaf.scale.set(1.75, 0.18, 1.1);
+        leaf.position.set(2.2, 0.6, 0);
+        leaf.rotation.x = leafBaseRotationX;
+        leaf.rotation.y = leafBaseRotationY;
+        leaf.rotation.z = leafBaseRotationZ;
+        scene.add(leaf);
+
+        leafGlow = new THREE.Mesh(
+            new THREE.SphereGeometry(1.55, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0x74ff7a, transparent: true, opacity: 0.08 })
+        );
+        leafGlow.scale.set(1.4, 0.3, 1.2);
+        leafGlow.position.copy(leaf.position);
+        leafGlow.rotation.copy(leaf.rotation);
+        scene.add(leafGlow);
+
+        const vein = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.03, 0.05, 2.1, 12),
+            new THREE.MeshPhongMaterial({ color: 0xc7f59c })
+        );
+        vein.position.copy(leaf.position);
+        vein.rotation.x = leafBaseRotationX;
+        vein.rotation.y = leafBaseRotationY;
+        vein.rotation.z = leafBaseRotationZ;
+        scene.add(vein);
+
+        storageBox = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.9, 1.2),
+            new THREE.MeshPhongMaterial({ color: 0xd7a33d, emissive: 0x2b1600, emissiveIntensity: 0.35 })
+        );
+        storageBox.position.set(5.1, -0.8, 0);
+        scene.add(storageBox);
+
+        const storageLabel = new THREE.Mesh(
+            new THREE.BoxGeometry(1.5, 0.08, 0.4),
+            new THREE.MeshPhongMaterial({ color: 0xf2d16b })
+        );
+        storageLabel.position.set(5.1, -1.45, 0);
+        scene.add(storageLabel);
+
+        calculateDerivedValues();
+        updateSimulationAppearance();
+        updateMeasurements();
+        setupEventListeners();
+        window.addEventListener('resize', onWindowResize);
+        animate();
+    }
+
+    function updateSimulationAppearance() {
+        const photonColor = getPhotonColor(wavelength);
+        photonBeam.material.color.copy(photonColor);
+        photonBeam.material.opacity = 0.10 + (solarIntensity / 1200) * 0.18;
+        corona.material.opacity = 0.15 + (solarIntensity / 1200) * 0.18;
+        sun.material.emissive.copy(photonColor.clone().lerp(new THREE.Color(0xffb347), 0.45));
+
+        let leafColor = 0x2fa14f;
+        if (pigmentType === 'chlorophyllB') leafColor = 0x4bbd65;
+        if (pigmentType === 'carotenoids') leafColor = 0xc59d37;
+        leaf.material.color.setHex(leafColor);
+
+        const glowOpacity = 0.06 + absorptionEfficiency * 0.22;
+        leafGlow.material.opacity = glowOpacity;
+        leafGlow.material.color.copy(pigmentType === 'carotenoids' ? new THREE.Color(0xffd36e) : new THREE.Color(0x7dff8c));
+        storageBox.material.emissiveIntensity = 0.25 + glucoseProduction / 20;
+    }
+
+    function spawnPhoton() {
+        if (!showPhotons) return;
+
+        const photon = new THREE.Mesh(
+            new THREE.SphereGeometry(0.08, 14, 14),
+            new THREE.MeshBasicMaterial({ color: getPhotonColor(wavelength) })
+        );
+        photon.position.set(-4.3, 1.35 + (Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.3);
+        scene.add(photon);
+
+        photonParticles.push({
+            mesh: photon,
+            velocity: new THREE.Vector3(0.12 + solarIntensity / 16000, -0.018 + (Math.random() - 0.5) * 0.006, (Math.random() - 0.5) * 0.008),
+            processed: false,
+            reflected: false
+        });
+    }
+
+    function removePhoton(index) {
+        scene.remove(photonParticles[index].mesh);
+        photonParticles.splice(index, 1);
+    }
+
+    function spawnGlucoseParticle() {
+        const glucose = new THREE.Mesh(
+            new THREE.OctahedronGeometry(0.14, 0),
+            new THREE.MeshPhongMaterial({ color: 0xffd465, emissive: 0x8f5d00, emissiveIntensity: 0.4 })
+        );
+        glucose.position.set(2.8, 0.5 + (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
+        scene.add(glucose);
+
+        glucoseParticles.push({
+            mesh: glucose,
+            velocity: new THREE.Vector3(0.03 + Math.random() * 0.02, -0.01 + Math.random() * 0.015, (Math.random() - 0.5) * 0.01)
+        });
+    }
+
+    function updatePhotons() {
+        photonSpawnAccumulator += solarIntensity / 9000;
+        while (photonSpawnAccumulator >= 1) {
+            spawnPhoton();
+            photonSpawnAccumulator -= 1;
+        }
+
+        for (let index = photonParticles.length - 1; index >= 0; index--) {
+            const photon = photonParticles[index];
+            photon.mesh.position.add(photon.velocity);
+
+            if (photon.mesh.position.x >= 1.6 && !photon.processed) {
+                photon.processed = true;
+                if (Math.random() < absorptionEfficiency) {
+                    leafGlow.material.opacity = clamp(leafGlow.material.opacity + 0.015, 0.08, 0.35);
+                    removePhoton(index);
+                    if (Math.random() < glucoseProduction / 12) {
+                        spawnGlucoseParticle();
+                    }
+                    continue;
+                }
+
+                photon.reflected = true;
+                photon.velocity.set(0.05, 0.02 + Math.random() * 0.02, (Math.random() - 0.5) * 0.025);
+            }
+
+            if (photon.mesh.position.x > 6 || Math.abs(photon.mesh.position.y) > 4 || Math.abs(photon.mesh.position.z) > 4) {
+                removePhoton(index);
+            }
+        }
+    }
+
+    function updateGlucoseParticles() {
+        glucoseSpawnAccumulator += glucoseProduction / 520;
+        while (glucoseSpawnAccumulator >= 1) {
+            spawnGlucoseParticle();
+            glucoseSpawnAccumulator -= 1;
+        }
+
+        for (let index = glucoseParticles.length - 1; index >= 0; index--) {
+            const glucose = glucoseParticles[index];
+            glucose.mesh.position.add(glucose.velocity);
+            glucose.mesh.rotation.x += 0.03;
+            glucose.mesh.rotation.y += 0.04;
+
+            if (glucose.mesh.position.x >= 5) {
+                storageBox.material.emissiveIntensity = clamp(storageBox.material.emissiveIntensity + 0.03, 0.3, 1.2);
+                scene.remove(glucose.mesh);
+                glucoseParticles.splice(index, 1);
+            }
+        }
+
+        while (glucoseParticles.length > 35) {
+            const oldest = glucoseParticles.shift();
+            scene.remove(oldest.mesh);
+        }
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (isRunning) {
+            simulationTime += 0.016;
+            sun.rotation.y += 0.01;
+            corona.scale.setScalar(1 + 0.04 * Math.sin(simulationTime * 2));
+            leaf.rotation.x = leafBaseRotationX + 0.05 * Math.sin(simulationTime * 0.5);
+            leaf.rotation.y = leafBaseRotationY + 0.18 * Math.sin(simulationTime * 0.7);
+            leaf.rotation.z = leafBaseRotationZ + 0.04 * Math.sin(simulationTime * 0.45);
+            leafGlow.rotation.copy(leaf.rotation);
+            updatePhotons();
+            updateGlucoseParticles();
+        }
+
+        leafGlow.material.opacity = clamp(leafGlow.material.opacity * 0.995, 0.06 + absorptionEfficiency * 0.14, 0.35);
+        storageBox.material.emissiveIntensity = clamp(storageBox.material.emissiveIntensity * 0.997, 0.25 + glucoseProduction / 20, 1.2);
+
+        controls.update();
+        renderer.render(scene, camera);
+    }
+
+    function updateMeasurements() {
+        document.getElementById('wavelengthValue').innerText = wavelength;
+        document.getElementById('intensityValue').innerText = solarIntensity;
+        document.getElementById('co2Value').innerText = co2Level;
+        document.getElementById('waterValue').innerText = waterAvailability;
+        document.getElementById('photonEnergyControl').innerText = formatFixed(photonEnergyEv, 'eV', 2);
+        document.getElementById('absorptionControl').innerText = Math.round(absorptionEfficiency * 100) + ' %';
+
+        document.getElementById('pigmentDisplay').innerText = getPigmentLabel(pigmentType);
+        document.getElementById('bandDisplay').innerText = getSpectrumBand(wavelength);
+        document.getElementById('wavelengthDisplay').innerText = wavelength + ' nm';
+        document.getElementById('photonEnergyDisplay').innerText = formatFixed(photonEnergyEv, 'eV', 2);
+        document.getElementById('absorptionDisplay').innerText = Math.round(absorptionEfficiency * 100) + ' %';
+        document.getElementById('rateDisplay').innerText = formatFixed(photosynthesisRate, '%', 1);
+        document.getElementById('glucoseDisplay').innerText = formatFixed(glucoseProduction, 'mmol/h', 2);
+        document.getElementById('storedEnergyDisplay').innerText = formatFixed(storedEnergy, 'kJ/h', 2);
+    }
+
+    function refreshModel() {
+        calculateDerivedValues();
+        updateSimulationAppearance();
+        updateMeasurements();
+    }
+
+    function setupEventListeners() {
+        document.getElementById('pigmentSelect').addEventListener('change', function() {
+            pigmentType = this.value;
+            refreshModel();
+        });
+
+        document.getElementById('wavelengthInput').addEventListener('input', function() {
+            wavelength = parseFloat(this.value);
+            refreshModel();
+        });
+
+        document.getElementById('intensityInput').addEventListener('input', function() {
+            solarIntensity = parseFloat(this.value);
+            refreshModel();
+        });
+
+        document.getElementById('co2Input').addEventListener('input', function() {
+            co2Level = parseFloat(this.value);
+            refreshModel();
+        });
+
+        document.getElementById('waterInput').addEventListener('input', function() {
+            waterAvailability = parseFloat(this.value);
+            refreshModel();
+        });
+
+        document.getElementById('photonToggle').addEventListener('change', function() {
+            showPhotons = this.checked;
+            if (!showPhotons) {
+                photonParticles.forEach(particle => scene.remove(particle.mesh));
+                photonParticles = [];
+            }
+        });
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            isRunning = true;
+        });
+
+        document.getElementById('pauseBtn').addEventListener('click', function() {
+            isRunning = false;
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            isRunning = false;
+            wavelength = 680;
+            solarIntensity = 800;
+            co2Level = 420;
+            waterAvailability = 85;
+            pigmentType = 'chlorophyllA';
+            simulationTime = 0;
+            photonSpawnAccumulator = 0;
+            glucoseSpawnAccumulator = 0;
+            document.getElementById('wavelengthInput').value = wavelength;
+            document.getElementById('intensityInput').value = solarIntensity;
+            document.getElementById('co2Input').value = co2Level;
+            document.getElementById('waterInput').value = waterAvailability;
+            document.getElementById('pigmentSelect').value = pigmentType;
+
+            photonParticles.forEach(particle => scene.remove(particle.mesh));
+            photonParticles = [];
+            glucoseParticles.forEach(particle => scene.remove(particle.mesh));
+            glucoseParticles = [];
+
+            refreshModel();
+        });
+
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            alert('Use o mouse para girar a cena. Ajuste comprimento de onda, intensidade, CO₂, água e pigmento. Depois clique em Iniciar para observar o fluxo de fótons, a absorção na folha e a formação de glicose.');
+        });
+    }
+
+    function onWindowResize() {
+        const container = document.getElementById('renderer-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    const studentNameStorageKey = 'studentName-fotossintese-solar';
+    let guidedStudentName = localStorage.getItem(studentNameStorageKey);
+    if (!guidedStudentName) {
+        try {
+            guidedStudentName = prompt('🎧 Olá! Qual é o seu nome? Vou usar esse nome na narração desta atividade.');
+        } catch (error) {
+            guidedStudentName = 'estudante';
+        }
+        if (guidedStudentName) localStorage.setItem(studentNameStorageKey, guidedStudentName);
+        else guidedStudentName = 'estudante';
+    }
+
+    let selectedVoice = null;
+    let currentTrack = 0;
+    let speechSynthesis = window.speechSynthesis;
+    let speaking = false;
+
+    const tracks = [
+        `Olá, ${guidedStudentName}! Esta atividade apresenta a fotossíntese como um processo de transformação de energia. Na cena principal você observa a luz solar chegando à folha, a absorção pelos pigmentos e a formação de glicose como reserva química.`,
+        `O primeiro ponto físico importante é o espectro eletromagnético. A luz visível ocupa uma faixa pequena desse espectro, mas é justamente nela que a fotossíntese acontece com mais intensidade. Ao mover o controle de comprimento de onda, você altera a cor da radiação e a energia de cada fóton.`,
+        `Pela relação E igual a h vezes c dividido por lambda, fótons de menor comprimento de onda carregam mais energia. Isso explica por que a luz azul é mais energética que a luz vermelha. Mesmo assim, eficiência fotossintética não depende só da energia do fóton, mas também da capacidade de absorção do pigmento.`,
+        `A clorofila a e a clorofila b absorvem especialmente nas regiões azul e vermelha. Já a faixa verde é menos absorvida e tende a ser refletida. Por isso muitas folhas parecem verdes para o observador.`,
+        `Além da luz, a produção de glicose depende dos reagentes do processo. Nesta atividade, CO₂ e água aparecem como controles porque a taxa fotossintética diminui quando esses recursos ficam escassos. Observe como a combinação entre absorção e disponibilidade de reagentes muda os indicadores do painel.`,
+        `A glicose mostrada na simulação representa energia solar armazenada em ligações químicas. É isso que permite à planta crescer, alimentar outros seres vivos e fornecer biomassa para biocombustíveis como etanol e biodiesel.`,
+        `Compare situações diferentes: luz vermelha intensa com bastante água e CO₂, luz verde moderada, ou domínio de carotenoides. A ideia é relacionar cor, absorção e taxa de produção em vez de decorar frases isoladas.`,
+        `Parabéns, ${guidedStudentName}! Depois de explorar a cena, use os exercícios para transformar a observação em explicação científica. Tente sempre responder três perguntas: qual radiação chegou, quanto dela foi absorvida e onde a energia ficou armazenada. Bons estudos.`
+    ];
+
+    function loadMicrosoftDanielVoice() {
+        return new Promise((resolve) => {
+            const tryGetVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                const daniel = voices.find(voice => voice.name.includes('Microsoft Daniel') && voice.lang === 'pt-BR');
+                if (daniel) {
+                    selectedVoice = daniel;
+                    resolve(true);
+                } else {
+                    const fallback = voices.find(voice => voice.lang === 'pt-BR');
+                    if (fallback) selectedVoice = fallback;
+                    resolve(!!selectedVoice);
+                }
+            };
+
+            if (window.speechSynthesis.getVoices().length) {
+                tryGetVoice();
+            } else {
+                window.speechSynthesis.onvoiceschanged = tryGetVoice;
+            }
+        });
+    }
+
+    function speakTrack(index) {
+        if (speaking) speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(tracks[index]);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        if (selectedVoice) utterance.voice = selectedVoice;
+        utterance.onend = function() {
+            speaking = false;
+            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
+        };
+        utterance.onerror = function() {
+            speaking = false;
+        };
+        speechSynthesis.speak(utterance);
+        speaking = true;
+        document.getElementById('playPauseAudioBtn').innerHTML = '⏸️ Pausar';
+        document.getElementById('trackCounter').innerText = `Trecho ${index + 1}/${tracks.length}`;
+    }
+
+    function pauseAudio() {
+        if (speaking) {
+            speechSynthesis.cancel();
+            speaking = false;
+            document.getElementById('playPauseAudioBtn').innerHTML = '▶️ Iniciar';
+        }
+    }
+
+    function resumeAudio() {
+        if (!speaking) speakTrack(currentTrack);
+    }
+
+    function nextTrack() {
+        if (currentTrack + 1 < tracks.length) {
+            currentTrack++;
+            pauseAudio();
+            speakTrack(currentTrack);
+        } else {
+            alert('Você concluiu todos os trechos. Agora siga para os exercícios.');
+        }
+    }
+
+    function prevTrack() {
+        if (currentTrack > 0) {
+            currentTrack--;
+            pauseAudio();
+            speakTrack(currentTrack);
+        } else {
+            alert('Este é o primeiro trecho.');
+        }
+    }
+
+    document.getElementById('playPauseAudioBtn').addEventListener('click', function() {
+        if (speaking) pauseAudio();
+        else resumeAudio();
+    });
+    document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+    document.getElementById('prevTrackBtn').addEventListener('click', prevTrack);
+
+    function preloadFirstTrack() {
+        document.getElementById('trackCounter').innerText = `Trecho 1/${tracks.length}`;
+    }
+
+    loadMicrosoftDanielVoice();
+
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+    let conclusionTextSaved = '';
+
+    function resetExerciseState() {
+        exercises = [];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        conclusionTextSaved = '';
+    }
+
+    function shuffleArray(array) {
+        for (let index = array.length - 1; index > 0; index--) {
+            const swapIndex = Math.floor(Math.random() * (index + 1));
+            [array[index], array[swapIndex]] = [array[swapIndex], array[index]];
+        }
+        return array;
+    }
+
+    function generateNumericOptions(correctValue, unit, decimals) {
+        const options = [formatFixed(correctValue, unit, decimals)];
+        while (options.length < 5) {
+            const factor = 0.55 + Math.random() * 1.1;
+            const direction = Math.random() > 0.5 ? 1 : -1;
+            const candidate = Math.max(0.01, correctValue * (1 + direction * (1 - factor) * 0.7));
+            const formatted = formatFixed(candidate, unit, decimals);
+            if (!options.includes(formatted)) options.push(formatted);
+        }
+        return shuffleArray(options);
+    }
+
+    function generateTextOptions(correctOption, distractors) {
+        const options = [correctOption].concat(distractors.filter(function(option) {
+            return option !== correctOption;
+        }).slice(0, 4));
+        return shuffleArray(options);
+    }
+
+    function getAbsorptionCategory(absorption) {
+        if (absorption >= 0.7) return 'Alta';
+        if (absorption >= 0.4) return 'Moderada';
+        if (absorption >= 0.15) return 'Baixa';
+        return 'Muito baixa';
+    }
+
+    function buildEnergyExercise() {
+        const lambda = 400 + Math.floor(Math.random() * 31) * 10;
+        const energy = 1240 / lambda;
+        return {
+            type: 'energia_foton',
+            question: `Uma radiação de ${lambda} nm atinge a folha. Qual é a energia aproximada de cada fóton dessa luz?`,
+            answer: formatFixed(energy, 'eV', 2),
+            options: generateNumericOptions(energy, 'eV', 2)
+        };
+    }
+
+    function buildSpectrumExercise() {
+        const lambda = 400 + Math.floor(Math.random() * 31) * 10;
+        const band = getSpectrumBand(lambda);
+        return {
+            type: 'faixa_espectral',
+            question: `No espectro visível, a radiação de ${lambda} nm está mais próxima de qual faixa de cor?`,
+            answer: band,
+            options: generateTextOptions(band, ['Violeta-azul', 'Azul', 'Verde', 'Amarelo', 'Laranja', 'Vermelho'])
+        };
+    }
+
+    function buildPigmentExercise() {
+        const lambda = 400 + Math.floor(Math.random() * 31) * 10;
+        const pigments = ['chlorophyllA', 'chlorophyllB', 'carotenoids'];
+        const bestPigment = pigments.reduce(function(best, pigment) {
+            return calculateAbsorption(lambda, pigment) > calculateAbsorption(lambda, best) ? pigment : best;
+        }, pigments[0]);
+        return {
+            type: 'pigmento_eficiente',
+            question: `Para luz de ${lambda} nm, qual pigmento tende a absorver melhor a radiação?`,
+            answer: getPigmentLabel(bestPigment),
+            options: generateTextOptions(getPigmentLabel(bestPigment), ['Clorofila a', 'Clorofila b', 'Carotenoides', 'Todos absorvem igualmente'])
+        };
+    }
+
+    function buildAbsorptionExercise() {
+        const pigments = ['chlorophyllA', 'chlorophyllB', 'carotenoids'];
+        const pigment = pigments[Math.floor(Math.random() * pigments.length)];
+        const lambda = 400 + Math.floor(Math.random() * 31) * 10;
+        const absorption = calculateAbsorption(lambda, pigment);
+        return {
+            type: 'absorcao',
+            question: `Para um tecido vegetal em que predomina ${getPigmentLabel(pigment)}, a absorção de luz em ${lambda} nm tende a ser classificada como:`,
+            answer: getAbsorptionCategory(absorption),
+            options: shuffleArray(['Alta', 'Moderada', 'Baixa', 'Muito baixa'])
+        };
+    }
+
+    function buildRateComparisonExercise() {
+        const pigments = ['chlorophyllA', 'chlorophyllB', 'carotenoids'];
+        let scenarioA;
+        let scenarioB;
+        let rateA = 0;
+        let rateB = 0;
+        let attempts = 0;
+
+        do {
+            scenarioA = {
+                lambda: 400 + Math.floor(Math.random() * 31) * 10,
+                intensity: 300 + Math.floor(Math.random() * 71) * 10,
+                co2: 250 + Math.floor(Math.random() * 56) * 10,
+                water: 30 + Math.floor(Math.random() * 61),
+                pigment: pigments[Math.floor(Math.random() * pigments.length)]
+            };
+            scenarioB = {
+                lambda: 400 + Math.floor(Math.random() * 31) * 10,
+                intensity: 300 + Math.floor(Math.random() * 71) * 10,
+                co2: 250 + Math.floor(Math.random() * 56) * 10,
+                water: 30 + Math.floor(Math.random() * 61),
+                pigment: pigments[Math.floor(Math.random() * pigments.length)]
+            };
+            rateA = calculatePhotosynthesisRate(scenarioA.lambda, scenarioA.intensity, scenarioA.co2, scenarioA.water, scenarioA.pigment);
+            rateB = calculatePhotosynthesisRate(scenarioB.lambda, scenarioB.intensity, scenarioB.co2, scenarioB.water, scenarioB.pigment);
+            attempts++;
+        } while (Math.abs(rateA - rateB) < 12 && attempts < 20);
+
+        const answer = rateA >= rateB ? 'Cenario A' : 'Cenario B';
+        return {
+            type: 'comparacao_taxa',
+            question: `Qual cenário tende a produzir maior taxa fotossintética? Cenário A: ${scenarioA.lambda} nm, ${scenarioA.intensity} W/m², ${scenarioA.co2} ppm de CO₂, ${scenarioA.water}% de água e ${getPigmentLabel(scenarioA.pigment)}. Cenário B: ${scenarioB.lambda} nm, ${scenarioB.intensity} W/m², ${scenarioB.co2} ppm de CO₂, ${scenarioB.water}% de água e ${getPigmentLabel(scenarioB.pigment)}.`,
+            answer: answer,
+            options: generateTextOptions(answer, ['Cenario A', 'Cenario B', 'Os dois cenarios produzem a mesma taxa'])
+        };
+    }
+
+    function buildStoichiometryExercise() {
+        const glucose = Math.floor(Math.random() * 9) + 2;
+        const co2Needed = glucose * 6;
+        return {
+            type: 'estequiometria',
+            question: `Se uma planta produzir ${glucose} mol de glicose, quantos mol de CO₂ serão consumidos na equação global da fotossíntese?`,
+            answer: formatFixed(co2Needed, 'mol', 0),
+            options: generateNumericOptions(co2Needed, 'mol', 0)
+        };
+    }
+
+    function buildStorageExercise() {
+        const mmol = Math.floor(Math.random() * 8) + 2;
+        const stored = (mmol / 1000) * 2803;
+        return {
+            type: 'energia_glicose',
+            question: `Uma planta armazenou ${mmol} mmol de glicose em uma hora. Qual é a energia química aproximada contida nessa glicose?`,
+            answer: formatFixed(stored, 'kJ', 2),
+            options: generateNumericOptions(stored, 'kJ', 2)
+        };
+    }
+
+    function generateExercises() {
+        exercises = shuffleArray([
+            buildEnergyExercise(),
+            buildSpectrumExercise(),
+            buildPigmentExercise(),
+            buildAbsorptionExercise(),
+            buildRateComparisonExercise(),
+            buildStorageExercise()
+        ]);
+    }
+
+    function generateNewExerciseOfSameType() {
+        const currentType = exercises[currentExercise].type;
+        if (currentType === 'energia_foton') exercises[currentExercise] = buildEnergyExercise();
+        if (currentType === 'faixa_espectral') exercises[currentExercise] = buildSpectrumExercise();
+        if (currentType === 'pigmento_eficiente') exercises[currentExercise] = buildPigmentExercise();
+        if (currentType === 'absorcao') exercises[currentExercise] = buildAbsorptionExercise();
+        if (currentType === 'comparacao_taxa') exercises[currentExercise] = buildRateComparisonExercise();
+        if (currentType === 'estequiometria') exercises[currentExercise] = buildStoichiometryExercise();
+        if (currentType === 'energia_glicose') exercises[currentExercise] = buildStorageExercise();
+    }
+
+    function showCurrentExercise() {
+        if (!exercises.length || currentExercise >= exercises.length) return;
+        const exercise = exercises[currentExercise];
+        const container = document.getElementById('exerciseContainer');
+        container.innerHTML = `
+            <div class="exercise">
+                <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${exercise.question}</p>
+                <div class="options">
+                    ${exercise.options.map(option => `<div class="option" data-value="${option}">${option}</div>`).join('')}
+                </div>
+                <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                <div class="result"></div>
+            </div>
+        `;
+
+        container.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                container.querySelectorAll('.option').forEach(item => item.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+        updateProgressBar();
+    }
+
+    function checkAnswer() {
+        const container = document.getElementById('exerciseContainer');
+        const selected = container.querySelector('.option.selected');
+        const resultDiv = container.querySelector('.result');
+
+        if (!selected) {
+            resultDiv.innerHTML = '<div class="error">Selecione uma opção.</div>';
+            return;
+        }
+
+        const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+        if (isCorrect) {
+            resultDiv.innerHTML = '<div class="success">Correto! Muito bem.</div>';
+            exerciseResults.push({ correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+            currentExerciseAttempts = 0;
+            setTimeout(function() {
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }, 1500);
+        } else {
+            currentExerciseAttempts++;
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Refaça o raciocínio e tente de novo.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+    }
+
+    function skipExercise() {
+        if (confirm('Deseja pular este exercício? Um erro será registrado no relatório.')) {
+            exerciseResults.push({ correct: false, skipped: true, attempts: currentExerciseAttempts });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+    }
+
+    function updateProgressBar() {
+        for (let index = 0; index < 6; index++) {
+            const progressItem = document.getElementById(`progress${index + 1}`);
+            if (!progressItem) continue;
+            progressItem.classList.remove('active', 'completed');
+            if (index === currentExercise) progressItem.classList.add('active');
+            else if (index < currentExercise) progressItem.classList.add('completed');
+        }
+    }
+
+    function showConclusion() {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'block';
+        const conclusionTextarea = document.getElementById('conclusionText');
+        if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+
+        const submitBtn = document.getElementById('submitConclusion');
+        const newSubmit = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
+
+        newSubmit.addEventListener('click', function() {
+            const text = document.getElementById('conclusionText').value.trim();
+            if (!text) {
+                alert('Escreva uma conclusão antes de continuar.');
+                return;
+            }
+            conclusionTextSaved = text;
+            showResults(text);
+        });
+    }
+
+    function showResults(conclusion) {
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+        const total = exercises.length;
+        const correct = exerciseResults.filter(result => result.correct).length;
+        const percent = Math.round((correct / total) * 100);
+
+        document.getElementById('resultsSummary').innerHTML = `
+            <p>Exercícios respondidos: ${total}</p>
+            <p>Respostas corretas: ${correct}</p>
+            <p>Exercícios pulados: ${skippedQuestions}</p>
+            <p>Nota: ${percent}%</p>
+        `;
+
+        document.getElementById('finalConclusion').value = conclusion;
+
+        const sendBtn = document.getElementById('sendResults');
+        const newSendBtn = sendBtn.cloneNode(true);
+        sendBtn.parentNode.replaceChild(newSendBtn, sendBtn);
+        newSendBtn.addEventListener('click', sendResultsToSheet);
+    }
+
+    function sendResultsToSheet() {
+        const studentName = document.getElementById('studentName').value;
+        const studentGrade = document.getElementById('studentGrade').value;
+        const studentClass = document.getElementById('studentClass').value;
+        const studentEmail = document.getElementById('studentEmail').value;
+        const criticism = document.getElementById('criticismInput').value;
+        const suggestion = document.getElementById('suggestionInput').value;
+        const finalConclusion = document.getElementById('finalConclusion').value;
+        const sendButton = document.getElementById('sendResults');
+
+        if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+
+        sendButton.disabled = true;
+        sendButton.textContent = 'Enviando...';
+
+        const total = exercises.length;
+        const correct = exerciseResults.filter(result => result.correct).length;
+        const percent = Math.round((correct / total) * 100);
+        const emailStatus = document.getElementById('emailStatus');
+        emailStatus.style.display = 'block';
+        emailStatus.textContent = 'Enviando dados...';
+        emailStatus.className = 'email-status sending';
+
+        const dadosCompletos = {
+            timestamp: new Date().toLocaleString('pt-BR'),
+            serie: studentGrade,
+            turma: studentClass,
+            estudante: studentName,
+            simulacao: 'Fotossintese Solar',
+            questoes_puladas: skippedQuestions,
+            acertos_erros: `${correct}/${total - correct}`,
+            nota: percent + '%',
+            conclusao: finalConclusion,
+            criticas: criticism,
+            sugestoes: suggestion,
+            email: studentEmail || '',
+            to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+            nome_aluno: studentName,
+            acertos: `${correct}/${total}`,
+            data_envio: new Date().toLocaleString('pt-BR'),
+            comprimento_onda_nm: wavelength,
+            pigmento: getPigmentLabel(pigmentType),
+            absorcao_percentual: Math.round(absorptionEfficiency * 100),
+            taxa_fotossintetica: photosynthesisRate.toFixed(1) + '%',
+            glicose_estimativa: glucoseProduction.toFixed(2) + ' mmol/h'
+        };
+
+        const planilhaUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+        const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+        fetch(planilhaUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) })
+            .then(function() {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) });
+            })
+            .then(function() {
+                if (studentEmail) {
+                    const alunoData = {
+                        ...dadosCompletos,
+                        to_email: studentEmail,
+                        mensagem: `Confirmação de envio - Física da Fotossíntese\nNota: ${percent}%\nAcertos: ${correct}/${total}`
+                    };
+                    return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alunoData) });
+                }
+            })
+            .then(function() {
+                emailStatus.textContent = studentEmail
+                    ? '✅ Dados salvos. Se o serviço de e-mail não estiver em limite, a cópia também será enviada.'
+                    : '✅ Dados salvos. O envio ao professor foi solicitado.';
+                emailStatus.className = 'email-status sent';
+                setTimeout(function() {
+                    resetExerciseState();
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(function() {
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+    }
+
+    function closeExercisesModal() {
+        const conclusionTextarea = document.getElementById('conclusionText');
+        if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') {
+            conclusionTextSaved = conclusionTextarea.value;
+        }
+        document.getElementById('exercisesModal').style.display = 'none';
+    }
+
+    function resetAndRestartExercises() {
+        if (confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    }
+
+    function openExercisesModal() {
+        if (exercises.length === 0 || (currentExercise >= exercises.length &&
+            document.getElementById('resultsContainer').style.display !== 'block' &&
+            document.getElementById('conclusionContainer').style.display !== 'block')) {
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        } else if (document.getElementById('conclusionContainer').style.display === 'block') {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+        } else if (document.getElementById('resultsContainer').style.display !== 'block') {
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        document.getElementById('exercisesModal').style.display = 'flex';
+    }
+
+    function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+    function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+    function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+    function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+    document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+    document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+    document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+    document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+    document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+    document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+    document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+    document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+    document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+
+    window.addEventListener('click', function(event) {
+        if (event.target === document.getElementById('exercisesModal')) closeExercisesModal();
+        if (event.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+        if (event.target === document.getElementById('theoryModal')) closeTheoryModal();
+    });
+
+    window.addEventListener('load', function() {
+        initSimulation();
+        preloadFirstTrack();
+    });
+</script>
+<script>
+    window.SIMULATION_ENHANCER_CONFIG = {
+        simulationName: 'Fotossintese Solar',
+        storageKey: 'fotossintese-solar'
+    };
+</script>
+<script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>
