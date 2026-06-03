@@ -149,7 +149,8 @@ const STUDENT_DATABASE = {
             "POLLYANA ALMEIDA DA SILVA",
             "RAYMOND JULIAN MOYA SALAZAR",
             "VICTOR EMANUEL SILVA FERREIRA",
-            "YURI DOS SANTOS BARBOZA"
+            "YURI DOS SANTOS BARBOZA",
+            "MATEUS CRISTIANO QUEIROZ DA SILVA GOMES"
         ],
         "3o ano D": [
             "ANDRE LUIZ SOUZA DA CUNHA MELO",
