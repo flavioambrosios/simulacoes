@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Radiação de Corpo Negro com Exercícios</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .simulation-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Radiação de Corpo Negro com Exercícios</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação de Radiação de Corpo Negro - PhET</h2>
+                <div class="simulation-container">
+                    <iframe src="https://phet.colorado.edu/sims/html/blackbody-spectrum/latest/blackbody-spectrum_pt_BR.html"
+                            width="800"
+                            height="600"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Como Usar a Simulação</button>
+                </div>
+                
+                <div class="legend">
+                    <p><strong>Instruções:</strong> Use a simulação do PhET para explorar como a temperatura afeta o espectro de radiação de corpo negro</p>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Conceitos Fundamentais</h2>
+                
+                <div class="control-group">
+                    <label for="temperatureSelect">Faixa de Temperatura:</label>
+                    <select id="temperatureSelect">
+                        <option value="baixa">Baixa (300-3000 K)</option>
+                        <option value="media">Média (3000-6000 K)</option>
+                        <option value="alta">Alta (6000-15000 K)</option>
+                        <option value="solar">Solar (~5778 K)</option>
+                    </select>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Planck</h3>
+                    <p>B(λ,T) = (2hc²/λ⁵) · 1/(e^(hc/λkT) - 1)</p>
+                    <p>Onde:</p>
+                    <p>B = Intensidade espectral</p>
+                    <p>λ = Comprimento de onda</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>h = Constante de Planck</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Wien</h3>
+                    <p>λ<sub>max</sub> · T = b</p>
+                    <p>Onde:</p>
+                    <p>λ<sub>max</sub> = Comprimento de onda de pico</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>b = 2.8977729×10⁻³ m·K</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Stefan-Boltzmann</h3>
+                    <p>P = σ · T⁴ · A</p>
+                    <p>Onde:</p>
+                    <p>P = Potência total emitida</p>
+                    <p>σ = Constante de Stefan-Boltzmann</p>
+                    <p>T = Temperatura (K)</p>
+                    <p>A = Área da superfície</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Temperatura (T)</div>
+                        <div class="measurement-value" id="temperatureDisplay">5000 K</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento de Onda de Pico (λ<sub>max</sub>)</div>
+                        <div class="measurement-value" id="wavelengthDisplay">579.6 nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Intensidade Máxima (B<sub>max</sub>)</div>
+                        <div class="measurement-value" id="intensityDisplay">1.00 W/m²/nm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Cor Aproximada</div>
+                        <div class="measurement-value" id="colorDisplay">Branco</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Região do Espectro</div>
+                        <div class="measurement-value" id="spectrumDisplay">Visível</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Constante de Wien (b)</div>
+                        <div class="measurement-value" id="wienConstantDisplay">2.90×10⁻³ m·K</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Radiação de Corpo Negro</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Radiação de Corpo Negro</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo do Comprimento de Onda de Pico</h4>
+                    <p><strong>Problema:</strong> Qual é o comprimento de onda de pico da radiação emitida por um corpo negro a 6000 K?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> λ<sub>max</sub> · T = b (Lei de Wien)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar λ<sub>max</sub>: λ<sub>max</sub> = b / T</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: λ<sub>max</sub> = 2.90×10⁻³ / 6000</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: λ<sub>max</sub> = 4.83×10⁻⁷ m</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Converter para nm: λ<sub>max</sub> = 483 nm</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O comprimento de onda de pico é 483 nm (luz azul-esverdeada)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Comparação de Intensidades</h4>
+                    <p><strong>Problema:</strong> Um corpo negro a 4000 K emite radiação com intensidade máxima I. Qual será a intensidade máxima se a temperatura dobrar para 8000 K?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> I ∝ T⁴ (Lei de Stefan-Boltzmann)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular o fator de aumento: (8000/4000)⁴ = 2⁴ = 16</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Nova intensidade = 16 × I</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A intensidade máxima será 16 vezes maior</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Temperatura de uma Estrela</h4>
+                    <p><strong>Problema:</strong> Uma estrela emite radiação com comprimento de onda de pico de 290 nm. Qual é sua temperatura superficial?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> λ<sub>max</sub> · T = b (Lei de Wien)</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar T: T = b / λ<sub>max</sub></div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Converter 290 nm para metros: 290 × 10⁻⁹ = 2.9×10⁻⁷ m</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Substituir os valores: T = 2.90×10⁻³ / 2.9×10⁻⁷</div>
+                    <div class="solution-step"><strong>Passo 4:</strong> Calcular: T = 10000 K</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A temperatura superficial da estrela é de aproximadamente 10000 K</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Radiação de Corpo Negro</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que é um Corpo Negro?</h3>
+                    <p>Um corpo negro é um objeto teórico que absorve toda a radiação eletromagnética que incide sobre ele, sem refletir nenhuma parte. Quando aquecido, emite radiação térmica com um espectro característico que depende apenas de sua temperatura, não de sua composição[citation:5].</p>
+                    
+                    <p>Embora seja uma idealização, muitos objetos no universo (como estrelas) se comportam aproximadamente como corpos negros. Um exemplo cotidiano é a lâmpada de filamento: quando passa corrente elétrica através do filamento, este se aquece e se comporta praticamente como um corpo negro[citation:5].</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Planck</h3>
+                    <p>Em 1900, Max Planck propôs uma fórmula para descrever a distribuição espectral da radiação de corpo negro:</p>
+                    
+                    <div class="theory-formula">B(λ, T) = (2hc²/λ⁵) · 1/(e^(hc/λkT) - 1)</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">B(λ, T)</span> = Intensidade espectral (W/m²/nm)</li>
+                        <li><span class="highlight">λ</span> = Comprimento de onda (m)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">h</span> = Constante de Planck (6.626×10⁻³⁴ J·s)</li>
+                        <li><span class="highlight">c</span> = Velocidade da luz (3×10⁸ m/s)</li>
+                        <li><span class="highlight">k</span> = Constante de Boltzmann (1.381×10⁻²³ J/K)</li>
+                    </ul>
+                    
+                    <p>A Lei de Planck foi fundamental para o desenvolvimento da mecânica quântica, pois introduziu a ideia de que a energia é quantizada.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Wien</h3>
+                    <p>A Lei de Wien descreve a relação entre a temperatura de um corpo negro e o comprimento de onda no qual emite a maior intensidade de radiação:</p>
+                    
+                    <div class="theory-formula">λ<sub>max</sub> · T = b</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">λ<sub>max</sub></span> = Comprimento de onda de pico (m)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">b</span> = Constante de Wien (2.8977729×10⁻³ m·K)</li>
+                    </ul>
+                    
+                    <p>Esta lei mostra que quanto mais quente um objeto, menor será o comprimento de onda de sua radiação de pico. Por exemplo, o ferro quando aquecido a cerca de 1000 K fica rubro, enquanto para produzir luz semelhante à do Sol, seria necessária temperatura de aproximadamente 5700 K[citation:5].</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Lei de Stefan-Boltzmann</h3>
+                    <p>A Lei de Stefan-Boltzmann relaciona a temperatura de um corpo negro com a potência total que ele emite por unidade de área:</p>
+                    
+                    <div class="theory-formula">P = σ · T⁴</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">P</span> = Potência por unidade de área (W/m²)</li>
+                        <li><span class="highlight">T</span> = Temperatura (K)</li>
+                        <li><span class="highlight">σ</span> = Constante de Stefan-Boltzmann (5.67×10⁻⁸ W/m²/K⁴)</li>
+                    </ul>
+                    
+                    <p>Esta lei mostra que a energia total emitida aumenta rapidamente com a temperatura (proporcional a T⁴).</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O estudo da radiação de corpo negro tem diversas aplicações importantes:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Astronomia:</span> Determinar temperaturas de estrelas a partir de seu espectro</li>
+                        <li><span class="highlight">Tecnologia:</span> Desenvolvimento de sensores de temperatura por infravermelho</li>
+                        <li><span class="highlight">Climatologia:</span> Estudo do efeito estufa e balanço energético da Terra</li>
+                        <li><span class="highlight">Física:</span> Compreensão da natureza quântica da luz e matéria</li>
+                        <li><span class="highlight">Medicina:</span> Técnicas de imageamento por termografia</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        
+        // Constante de Wien
+        const b = 2.8977729e-3; // m·K
+        
+        // Configurar eventos
+        function setupEventListeners() {
+            // Botão de ajuda
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar a simulação:\n\n• Use os controles do PhET para ajustar a temperatura do corpo negro\n• Observe como o espectro muda com a temperatura\n• Note a mudança no comprimento de onda de pico (Lei de Wien)\n• Observe o aumento da intensidade total (Lei de Stefan-Boltzmann)\n• Use os exercícios para testar seu conhecimento\n\nDica: Compare diferentes temperaturas para entender os padrões!");
+            });
+            
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre Radiação de Corpo Negro
+        function generateExercises() {
+            exercises = [];
+            
+            // Gerar 6 exercícios variados (2 de cada tipo)
+            for (let i = 0; i < 2; i++) {
+                // Tipo 1: Cálculo com Lei de Wien
+                let T = (Math.floor(Math.random() * 9) + 1) * 1000; // 1000, 2000... 9000 K
+                let lambda_max = (b / T * 1e9).toFixed(1); // Converter para nm
+                
+                exercises.push({
+                    type: 'calcular_wien',
+                    question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
+                    answer: lambda_max + ' nm',
+                    options: generateOptions(parseFloat(lambda_max), 'nm')
+                });
+                
+                // Tipo 2: Cálculo de temperatura a partir do comprimento de onda
+                let lambda = (Math.floor(Math.random() * 9) + 1) * 100; // 100, 200... 900 nm
+                let T_calc = (b / (lambda * 1e-9)).toFixed(0);
+                
+                exercises.push({
+                    type: 'calcular_temperatura',
+                    question: `Um corpo negro emite radiação com comprimento de onda de pico de ${lambda} nm. Qual é sua temperatura?`,
+                    answer: T_calc + ' K',
+                    options: generateOptions(parseFloat(T_calc), 'K')
+                });
+                
+                // Tipo 3: Comparação de intensidades (Lei de Stefan-Boltzmann)
+                let T1 = (Math.floor(Math.random() * 4) + 1) * 1000; // 1000 a 4000 K
+                let T2 = T1 * (Math.floor(Math.random() * 3) + 2); // 2x a 4x
+                let ratio = Math.pow(T2 / T1, 4);
+                
+                exercises.push({
+                    type: 'comparar_intensidades',
+                    question: `Um corpo negro a ${T1} K emite radiação com intensidade I. Se sua temperatura aumentar para ${T2} K, qual será a nova intensidade?`,
+                    answer: ratio.toFixed(0) + ' I',
+                    options: generateOptions(ratio, 'I')
+                });
+            }
+            
+            // Embaralhar exercícios
+            exercises = shuffleArray(exercises);
+        }
+        
+        // Gerar opções de resposta (5 alternativas)
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 15;
+            
+            // Formatar o valor correto
+            let formattedCorrectValue;
+            if (unit === 'nm') {
+                formattedCorrectValue = correctValue.toFixed(1) + ' ' + unit;
+            } else if (unit === 'K') {
+                formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            } else {
+                formattedCorrectValue = correctValue.toFixed(0) + ' ' + unit;
+            }
+            
+            options.push({
+                value: correctValue,
+                display: formattedCorrectValue
+            });
+            
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    optionValue = Math.abs(optionValue);
+                    
+                    if (unit === 'nm') {
+                        formattedOption = optionValue.toFixed(1) + ' ' + unit;
+                    } else if (unit === 'K') {
+                        formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    } else {
+                        formattedOption = optionValue.toFixed(0) + ' ' + unit;
+                    }
+                    
+                    unique = !options.some(opt => opt.display === formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
+                    }
+                } while (!unique);
+                
+                options.push({
+                    value: optionValue,
+                    display: formattedOption
+                });
+            }
+            
+            return shuffleArray(options).map(opt => opt.display);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            
+            if (currentType === 'calcular_wien') {
+                let T = (Math.floor(Math.random() * 9) + 1) * 1000;
+                let lambda_max = (b / T * 1e9).toFixed(1);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_wien',
+                    question: `Um corpo negro está a uma temperatura de ${T} K. Qual é o comprimento de onda de pico de sua radiação?`,
+                    answer: lambda_max + ' nm',
+                    options: generateOptions(parseFloat(lambda_max), 'nm')
+                };
+            } else if (currentType === 'calcular_temperatura') {
+                let lambda = (Math.floor(Math.random() * 9) + 1) * 100;
+                let T_calc = (b / (lambda * 1e-9)).toFixed(0);
+                
+                exercises[currentExercise] = {
+                    type: 'calcular_temperatura',
+                    question: `Um corpo negro emite radiação com comprimento de onda de pico de ${lambda} nm. Qual é sua temperatura?`,
+                    answer: T_calc + ' K',
+                    options: generateOptions(parseFloat(T_calc), 'K')
+                };
+            } else if (currentType === 'comparar_intensidades') {
+                let T1 = (Math.floor(Math.random() * 4) + 1) * 1000;
+                let T2 = T1 * (Math.floor(Math.random() * 3) + 2);
+                let ratio = Math.pow(T2 / T1, 4);
+                
+                exercises[currentExercise] = {
+                    type: 'comparar_intensidades',
+                    question: `Um corpo negro a ${T1} K emite radiação com intensidade I. Se sua temperatura aumentar para ${T2} K, qual será a nova intensidade?`,
+                    answer: ratio.toFixed(0) + ' I',
+                    options: generateOptions(ratio, 'I')
+                };
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 6; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Radiação de Corpo Negro',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Radiação de Corpo Negro',
+                        mensagem: `Confirmação de Envio - Simulação de Radiação de Corpo Negro
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Erro ao enviar. Tente novamente.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        // Inicializar quando a página carregar
+        window.addEventListener('load', function() {
+            setupEventListeners();
+        });
+    </script>
+    <script>
+        let studentNameCorpoNegro = localStorage.getItem('studentNameCorpoNegro') || '';
+
+        function ensureStudentNameCorpoNegro() {
+            if (!studentNameCorpoNegro) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameCorpoNegro = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameCorpoNegro', studentNameCorpoNegro);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameCorpoNegro();
+                return `Olá, ${studentNameCorpoNegro}. Esta página de radiação de corpo negro usa a simulação do PhET como centro da exploração e organiza, ao lado, as ideias teóricas essenciais. Na área principal aparece o simulador incorporado. No painel lateral estão as leis de Planck, Wien e Stefan-Boltzmann, além de um seletor de faixa de temperatura. A proposta é relacionar forma do espectro, cor aparente, pico de emissão e temperatura.`;
+            },
+            function () {
+                return 'O primeiro ponto importante é entender o que significa corpo negro. Trata-se de um modelo ideal de objeto que absorve toda a radiação incidente e também emite radiação térmica de forma característica. A distribuição dessa radiação depende da temperatura. Por isso, quando a temperatura muda, não muda apenas a intensidade total emitida; muda também a forma do espectro e a posição do pico de emissão.';
+            },
+            function () {
+                return 'A Lei de Planck descreve a intensidade espectral em função do comprimento de onda e da temperatura. Ela é a base teórica que explica o formato da curva observada na simulação. Em vez de decorar a expressão completa, o mais importante é perceber sua função: ela informa quanto um corpo negro emite em cada região do espectro para uma temperatura dada.';
+            },
+            function () {
+                return 'A Lei de Wien ajuda a interpretar o deslocamento do pico. Quando a temperatura aumenta, o comprimento de onda de pico diminui. Em linguagem visual, isso significa que o pico da curva caminha para regiões de menor comprimento de onda. É por isso que objetos mais quentes podem parecer mais azulados, enquanto objetos menos quentes tendem ao avermelhado.';
+            },
+            function () {
+                return 'A Lei de Stefan-Boltzmann complementa essa leitura ao mostrar que a potência total emitida cresce com a quarta potência da temperatura. Isso quer dizer que pequenas elevações de temperatura podem produzir aumentos muito grandes na energia total irradiada. Assim, a simulação permite comparar dois efeitos ao mesmo tempo: o deslocamento do pico e o aumento global da emissão.';
+            },
+            function () {
+                return 'Na área de medições, acompanhe a temperatura, o comprimento de onda de pico, a intensidade máxima, a cor aproximada, a região do espectro e a constante de Wien. Esses valores ajudam a traduzir a curva do simulador em grandezas físicas interpretáveis. O ideal é sempre perguntar o que a curva está mostrando sobre a temperatura da fonte e em que região do espectro a emissão se torna mais intensa.';
+            },
+            function () {
+                return 'Depois dessa exploração inicial, use os exercícios resolvidos e os exercícios finais para consolidar o raciocínio. Nos exemplos, identifique primeiro qual lei está sendo mobilizada: Wien para o pico, Stefan-Boltzmann para a intensidade total ou uma interpretação astrofísica da temperatura. Essa ordem ajuda a organizar a teoria antes da conta.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a pergunta é sobre o comprimento de onda de pico para um corpo negro a seis mil kelvin. A ideia central é aplicar a Lei de Wien, que relaciona diretamente temperatura e pico do espectro. Ao isolar lambda máximo e substituir os valores, encontra-se um pico em torno de quatrocentos e oitenta e três nanômetros. Esse resultado cai na região visível e ajuda a interpretar a cor aproximada associada à fonte. O exemplo é importante porque mostra como uma única medida do espectro pode revelar informações sobre a temperatura do objeto emissor.',
+            '2': 'No segundo exemplo, a questão trata da intensidade quando a temperatura dobra. Aqui entra a Lei de Stefan-Boltzmann, que diz que a emissão total cresce com a quarta potência da temperatura. Como a temperatura passou de quatro mil para oito mil kelvin, o fator de aumento é dois elevado à quarta, ou seja, dezesseis. Esse tipo de problema é valioso porque deixa claro que a dependência com a temperatura é muito forte. Não se trata de um aumento simples ou linear; a potência irradiada cresce de modo muito mais rápido.',
+            '3': 'No terceiro exemplo, o dado conhecido é o comprimento de onda de pico de uma estrela, e o objetivo é encontrar sua temperatura superficial. Mais uma vez, a ferramenta principal é a Lei de Wien, agora reorganizada para isolar a temperatura. Depois de converter o comprimento de onda de nanômetros para metros, a substituição leva a um valor próximo de dez mil kelvin. O ponto pedagógico aqui é perceber como a análise do espectro permite estimar propriedades físicas de astros distantes.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Corpo Negro',
+            storageKey: 'corpo-negro'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>
