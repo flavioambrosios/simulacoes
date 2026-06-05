@@ -549,7 +549,11 @@
                     <div class="value-display"><span id="lengthValue">1.00</span> m</div>
                 </div>
 
-                <div class="control-group">
+                            <!-- [Grade] Botao toggle grade -->
+            <div class="control-group">
+                <button id="gridToggleFluxo" class="btn" style="background:#4dd2ff; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">Mostrar Grade</button>
+            </div>
+<div class="control-group">
                     <label for="areaInput">Area de secao (A):</label>
                     <input type="range" id="areaInput" min="0.001" max="0.020" value="0.010" step="0.001">
                     <div class="value-display"><span id="areaValue">0.010</span> m²</div>
@@ -816,6 +820,10 @@
 
     <script>
         let canvas, ctx;
+        // [Grade] Variaveis da grade
+        let showGridFluxo = false;
+        const GRID_COLS = 20;
+        const GRID_ROWS = 20;
         let conductivity = 400.0;
         let hotTemp = 120;
         let coldTemp = 20;
@@ -922,9 +930,43 @@
             drawTemperatureGraph();
             drawCrossSectionInset();
             drawLabels();
+            drawGridFluxo();
         }
 
-        function drawBackground() {
+        
+        // [Grade] Funcao para desenhar grade 20x20
+        function drawGridFluxo() {
+            if (!showGridFluxo) return;
+            const margin = 30;
+            const gridWidth = canvas.width - margin * 2;
+            const gridHeight = canvas.height - margin * 2;
+            const startX = margin;
+            const startY = margin;
+            const stepX = gridWidth / GRID_COLS;
+            const stepY = gridHeight / GRID_ROWS;
+            ctx.save();
+            ctx.strokeStyle = "rgba(77, 210, 255, 0.25)";
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= GRID_COLS; i++) {
+                const x = startX + i * stepX;
+                ctx.beginPath(); ctx.moveTo(x, startY); ctx.lineTo(x, startY + gridHeight); ctx.stroke();
+            }
+            for (let i = 0; i <= GRID_ROWS; i++) {
+                const y = startY + i * stepY;
+                ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX + gridWidth, y); ctx.stroke();
+            }
+            ctx.fillStyle = "rgba(200, 230, 255, 0.5)";
+            ctx.font = "bold 9px Arial";
+            ctx.textAlign = "center"; ctx.textBaseline = "top";
+            for (let i = 0; i < GRID_COLS; i++) {
+                ctx.fillText(String.fromCharCode(65 + i), startX + i * stepX + stepX / 2, startY + gridHeight + 6);
+            }
+            ctx.textAlign = "right"; ctx.textBaseline = "middle";
+            for (let i = 0; i < GRID_ROWS; i++) {
+                ctx.fillText(String(i + 1), startX - 6, startY + i * stepY + stepY / 2);
+            }
+            ctx.restore();
+        }function drawBackground() {
             const gradientBackground = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradientBackground.addColorStop(0, '#08121c');
             gradientBackground.addColorStop(1, '#14283b');
@@ -1461,6 +1503,13 @@
             });
 
             document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+                        // [Grade] Event listener
+            document.getElementById("gridToggleFluxo").addEventListener("click", function() {
+                showGridFluxo = !showGridFluxo;
+                this.textContent = showGridFluxo ? "Esconder Grade" : "Mostrar Grade";
+                drawSystem();
+            });
 
             document.getElementById('helpBtn').addEventListener('click', function() {
                 alert('Como usar:\n\n• Escolha o material ou ajuste manualmente a condutividade termica.\n• Defina as temperaturas das extremidades da barra.\n• Ajuste o comprimento e a area da secao transversal.\n• A barra agora muda visualmente de comprimento quando L varia.\n• A secao transversal aparece como quadrada, com lado ligado a area A.\n• O grafico mostra o perfil de temperatura T(x) ao longo da barra.\n• Quanto maior o fluxo de calor, maior a quantidade e a velocidade das particulas animadas.\n\nDica: compare uma barra curta e grossa com uma barra longa e fina.');

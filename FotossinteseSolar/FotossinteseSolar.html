@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atividade Interativa - Física da Fotossíntese</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <!-- Canvas 2D substituindo Three.js -->
     <style>
         /* ===== ESTILOS COMPLETOS (mesmos do original) ===== */
         * {
@@ -53,7 +52,7 @@
         .simulation-container {
             width: 100%;
             height: 500px;
-            background: #000;
+            background: #0a1628;
             border-radius: 8px;
             overflow: hidden;
             position: relative;
@@ -61,6 +60,12 @@
         #renderer-container {
             width: 100%;
             height: 100%;
+            position: relative;
+        }
+        #photosynthesisCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
         .controls-panel {
             flex: 1;
@@ -572,7 +577,10 @@
         <div class="simulation-panel">
             <h2 class="panel-title">Simulação 3D - Radiação Solar, Clorofila e Formação de Glicose</h2>
             <div class="simulation-container">
-                <div id="renderer-container"></div>
+                <div id="renderer-container" style="position:relative;">
+                <canvas id="photosynthesisCanvas"></canvas>
+                <canvas id="gridOverlayFotos" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10;"></canvas>
+            </div>
             </div>
             <div class="visualization-toggle">
                 <button id="startBtn">Iniciar</button>
@@ -619,7 +627,11 @@
                 <label>Energia do fóton:</label>
                 <div class="value-display" id="photonEnergyControl">1.82 eV</div>
             </div>
+                        <!-- [Grade] Botao toggle grade -->
             <div class="control-group">
+                <button id="gridToggleFotos" class="btn" style="background:#4dd2ff; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">Mostrar Grade</button>
+            </div>
+<div class="control-group">
                 <label>Absorção estimada:</label>
                 <div class="value-display" id="absorptionControl">90 %</div>
             </div>
@@ -829,30 +841,52 @@
 </div>
 
 <script>
-    let scene, camera, renderer, controls;
-    let sun, corona, leaf, stem, leafGlow, photonBeam, storageBox;
-    let photonParticles = [];
-    let glucoseParticles = [];
+            // [Canvas 2D] Simulacao completa em canvas 2D com perspectiva
+    let canvas, ctx;
+    let simulationTime = 0;
     let isRunning = false;
     let showPhotons = true;
+    
+    // Variaveis da grade overlay
+    let showGridFotos = false;
+    const GRID_COLS_F = 20;
+    const GRID_ROWS_F = 20;
+
     let wavelength = 680;
     let solarIntensity = 800;
+    let pigmentType = "chlorophyllA";
     let co2Level = 420;
     let waterAvailability = 85;
-    let pigmentType = 'chlorophyllA';
+    let photosynthesisRate = 0;
     let photonEnergyEv = 0;
     let absorptionEfficiency = 0;
-    let photosynthesisRate = 0;
     let glucoseProduction = 0;
     let storedEnergy = 0;
     let photonSpawnAccumulator = 0;
     let glucoseSpawnAccumulator = 0;
-    let simulationTime = 0;
-    const leafBaseRotationX = 0.22;
-    const leafBaseRotationY = Math.PI / 2;
-    const leafBaseRotationZ = -1.18;
-
-    function clamp(value, min, max) {
+    
+    // Particulas
+    let photons = [];
+    let glucoseParticles = [];
+    let waterParticles = [];
+    let co2Particles = [];
+    let oxygenParticles = [];
+    
+    // Constantes de perspectiva
+    const PERSPECTIVE_TILT = 0.3; // Inclinacao isometrica
+    const SKY_COLOR = '#0a1628';
+    
+    function toScreenX(worldX, worldY) {
+        // Projecao isometrica simplificada
+        return canvas.width / 2 + (worldX - worldY * PERSPECTIVE_TILT) * (canvas.width / 14);
+    }
+    
+    function toScreenY(worldX, worldY, worldZ) {
+        const base = canvas.height / 2 + (worldY + worldX * PERSPECTIVE_TILT) * (canvas.width / 14) * 0.5 - worldZ * (canvas.width / 14) * 0.4;
+        return base;
+    }
+    
+        function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
     }
 
@@ -910,7 +944,18 @@
         else if (lambda < 590) hue = 60;
         else if (lambda < 620) hue = 30;
         else hue = 0;
-        return new THREE.Color(`hsl(${hue}, 100%, 55%)`);
+        const h = hue / 360;
+        const s = 1;
+        const l = 0.55;
+        const a = s * Math.min(l, 1 - l);
+        const f = function(n) {
+            const k = (n + h * 12) % 12;
+            return l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        };
+        const r = Math.round(f(0) * 255);
+        const g = Math.round(f(8) * 255);
+        const b = Math.round(f(4) * 255);
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 
     function calculateAbsorption(lambda, pigment) {
@@ -945,260 +990,575 @@
         storedEnergy = glucoseProduction * 2.803;
     }
 
-    function initSimulation() {
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x02050f);
 
-        const container = document.getElementById('renderer-container');
-        camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 3, 10);
-        camera.lookAt(0, 0, 0);
-
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        container.appendChild(renderer.domElement);
-
-        controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.minDistance = 6;
-        controls.maxDistance = 14;
-
-        const ambientLight = new THREE.AmbientLight(0x8899aa, 0.9);
-        scene.add(ambientLight);
-
-        const sunLight = new THREE.PointLight(0xffdd88, 2.2, 50);
-        sunLight.position.set(-5, 2, 0);
-        scene.add(sunLight);
-
-        const fillLight = new THREE.DirectionalLight(0xaad8ff, 0.6);
-        fillLight.position.set(3, 6, 4);
-        scene.add(fillLight);
-
-        const ground = new THREE.Mesh(
-            new THREE.CircleGeometry(5.5, 48),
-            new THREE.MeshPhongMaterial({ color: 0x112b16, transparent: true, opacity: 0.35 })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -2.2;
-        scene.add(ground);
-
-        sun = new THREE.Mesh(
-            new THREE.SphereGeometry(0.9, 32, 32),
-            new THREE.MeshPhongMaterial({ color: 0xffc74d, emissive: 0xffa300, emissiveIntensity: 0.8 })
-        );
-        sun.position.set(-5, 2, 0);
-        scene.add(sun);
-
-        corona = new THREE.Mesh(
-            new THREE.SphereGeometry(1.25, 32, 32),
-            new THREE.MeshBasicMaterial({ color: 0xffcc66, transparent: true, opacity: 0.18 })
-        );
-        corona.position.copy(sun.position);
-        scene.add(corona);
-
-        photonBeam = new THREE.Mesh(
-            new THREE.BoxGeometry(5.8, 0.9, 1.8),
-            new THREE.MeshBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.18 })
-        );
-        photonBeam.position.set(-1.3, 1.18, 0);
-        photonBeam.rotation.z = -0.16;
-        scene.add(photonBeam);
-
-        stem = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.12, 0.18, 2.2, 24),
-            new THREE.MeshPhongMaterial({ color: 0x4d8c3a })
-        );
-        stem.position.set(2.2, -1.1, 0);
-        stem.rotation.z = -0.15;
-        scene.add(stem);
-
-        leaf = new THREE.Mesh(
-            new THREE.SphereGeometry(1.2, 40, 40),
-            new THREE.MeshPhongMaterial({ color: 0x2fa14f, shininess: 80, emissive: 0x062f14, emissiveIntensity: 0.35 })
-        );
-        leaf.scale.set(1.75, 0.18, 1.1);
-        leaf.position.set(2.2, 0.6, 0);
-        leaf.rotation.x = leafBaseRotationX;
-        leaf.rotation.y = leafBaseRotationY;
-        leaf.rotation.z = leafBaseRotationZ;
-        scene.add(leaf);
-
-        leafGlow = new THREE.Mesh(
-            new THREE.SphereGeometry(1.55, 32, 32),
-            new THREE.MeshBasicMaterial({ color: 0x74ff7a, transparent: true, opacity: 0.08 })
-        );
-        leafGlow.scale.set(1.4, 0.3, 1.2);
-        leafGlow.position.copy(leaf.position);
-        leafGlow.rotation.copy(leaf.rotation);
-        scene.add(leafGlow);
-
-        const vein = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.03, 0.05, 2.1, 12),
-            new THREE.MeshPhongMaterial({ color: 0xc7f59c })
-        );
-        vein.position.copy(leaf.position);
-        vein.rotation.x = leafBaseRotationX;
-        vein.rotation.y = leafBaseRotationY;
-        vein.rotation.z = leafBaseRotationZ;
-        scene.add(vein);
-
-        storageBox = new THREE.Mesh(
-            new THREE.BoxGeometry(1.2, 0.9, 1.2),
-            new THREE.MeshPhongMaterial({ color: 0xd7a33d, emissive: 0x2b1600, emissiveIntensity: 0.35 })
-        );
-        storageBox.position.set(5.1, -0.8, 0);
-        scene.add(storageBox);
-
-        const storageLabel = new THREE.Mesh(
-            new THREE.BoxGeometry(1.5, 0.08, 0.4),
-            new THREE.MeshPhongMaterial({ color: 0xf2d16b })
-        );
-        storageLabel.position.set(5.1, -1.45, 0);
-        scene.add(storageLabel);
-
+function initSimulation() {
+        canvas = document.getElementById('photosynthesisCanvas');
+        if (!canvas) { console.error('Canvas nao encontrado'); return; }
+        ctx = canvas.getContext('2d');
+        
+        resizeCanvas();
+        window.addEventListener('resize', onWindowResize);
+        
         calculateDerivedValues();
-        updateSimulationAppearance();
         updateMeasurements();
         setupEventListeners();
-        window.addEventListener('resize', onWindowResize);
         animate();
     }
-
-    function updateSimulationAppearance() {
-        const photonColor = getPhotonColor(wavelength);
-        photonBeam.material.color.copy(photonColor);
-        photonBeam.material.opacity = 0.10 + (solarIntensity / 1200) * 0.18;
-        corona.material.opacity = 0.15 + (solarIntensity / 1200) * 0.18;
-        sun.material.emissive.copy(photonColor.clone().lerp(new THREE.Color(0xffb347), 0.45));
-
-        let leafColor = 0x2fa14f;
-        if (pigmentType === 'chlorophyllB') leafColor = 0x4bbd65;
-        if (pigmentType === 'carotenoids') leafColor = 0xc59d37;
-        leaf.material.color.setHex(leafColor);
-
-        const glowOpacity = 0.06 + absorptionEfficiency * 0.22;
-        leafGlow.material.opacity = glowOpacity;
-        leafGlow.material.color.copy(pigmentType === 'carotenoids' ? new THREE.Color(0xffd36e) : new THREE.Color(0x7dff8c));
-        storageBox.material.emissiveIntensity = 0.25 + glucoseProduction / 20;
+    
+    function resizeCanvas() {
+        if (!canvas) return;
+        const container = canvas.parentElement;
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+        // Tambem redimensionar overlay
+        const overlay = document.getElementById('gridOverlayFotos');
+        if (overlay) {
+            overlay.width = canvas.width;
+            overlay.height = canvas.height;
+        }
     }
-
+    
+    function drawBackground() {
+        // Ceu com gradiente
+        const grad = ctx.createLinearGradient(0, 0, canvas.width * 0.3, canvas.height);
+        grad.addColorStop(0, '#0a1628');
+        grad.addColorStop(0.5, '#14283b');
+        grad.addColorStop(1, '#1a3a5c');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Chao com gradiente circular
+        const groundCX = canvas.width * 0.65;
+        const groundCY = canvas.height * 0.75;
+        const groundR = canvas.width * 0.5;
+        const groundGrad = ctx.createRadialGradient(groundCX, groundCY, 0, groundCX, groundCY, groundR);
+        groundGrad.addColorStop(0, 'rgba(30, 80, 40, 0.4)');
+        groundGrad.addColorStop(0.5, 'rgba(15, 50, 25, 0.25)');
+        groundGrad.addColorStop(1, 'rgba(10, 30, 20, 0)');
+        ctx.fillStyle = groundGrad;
+        ctx.beginPath();
+        ctx.ellipse(groundCX, groundCY, groundR, groundR * 0.3, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    
+    function drawSun() {
+        const sx = toScreenX(-5, 0);
+        const sy = toScreenY(-5, 0, 2) - 30;
+        const baseR = 40 + (solarIntensity / 1200) * 10;
+        const pulse = 1 + 0.04 * Math.sin(simulationTime * 2);
+        const r = baseR * pulse;
+        const photonColor = getPhotonColor(wavelength);
+        
+        // Corona
+        const coronaGrad = ctx.createRadialGradient(sx, sy, r * 0.5, sx, sy, r * 2.5);
+        coronaGrad.addColorStop(0, hexToRgba(photonColor, 0.5));
+        coronaGrad.addColorStop(0.3, hexToRgba(photonColor, 0.2));
+        coronaGrad.addColorStop(0.6, hexToRgba(photonColor, 0.08));
+        coronaGrad.addColorStop(1, hexToRgba(photonColor, 0));
+        ctx.fillStyle = coronaGrad;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Disco solar
+        const sunGrad = ctx.createRadialGradient(sx - r * 0.2, sy - r * 0.2, 0, sx, sy, r);
+        sunGrad.addColorStop(0, '#fffbe6');
+        sunGrad.addColorStop(0.4, photonColor);
+        sunGrad.addColorStop(0.8, '#cc8800');
+        sunGrad.addColorStop(1, '#885500');
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Rotulo
+        ctx.fillStyle = 'rgba(255,255,200,0.7)' + '';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('SOL', sx, sy - r - 12);
+    }
+    
+    function drawLeaf() {
+        const lx = toScreenX(2.2, 0);
+        const ly = toScreenY(2.2, 0, 0.6);
+        
+        // Caule
+        ctx.strokeStyle = '#4d8c3a';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(2.2, 0), toScreenY(2.2, 0, -0.8));
+        ctx.lineTo(lx, ly);
+        ctx.stroke();
+        
+        // Cor da folha conforme pigmento
+        let leafColor = '#2fa14f';
+        let glowColor = '#74ff7a';
+        if (pigmentType === 'chlorophyllB') { leafColor = '#4bbd65'; glowColor = '#88ff99'; }
+        if (pigmentType === 'carotenoids') { leafColor = '#c59d37'; glowColor = '#ffd36e'; }
+        
+        // Brilho da folha (glow)
+        const glowOpacity = 0.08 + absorptionEfficiency * 0.25;
+        const glowR = 70;
+        const glowGrad = ctx.createRadialGradient(lx, ly, 5, lx, ly, glowR);
+        glowGrad.addColorStop(0, hexToRgba(glowColor, glowOpacity * 2));
+        glowGrad.addColorStop(0.5, hexToRgba(glowColor, glowOpacity));
+        glowGrad.addColorStop(1, hexToRgba(glowColor, 0));
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.ellipse(lx, ly, 70, 30, -0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Folha (elipse com perspectiva)
+        const leafW = 60 + (solarIntensity / 1200) * 15;
+        const leafH = 22 + absorptionEfficiency * 15;
+        ctx.save();
+        ctx.translate(lx, ly);
+        ctx.rotate(-0.15 + 0.05 * Math.sin(simulationTime * 0.5));
+        
+        const leafGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, leafW);
+        leafGrad.addColorStop(0, '#7ddf5e');
+        leafGrad.addColorStop(0.6, leafColor);
+        leafGrad.addColorStop(1, '#1a6b2a');
+        ctx.fillStyle = leafGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, leafW, leafH, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Nervura central
+        ctx.strokeStyle = 'rgba(180, 240, 150, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-leafW * 0.7, 0);
+        ctx.lineTo(leafW * 0.7, 0);
+        ctx.stroke();
+        
+        ctx.restore();
+        
+        // Rotulo
+        ctx.fillStyle = 'rgba(200,255,200,0.6)';
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Folha', lx, ly + leafH + 16);
+    }
+    
+    function drawStorageBox() {
+        const bx = toScreenX(5.1, 0);
+        const by = toScreenY(5.1, 0, -0.8);
+        
+        // Brilho do deposito
+        const storageIntensity = 0.08 + (glucoseProduction / 20) * 0.3;
+        const glowGrad = ctx.createRadialGradient(bx, by, 5, bx, by, 50);
+        glowGrad.addColorStop(0, 'rgba(255, 215, 100, ' + storageIntensity + ')');
+        glowGrad.addColorStop(1, 'rgba(255, 215, 100, 0)');
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(bx, by, 50, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Caixa de armazenamento
+        ctx.fillStyle = '#c8963e';
+        ctx.strokeStyle = '#f2d16b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.rect(bx - 30, by - 22, 60, 44);
+        ctx.fill();
+        ctx.stroke();
+        
+        // Tampa no topo
+        ctx.fillStyle = '#d7a33d';
+        ctx.fillRect(bx - 32, by - 26, 64, 8);
+        ctx.strokeStyle = '#f2d16b';
+        ctx.strokeRect(bx - 32, by - 26, 64, 8);
+        
+        // Rotulo
+        ctx.fillStyle = 'rgba(255, 230, 180, 0.8)';
+        ctx.font = 'bold 9px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Glicose', bx, by + 5);
+        ctx.font = '7px Arial';
+        ctx.fillText('(C6H12O6)', bx, by + 18);
+    }
+    
+    function drawFeixe() {
+        // Feixe de luz entre o sol e a folha
+        const sx = toScreenX(-4, 0);
+        const sy = toScreenY(-4, 0, 1.7);
+        const lx = toScreenX(1.6, 0);
+        const ly = toScreenY(1.6, 0, 0.6);
+        const photonColor = getPhotonColor(wavelength);
+        
+        const opacity = 0.08 + (solarIntensity / 1200) * 0.12;
+        ctx.strokeStyle = hexToRgba(photonColor, opacity);
+        ctx.lineWidth = 20;
+        ctx.beginPath();
+        ctx.moveTo(sx, sy - 10);
+        ctx.lineTo(lx, ly - 10);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(sx, sy + 10);
+        ctx.lineTo(lx, ly + 10);
+        ctx.stroke();
+    }
+    
     function spawnPhoton() {
         if (!showPhotons) return;
-
-        const photon = new THREE.Mesh(
-            new THREE.SphereGeometry(0.08, 14, 14),
-            new THREE.MeshBasicMaterial({ color: getPhotonColor(wavelength) })
-        );
-        photon.position.set(-4.3, 1.35 + (Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.3);
-        scene.add(photon);
-
-        photonParticles.push({
-            mesh: photon,
-            velocity: new THREE.Vector3(0.12 + solarIntensity / 16000, -0.018 + (Math.random() - 0.5) * 0.006, (Math.random() - 0.5) * 0.008),
+        const photonColor = getPhotonColor(wavelength);
+        const angle = Math.atan2(canvas.height * 0.2, canvas.width * 0.35);
+        const speed = 3 + (solarIntensity / 800) * 2;
+        
+        photons.push({
+            x: toScreenX(-4.3, 0),
+            y: toScreenY(-4.3, 0, 1.5) + (Math.random() - 0.5) * 30,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: photonColor,
+            size: 3 + Math.random() * 3,
+            opacity: 0.8,
             processed: false,
             reflected: false
         });
     }
-
-    function removePhoton(index) {
-        scene.remove(photonParticles[index].mesh);
-        photonParticles.splice(index, 1);
-    }
-
+    
     function spawnGlucoseParticle() {
-        const glucose = new THREE.Mesh(
-            new THREE.OctahedronGeometry(0.14, 0),
-            new THREE.MeshPhongMaterial({ color: 0xffd465, emissive: 0x8f5d00, emissiveIntensity: 0.4 })
-        );
-        glucose.position.set(2.8, 0.5 + (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5);
-        scene.add(glucose);
-
+        const lx = toScreenX(2.8, 0);
+        const ly = toScreenY(2.8, 0, 0.5);
         glucoseParticles.push({
-            mesh: glucose,
-            velocity: new THREE.Vector3(0.03 + Math.random() * 0.02, -0.01 + Math.random() * 0.015, (Math.random() - 0.5) * 0.01)
+            x: lx + (Math.random() - 0.5) * 20,
+            y: ly + (Math.random() - 0.5) * 10,
+            vx: 0.5 + Math.random() * 0.3,
+            vy: -0.2 + Math.random() * 0.3,
+            rotation: Math.random() * Math.PI * 2,
+            rotSpeed: 0.03 + Math.random() * 0.04,
+            size: 5 + Math.random() * 3,
+            alpha: 1
         });
     }
-
-    function updatePhotons() {
+    
+    function spawnWaterParticle() {
+        const bx = toScreenX(5.1, 0);
+        const by = toScreenY(5.1, 0, -0.8);
+        waterParticles.push({
+            x: bx + (Math.random() - 0.5) * 80,
+            y: by + 50 + Math.random() * 40,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: -0.3 - Math.random() * 0.5,
+            size: 3 + Math.random() * 3,
+            alpha: 0.6 + Math.random() * 0.4
+        });
+    }
+    
+    function spawnCO2Particle() {
+        const bx = toScreenX(5.1, 0);
+        const by = toScreenY(5.1, 0, -0.8);
+        co2Particles.push({
+            x: bx + (Math.random() - 0.5) * 100,
+            y: by + 60 + Math.random() * 30,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -0.2 - Math.random() * 0.3,
+            size: 4 + Math.random() * 3,
+            alpha: 0.5 + Math.random() * 0.5
+        });
+    }
+    
+    function spawnOxygenParticle() {
+        const lx = toScreenX(2.2, 0);
+        const ly = toScreenY(2.2, 0, 0.6);
+        oxygenParticles.push({
+            x: lx + (Math.random() - 0.5) * 40,
+            y: ly + (Math.random() - 0.5) * 20,
+            vx: 1 + Math.random() * 0.5,
+            vy: -1 - Math.random() * 0.5,
+            size: 3 + Math.random() * 3,
+            alpha: 0.7 + Math.random() * 0.3
+        });
+    }
+    
+    function drawPhotons() {
+        for (let i = photons.length - 1; i >= 0; i--) {
+            const p = photons[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            // Verificar se chegou na folha
+            const lx = toScreenX(1.6, 0);
+            const ly = toScreenY(1.6, 0, 0.6);
+            if (p.x >= lx && !p.processed) {
+                p.processed = true;
+                if (Math.random() < absorptionEfficiency) {
+                    // Absorvido - desaparece
+                    p.opacity = 0;
+                    if (Math.random() < glucoseProduction / 15) {
+                        spawnGlucoseParticle();
+                    }
+                    continue;
+                } else {
+                    // Refletido
+                    p.reflected = true;
+                    p.vx = -p.vx * 0.5;
+                    p.vy = -Math.abs(p.vy) * 0.5;
+                }
+            }
+            
+            if (p.opacity <= 0 || p.x > canvas.width + 20 || p.y > canvas.height + 20 || p.y < -20) {
+                photons.splice(i, 1);
+                continue;
+            }
+            
+            // Desenhar foton
+            const alpha = p.opacity * clamp(1 - (i / photons.length) * 0.3, 0.3, 1);
+            ctx.fillStyle = hexToRgba(p.color, alpha);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Brilho ao redor
+            ctx.fillStyle = hexToRgba(p.color, alpha * 0.3);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+    
+    function updateParticles() {
+        // Atualizar fotons
         photonSpawnAccumulator += solarIntensity / 9000;
         while (photonSpawnAccumulator >= 1) {
             spawnPhoton();
             photonSpawnAccumulator -= 1;
         }
-
-        for (let index = photonParticles.length - 1; index >= 0; index--) {
-            const photon = photonParticles[index];
-            photon.mesh.position.add(photon.velocity);
-
-            if (photon.mesh.position.x >= 1.6 && !photon.processed) {
-                photon.processed = true;
-                if (Math.random() < absorptionEfficiency) {
-                    leafGlow.material.opacity = clamp(leafGlow.material.opacity + 0.015, 0.08, 0.35);
-                    removePhoton(index);
-                    if (Math.random() < glucoseProduction / 12) {
-                        spawnGlucoseParticle();
-                    }
-                    continue;
-                }
-
-                photon.reflected = true;
-                photon.velocity.set(0.05, 0.02 + Math.random() * 0.02, (Math.random() - 0.5) * 0.025);
-            }
-
-            if (photon.mesh.position.x > 6 || Math.abs(photon.mesh.position.y) > 4 || Math.abs(photon.mesh.position.z) > 4) {
-                removePhoton(index);
-            }
-        }
-    }
-
-    function updateGlucoseParticles() {
+        
+        // Atualizar glicose
         glucoseSpawnAccumulator += glucoseProduction / 520;
         while (glucoseSpawnAccumulator >= 1) {
             spawnGlucoseParticle();
             glucoseSpawnAccumulator -= 1;
         }
-
-        for (let index = glucoseParticles.length - 1; index >= 0; index--) {
-            const glucose = glucoseParticles[index];
-            glucose.mesh.position.add(glucose.velocity);
-            glucose.mesh.rotation.x += 0.03;
-            glucose.mesh.rotation.y += 0.04;
-
-            if (glucose.mesh.position.x >= 5) {
-                storageBox.material.emissiveIntensity = clamp(storageBox.material.emissiveIntensity + 0.03, 0.3, 1.2);
-                scene.remove(glucose.mesh);
-                glucoseParticles.splice(index, 1);
+        
+        for (let i = glucoseParticles.length - 1; i >= 0; i--) {
+            const g = glucoseParticles[i];
+            g.x += g.vx;
+            g.y += g.vy;
+            g.rotation += g.rotSpeed;
+            
+            const bx = toScreenX(5.1, 0);
+            if (g.x >= bx - 20) {
+                glucoseParticles.splice(i, 1);
+                continue;
             }
+            
+            // Desenhar glicose (hexagono)
+            ctx.save();
+            ctx.translate(g.x, g.y);
+            ctx.rotate(g.rotation);
+            ctx.strokeStyle = 'rgba(255, 212, 100, ' + g.alpha + ')';
+            ctx.fillStyle = 'rgba(255, 200, 80, ' + g.alpha * 0.3 + ')';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let j = 0; j < 6; j++) {
+                const angle = (j / 6) * Math.PI * 2;
+                const r = g.size;
+                const px = Math.cos(angle) * r;
+                const py = Math.sin(angle) * r;
+                if (j === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
         }
-
+        
         while (glucoseParticles.length > 35) {
-            const oldest = glucoseParticles.shift();
-            scene.remove(oldest.mesh);
+            glucoseParticles.shift();
+        }
+        
+        // Moléculas de água (sobem da caixa)
+        if (isRunning && waterAvailability > 10) {
+            if (Math.random() < 0.05) spawnWaterParticle();
+        }
+        for (let i = waterParticles.length - 1; i >= 0; i--) {
+            const w = waterParticles[i];
+            w.x += w.vx;
+            w.y += w.vy;
+            w.alpha -= 0.005;
+            if (w.alpha <= 0) {
+                waterParticles.splice(i, 1);
+                continue;
+            }
+            // Desenhar H2O
+            ctx.fillStyle = 'rgba(100, 200, 255, ' + w.alpha + ')';
+            ctx.strokeStyle = 'rgba(100, 200, 255, ' + w.alpha * 0.5 + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(w.x, w.y, w.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(200, 240, 255, ' + w.alpha + ')';
+            ctx.font = 'bold 7px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('H2O', w.x, w.y - w.size - 2);
+        }
+        
+        // Moleculas de CO2 (sobem da caixa)
+        if (isRunning && co2Level > 20) {
+            if (Math.random() < 0.04) spawnCO2Particle();
+        }
+        for (let i = co2Particles.length - 1; i >= 0; i--) {
+            const c = co2Particles[i];
+            c.x += c.vx;
+            c.y += c.vy;
+            c.alpha -= 0.005;
+            if (c.alpha <= 0) {
+                co2Particles.splice(i, 1);
+                continue;
+            }
+            ctx.fillStyle = 'rgba(180, 180, 180, ' + c.alpha + ')';
+            ctx.strokeStyle = 'rgba(180, 180, 180, ' + c.alpha * 0.5 + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(220, 220, 220, ' + c.alpha + ')';
+            ctx.font = 'bold 7px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('CO2', c.x, c.y - c.size - 2);
+        }
+        
+        // Moleculas de O2 (saem da folha)
+        if (isRunning && photosynthesisRate > 5) {
+            if (Math.random() < 0.06 + (photosynthesisRate / 200)) spawnOxygenParticle();
+        }
+        for (let i = oxygenParticles.length - 1; i >= 0; i--) {
+            const o = oxygenParticles[i];
+            o.x += o.vx;
+            o.y += o.vy;
+            o.alpha -= 0.008;
+            if (o.alpha <= 0) {
+                oxygenParticles.splice(i, 1);
+                continue;
+            }
+            ctx.fillStyle = 'rgba(100, 255, 150, ' + o.alpha + ')';
+            ctx.strokeStyle = 'rgba(100, 255, 150, ' + o.alpha * 0.5 + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(o.x, o.y, o.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(180, 255, 200, ' + o.alpha + ')';
+            ctx.font = 'bold 7px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('O2', o.x, o.y - o.size - 2);
+        }
+    }
+    
+    function drawLabels() {
+        ctx.fillStyle = 'rgba(200, 220, 255, 0.5)';
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        
+        // Legendas
+        const lx = toScreenX(-5, 0);
+        const ly = toScreenY(-5, 0, 2);
+        
+        ctx.fillStyle = 'rgba(100, 200, 255, 0.4)';
+        ctx.fillText('H2O (agua)', toScreenX(4.8, 0) + 10, toScreenY(4.8, 0, -0.5));
+        ctx.fillText('CO2', toScreenX(4.8, 0) + 10, toScreenY(4.8, 0, -0.3));
+        ctx.fillStyle = 'rgba(100, 255, 150, 0.4)';
+        ctx.fillText('O2 (oxigenio)', toScreenX(2.2, 0) + 30, toScreenY(2.2, 0, 0) - 30);
+        
+        // Setas indicando fluxo
+        ctx.strokeStyle = 'rgba(100, 200, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        
+        // Seta H2O -> folha
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(4.8, 0), toScreenY(4.8, 0, -0.9));
+        ctx.lineTo(toScreenX(2.8, 0), toScreenY(2.8, 0, 0.2));
+        ctx.stroke();
+        
+        // Seta CO2 -> folha
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(4.8, 0), toScreenY(4.8, 0, -0.7));
+        ctx.lineTo(toScreenX(2.8, 0), toScreenY(2.8, 0, 0.3));
+        ctx.stroke();
+        
+        // Seta O2 <- folha
+        ctx.strokeStyle = 'rgba(100, 255, 150, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(toScreenX(2.8, 0), toScreenY(2.8, 0, 0));
+        ctx.lineTo(toScreenX(4.5, 0), toScreenY(4.5, 0, -0.5));
+        ctx.stroke();
+        
+        ctx.setLineDash([]);
+    }
+    
+    function drawGridFotos() {
+        const overlay = document.getElementById('gridOverlayFotos');
+        if (!overlay) return;
+        const container = document.getElementById('renderer-container');
+        if (!container) return;
+        overlay.width = container.clientWidth;
+        overlay.height = container.clientHeight;
+        const ctx_overlay = overlay.getContext('2d');
+        ctx_overlay.clearRect(0, 0, overlay.width, overlay.height);
+        if (!showGridFotos) return;
+        const margin = 30;
+        const gridWidth = overlay.width - margin * 2;
+        const gridHeight = overlay.height - margin * 2;
+        const startX = margin;
+        const startY = margin;
+        const stepX = gridWidth / GRID_COLS_F;
+        const stepY = gridHeight / GRID_ROWS_F;
+        ctx_overlay.strokeStyle = 'rgba(77, 210, 255, 0.3)';
+        ctx_overlay.lineWidth = 0.5;
+        for (let i = 0; i <= GRID_COLS_F; i++) {
+            const x = startX + i * stepX;
+            ctx_overlay.beginPath(); ctx_overlay.moveTo(x, startY); ctx_overlay.lineTo(x, startY + gridHeight); ctx_overlay.stroke();
+        }
+        for (let i = 0; i <= GRID_ROWS_F; i++) {
+            const y = startY + i * stepY;
+            ctx_overlay.beginPath(); ctx_overlay.moveTo(startX, y); ctx_overlay.lineTo(startX + gridWidth, y); ctx_overlay.stroke();
+        }
+        ctx_overlay.fillStyle = 'rgba(200, 230, 255, 0.5)';
+        ctx_overlay.font = 'bold 9px Arial';
+        ctx_overlay.textAlign = 'center'; ctx_overlay.textBaseline = 'top';
+        for (let i = 0; i < GRID_COLS_F; i++) {
+            ctx_overlay.fillText(String.fromCharCode(65 + i), startX + i * stepX + stepX / 2, startY + gridHeight + 6);
+        }
+        ctx_overlay.textAlign = 'right'; ctx_overlay.textBaseline = 'middle';
+        for (let i = 0; i < GRID_ROWS_F; i++) {
+            ctx_overlay.fillText(String(i + 1), startX - 6, startY + i * stepY + stepY / 2);
         }
     }
 
+        function drawSystem() {
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawBackground();
+        drawFeixe();
+        drawSun();
+        drawLeaf();
+        drawStorageBox();
+        drawPhotons();
+        updateParticles();
+        drawLabels();
+        drawGridFotos();
+    }
+    
     function animate() {
         requestAnimationFrame(animate);
-
+        
         if (isRunning) {
             simulationTime += 0.016;
-            sun.rotation.y += 0.01;
-            corona.scale.setScalar(1 + 0.04 * Math.sin(simulationTime * 2));
-            leaf.rotation.x = leafBaseRotationX + 0.05 * Math.sin(simulationTime * 0.5);
-            leaf.rotation.y = leafBaseRotationY + 0.18 * Math.sin(simulationTime * 0.7);
-            leaf.rotation.z = leafBaseRotationZ + 0.04 * Math.sin(simulationTime * 0.45);
-            leafGlow.rotation.copy(leaf.rotation);
-            updatePhotons();
-            updateGlucoseParticles();
         }
-
-        leafGlow.material.opacity = clamp(leafGlow.material.opacity * 0.995, 0.06 + absorptionEfficiency * 0.14, 0.35);
-        storageBox.material.emissiveIntensity = clamp(storageBox.material.emissiveIntensity * 0.997, 0.25 + glucoseProduction / 20, 1.2);
-
-        controls.update();
-        renderer.render(scene, camera);
+        
+        drawSystem();
     }
-
+    
     function updateMeasurements() {
         document.getElementById('wavelengthValue').innerText = wavelength;
         document.getElementById('intensityValue').innerText = solarIntensity;
@@ -1219,7 +1579,6 @@
 
     function refreshModel() {
         calculateDerivedValues();
-        updateSimulationAppearance();
         updateMeasurements();
     }
 
@@ -1252,8 +1611,7 @@
         document.getElementById('photonToggle').addEventListener('change', function() {
             showPhotons = this.checked;
             if (!showPhotons) {
-                photonParticles.forEach(particle => scene.remove(particle.mesh));
-                photonParticles = [];
+                photons = [];
             }
         });
 
@@ -1275,35 +1633,53 @@
             simulationTime = 0;
             photonSpawnAccumulator = 0;
             glucoseSpawnAccumulator = 0;
+            photons = [];
+            glucoseParticles = [];
+            waterParticles = [];
+            co2Particles = [];
+            oxygenParticles = [];
+            
             document.getElementById('wavelengthInput').value = wavelength;
             document.getElementById('intensityInput').value = solarIntensity;
             document.getElementById('co2Input').value = co2Level;
             document.getElementById('waterInput').value = waterAvailability;
             document.getElementById('pigmentSelect').value = pigmentType;
 
-            photonParticles.forEach(particle => scene.remove(particle.mesh));
-            photonParticles = [];
-            glucoseParticles.forEach(particle => scene.remove(particle.mesh));
-            glucoseParticles = [];
-
             refreshModel();
         });
 
+        // [Grade] Event listener
+        document.getElementById('gridToggleFotos').addEventListener('click', function() {
+            showGridFotos = !showGridFotos;
+            this.textContent = showGridFotos ? 'Esconder Grade' : 'Mostrar Grade';
+            drawGridFotos();
+        });
+
         document.getElementById('helpBtn').addEventListener('click', function() {
-            alert('Use o mouse para girar a cena. Ajuste comprimento de onda, intensidade, CO₂, água e pigmento. Depois clique em Iniciar para observar o fluxo de fótons, a absorção na folha e a formação de glicose.');
+            alert('Ajuste comprimento de onda, intensidade, CO2, agua e pigmento. Depois clique em Iniciar para observar o fluxo de fotons, a absorcao na folha e a formacao de glicose.');
         });
     }
 
     function onWindowResize() {
-        const container = document.getElementById('renderer-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
+        resizeCanvas();
+        const overlay = document.getElementById('gridOverlayFotos');
+        if (overlay && canvas) {
+            overlay.width = canvas.width;
+            overlay.height = canvas.height;
+        }
     }
 
-    const studentNameStorageKey = 'studentName-fotossintese-solar';
+    function hexToRgba(hex, alpha) {
+        if (!hex) return 'rgba(255,255,255,' + alpha + ')';
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    // Forcar desenho inicial da grade
+    setTimeout(function() { drawGridFotos(); }, 200);
+const studentNameStorageKey = 'studentName-fotossintese-solar';
     let guidedStudentName = localStorage.getItem(studentNameStorageKey);
     if (!guidedStudentName) {
         try {
