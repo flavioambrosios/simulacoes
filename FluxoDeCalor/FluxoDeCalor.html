@@ -463,10 +463,27 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
-        @media (max-width: 768px) {
+                @media (max-width: 768px) {
             .content {
                 flex-direction: column;
+                gap: 16px;
             }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+                padding: 14px;
+            }
+            .simulation-container {
+                height: 320px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .panel-title {
+                font-size: 1.1rem;
+                margin-bottom: 14px;
+            }
+        }
             .simulation-panel, .controls-panel {
                 flex: 1;
                 width: 100%;
@@ -928,7 +945,6 @@
             drawThermometers();
             drawParticles();
             drawTemperatureGraph();
-            drawCrossSectionInset();
             drawLabels();
             drawGridFluxo();
         }
@@ -979,9 +995,6 @@
             const maxArea = 0.020;
             const minLength = 0.2;
             const maxLength = 2.0;
-            const crossSectionPanelWidth = 180;
-            const rightMargin = 12;
-            const reservedGap = 96;
             const minSide = Math.sqrt(minArea);
             const maxSide = Math.sqrt(maxArea);
             const sideMeters = Math.sqrt(area);
@@ -993,7 +1006,7 @@
             const topLift = depth * 0.42;
             const x = canvas.width * 0.12;
             const desiredWidth = canvas.width * (0.34 + normalizedLength * 0.28);
-            const maxProjectionRight = canvas.width - rightMargin - crossSectionPanelWidth - reservedGap;
+            const maxProjectionRight = canvas.width - 12 - 96;
             const maxWidth = Math.max(canvas.width * 0.24, maxProjectionRight - x - depth);
             const width = Math.min(desiredWidth, maxWidth);
 
@@ -1008,9 +1021,7 @@
                 normalizedSide: normalizedSide,
                 normalizedLength: normalizedLength,
                 sideMeters: sideMeters,
-                reservedGap: reservedGap,
-                crossSectionPanelWidth: crossSectionPanelWidth,
-                rightMargin: rightMargin
+                reservedGap: 96,
             };
         }
 
@@ -1251,53 +1262,6 @@
             ctx.fillText(`dT/dx = ${gradient.toFixed(1)} °C/m`, graphX, graphY + 12);
         }
 
-        function drawCrossSectionInset() {
-            const geometry = getBarGeometry();
-            const panelWidth = geometry.crossSectionPanelWidth;
-            const panelHeight = 140;
-            const safeMargin = geometry.rightMargin;
-            const panelX = canvas.width - panelWidth - safeMargin;
-            const panelY = 8;
-            const side = 34 + geometry.normalizedSide * 56;
-            const squareX = panelX + (panelWidth - side) / 2;
-            const squareY = panelY + 40;
-
-            ctx.fillStyle = 'rgba(6, 17, 28, 0.82)';
-            ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
-            ctx.strokeStyle = 'rgba(207, 232, 255, 0.28)';
-            ctx.lineWidth = 1.5;
-            ctx.strokeRect(panelX, panelY, panelWidth, panelHeight);
-
-            ctx.fillStyle = '#d9e2ec';
-            ctx.font = 'bold 13px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Secao transversal', panelX + panelWidth / 2, panelY + 18);
-
-            ctx.fillStyle = 'rgba(255, 209, 102, 0.22)';
-            ctx.fillRect(squareX, squareY, side, side);
-            ctx.strokeStyle = '#ffd166';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(squareX, squareY, side, side);
-
-            ctx.strokeStyle = '#ffefb0';
-            ctx.lineWidth = 1.2;
-            ctx.beginPath();
-            ctx.moveTo(squareX, squareY + side + 10);
-            ctx.lineTo(squareX + side, squareY + side + 10);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(squareX, squareY + side + 6);
-            ctx.lineTo(squareX, squareY + side + 14);
-            ctx.moveTo(squareX + side, squareY + side + 6);
-            ctx.lineTo(squareX + side, squareY + side + 14);
-            ctx.stroke();
-
-            ctx.fillStyle = '#ffefb0';
-            ctx.font = '12px Arial';
-            ctx.fillText(`lado a = ${geometry.sideMeters.toFixed(3)} m`, panelX + panelWidth / 2, squareY + side + 28);
-            ctx.fillStyle = '#cfe8ff';
-            ctx.fillText(`A = a² = ${area.toFixed(3)} m²`, panelX + panelWidth / 2, panelY + panelHeight - 12);
-        }
 
         function drawLabels() {
             const geometry = getBarGeometry();
