@@ -556,10 +556,27 @@
             background: #c82333;
         }
         
-        @media (max-width: 768px) {
+                @media (max-width: 768px) {
             .content {
                 flex-direction: column;
+                gap: 16px;
             }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+                padding: 14px;
+            }
+            .simulation-container {
+                height: 320px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .panel-title {
+                font-size: 1.1rem;
+                margin-bottom: 14px;
+            }
+        }
             .simulation-panel, .controls-panel {
                 flex: 1;
                 width: 100%;
@@ -1049,7 +1066,7 @@ function initSimulation() {
         const r = baseR * pulse;
         const photonColor = getPhotonColor(wavelength);
         
-        // Corona
+        // Corona - cor monocromatica do comprimento selecionado
         const coronaGrad = ctx.createRadialGradient(sx, sy, r * 0.5, sx, sy, r * 2.5);
         coronaGrad.addColorStop(0, hexToRgba(photonColor, 0.5));
         coronaGrad.addColorStop(0.3, hexToRgba(photonColor, 0.2));
@@ -1060,35 +1077,39 @@ function initSimulation() {
         ctx.arc(sx, sy, r * 2.5, 0, Math.PI * 2);
         ctx.fill();
         
-        // Disco solar
+        // Disco solar - muito mais claro (branco-amarelado)
         const sunGrad = ctx.createRadialGradient(sx - r * 0.2, sy - r * 0.2, 0, sx, sy, r);
-        sunGrad.addColorStop(0, '#fffbe6');
-        sunGrad.addColorStop(0.4, photonColor);
-        sunGrad.addColorStop(0.8, '#cc8800');
-        sunGrad.addColorStop(1, '#885500');
+        sunGrad.addColorStop(0, '#ffffff');
+        sunGrad.addColorStop(0.3, '#fffef0');
+        sunGrad.addColorStop(0.6, '#fff8c0');
+        sunGrad.addColorStop(0.9, '#ffe8a0');
+        sunGrad.addColorStop(1, '#ffd080');
         ctx.fillStyle = sunGrad;
         ctx.beginPath();
         ctx.arc(sx, sy, r, 0, Math.PI * 2);
         ctx.fill();
         
+        // Filtro monocromatico - anel fino da cor selecionada
+        ctx.strokeStyle = hexToRgba(photonColor, 0.6);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r + 2, 0, Math.PI * 2);
+        ctx.stroke();
+        
         // Rotulo
-        ctx.fillStyle = 'rgba(255,255,200,0.7)' + '';
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
         ctx.font = 'bold 11px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('SOL', sx, sy - r - 12);
+        ctx.fillText('SOL (' + wavelength + ' nm)', sx, sy - r - 14);
     }
     
-    function drawLeaf() {
-        const lx = toScreenX(2.2, 0);
-        const ly = toScreenY(2.2, 0, 0.6);
-        
-        // Caule
-        ctx.strokeStyle = '#4d8c3a';
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.moveTo(toScreenX(2.2, 0), toScreenY(2.2, 0, -0.8));
-        ctx.lineTo(lx, ly);
-        ctx.stroke();
+    function drawPlants() {
+        // Desenha um conjunto de plantas completas com raizes, tronco, galhos e folhas
+        const plantPositions = [
+            { bx: 1.2, bz: 0.3, h: 1.3, label: 'Girassol' },
+            { bx: 2.4, bz: 0.1, h: 1.5, label: 'Milho' },
+            { bx: 3.6, bz: 0.4, h: 1.1, label: 'Cana' }
+        ];
         
         // Cor da folha conforme pigmento
         let leafColor = '#2fa14f';
@@ -1096,108 +1117,273 @@ function initSimulation() {
         if (pigmentType === 'chlorophyllB') { leafColor = '#4bbd65'; glowColor = '#88ff99'; }
         if (pigmentType === 'carotenoids') { leafColor = '#c59d37'; glowColor = '#ffd36e'; }
         
-        // Brilho da folha (glow)
-        const glowOpacity = 0.08 + absorptionEfficiency * 0.25;
-        const glowR = 70;
-        const glowGrad = ctx.createRadialGradient(lx, ly, 5, lx, ly, glowR);
-        glowGrad.addColorStop(0, hexToRgba(glowColor, glowOpacity * 2));
-        glowGrad.addColorStop(0.5, hexToRgba(glowColor, glowOpacity));
-        glowGrad.addColorStop(1, hexToRgba(glowColor, 0));
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.ellipse(lx, ly, 70, 30, -0.3, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Folha (elipse com perspectiva)
-        const leafW = 60 + (solarIntensity / 1200) * 15;
-        const leafH = 22 + absorptionEfficiency * 15;
-        ctx.save();
-        ctx.translate(lx, ly);
-        ctx.rotate(-0.15 + 0.05 * Math.sin(simulationTime * 0.5));
-        
-        const leafGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, leafW);
-        leafGrad.addColorStop(0, '#7ddf5e');
-        leafGrad.addColorStop(0.6, leafColor);
-        leafGrad.addColorStop(1, '#1a6b2a');
-        ctx.fillStyle = leafGrad;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, leafW, leafH, 0, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Nervura central
-        ctx.strokeStyle = 'rgba(180, 240, 150, 0.3)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(-leafW * 0.7, 0);
-        ctx.lineTo(leafW * 0.7, 0);
-        ctx.stroke();
-        
-        ctx.restore();
-        
-        // Rotulo
-        ctx.fillStyle = 'rgba(200,255,200,0.6)';
-        ctx.font = '9px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Folha', lx, ly + leafH + 16);
+        plantPositions.forEach(function(plant, idx) {
+            const bx = plant.bx;
+            const bz = plant.bz;
+            const plantH = plant.h;
+            
+            // Base do tronco (chao)
+            const baseX = toScreenX(bx, bz);
+            const baseY = toScreenY(bx, bz, 0.2);
+            const topX = toScreenX(bx, bz);
+            const topY = toScreenY(bx, bz, plantH);
+            
+            // Raizes (linhas pra baixo no solo)
+            ctx.strokeStyle = '#8B6914';
+            ctx.lineWidth = 2;
+            for (let r = -2; r <= 2; r++) {
+                const rootEndX = baseX + r * 12;
+                const rootEndY = baseY + 18 + Math.abs(r) * 6;
+                ctx.beginPath();
+                ctx.moveTo(baseX, baseY);
+                ctx.quadraticCurveTo(baseX + r * 6, baseY + 10, rootEndX, rootEndY);
+                ctx.stroke();
+                // Pontas finas
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(rootEndX, rootEndY);
+                ctx.lineTo(rootEndX + r * 5, rootEndY + 5);
+                ctx.stroke();
+                ctx.lineWidth = 2;
+            }
+            
+            // Tronco principal
+            const trunkW = 6 + plantH * 1.5;
+            ctx.strokeStyle = '#6B4226';
+            ctx.lineWidth = trunkW;
+            ctx.beginPath();
+            ctx.moveTo(baseX, baseY);
+            ctx.lineTo(topX, topY - 0.4 * plantH * canvas.height * 0.01);
+            ctx.stroke();
+            
+            // Textura do tronco
+            ctx.strokeStyle = '#8B6B4A';
+            ctx.lineWidth = 1;
+            for (let t = 0; t < 3; t++) {
+                const ty = baseY - (t + 1) * (baseY - topY) / 6;
+                ctx.beginPath();
+                ctx.moveTo(baseX - trunkW / 2, ty);
+                ctx.lineTo(baseX + trunkW / 2, ty);
+                ctx.stroke();
+            }
+            
+            // Galhos
+            ctx.strokeStyle = '#5C3A1E';
+            ctx.lineWidth = 3;
+            for (let g = 0; g < 3; g++) {
+                const gY = topY + (baseY - topY) * (0.3 + g * 0.2);
+                const sway = 2 * Math.sin(simulationTime * 1.5 + idx + g);
+                ctx.beginPath();
+                ctx.moveTo(topX, gY);
+                const branchEndX = topX + (15 + g * 10) * (g % 2 === 0 ? 1 : -1) + sway;
+                const branchEndY = gY - 15 - g * 5;
+                ctx.quadraticCurveTo(topX + sway, gY - 8, branchEndX, branchEndY);
+                ctx.stroke();
+                
+                // Folhas nos galhos (elipses)
+                const leafSize = 10 + absorptionEfficiency * 8;
+                ctx.fillStyle = leafColor;
+                ctx.beginPath();
+                ctx.ellipse(branchEndX, branchEndY, leafSize, leafSize * 0.4, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(180,240,150,0.4)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(branchEndX - leafSize * 0.6, branchEndY);
+                ctx.lineTo(branchEndX + leafSize * 0.6, branchEndY);
+                ctx.stroke();
+                
+                // Pequenas folhas extras
+                for (let sf = 0; sf < 2; sf++) {
+                    const sfX = branchEndX + (sf - 0.5) * leafSize;
+                    const sfY = branchEndY - 5 + sf * 3;
+                    ctx.fillStyle = leafColor;
+                    ctx.beginPath();
+                    ctx.ellipse(sfX, sfY, leafSize * 0.5, leafSize * 0.2, 0.2 * (sf === 0 ? -1 : 1), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Copas superiores (grupo de folhas no topo)
+            const crownR = 12 + plantH * 4;
+            const glowOpacity = 0.08 + absorptionEfficiency * 0.25;
+            const glowGrad = ctx.createRadialGradient(topX, topY - 15, 2, topX, topY - 15, crownR * 1.5);
+            glowGrad.addColorStop(0, hexToRgba(glowColor, glowOpacity * 2));
+            glowGrad.addColorStop(0.5, hexToRgba(glowColor, glowOpacity));
+            glowGrad.addColorStop(1, hexToRgba(glowColor, 0));
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.ellipse(topX, topY - 15, crownR * 1.5, crownR * 0.7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Folhas do topo
+            for (let tf = 0; tf < 5; tf++) {
+                const tAngle = (tf / 5) * Math.PI * 2 + simulationTime * 0.02 * tf;
+                const tR = crownR * 0.6;
+                const tX = topX + Math.cos(tAngle) * tR;
+                const tY = topY - 15 + Math.sin(tAngle) * tR * 0.4;
+                ctx.fillStyle = leafColor;
+                ctx.beginPath();
+                ctx.ellipse(tX, tY, 8 + absorptionEfficiency * 5, 3.5, tAngle, 0, Math.PI * 2);
+                ctx.fill();
+                // Nervura
+                ctx.strokeStyle = 'rgba(180,240,150,0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(tX - 5, tY);
+                ctx.lineTo(tX + 5, tY);
+                ctx.stroke();
+            }
+            
+            // Rotulo da planta
+            ctx.fillStyle = 'rgba(200,255,200,0.7)';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(plant.label, baseX, baseY + 25);
+        });
     }
     
-    function drawStorageBox() {
-        const bx = toScreenX(5.1, 0);
-        const by = toScreenY(5.1, 0, -0.8);
+    function drawStorageBoxes() {
+        // Varios locais de armazenamento de glicose nas plantas
+        const storageLocations = [
+            { x: 1.2, z: 0.3, ty: -0.2, type: 'semente', label: 'Semente' },
+            { x: 2.4, z: 0.1, ty: 0.1, type: 'fruto', label: 'Fruto' },
+            { x: 3.6, z: 0.4, ty: -0.5, type: 'caule', label: 'Caule' },
+            { x: 4.5, z: 0.2, ty: -0.3, type: 'raiz', label: 'Raiz' }
+        ];
         
-        // Brilho do deposito
-        const storageIntensity = 0.08 + (glucoseProduction / 20) * 0.3;
-        const glowGrad = ctx.createRadialGradient(bx, by, 5, bx, by, 50);
-        glowGrad.addColorStop(0, 'rgba(255, 215, 100, ' + storageIntensity + ')');
-        glowGrad.addColorStop(1, 'rgba(255, 215, 100, 0)');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(bx, by, 50, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Caixa de armazenamento
-        ctx.fillStyle = '#c8963e';
-        ctx.strokeStyle = '#f2d16b';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.rect(bx - 30, by - 22, 60, 44);
-        ctx.fill();
-        ctx.stroke();
-        
-        // Tampa no topo
-        ctx.fillStyle = '#d7a33d';
-        ctx.fillRect(bx - 32, by - 26, 64, 8);
-        ctx.strokeStyle = '#f2d16b';
-        ctx.strokeRect(bx - 32, by - 26, 64, 8);
-        
-        // Rotulo
-        ctx.fillStyle = 'rgba(255, 230, 180, 0.8)';
-        ctx.font = 'bold 9px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('Glicose', bx, by + 5);
-        ctx.font = '7px Arial';
-        ctx.fillText('(C6H12O6)', bx, by + 18);
+        storageLocations.forEach(function(loc) {
+            const sx = toScreenX(loc.x, loc.z);
+            const sy = toScreenY(loc.x, loc.z, loc.ty);
+            
+            // Brilho suave
+            const storageIntensity = 0.05 + (glucoseProduction / 20) * 0.2;
+            const glowGrad = ctx.createRadialGradient(sx, sy, 3, sx, sy, 25);
+            glowGrad.addColorStop(0, 'rgba(255, 215, 100, ' + storageIntensity + ')');
+            glowGrad.addColorStop(1, 'rgba(255, 215, 100, 0)');
+            ctx.fillStyle = glowGrad;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 25, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Desenhar conforme tipo
+            if (loc.type === 'semente') {
+                // Semente (elipse marrom)
+                ctx.fillStyle = '#8B6914';
+                ctx.strokeStyle = '#D2A44E';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.ellipse(sx, sy, 10, 7, 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            } else if (loc.type === 'fruto') {
+                // Fruto (circulo vermelho-alaranjado)
+                const fruitGrad = ctx.createRadialGradient(sx - 2, sy - 2, 0, sx, sy, 10);
+                fruitGrad.addColorStop(0, '#FF8C42');
+                fruitGrad.addColorStop(1, '#C0392B');
+                ctx.fillStyle = fruitGrad;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 9, 0, Math.PI * 2);
+                ctx.fill();
+                // Folhinha no topo
+                ctx.fillStyle = '#2fa14f';
+                ctx.beginPath();
+                ctx.ellipse(sx, sy - 8, 5, 2.5, 0.1, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (loc.type === 'caule') {
+                // Caule (cilindro grosso)
+                ctx.fillStyle = '#7D6B3A';
+                ctx.strokeStyle = '#A8924E';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.rect(sx - 7, sy - 12, 14, 22);
+                ctx.fill();
+                ctx.stroke();
+                // Linhas de textura
+                ctx.strokeStyle = 'rgba(168,146,78,0.5)';
+                ctx.lineWidth = 1;
+                for (let l = 0; l < 3; l++) {
+                    ctx.beginPath();
+                    ctx.moveTo(sx - 7, sy - 6 + l * 8);
+                    ctx.lineTo(sx + 7, sy - 6 + l * 8);
+                    ctx.stroke();
+                }
+            } else if (loc.type === 'raiz') {
+                // Raiz tuberosa (batata-doce/beterraba)
+                const rootGrad = ctx.createRadialGradient(sx, sy, 0, sx, sy, 11);
+                rootGrad.addColorStop(0, '#D4A06A');
+                rootGrad.addColorStop(1, '#8B5E3C');
+                ctx.fillStyle = rootGrad;
+                ctx.beginPath();
+                ctx.ellipse(sx, sy, 11, 8, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#6B4226';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+            
+            // Particulas de glicose perto do local
+            const particleCount = Math.floor(glucoseProduction / 5);
+            for (let p = 0; p < Math.min(particleCount, 4); p++) {
+                const pAngle = simulationTime * 0.5 + p * Math.PI / 2;
+                const pR = 16 + p * 3;
+                const pX = sx + Math.cos(pAngle) * pR;
+                const pY = sy + Math.sin(pAngle) * pR * 0.4;
+                ctx.fillStyle = 'rgba(255, 212, 100, 0.7)';
+                ctx.beginPath();
+                ctx.arc(pX, pY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Rotulo
+            ctx.fillStyle = 'rgba(255, 230, 180, 0.8)';
+            ctx.font = 'bold 8px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(loc.label, sx, sy + 15);
+        });
     }
     
     function drawFeixe() {
-        // Feixe de luz entre o sol e a folha
+        // Feixe de luz entre o sol e as plantas
         const sx = toScreenX(-4, 0);
         const sy = toScreenY(-4, 0, 1.7);
-        const lx = toScreenX(1.6, 0);
-        const ly = toScreenY(1.6, 0, 0.6);
+        const lx = toScreenX(2.2, 0);
+        const ly = toScreenY(2.2, 0, 0.6);
         const photonColor = getPhotonColor(wavelength);
         
+        // Faixa larga com gradiente de opacidade
         const opacity = 0.08 + (solarIntensity / 1200) * 0.12;
         ctx.strokeStyle = hexToRgba(photonColor, opacity);
-        ctx.lineWidth = 20;
+        ctx.lineWidth = 24;
         ctx.beginPath();
-        ctx.moveTo(sx, sy - 10);
-        ctx.lineTo(lx, ly - 10);
+        ctx.moveTo(sx, sy - 8);
+        ctx.lineTo(lx, ly - 8);
         ctx.stroke();
         
+        // Faixa central mais clara
+        ctx.strokeStyle = hexToRgba(photonColor, opacity * 0.5);
+        ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(sx, sy + 10);
-        ctx.lineTo(lx, ly + 10);
+        ctx.moveTo(sx, sy + 4);
+        ctx.lineTo(lx, ly + 4);
+        ctx.stroke();
+        
+        // Anel do filtro monocromatico (arco-iris pequeno no sol)
+        const bandColors = ['#FF4444', '#FFAA00', '#FFFF00', '#44FF44', '#4444FF', '#8800FF'];
+        for (let bc = 0; bc < 6; bc++) {
+            ctx.strokeStyle = hexToRgba(bandColors[bc], 0.15);
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(sx + 15, sy - 20 + bc * 6);
+            ctx.lineTo(sx + 35, sy - 20 + bc * 6);
+            ctx.stroke();
+        }
+        // Destacar o comprimento selecionado
+        ctx.strokeStyle = hexToRgba(photonColor, 0.7);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(sx + 12, sy - 5);
+        ctx.lineTo(sx + 38, sy - 5);
         ctx.stroke();
     }
     
@@ -1236,26 +1422,31 @@ function initSimulation() {
     }
     
     function spawnWaterParticle() {
-        const bx = toScreenX(5.1, 0);
-        const by = toScreenY(5.1, 0, -0.8);
+        // Agua do solo, perto das raizes das plantas
+        const plantXs = [1.2, 2.4, 3.6];
+        const plantZs = [0.3, 0.1, 0.4];
+        const idx = Math.floor(Math.random() * 3);
+        const bx = toScreenX(plantXs[idx], plantZs[idx]);
+        const by = toScreenY(plantXs[idx], plantZs[idx], 0.2) + 15;
         waterParticles.push({
-            x: bx + (Math.random() - 0.5) * 80,
-            y: by + 50 + Math.random() * 40,
-            vx: (Math.random() - 0.5) * 0.5,
-            vy: -0.3 - Math.random() * 0.5,
+            x: bx + (Math.random() - 0.5) * 60,
+            y: by + 25 + Math.random() * 30,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: -0.4 - Math.random() * 0.6,
             size: 3 + Math.random() * 3,
             alpha: 0.6 + Math.random() * 0.4
         });
     }
     
     function spawnCO2Particle() {
-        const bx = toScreenX(5.1, 0);
-        const by = toScreenY(5.1, 0, -0.8);
+        // CO2 do ar, indo em direcao as folhas
+        const startX = toScreenX(0, 0) + Math.random() * canvas.width * 0.5;
+        const startY = toScreenY(0, 0, 1.8) - Math.random() * 60;
         co2Particles.push({
-            x: bx + (Math.random() - 0.5) * 100,
-            y: by + 60 + Math.random() * 30,
-            vx: (Math.random() - 0.5) * 0.4,
-            vy: -0.2 - Math.random() * 0.3,
+            x: startX,
+            y: startY,
+            vx: 0.3 + Math.random() * 0.3,
+            vy: 0.2 + Math.random() * 0.4,
             size: 4 + Math.random() * 3,
             alpha: 0.5 + Math.random() * 0.5
         });
@@ -1275,25 +1466,24 @@ function initSimulation() {
     }
     
     function drawPhotons() {
+        // Desenha ondas de luz em vez de particulas
         for (let i = photons.length - 1; i >= 0; i--) {
             const p = photons[i];
             p.x += p.vx;
             p.y += p.vy;
             
-            // Verificar se chegou na folha
-            const lx = toScreenX(1.6, 0);
-            const ly = toScreenY(1.6, 0, 0.6);
-            if (p.x >= lx && !p.processed) {
+            // Verificar se chegou nas plantas
+            const plantX = toScreenX(2.2, 0);
+            const plantY = toScreenY(2.2, 0, 0.6);
+            if (p.x >= plantX && !p.processed) {
                 p.processed = true;
                 if (Math.random() < absorptionEfficiency) {
-                    // Absorvido - desaparece
                     p.opacity = 0;
                     if (Math.random() < glucoseProduction / 15) {
                         spawnGlucoseParticle();
                     }
                     continue;
                 } else {
-                    // Refletido
                     p.reflected = true;
                     p.vx = -p.vx * 0.5;
                     p.vy = -Math.abs(p.vy) * 0.5;
@@ -1305,18 +1495,50 @@ function initSimulation() {
                 continue;
             }
             
-            // Desenhar foton
-            const alpha = p.opacity * clamp(1 - (i / photons.length) * 0.3, 0.3, 1);
-            ctx.fillStyle = hexToRgba(p.color, alpha);
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
-            ctx.fill();
+            // Desenhar onda (circulos concentricos)
+            const alpha = p.opacity * clamp(1 - (i / Math.max(photons.length, 1)) * 0.3, 0.3, 1);
+            const wavePhase = simulationTime * 8 + i * 0.3;
             
-            // Brilho ao redor
-            ctx.fillStyle = hexToRgba(p.color, alpha * 0.3);
+            // 3 circulos concentricos que pulsam
+            for (let w = 0; w < 3; w++) {
+                const waveR = p.size * (2 + w * 1.2) + Math.sin(wavePhase + w) * 2;
+                const waveAlpha = alpha * (0.6 - w * 0.15);
+                ctx.strokeStyle = hexToRgba(p.color, waveAlpha);
+                ctx.lineWidth = 1.5 - w * 0.3;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(waveR, 1), 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Ponto central brilhante
+            ctx.fillStyle = hexToRgba(p.color, alpha * 0.7);
             ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size * 2.5, 0, Math.PI * 2);
+            ctx.arc(p.x, p.y, p.size * 0.8, 0, Math.PI * 2);
             ctx.fill();
+        }
+        
+        // Linhas onduladas no feixe de luz
+        const sx = toScreenX(-4.5, 0);
+        const sy = toScreenY(-4.5, 0, 1.6);
+        const ex = toScreenX(2.5, 0);
+        const ey = toScreenY(2.5, 0, 0.6);
+        const photonColor = getPhotonColor(wavelength);
+        
+        for (let wl = 0; wl < 4; wl++) {
+            const waveY = sy + (wl - 1.5) * 14;
+            const waveTargetY = ey + (wl - 1.5) * 8;
+            ctx.strokeStyle = hexToRgba(photonColor, 0.1 + solarIntensity / 12000);
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(sx + 20, waveY);
+            const midX = (sx + ex) / 2;
+            const waveAmp = 10 + (solarIntensity / 1200) * 10;
+            for (let t = 0; t <= 1; t += 0.05) {
+                const cx = sx + 20 + t * (ex - sx - 40);
+                const cy = waveY + (waveTargetY - waveY) * t + Math.sin(t * Math.PI * 6 + simulationTime * 3 + wl) * waveAmp;
+                ctx.lineTo(cx, cy);
+            }
+            ctx.stroke();
         }
     }
     
@@ -1541,8 +1763,8 @@ function initSimulation() {
         drawBackground();
         drawFeixe();
         drawSun();
-        drawLeaf();
-        drawStorageBox();
+        drawPlants();
+        drawStorageBoxes();
         drawPhotons();
         updateParticles();
         drawLabels();

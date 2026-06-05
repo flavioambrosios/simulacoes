@@ -447,10 +447,27 @@
         .sent { background: rgba(0, 255, 0, 0.2); color: #8bffb0; }
         .error-status { background: rgba(255, 0, 0, 0.2); color: #ff9e9e; }
 
-        @media (max-width: 768px) {
+                @media (max-width: 768px) {
             .content {
                 flex-direction: column;
+                gap: 16px;
             }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+                padding: 14px;
+            }
+            .simulation-container {
+                height: 340px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .panel-title {
+                font-size: 1.1rem;
+                margin-bottom: 14px;
+            }
+        }
 
             .simulation-panel,
             .controls-panel {
@@ -977,7 +994,6 @@
         function drawSystem() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawBackground();
-            drawCircuit();
             if (technology === 'led') {
                 drawLedDevice();
             } else {
@@ -1317,46 +1333,6 @@ function drawBackground() {
             };
         }
 
-        function drawCircuit() {
-            const y = canvas.height * 0.76;
-            ctx.strokeStyle = '#cfd8dc';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width * 0.12, y);
-            ctx.lineTo(canvas.width * 0.32, y);
-            ctx.lineTo(canvas.width * 0.32, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.68, canvas.height * 0.6);
-            ctx.lineTo(canvas.width * 0.68, y);
-            ctx.lineTo(canvas.width * 0.88, y);
-            ctx.stroke();
-
-            ctx.strokeStyle = '#ffd166';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(canvas.width * 0.15, y - 20);
-            ctx.lineTo(canvas.width * 0.15, y + 20);
-            ctx.moveTo(canvas.width * 0.18, y - 12);
-            ctx.lineTo(canvas.width * 0.18, y + 12);
-            ctx.stroke();
-
-            ctx.fillStyle = '#ffd166';
-            ctx.font = 'bold 15px Arial';
-            ctx.fillText('Fonte', canvas.width * 0.12, y + 40);
-
-            ctx.strokeStyle = '#f4a261';
-            ctx.lineWidth = 4;
-            const resistorX = canvas.width * 0.27;
-            ctx.beginPath();
-            ctx.moveTo(resistorX, y);
-            ctx.lineTo(resistorX + 10, y - 14);
-            ctx.lineTo(resistorX + 20, y + 14);
-            ctx.lineTo(resistorX + 30, y - 14);
-            ctx.lineTo(resistorX + 40, y + 14);
-            ctx.lineTo(resistorX + 50, y);
-            ctx.stroke();
-            ctx.fillStyle = '#f4a261';
-            ctx.fillText('R', resistorX + 18, y - 24);
-        }
 
         function drawLedDevice() {
             if (showMicroscopic) return; // [Microscopio] Desenho substituido
