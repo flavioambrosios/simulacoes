@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Estudo do Código - Ondas e Cores</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #4b5563;
+      --line: #d7e0ea;
+      --blue: #1d4ed8;
+      --green: #166534;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(180deg, #edf3ff 0%, var(--bg) 100%);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      color: var(--blue);
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+
+    p, li {
+      color: var(--ink);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #e0ecff;
+      color: #1d4ed8;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    ul, ol {
+      padding-left: 22px;
+    }
+
+    .callout {
+      border-left: 5px solid var(--blue);
+      background: #eff6ff;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+
+    @page {
+      size: A4;
+      margin: 1.6cm;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .card, .mini {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="card">
+      <h1>Guia de estudo do código</h1>
+      <p>Este guia foi pensado para quem está começando em programação e quer estudar o projeto com menos ansiedade. A ideia não é entender tudo de uma vez, mas seguir uma ordem de leitura que faça sentido.</p>
+      <div class="callout">
+        Regra prática: primeiro entenda <strong>o que o programa faz</strong>, depois <strong>como ele calcula</strong>, e só depois <strong>como a interface conversa com esses cálculos</strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>1. Por onde começar</h2>
+      <div class="grid">
+        <div class="mini">
+          <div class="tag">Passo 1</div>
+          <h3>Leia primeiro a versão PC</h3>
+          <p>A versão local em Ondas_e_Cores.py é mais fácil de entender porque quase tudo está concentrado dentro de uma classe só.</p>
+        </div>
+        <div class="mini">
+          <div class="tag">Passo 2</div>
+          <h3>Depois vá para a versão web</h3>
+          <p>app_web.py reaproveita a mesma ideia física, mas espalha a lógica em várias funções e callbacks.</p>
+        </div>
+        <div class="mini">
+          <div class="tag">Passo 3</div>
+          <h3>Compare os dois arquivos</h3>
+          <p>Depois de entender o básico, compare os nomes das funções equivalentes nas duas versões.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Ordem recomendada para Ondas_e_Cores.py</h2>
+      <ol>
+        <li>Comece por __init__ para ver quais dados o programa guarda.</li>
+        <li>Leia _setup_plots, _setup_sliders e _setup_controls para entender a montagem da interface.</li>
+        <li>Leia _generate_wave para descobrir como a onda é construída.</li>
+        <li>Leia _compute_envelope e _max_envelope_difference para entender o critério principal de comparação.</li>
+        <li>Leia _update_plots para ver como tudo se junta na tela.</li>
+        <li>Leia _run_optimization por último entre as partes numéricas, porque ele usa quase tudo que veio antes.</li>
+        <li>Depois visite as janelas auxiliares: Fourier, Hilbert e Lab RGB.</li>
+      </ol>
+      <p class="muted">Objetivo dessa ordem: primeiro enxergar a estrutura, depois a matemática, e só então a parte mais algorítmica.</p>
+    </section>
+
+    <section class="card">
+      <h2>3. Ordem recomendada para app_web.py</h2>
+      <ol>
+        <li>Leia as constantes do topo para reconhecer frequências, tempos, limites e nomes importantes.</li>
+        <li>Leia as funções do núcleo numérico: clamp_amp, generate_wave, compute_envelope e optimize_amplitudes.</li>
+        <li>Leia as funções visuais: build_main_figure, build_intensity_figure, build_summary e build_rgb_card.</li>
+        <li>Leia as funções de sessão: create_exercise_session, normalize_exercise_session e evaluate_exercise.</li>
+        <li>Leia as funções de planilha: build_final_session_payload, write_class_sheet_worksheet e send_final_session_results.</li>
+        <li>Deixe os callbacks do Dash para o final: handle_actions, refresh_outputs, handle_exercises e handle_final_results_send.</li>
+      </ol>
+      <p class="muted">Os callbacks ficam por último porque eles fazem mais sentido quando você já sabe o que cada função auxiliar faz.</p>
+    </section>
+
+    <section class="card">
+      <h2>4. O que observar em cada etapa</h2>
+      <div class="grid">
+        <div class="mini">
+          <h3>Quando ler a síntese de Fourier</h3>
+          <p>Pergunte: como as amplitudes das frequências viram uma onda no tempo?</p>
+        </div>
+        <div class="mini">
+          <h3>Quando ler Hilbert</h3>
+          <p>Pergunte: por que o programa compara envelopes e não simplesmente as ondas brutas?</p>
+        </div>
+        <div class="mini">
+          <h3>Quando ler a otimização</h3>
+          <p>Pergunte: qual número o algoritmo está tentando diminuir e quais variáveis ele pode mexer?</p>
+        </div>
+        <div class="mini">
+          <h3>Quando ler a parte web</h3>
+          <p>Pergunte: qual função calcula algo e qual função apenas mostra esse resultado na interface?</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. Estratégia prática para estudar sem travar</h2>
+      <ul>
+        <li>Não tente entender o arquivo inteiro em uma única leitura.</li>
+        <li>Leia um método por vez e anote, em uma frase, o que ele recebe e o que ele devolve.</li>
+        <li>Quando aparecer um nome desconhecido, procure onde ele foi definido antes de continuar.</li>
+        <li>Separe mentalmente três camadas: matemática, interface e armazenamento de dados.</li>
+        <li>Se algo parecer complicado demais, volte para a versão PC, que é a base conceitual mais simples.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Meta realista de aprendizagem</h2>
+      <p>Uma meta muito boa para as próximas leituras é esta: conseguir explicar, com suas palavras, como uma lista de amplitudes vira duas ondas, como essas ondas viram envelopes e como a otimização tenta aproximar esses envelopes. Se você conseguir isso, já terá entendido o coração do projeto.</p>
+    </section>
+  </div>
+</body>
+</html>
