@@ -438,21 +438,43 @@
             text-align: center;
         }
 
+        .support-texts {
+            margin-top: 32px;
+            padding: 22px 24px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(23, 50, 77, 0.1);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .support-texts h2 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: var(--deep);
+        }
+
+        .support-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .support-links a {
+            color: var(--ink);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .support-links a:hover {
+            text-decoration: underline;
+        }
+
         .footer {
             margin-top: 42px;
             padding-top: 20px;
             border-top: 1px solid rgba(23, 50, 77, 0.12);
             color: var(--muted);
             line-height: 1.72;
-        }
-
-        .footer a {
-            color: var(--ink);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
         }
 
         @media (max-width: 1024px) {
@@ -544,11 +566,17 @@
         <div id="sectionsRoot"></div>
         <div id="emptyState" class="empty-state">Nenhuma simulacao corresponde ao filtro atual.</div>
 
+        <section class="support-texts" aria-labelledby="supportTextsTitle">
+            <h2 id="supportTextsTitle">Textos de apoio</h2>
+            <div class="support-links">
+                <a href="SomadeCores/Gguia_de_Estudo_do_Codigo_Ondas_e_Cores_Python.html" target="_blank" rel="noreferrer">SomadeCores/Gguia_de_Estudo_do_Codigo_Ondas_e_Cores_Python.html</a>
+                <a href="SomadeCores/Roteiro_Ondas_e_Cores.html" target="_blank" rel="noreferrer">SomadeCores/Roteiro_Ondas_e_Cores.html</a>
+            </div>
+        </section>
+
         <footer class="footer">
             <p><strong>Arquivo de entrada:</strong> este index.html na raiz de simulacoes.</p>
             <p><strong>Formato dos links online:</strong> o menu agora exibe o endereco completo no padrao do GitHub Pages, por exemplo https://flavioambrosios.github.io/simulacoes/EspectrometrodeMassa/EspectrometrodeMassa.html.</p>
-            <p><a href="SomadeCores/Gguia_de_Estudo_do_Codigo_Ondas_e_Cores_Python.html">SomadeCores/Gguia_de_Estudo_do_Codigo_Ondas_e_Cores_Python.html</a></p>
-            <p><a href="SomadeCores/Roteiro_Ondas_e_Cores.html">SomadeCores/Roteiro_Ondas_e_Cores.html</a></p>
         </footer>
     </main>
 
