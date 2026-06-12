@@ -1682,6 +1682,60 @@ def build_session_results_summary(session_data):
     )
 
 
+def normalize_stage_statuses(progress_data):
+    raw_statuses = progress_data.get("stage_statuses")
+    normalized = {}
+    valid_results = {"acerto", "parcial", "erro", "pulado"}
+
+    if isinstance(raw_statuses, dict):
+        for key, value in raw_statuses.items():
+            if not isinstance(value, dict):
+                continue
+            result = value.get("result")
+            if result not in valid_results:
+                continue
+            try:
+                score = int(value.get("score", 0) or 0)
+            except (TypeError, ValueError):
+                score = 0
+            normalized[str(key)] = {"result": result, "score": score}
+        return normalized
+
+    history_entries = progress_data.get("history", [])
+    if not isinstance(history_entries, list):
+        return normalized
+
+    for entry in history_entries:
+        if not isinstance(entry, dict):
+            continue
+        stage_key = str(entry.get("title", "")).strip()
+        result = entry.get("result")
+        if not stage_key or result not in valid_results:
+            continue
+        try:
+            score = int(entry.get("score", 0) or 0)
+        except (TypeError, ValueError):
+            score = 0
+        normalized[stage_key] = {"result": result, "score": score}
+
+    return normalized
+
+
+def count_stage_statuses(stage_statuses):
+    values = list(stage_statuses.values()) if isinstance(stage_statuses, dict) else []
+    correct = sum(1 for item in values if item.get("result") == "acerto")
+    partial = sum(1 for item in values if item.get("result") == "parcial")
+    incorrect = sum(1 for item in values if item.get("result") in {"erro", "pulado"})
+    return correct, partial, incorrect
+
+
+def update_stage_statuses(progress_data, stage_key, result_label, score):
+    stage_statuses = normalize_stage_statuses(progress_data)
+    stage_statuses[str(stage_key)] = {"result": result_label, "score": int(score)}
+    correct, partial, incorrect = count_stage_statuses(stage_statuses)
+    return stage_statuses, correct, partial, incorrect
+
+
 def build_exercise_stage_outputs(session_data, progress_data, feedback_data, answer_value="", session_conclusion_value=None, final_conclusion_value=None):
     # Esta função decide o que a interface da aba Exercícios deve mostrar em cada estágio da sessão.
     normalized = normalize_exercise_session(session_data)
@@ -1761,9 +1815,13 @@ def build_exercise_stage_outputs(session_data, progress_data, feedback_data, ans
 def build_exercise_progress_panel(progress_data):
     # O painel lateral serve como memória curta da trajetória do estudante durante a sessão.
     attempts = int(progress_data.get("attempts", 0))
-    correct = int(progress_data.get("correct", 0))
-    partial = int(progress_data.get("partial", 0))
-    incorrect = int(progress_data.get("incorrect", 0))
+    stage_statuses = normalize_stage_statuses(progress_data)
+    if stage_statuses:
+        correct, partial, incorrect = count_stage_statuses(stage_statuses)
+    else:
+        correct = int(progress_data.get("correct", 0))
+        partial = int(progress_data.get("partial", 0))
+        incorrect = int(progress_data.get("incorrect", 0))
     streak = int(progress_data.get("streak", 0))
     best_streak = int(progress_data.get("best_streak", 0))
     best_score = int(progress_data.get("best_score", 0))
@@ -2091,6 +2149,7 @@ initial_exercise_progress = {
     "best_streak": 0,
     "last_score": 0,
     "best_score": 0,
+    "stage_statuses": {},
     "history": [],
 }
 
@@ -3216,6 +3275,12 @@ def handle_exercises(
     if trigger == "skip-exercise-btn":
         # Pular registra a etapa como não resolvida, mas mantém o fluxo didático avançando para a próxima.
         current_exercise = get_current_session_exercise(session_data)
+        stage_statuses, correct_count, partial_count, incorrect_count = update_stage_statuses(
+            progress_data,
+            current_exercise["title"],
+            "pulado",
+            0,
+        )
         completed_count = len(session_data.get("results", [])) + 1
         session_data["results"] = list(session_data.get("results", [])) + [{
             "correct": False,
@@ -3233,13 +3298,14 @@ def handle_exercises(
 
         updated_progress = {
             "attempts": int(progress_data.get("attempts", 0)) + 1,
-            "correct": int(progress_data.get("correct", 0)),
-            "partial": int(progress_data.get("partial", 0)),
-            "incorrect": int(progress_data.get("incorrect", 0)) + 1,
+            "correct": correct_count,
+            "partial": partial_count,
+            "incorrect": incorrect_count,
             "streak": 0,
             "best_streak": int(progress_data.get("best_streak", 0)),
             "last_score": 0,
             "best_score": int(progress_data.get("best_score", 0)),
+            "stage_statuses": stage_statuses,
             "history": list(progress_data.get("history", [])) + [{
                 "timestamp": datetime.now().strftime("%H:%M:%S"),
                 "title": current_exercise["title"],
@@ -3272,19 +3338,26 @@ def handle_exercises(
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
     current_exercise = get_current_session_exercise(session_data)
     passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(current_exercise, metrics, answer_text)
+    stage_statuses, correct_count, partial_count, incorrect_count = update_stage_statuses(
+        progress_data,
+        current_exercise["title"],
+        result_label,
+        total_score,
+    )
     advance_requested = trigger == "next-exercise-btn"
     submitted_at = datetime.now()
     timestamp = submitted_at.strftime("%H:%M:%S")
     next_streak = int(progress_data.get("streak", 0)) + 1 if passed else 0
     updated_progress = {
         "attempts": int(progress_data.get("attempts", 0)) + 1,
-        "correct": int(progress_data.get("correct", 0)) + (1 if passed else 0),
-        "partial": int(progress_data.get("partial", 0)) + (1 if partial else 0),
-        "incorrect": int(progress_data.get("incorrect", 0)) + (1 if not passed and not partial else 0),
+        "correct": correct_count,
+        "partial": partial_count,
+        "incorrect": incorrect_count,
         "streak": next_streak,
         "best_streak": max(int(progress_data.get("best_streak", 0)), next_streak),
         "last_score": total_score,
         "best_score": max(int(progress_data.get("best_score", 0)), total_score),
+        "stage_statuses": stage_statuses,
         "history": list(progress_data.get("history", [])) + [
             {
                 "timestamp": timestamp,
