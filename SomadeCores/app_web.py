@@ -1,3 +1,13 @@
+"""Versão web do simulador de ondas com Dash e Plotly.
+
+Mapa mental do arquivo para iniciantes:
+1. Constantes globais e parâmetros do simulador.
+2. Funções numéricas: ondas, envelopes e otimização.
+3. Funções visuais: gráficos, resumos e Lab RGB.
+4. Funções pedagógicas: exercícios, sessão e avaliação.
+5. Callbacks do Dash: ligam a interface ao cálculo.
+"""
+
 import base64
 import json
 import logging
@@ -11,6 +21,7 @@ from pathlib import Path
 
 import numpy as np
 from dash import Dash, Input, Output, State, ctx, dcc, html, dash_table
+from dash import no_update
 import gspread
 from google.oauth2.service_account import Credentials
 from plotly.subplots import make_subplots
@@ -19,6 +30,7 @@ from scipy.optimize import minimize
 from scipy.signal import hilbert
 
 
+# Essas constantes definem a malha espectral, a malha temporal e os limites físicos usados em todo o app.
 FREQS = np.arange(400, 801, 10)
 N_FREQS = len(FREQS)
 T = np.linspace(0, 2e-13, 4000)
@@ -107,6 +119,7 @@ BIMESTER_OPTIONS = [
 ]
 
 
+# Funções deste primeiro bloco fazem a tradução entre tabela da interface e vetores numéricos.
 def clamp_amp(value):
     try:
         numeric = float(value)
@@ -136,6 +149,7 @@ def table_data_to_amps(table_data):
 
 
 def generate_wave(amps, basis=BASIS):
+    # A base senoidal já foi pré-calculada; aqui só combinamos os pesos escolhidos pelo usuário.
     return amps @ basis
 
 
@@ -166,6 +180,7 @@ def optimization_smoothing_window(smoothing_window):
 
 
 def compute_envelope(wave, smoothing_window=DEFAULT_SMOOTHING):
+    # O envelope de Hilbert é a grandeza usada para comparar o comportamento global das duas ondas.
     envelope = np.abs(hilbert(wave))
     return smooth_signal(envelope, smoothing_window)
 
@@ -228,6 +243,7 @@ def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_ma
 
 
 def normalize_text(text):
+    # Normalizar texto evita problemas com maiúsculas, acentos e pequenas variações de escrita.
     normalized = unicodedata.normalize("NFKD", text or "")
     return normalized.encode("ascii", "ignore").decode("ascii").lower()
 
@@ -240,6 +256,7 @@ def infer_grade_class_from_track(track_name):
 
 
 def load_student_database():
+    # O banco de alunos alimenta os seletores do formulário final da sessão.
     empty_database = {"bySerieTurma": {}, "byTrilha": {}}
 
     try:
@@ -368,6 +385,7 @@ def load_service_account_info():
 
 @lru_cache(maxsize=1)
 def get_google_sheets_client():
+    # O cache evita recriar autenticação a cada envio para a planilha.
     credentials = Credentials.from_service_account_info(
         load_service_account_info(),
         scopes=GOOGLE_SHEETS_SCOPES,
@@ -405,6 +423,7 @@ def open_google_spreadsheet(client, spreadsheet_id, spreadsheet_name):
 
 
 def get_google_worksheet_with_headers(worksheet_name, headers):
+    # Esta função garante duas coisas: que a aba exista e que a primeira linha tenha o cabeçalho esperado.
     spreadsheet = get_google_spreadsheet()
 
     try:
@@ -470,6 +489,7 @@ def send_final_session_to_google_sheets(payload):
 
 
 def parse_stage_details(value):
+    # Os detalhes das etapas chegam serializados em JSON; aqui voltam para uma lista de dicionários Python.
     if not value:
         return []
 
@@ -485,6 +505,7 @@ def parse_stage_details(value):
 
 
 def compute_stage_average_100(stage_details):
+    # A nota da turma é derivada da média das pontuações registradas na sessão de exercícios.
     if not stage_details:
         return 0.0
 
@@ -563,6 +584,7 @@ def get_or_create_class_worksheet(spreadsheet, title):
 
 
 def get_class_header_rows(worksheet):
+    # Esta é uma função defensiva: ela lê a estrutura atual da aba e evita continuar se o formato parecer corrompido.
     values = worksheet.get_all_values()
     if not values:
         ensure_worksheet_size(worksheet, 2, 2)
@@ -611,6 +633,7 @@ def build_class_student_row_map(worksheet):
 
 
 def append_missing_class_students(worksheet, summary_rows, student_rows):
+    # Se um estudante ainda não existir na aba da turma, ele é acrescentado antes de gravar a nota da simulação.
     existing_names = worksheet.col_values(2)
     next_row = max(len(existing_names) + 1, 3)
     next_number = max(len(student_rows) + 1, 1)
@@ -652,6 +675,7 @@ def get_next_bimester_start(header_row, start_index):
 
 
 def ensure_bimester_and_simulation_column(worksheet, header_row, weight_row, bimester_label):
+    # O objetivo aqui é localizar ou criar a coluna "Soma de Cores" dentro do bloco certo do bimestre.
     start_index = find_bimester_start(header_row, bimester_label)
     if start_index is None:
         start_index = len(header_row)
@@ -705,6 +729,7 @@ def ensure_bimester_and_simulation_column(worksheet, header_row, weight_row, bim
 
 
 def update_class_simulation_column(worksheet, simulation_index, summary_rows, student_rows):
+    # Aqui escrevemos apenas a coluna da simulação, sem apagar o restante da planilha da turma.
     last_row = max(student_rows.values(), default=2)
     ensure_worksheet_size(worksheet, last_row, simulation_index + 1)
     current_values = worksheet.col_values(simulation_index + 1)
@@ -729,6 +754,7 @@ def update_class_simulation_column(worksheet, simulation_index, summary_rows, st
 
 
 def update_class_bimester_total_column(worksheet, total_index, simulation_indexes, student_rows):
+    # Depois de atualizar a coluna da simulação, recalculamos a fórmula do total do bimestre.
     if not simulation_indexes:
         return
 
@@ -747,6 +773,7 @@ def update_class_bimester_total_column(worksheet, total_index, simulation_indexe
 
 
 def write_class_sheet_worksheet(spreadsheet, worksheet_title, summary_rows):
+    # Esta função coordena toda a atualização segura da aba da turma, preservando outras avaliações já existentes.
     worksheet = get_or_create_class_worksheet(spreadsheet, worksheet_title)
     header_row, weight_row = get_class_header_rows(worksheet)
     student_rows = build_class_student_row_map(worksheet)
@@ -777,6 +804,7 @@ def write_class_sheet_worksheet(spreadsheet, worksheet_title, summary_rows):
 
 
 def build_class_sheet_summary_row(payload):
+    # O payload final da sessão ainda é muito rico; aqui extraímos só o que a aba da turma precisa: nome, bimestre e nota.
     stage_details = parse_stage_details(payload.get("detalhes_exercicios"))
     average_score_100 = compute_stage_average_100(stage_details)
     final_grade_10 = round(average_score_100 / 10.0, 2)
@@ -788,6 +816,7 @@ def build_class_sheet_summary_row(payload):
 
 
 def send_final_session_to_class_worksheet(payload):
+    # Este envio é separado do registro bruto para que a aba da turma continue com sua própria estrutura.
     if not is_google_sheets_configured():
         return False, "Integracao com Google Sheets nao configurada neste deploy."
 
@@ -844,6 +873,7 @@ def build_final_session_payload(
     suggestion,
     final_conclusion,
 ):
+    # O payload final reúne identidade do estudante, resumo da sessão e um retrato das etapas resolvidas.
     exercises = list(session_data.get("exercises", []))
     results = list(session_data.get("results", []))
     total = len(exercises)
@@ -890,6 +920,7 @@ def build_final_session_payload(
 
 
 def send_final_session_results(payload, student_email):
+    # O envio completo é um encadeamento: salva a sessão, atualiza a turma e dispara as comunicações.
     messages = []
     success = True
 
@@ -1346,6 +1377,7 @@ def optimize_amplitudes(
         return initial_amps1.copy(), initial_amps2.copy(), final_diff, "blocked"
 
     def cost_function(amps_flat):
+        # Durante a busca, o custo medido é a distância entre envelopes, não entre as ondas brutas.
         amps1, amps2 = merge_optimized_values(amps_flat, initial_amps1, initial_amps2, optimize_masks)
         return max_envelope_difference_fast(amps1, amps2, smoothing_window)
 
@@ -1373,6 +1405,7 @@ def optimize_amplitudes(
             return initial_amps1.copy(), initial_amps2.copy(), final_diff, "target"
 
     try:
+        # L-BFGS-B lida bem com amplitudes contínuas e com limites mínimo/máximo em cada variável.
         result = minimize(
             cost_function,
             x0,
@@ -1413,6 +1446,7 @@ def build_hilbert_notes(smoothing_window, freq_delta):
 
 
 def generate_random_exercise(previous_id=None, forced_type=None):
+    # Cada exercício nasce com metas numéricas e textuais para orientar uma observação diferente do simulador.
     seed = int(datetime.now().timestamp() * 1000000) % 1000000000
     rng = np.random.default_rng(seed)
     target_diff = float(rng.choice([0.35, 0.30, 0.25]))
@@ -1549,6 +1583,7 @@ def build_exercise_feedback(feedback=None):
 
 
 def create_exercise_session():
+    # A sessão completa sempre tem uma etapa de cada tipo previsto em SESSION_EXERCISE_TYPES.
     return {
         "exercises": [generate_random_exercise(forced_type=exercise_type) for exercise_type in SESSION_EXERCISE_TYPES],
         "current_index": 0,
@@ -1561,6 +1596,7 @@ def create_exercise_session():
 
 
 def normalize_exercise_session(session_data):
+    # Como o estado fica salvo no navegador, esta função corrige faltas e valores inconsistentes antes do uso.
     if not isinstance(session_data, dict) or not isinstance(session_data.get("exercises"), list) or not session_data.get("exercises"):
         return create_exercise_session()
 
@@ -1589,6 +1625,7 @@ def get_current_session_exercise(session_data):
 
 
 def build_stage_rubric(stage, exercise=None):
+    # A rubrica muda conforme o momento da sessão: resolver etapa, escrever conclusão ou revisar o envio final.
     if stage == "exercise" and exercise:
         return build_exercise_rubric(exercise)
 
@@ -1613,6 +1650,7 @@ def build_stage_rubric(stage, exercise=None):
 
 
 def build_session_results_summary(session_data):
+    # Este resumo transforma a sessão inteira em indicadores simples, úteis para estudante e professor.
     normalized = normalize_exercise_session(session_data)
     exercises = normalized["exercises"]
     results = normalized["results"]
@@ -1645,6 +1683,7 @@ def build_session_results_summary(session_data):
 
 
 def build_exercise_stage_outputs(session_data, progress_data, feedback_data, answer_value="", session_conclusion_value=None, final_conclusion_value=None):
+    # Esta função decide o que a interface da aba Exercícios deve mostrar em cada estágio da sessão.
     normalized = normalize_exercise_session(session_data)
     current_exercise = get_current_session_exercise(normalized)
     stage = normalized["stage"]
@@ -1720,6 +1759,7 @@ def build_exercise_stage_outputs(session_data, progress_data, feedback_data, ans
 
 
 def build_exercise_progress_panel(progress_data):
+    # O painel lateral serve como memória curta da trajetória do estudante durante a sessão.
     attempts = int(progress_data.get("attempts", 0))
     correct = int(progress_data.get("correct", 0))
     partial = int(progress_data.get("partial", 0))
@@ -1784,6 +1824,7 @@ def build_exercise_progress_panel(progress_data):
 
 
 def collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta):
+    # Antes de avaliar uma resposta, extraímos do simulador as medidas numéricas relevantes para aquela etapa.
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
     amps1, amps2 = table_data_to_amps(table_data)
@@ -1814,6 +1855,7 @@ def collect_simulation_metrics(table_data, history_data, smoothing_window, freq_
 
 
 def evaluate_exercise(exercise, metrics, answer_text):
+    # A avaliação combina dois lados: o que o estudante fez na simulação e o que ele conseguiu explicar em texto.
     answer_normalized = normalize_text(answer_text)
     answer_word_count = len([word for word in answer_normalized.split() if word])
     keyword_groups = exercise.get("keyword_groups", [])
@@ -2091,9 +2133,7 @@ app.layout = html.Div(
                                                     ],
                                                     data=amps_to_table_data(ZERO_AMPS, ZERO_AMPS),
                                                     editable=True,
-                                                    persistence=True,
-                                                    persisted_props=["data"],
-                                                    persistence_type="local",
+                                                    persistence=False,
                                                     style_table={
                                                         "height": "520px",
                                                         "overflowY": "auto",
@@ -2197,8 +2237,6 @@ app.layout = html.Div(
                                                     step=2,
                                                     value=DEFAULT_SMOOTHING,
                                                     marks={value: str(value) for value in [1, 11, 21, 31, 51, 81, 121]},
-                                                    persistence=True,
-                                                    persistence_type="local",
                                                 ),
                                             ],
                                             style={"marginTop": "18px"},
@@ -2213,8 +2251,6 @@ app.layout = html.Div(
                                                     step=10,
                                                     value=DEFAULT_FREQ_DELTA,
                                                     marks={value: str(value) for value in [0, 40, 80, 120, 200, 300, 400]},
-                                                    persistence=True,
-                                                    persistence_type="local",
                                                 ),
                                             ],
                                             style={"marginTop": "18px"},
@@ -2229,8 +2265,6 @@ app.layout = html.Div(
                                                     step=500,
                                                     value=2000,
                                                     marks={value: str(value) for value in range(1000, 10001, 1500)},
-                                                    persistence=True,
-                                                    persistence_type="local",
                                                 ),
                                             ],
                                             style={"marginTop": "18px"},
@@ -2795,6 +2829,9 @@ app.layout = html.Div(
     Output("amp-table", "data"),
     Output("history-store", "data"),
     Output("status-message", "children"),
+    Output("smoothing-slider", "value"),
+    Output("freq-delta-slider", "value"),
+    Output("max-iter-slider", "value"),
     Input("optimize-btn", "n_clicks"),
     Input("reset-btn", "n_clicks"),
     Input("mobile-apply-btn", "n_clicks"),
@@ -2835,13 +2872,14 @@ def handle_actions(
     amps1, amps2 = table_data_to_amps(table_data)
 
     if trigger == "mobile-apply-btn":
+        # No celular, a edição acontece frequência por frequência para manter a interface legível.
         current_frequency = int(mobile_frequency or FREQS[0])
         updated_table = [dict(row) for row in table_data]
         selected_index = int(np.where(FREQS == current_frequency)[0][0])
         updated_table[selected_index]["onda1"] = round(clamp_amp(mobile_amp1), TABLE_DECIMALS)
         updated_table[selected_index]["onda2"] = round(clamp_amp(mobile_amp2), TABLE_DECIMALS)
         status = f"Frequência {current_frequency} THz atualizada pelo editor móvel."
-        return updated_table, history_data, status
+        return updated_table, history_data, status, no_update, no_update, no_update
 
     if trigger == "reset-btn":
         zero_table = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
@@ -2853,8 +2891,16 @@ def handle_actions(
             "after_diff": None,
             "has_optimization": False,
         }
-        return zero_table, history, "Tudo zerado. Ajuste as amplitudes novamente."
+        return (
+            zero_table,
+            history,
+            "Tudo zerado. Ajuste as amplitudes novamente.",
+            DEFAULT_SMOOTHING,
+            DEFAULT_FREQ_DELTA,
+            2000,
+        )
 
+    # Quando não é edição móvel nem reset, a ação restante é a otimização automática do espectro.
     optimized1, optimized2, final_diff, reason = optimize_amplitudes(
         amps1,
         amps2,
@@ -2883,7 +2929,7 @@ def handle_actions(
     else:
         status = f"Otimização parcial: diferença máxima = {displayed_diff:.4f}"
 
-    return optimized_table, history, status
+    return optimized_table, history, status, no_update, no_update, no_update
 
 
 @app.callback(
@@ -2930,6 +2976,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     if mobile_visual_view is None:
         mobile_visual_view = "main"
 
+    # Este callback reconstrói praticamente toda a página a partir do estado atual da tabela e do histórico.
     current1, current2 = table_data_to_amps(table_data)
 
     before1 = np.array(history_data.get("before1", current1.tolist()), dtype=float)
@@ -2955,6 +3002,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
         after1 = ZERO_AMPS.copy()
         after2 = ZERO_AMPS.copy()
 
+    # Os cartões RGB comparam o que havia antes da otimização com o que foi obtido depois.
     cards = [
         build_rgb_card(before1, "Onda 1", "Antes da otimização", rgb_mode),
         build_rgb_card(after1, "Onda 1", "Depois da otimização", rgb_mode) if has_optimization else build_pending_rgb_card("Onda 1", "Depois da otimização"),
@@ -3087,6 +3135,7 @@ def handle_exercises(
     progress_data = progress_data or initial_exercise_progress.copy()
 
     if trigger == "new-exercise-btn":
+        # Uma sessão nova sorteia as etapas, mas mantém o histórico global salvo no navegador.
         session_data = create_exercise_session()
         feedback = {
             "title": "Nova sessão sorteada",
@@ -3105,6 +3154,7 @@ def handle_exercises(
         )
 
     if trigger == "submit-session-conclusion-btn":
+        # Depois das etapas, a sessão só avança para resultados quando existe uma conclusão final escrita.
         if session_data.get("stage") != "conclusion":
             feedback = {
                 "title": "Conclusão fora de etapa",
@@ -3164,6 +3214,7 @@ def handle_exercises(
         return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
 
     if trigger == "skip-exercise-btn":
+        # Pular registra a etapa como não resolvida, mas mantém o fluxo didático avançando para a próxima.
         current_exercise = get_current_session_exercise(session_data)
         completed_count = len(session_data.get("results", [])) + 1
         session_data["results"] = list(session_data.get("results", [])) + [{
@@ -3217,6 +3268,7 @@ def handle_exercises(
         }
         return build_exercise_stage_outputs(session_data, progress_data, feedback, answer_value=answer_text or "", session_conclusion_value=session_conclusion_text or "")
 
+    # A avaliação cruza o estado numérico da simulação com a justificativa curta escrita pelo estudante.
     metrics = collect_simulation_metrics(table_data, history_data, smoothing_window, freq_delta)
     current_exercise = get_current_session_exercise(session_data)
     passed, partial, total_score, feedback_data, metric_summary, result_label = evaluate_exercise(current_exercise, metrics, answer_text)
@@ -3248,6 +3300,7 @@ def handle_exercises(
     session_data["current_attempts"] = int(session_data.get("current_attempts", 0)) + 1
 
     if passed or advance_requested:
+        # Uma etapa pode avançar por acerto pleno ou por decisão explícita de seguir adiante.
         completed_count = len(session_data.get("results", [])) + 1
         session_data["results"] = list(session_data.get("results", [])) + [{
             "correct": passed,
@@ -3284,6 +3337,7 @@ def handle_exercises(
     prevent_initial_call=False,
 )
 def sync_student_group_with_track(student_track, current_grade, current_class):
+    # Se a trilha já carrega a informação da turma, o formulário final pode ser parcialmente preenchido sozinho.
     if not student_track:
         return current_grade or "", current_class or ""
 
@@ -3301,6 +3355,7 @@ def sync_student_group_with_track(student_track, current_grade, current_class):
     State("student-name", "value"),
 )
 def sync_student_name_options(student_track, student_grade, student_class, current_name):
+    # A lista de nomes depende da combinação atual de trilha, série e turma.
     options = build_student_name_options(student_track, student_grade, student_class)
     option_values = {option["value"] for option in options}
     selected_name = current_name if current_name in option_values else ""
@@ -3347,6 +3402,7 @@ def handle_final_results_send(
     session_data = normalize_exercise_session(exercise_data)
     status_style = {"minHeight": "24px", "fontWeight": "bold"}
 
+    # O envio final só faz sentido quando a sessão já passou da etapa de exercícios para a etapa de resultados.
     if session_data.get("stage") != "results":
         return "Finalize primeiro a sessão de exercícios para liberar o envio.", dict(status_style, color="#b91c1c")
 
@@ -3371,6 +3427,7 @@ def handle_final_results_send(
         suggestion,
         final_conclusion,
     )
+    # Este é o fechamento do fluxo pedagógico: consolida a sessão e dispara gravação + comunicações.
     success, message = send_final_session_results(payload, student_email)
 
     if success:
