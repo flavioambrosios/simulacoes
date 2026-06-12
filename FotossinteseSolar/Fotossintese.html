@@ -41,17 +41,18 @@
             gap: 20px;
         }
         .simulation-panel {
-            flex: 2;
+            flex: 3;
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-width: 0;
         }
         .simulation-container {
             width: 100%;
-            height: 500px;
+            height: 600px;
             background: #0a1628;
             border-radius: 8px;
             overflow: hidden;
@@ -62,10 +63,25 @@
             height: 100%;
             position: relative;
         }
-        #photosynthesisCanvas {
+        #photosynthesisVideo {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: contain;
+        }
+        #filtroOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #filtroOverlay.ativo {
+            opacity: 0.3;
         }
         .controls-panel {
             flex: 1;
@@ -594,20 +610,17 @@
         <div class="simulation-panel">
             <h2 class="panel-title">Simulação 3D - Radiação Solar, Clorofila e Formação de Glicose</h2>
             <div class="simulation-container">
-                <div id="renderer-container" style="position:relative;">
-                <canvas id="photosynthesisCanvas"></canvas>
-                <canvas id="gridOverlayFotos" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10;"></canvas>
-            </div>
+                <div id="renderer-container" style="position:relative;width:100%;height:100%;">
+                    <video id="photosynthesisVideo" src="fotossintese_anime.mp4" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block;background:#000;"></video>
+                    <div id="filtroOverlay"></div>
+                </div>
             </div>
             <div class="visualization-toggle">
-                <button id="startBtn">Iniciar</button>
-                <button id="pauseBtn">Pausar</button>
-                <button id="resetBtn">Reiniciar</button>
                 <button id="helpBtn">Ajuda</button>
             </div>
             <div class="trail-controls">
-                <label for="photonToggle">Mostrar fluxo de fótons:</label>
-                <input type="checkbox" id="photonToggle" checked>
+                <label for="filterToggle">Aplicar filtro:</label>
+                <input type="checkbox" id="filterToggle">
             </div>
         </div>
         <div class="controls-panel">
@@ -1010,16 +1023,15 @@
 
 function initSimulation() {
         canvas = document.getElementById('photosynthesisCanvas');
-        if (!canvas) { console.error('Canvas nao encontrado'); return; }
-        ctx = canvas.getContext('2d');
-        
-        resizeCanvas();
-        window.addEventListener('resize', onWindowResize);
-        
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', onWindowResize);
+        }
         calculateDerivedValues();
         updateMeasurements();
         setupEventListeners();
-        animate();
+        if (canvas) animate();
     }
     
     function resizeCanvas() {
@@ -1066,7 +1078,16 @@ function initSimulation() {
         const r = baseR * pulse;
         const photonColor = getPhotonColor(wavelength);
         
-        // Corona removida
+        // Corona - cor monocromatica do comprimento selecionado
+        const coronaGrad = ctx.createRadialGradient(sx, sy, r * 0.5, sx, sy, r * 2.5);
+        coronaGrad.addColorStop(0, hexToRgba(photonColor, 0.5));
+        coronaGrad.addColorStop(0.3, hexToRgba(photonColor, 0.2));
+        coronaGrad.addColorStop(0.6, hexToRgba(photonColor, 0.08));
+        coronaGrad.addColorStop(1, hexToRgba(photonColor, 0));
+        ctx.fillStyle = coronaGrad;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r * 2.5, 0, Math.PI * 2);
+        ctx.fill();
         
         // Disco solar - muito mais claro (branco-amarelado)
         const sunGrad = ctx.createRadialGradient(sx - r * 0.2, sy - r * 0.2, 0, sx, sy, r);
@@ -1080,11 +1101,16 @@ function initSimulation() {
         ctx.arc(sx, sy, r, 0, Math.PI * 2);
         ctx.fill();
         
-        // Filtro removido
+        // Filtro monocromatico - anel fino da cor selecionada
+        ctx.strokeStyle = hexToRgba(photonColor, 0.6);
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r + 2, 0, Math.PI * 2);
+        ctx.stroke();
         
         // Rotulo
         ctx.fillStyle = 'rgba(255,255,255,0.8)';
-        ctx.font = 'bold 14px Arial';
+        ctx.font = 'bold 11px Arial';
         ctx.textAlign = 'center';
         ctx.fillText('SOL (' + wavelength + ' nm)', sx, sy - r - 14);
     }
@@ -1092,9 +1118,9 @@ function initSimulation() {
     function drawPlants() {
         // Desenha um conjunto de plantas completas com raizes, tronco, galhos e folhas
         const plantPositions = [
-            { bx: 1.2, bz: 0.3, h: 2.0, label: 'Girassol' },
-            { bx: 2.4, bz: 0.1, h: 2.2, label: 'Milho' },
-            { bx: 3.6, bz: 0.4, h: 1.8, label: 'Cana' }
+            { bx: 1.2, bz: 0.3, h: 1.3, label: 'Girassol' },
+            { bx: 2.4, bz: 0.1, h: 1.5, label: 'Milho' },
+            { bx: 3.6, bz: 0.4, h: 1.1, label: 'Cana' }
         ];
         
         // Cor da folha conforme pigmento
@@ -1116,7 +1142,7 @@ function initSimulation() {
             
             // Raizes (linhas pra baixo no solo)
             ctx.strokeStyle = '#8B6914';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             for (let r = -2; r <= 2; r++) {
                 const rootEndX = baseX + r * 12;
                 const rootEndY = baseY + 18 + Math.abs(r) * 6;
@@ -1130,7 +1156,7 @@ function initSimulation() {
                 ctx.moveTo(rootEndX, rootEndY);
                 ctx.lineTo(rootEndX + r * 5, rootEndY + 5);
                 ctx.stroke();
-                ctx.lineWidth = 3;
+                ctx.lineWidth = 2;
             }
             
             // Tronco principal
@@ -1223,7 +1249,7 @@ function initSimulation() {
             
             // Rotulo da planta
             ctx.fillStyle = 'rgba(200,255,200,0.7)';
-            ctx.font = 'bold 13px Arial';
+            ctx.font = 'bold 10px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(plant.label, baseX, baseY + 25);
         });
@@ -1315,7 +1341,7 @@ function initSimulation() {
                 const pR = 16 + p * 3;
                 const pX = sx + Math.cos(pAngle) * pR;
                 const pY = sy + Math.sin(pAngle) * pR * 0.4;
-                ctx.fillStyle = 'rgba(255, 235, 40, 0.7)';
+                ctx.fillStyle = 'rgba(255, 212, 100, 0.7)';
                 ctx.beginPath();
                 ctx.arc(pX, pY, 2.5, 0, Math.PI * 2);
                 ctx.fill();
@@ -1337,33 +1363,28 @@ function initSimulation() {
         const ly = toScreenY(2.2, 0, 0.6);
         const photonColor = getPhotonColor(wavelength);
         
-        // Ondas do sol para as plantas (direcao: sol->planta)
-        const opacity = 0.15 + (solarIntensity / 1200) * 0.15;
+        // Faixa larga com gradiente de opacidade
+        const opacity = 0.08 + (solarIntensity / 1200) * 0.12;
         ctx.strokeStyle = hexToRgba(photonColor, opacity);
-        ctx.lineWidth = 4;
-        ctx.setLineDash([10, 8]);
-        ctx.lineDashOffset = -simulationTime * 30;
+        ctx.lineWidth = 24;
         ctx.beginPath();
-        ctx.moveTo(sx, sy);
-        ctx.lineTo(lx, ly);
+        ctx.moveTo(sx, sy - 8);
+        ctx.lineTo(lx, ly - 8);
         ctx.stroke();
-        ctx.setLineDash([]);
-        // Segunda linha mais fina
-        ctx.strokeStyle = hexToRgba(photonColor, opacity * 0.4);
-        ctx.lineWidth = 12;
-        ctx.setLineDash([4, 12]);
-        ctx.lineDashOffset = -simulationTime * 30;
+        
+        // Faixa central mais clara
+        ctx.strokeStyle = hexToRgba(photonColor, opacity * 0.5);
+        ctx.lineWidth = 10;
         ctx.beginPath();
-        ctx.moveTo(sx, sy - 2);
-        ctx.lineTo(lx, ly - 2);
+        ctx.moveTo(sx, sy + 4);
+        ctx.lineTo(lx, ly + 4);
         ctx.stroke();
-        ctx.setLineDash([]);
         
         // Anel do filtro monocromatico (arco-iris pequeno no sol)
         const bandColors = ['#FF4444', '#FFAA00', '#FFFF00', '#44FF44', '#4444FF', '#8800FF'];
         for (let bc = 0; bc < 6; bc++) {
             ctx.strokeStyle = hexToRgba(bandColors[bc], 0.15);
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(sx + 15, sy - 20 + bc * 6);
             ctx.lineTo(sx + 35, sy - 20 + bc * 6);
@@ -1378,7 +1399,7 @@ function initSimulation() {
         ctx.stroke();
     }
     
-    function spawnPhoton() { return; // DESABILITADO
+    function spawnPhoton() {
         if (!showPhotons) return;
         const photonColor = getPhotonColor(wavelength);
         const angle = Math.atan2(canvas.height * 0.2, canvas.width * 0.35);
@@ -1436,8 +1457,8 @@ function initSimulation() {
         co2Particles.push({
             x: startX,
             y: startY,
-            vx: 0.1 + Math.random() * 0.15,
-            vy: 0.08 + Math.random() * 0.15,
+            vx: 0.3 + Math.random() * 0.3,
+            vy: 0.2 + Math.random() * 0.4,
             size: 4 + Math.random() * 3,
             alpha: 0.5 + Math.random() * 0.5
         });
@@ -1449,8 +1470,8 @@ function initSimulation() {
         oxygenParticles.push({
             x: lx + (Math.random() - 0.5) * 40,
             y: ly + (Math.random() - 0.5) * 20,
-            vx: 0.3 + Math.random() * 0.2,
-            vy: -0.3 - Math.random() * 0.2,
+            vx: 1 + Math.random() * 0.5,
+            vy: -1 - Math.random() * 0.5,
             size: 3 + Math.random() * 3,
             alpha: 0.7 + Math.random() * 0.3
         });
@@ -1564,9 +1585,9 @@ function initSimulation() {
             ctx.save();
             ctx.translate(g.x, g.y);
             ctx.rotate(g.rotation);
-            ctx.strokeStyle = 'rgba(255, 235, 40, ' + g.alpha + ')';
-            ctx.fillStyle = 'rgba(255, 210, 40, ' + g.alpha * 0.7 + ')';
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = 'rgba(255, 212, 100, ' + g.alpha + ')';
+            ctx.fillStyle = 'rgba(255, 200, 80, ' + g.alpha * 0.3 + ')';
+            ctx.lineWidth = 2;
             ctx.beginPath();
             for (let j = 0; j < 6; j++) {
                 const angle = (j / 6) * Math.PI * 2;
@@ -1608,7 +1629,7 @@ function initSimulation() {
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle = 'rgba(200, 240, 255, ' + w.alpha + ')';
-            ctx.font = 'bold 13px Arial';
+            ctx.font = 'bold 7px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('H2O', w.x, w.y - w.size - 2);
         }
@@ -1634,20 +1655,20 @@ function initSimulation() {
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle = 'rgba(220, 220, 220, ' + c.alpha + ')';
-            ctx.font = 'bold 13px Arial';
+            ctx.font = 'bold 7px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('CO2', c.x, c.y - c.size - 2);
         }
         
         // Moleculas de O2 (saem da folha)
         if (isRunning && photosynthesisRate > 5) {
-            if (Math.random() < 0.015 + (photosynthesisRate / 800)) spawnOxygenParticle();
+            if (Math.random() < 0.06 + (photosynthesisRate / 200)) spawnOxygenParticle();
         }
         for (let i = oxygenParticles.length - 1; i >= 0; i--) {
             const o = oxygenParticles[i];
             o.x += o.vx;
             o.y += o.vy;
-            o.alpha -= 0.015;
+            o.alpha -= 0.008;
             if (o.alpha <= 0) {
                 oxygenParticles.splice(i, 1);
                 continue;
@@ -1660,7 +1681,7 @@ function initSimulation() {
             ctx.fill();
             ctx.stroke();
             ctx.fillStyle = 'rgba(180, 255, 200, ' + o.alpha + ')';
-            ctx.font = 'bold 13px Arial';
+            ctx.font = 'bold 7px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('O2', o.x, o.y - o.size - 2);
         }
@@ -1668,7 +1689,7 @@ function initSimulation() {
     
     function drawLabels() {
         ctx.fillStyle = 'rgba(200, 220, 255, 0.5)';
-        ctx.font = '12px Arial';
+        ctx.font = '9px Arial';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'top';
         
@@ -1737,7 +1758,7 @@ function initSimulation() {
             ctx_overlay.beginPath(); ctx_overlay.moveTo(startX, y); ctx_overlay.lineTo(startX + gridWidth, y); ctx_overlay.stroke();
         }
         ctx_overlay.fillStyle = 'rgba(200, 230, 255, 0.5)';
-        ctx_overlay.font = 'bold 12px Arial';
+        ctx_overlay.font = 'bold 9px Arial';
         ctx_overlay.textAlign = 'center'; ctx_overlay.textBaseline = 'top';
         for (let i = 0; i < GRID_COLS_F; i++) {
             ctx_overlay.fillText(String.fromCharCode(65 + i), startX + i * stepX + stepX / 2, startY + gridHeight + 6);
@@ -1748,28 +1769,14 @@ function initSimulation() {
         }
     }
 
-        function drawSystem() {
-        if (!ctx || !canvas) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBackground();
-        drawFeixe();
-        drawSun();
-        drawPlants();
-        drawStorageBoxes();
-        drawPhotons();
-        updateParticles();
-        drawLabels();
-        drawGridFotos();
+                function drawSystem() {
+        // Substituido pelo video
+        return;
     }
     
     function animate() {
-        requestAnimationFrame(animate);
-        
-        if (isRunning) {
-            simulationTime += 0.016;
-        }
-        
-        drawSystem();
+        // Substituido pelo video
+        return;
     }
     
     function updateMeasurements() {
@@ -2469,10 +2476,56 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
         if (event.target === document.getElementById('theoryModal')) closeTheoryModal();
     });
 
-    window.addEventListener('load', function() {
+        window.addEventListener('load', function() {
         initSimulation();
         preloadFirstTrack();
     });
+
+    // ===== FILTRO CROMATICO SOBRE O VIDEO =====
+    function atualizarFiltro() {
+        var overlay = document.getElementById('filtroOverlay');
+        var toggle = document.getElementById('filterToggle');
+        if (!overlay || !toggle) return;
+        var cor = getPhotonColor(wavelength);
+        overlay.style.backgroundColor = cor;
+        if (toggle.checked) {
+            overlay.classList.add('ativo');
+        } else {
+            overlay.classList.remove('ativo');
+        }
+    }
+
+    // Conectar o checkbox do filtro
+    var filterToggleEl = document.getElementById('filterToggle');
+    if (filterToggleEl) {
+        filterToggleEl.addEventListener('change', atualizarFiltro);
+    }
+
+    // Atualizar filtro sempre que o comprimento de onda mudar
+    (function() {
+        var wavelengthInputEl = document.getElementById('wavelengthInput');
+        if (wavelengthInputEl) {
+            wavelengthInputEl.addEventListener('input', function() {
+                wavelength = parseFloat(this.value);
+                refreshModel();
+                atualizarFiltro();
+            });
+        }
+    })();
+
+    // Inicializa o filtro ao carregar
+    setTimeout(atualizarFiltro, 400);
+
+    // Patch no refreshModel para atualizar o filtro junto
+    (function() {
+        var originalRefresh = refreshModel;
+        if (typeof originalRefresh === 'function') {
+            refreshModel = function() {
+                originalRefresh();
+                atualizarFiltro();
+            };
+        }
+    })();
 </script>
 <script>
     window.SIMULATION_ENHANCER_CONFIG = {
