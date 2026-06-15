@@ -13,6 +13,7 @@ const STUDENT_DATABASE = {
             "EDUARDO NHEFY XAVIER LOPES DA SILVA",
             "ELIAS HENRIQUE LOPES DA HORA",
             "GABRIELA MURAKI ISHIKAWA",
+            "Guilherme de Farias Cordeiro Pereira",
             "ISADORA SANTOS SALES",
             "JOSÉ ALEJANDRO CAMPOS ESPARRAGOZA",
             "KAMAL SHAABAN AHMED HUSSEIN",
@@ -28,7 +29,7 @@ const STUDENT_DATABASE = {
             "RAFAEL MACEDO PENNA",
             "SAMARA BORGES RAMOS",
             "WILLIANY CAVALCANTE DOS SANTOS",
-            "Guilherme de Farias Cordeiro Pereira"
+            "ZULU SILVA"
         ],
         "2o ano B": [
             "ALICIA GABRIELA MEDEIROS DE ARAUJO",
@@ -295,7 +296,8 @@ const STUDENT_DATABASE = {
             "PEDRO LUIS CASTRO RODRIGUES",
             "RAFAEL MACEDO PENNA",
             "SAMARA BORGES RAMOS",
-            "WILLIANY CAVALCANTE DOS SANTOS"
+            "WILLIANY CAVALCANTE DOS SANTOS",
+            "ZULU SILVA"
         ],
         "2o ano|B": [
             "ALICIA GABRIELA MEDEIROS DE ARAUJO",
@@ -511,8 +513,8 @@ const STUDENT_DATABASE = {
             "ISAAC DE ARAUJO CARVALHO",
             "ISABELLY SANTOS DE ALMEIDA",
             "JULIO EVANGELISTA DE SOUZA",
-            "KÁSSIO ARAUJO DA SILVA",
             "KAUÃ MOREIRA DE OLIVEIRA",
+            "KÁSSIO ARAUJO DA SILVA",
             "MANOEL AMANCIO DE SOUSA NETO",
             "MARCOS VINICIUS PACHECO DA MOTA",
             "MARIA EDUARDA DE LIMA DOS SANTOS",
@@ -525,7 +527,8 @@ const STUDENT_DATABASE = {
             "RANIA CAMILLE SILVA DE SOUSA",
             "SAMUEL SILVA ARAÚJO",
             "THIAGO PASSOS DEOLINDO",
-            "VINICIUS PITARGO SOUZA ARAUJO FILHO"
+            "VINICIUS PITARGO SOUZA ARAUJO FILHO",
+            "ZUMBI DOS PALMARES"
         ]
     },
     "byTrilha": {
