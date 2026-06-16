@@ -26,7 +26,7 @@
         'PCA - Educação Digital 3o ano G',
         'Sustentabilidade 2o ano C',
         'Outra',
-        'Nenhuma'
+        'Nenhuma (Turma de Fisica)'
     ];
     const DEFAULT_DATABASE = {
         bySheet: {},
@@ -236,10 +236,10 @@
             '<div class="form-row">',
             '<label for="studentTrail">Trilha:</label>',
             '<select id="studentTrail">',
-            '<option value="">Selecione sua trilha</option>',
-            TRAIL_OPTIONS.map(function (option) {
-                return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
-            }).join(''),
+            '<option value="" selected>Nenhuma (Turma de Fisica)</option>',
+            TRAIL_OPTIONS.filter(function (o) { return o !== 'Nenhuma (Turma de Fisica)'; }).map(function (option) {
+                                return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
+                            }).join(''),
             '</select>',
             '</div>',
             '<div class="form-row">',
@@ -1775,7 +1775,7 @@
 
     function resolveSimulationSheetName(studentGrade, studentClass, studentTrail) {
         const studentSource = getStudentSource();
-        if (studentTrail && !['Outra', 'Nenhuma'].includes(studentTrail) && studentSource.bySheet[studentTrail]) {
+        if (studentTrail && !['Outra', 'Nenhuma (Turma de Fisica)'].includes(studentTrail) && studentSource.bySheet[studentTrail]) {
             return studentTrail;
         }
 
