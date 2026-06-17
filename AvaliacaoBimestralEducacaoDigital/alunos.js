@@ -3,6 +3,7 @@ const STUDENT_DATABASE = {
         "2o ano A": [
             "ALICE CORREIA SOUZA",
             "ALICIA LOPES SOLER LIRA MATOS",
+            "ALISON SANTOS COSTA",
             "ANA JULIA DE JESUS OLIVEIRA",
             "ANA LUIZA NEVES BRITO",
             "ANTHONY KENEDY NASCIMENTO RIBEIRO",
@@ -272,6 +273,7 @@ const STUDENT_DATABASE = {
         "2o ano|A": [
             "ALICE CORREIA SOUZA",
             "ALICIA LOPES SOLER LIRA MATOS",
+            "ALISON SANTOS COSTA",
             "ANA JULIA DE JESUS OLIVEIRA",
             "ANA LUIZA NEVES BRITO",
             "ANTHONY KENEDY NASCIMENTO RIBEIRO",
