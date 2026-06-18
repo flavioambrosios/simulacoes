@@ -1314,26 +1314,19 @@
         updateResumeBadge();
     }
 
-    "function wrapFunction(name, afterCall) {\n        // Verificar se esta simulação desabilitou o wrap
-            if (window.__enhancerConfig && window.__enhancerConfig.disableWrapFunctions &&
-                window.__enhancerConfig.disableWrapFunctions.indexOf(name) !== -1) {
-                return;
-            }
+    function wrapFunction(name, afterCall) {
+        const originalFn = window[name];
+        if (typeof originalFn !== 'function' || originalFn.__enhancerWrapped) {
+            return;
+        }
 
-            const originalFn = window[name];
-            if (typeof originalFn !== 'function' || originalFn.__enhancerWrapped) {
-                return;
-            }
-
-            window[name] = function () {
-                const result = originalFn.apply(this, arguments);
-                if (typeof afterCall === 'function') {
-                    afterCall();
-                }
-                return result;
-            };
-            window[name].__enhancerWrapped = true;
-        }"
+        window[name] = function () {
+            const result = originalFn.apply(this, arguments);
+            afterCall();
+            return result;
+        };
+        window[name].__enhancerWrapped = true;
+    }
 
     function bindExerciseOptionPersistence() {
         const container = document.getElementById('exerciseContainer');
