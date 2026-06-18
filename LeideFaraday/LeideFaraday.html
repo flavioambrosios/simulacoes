@@ -953,19 +953,34 @@
             const restartBtn = document.getElementById('restartExercisesBtn');
             if (restartBtn) restartBtn.onclick = resetAndRestartExercises;
             
-            // Fechar modais
-            const exercisesModalClose = document.querySelector('#exercisesModal .close');
-            if (exercisesModalClose) exercisesModalClose.onclick = closeExercisesModal;
-            const solvedExercisesModalClose = document.querySelector('#solvedExercisesModal .close');
-            if (solvedExercisesModalClose) solvedExercisesModalClose.onclick = closeSolvedExercisesModal;
-            const theoryModalClose = document.querySelector('#theoryModal .close');
-            if (theoryModalClose) theoryModalClose.onclick = closeTheoryModal;
-            const closeSolvedExercises = document.getElementById('closeSolvedExercises');
-            if (closeSolvedExercises) closeSolvedExercises.onclick = closeSolvedExercisesModal;
-            const closeTheory = document.getElementById('closeTheory');
-            if (closeTheory) closeTheory.onclick = closeTheoryModal;
+            // Fechar modais - usar addEventListener em vez de onclick para evitar sobrescrita
+            var exercisesModalClose = document.querySelector('#exercisesModal .close');
+            if (exercisesModalClose && !exercisesModalClose.dataset.enhancerBound) {
+                exercisesModalClose.dataset.enhancerBound = 'true';
+                exercisesModalClose.addEventListener('click', closeExercisesModal);
+            }
+            var solvedExercisesModalClose = document.querySelector('#solvedExercisesModal .close');
+            if (solvedExercisesModalClose && !solvedExercisesModalClose.dataset.enhancerBound) {
+                solvedExercisesModalClose.dataset.enhancerBound = 'true';
+                solvedExercisesModalClose.addEventListener('click', closeSolvedExercisesModal);
+            }
+            var theoryModalClose = document.querySelector('#theoryModal .close');
+            if (theoryModalClose && !theoryModalClose.dataset.enhancerBound) {
+                theoryModalClose.dataset.enhancerBound = 'true';
+                theoryModalClose.addEventListener('click', closeTheoryModal);
+            }
+            var closeSolvedExercises = document.getElementById('closeSolvedExercises');
+            if (closeSolvedExercises && !closeSolvedExercises.dataset.enhancerBound) {
+                closeSolvedExercises.dataset.enhancerBound = 'true';
+                closeSolvedExercises.addEventListener('click', closeSolvedExercisesModal);
+            }
+            var closeTheory = document.getElementById('closeTheory');
+            if (closeTheory && !closeTheory.dataset.enhancerBound) {
+                closeTheory.dataset.enhancerBound = 'true';
+                closeTheory.addEventListener('click', closeTheoryModal);
+            }
             
-            window.onclick = function(event) {
+            window.addEventListener('click', function(event) {
                 if (event.target == document.getElementById('exercisesModal')) {
                     closeExercisesModal();
                 } else if (event.target == document.getElementById('solvedExercisesModal')) {
@@ -973,7 +988,7 @@
                 } else if (event.target == document.getElementById('theoryModal')) {
                     closeTheoryModal();
                 }
-            };
+            });
             
             addDebugInfo("Event listeners configurados");
         }
@@ -1289,42 +1304,59 @@
         }
         
         function showConclusion() {
-            document.getElementById('exerciseContainer').style.display = 'none';
-            document.getElementById('conclusionContainer').style.display = 'block';
+            const exerciseContainer = document.getElementById('exerciseContainer');
+            const conclusionContainer = document.getElementById('conclusionContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (exerciseContainer) exerciseContainer.style.display = 'none';
+            if (conclusionContainer) conclusionContainer.style.display = 'block';
+            if (resultsContainer) resultsContainer.style.display = 'none';
             const conclusionTextarea = document.getElementById('conclusionText');
-            if (conclusionTextSaved) conclusionTextarea.value = conclusionTextSaved;
+            if (conclusionTextarea && conclusionTextSaved) {
+                conclusionTextarea.value = conclusionTextSaved;
+            }
             const submitButton = document.getElementById('submitConclusion');
-            const newSubmitButton = submitButton.cloneNode(true);
-            submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
-            newSubmitButton.addEventListener('click', function() {
-                const conclusionText = document.getElementById('conclusionText').value;
-                if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusão antes de enviar.');
-                    return;
-                }
-                showResults(conclusionText);
-            });
+            if (submitButton && !submitButton.dataset.enhancerBound) {
+                submitButton.dataset.enhancerBound = 'true';
+                submitButton.addEventListener('click', function() {
+                    const conclusionText = document.getElementById('conclusionText').value;
+                    if (conclusionText.trim() === '') {
+                        alert('Por favor, escreva uma conclusão antes de enviar.');
+                        return;
+                    }
+                    showResults(conclusionText);
+                });
+            }
             addDebugInfo("Tela de conclusão exibida");
         }
         
         function showResults(conclusion) {
-            document.getElementById('conclusionContainer').style.display = 'none';
-            document.getElementById('resultsContainer').style.display = 'block';
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const exerciseContainer = document.getElementById('exerciseContainer');
+            const conclusionContainer = document.getElementById('conclusionContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (exerciseContainer) exerciseContainer.style.display = 'none';
+            if (conclusionContainer) conclusionContainer.style.display = 'none';
+            if (resultsContainer) resultsContainer.style.display = 'block';
+
+            const totalExercises = exercises.length || 1;
+            const correctAnswers = exerciseResults.filter(function(r) { return r.correct; }).length;
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercícios respondidos: ${totalExercises}</p>
-                <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercícios pulados: ${skippedQuestions}</p>
-                <p>Nota: ${scorePercentage}%</p>
-            `;
-            document.getElementById('finalConclusion').value = conclusion;
+            const resultsSummary = document.getElementById('resultsSummary');
+            if (resultsSummary) {
+                resultsSummary.innerHTML = [
+                    '<p>Exercícios respondidos: ' + totalExercises + '</p>',
+                    '<p>Respostas corretas: ' + correctAnswers + '</p>',
+                    '<p>Exercícios pulados: ' + skippedQuestions + '</p>',
+                    '<p>Nota: ' + scorePercentage + '%</p>'
+                ].join('');
+            }
+            const finalConclusion = document.getElementById('finalConclusion');
+            if (finalConclusion) finalConclusion.value = conclusion;
             const sendButton = document.getElementById('sendResults');
-            const newSendButton = sendButton.cloneNode(true);
-            sendButton.parentNode.replaceChild(newSendButton, sendButton);
-            newSendButton.addEventListener('click', sendResultsToSheet);
-            addDebugInfo(`Resultados exibidos: ${correctAnswers}/${totalExercises} acertos (${scorePercentage}%)`);
+            if (sendButton && !sendButton.dataset.enhancerBound) {
+                sendButton.dataset.enhancerBound = 'true';
+                sendButton.addEventListener('click', sendResultsToSheet);
+            }
+            addDebugInfo('Resultados exibidos: ' + correctAnswers + '/' + totalExercises + ' acertos (' + scorePercentage + '%)');
         }
         
         function sendResultsToSheet() {
@@ -1411,59 +1443,104 @@
         
         // Reiniciar exercícios do zero (botão "Reiniciar Exercícios")
         function resetAndRestartExercises() {
-            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
-                resetExerciseState();
-                generateExercises();
-                currentExercise = 0;
-                // Resetar visibilidade dos containers
-                document.getElementById('exerciseContainer').style.display = 'block';
-                document.getElementById('conclusionContainer').style.display = 'none';
-                document.getElementById('resultsContainer').style.display = 'none';
-                showCurrentExercise();
-                addDebugInfo("Exercícios reiniciados pelo usuário");
+            if (!confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
+                return;
             }
+            // Chamar o enhancer se disponível
+            if (typeof window.__simulationEnhancerRestart === 'function') {
+                window.__simulationEnhancerRestart();
+            }
+            resetExerciseState();
+            generateExercises();
+            currentExercise = 0;
+            // Resetar visibilidade dos containers
+            var ec = document.getElementById('exerciseContainer');
+            var cc = document.getElementById('conclusionContainer');
+            var rc = document.getElementById('resultsContainer');
+            if (ec) ec.style.display = 'block';
+            if (cc) cc.style.display = 'none';
+            if (rc) rc.style.display = 'none';
+            showCurrentExercise();
+            addDebugInfo('Exercícios reiniciados pelo usuário');
         }
         
         // Abrir modal de exercícios - com retomada de progresso
         function openExercisesModal() {
-            // Se não há exercícios ou já foram concluídos (currentExercise >= exercises.length e não está em conclusão/enviado), gerar novos
-            if (exercises.length === 0 || (currentExercise >= exercises.length && 
-                document.getElementById('resultsContainer').style.display !== 'block' &&
-                document.getElementById('conclusionContainer').style.display !== 'block')) {
+            // Garantir que containers existam
+            const exerciseContainer = document.getElementById('exerciseContainer');
+            const conclusionContainer = document.getElementById('conclusionContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            // Se não há exercícios gerados, ou currentExercise está fora dos limites, gerar novos
+            var needsNewExercises = exercises.length === 0;
+
+            if (exercises.length > 0 && currentExercise >= exercises.length) {
+                // Verificar se já estamos em results ou conclusion
+                var isInResults = resultsContainer && resultsContainer.style.display === 'block';
+                var isInConclusion = conclusionContainer && conclusionContainer.style.display === 'block';
+                if (!isInResults && !isInConclusion) {
+                    // Estado inconsistente: currentExercise passou do fim mas não está em results/conclusion
+                    needsNewExercises = true;
+                }
+            }
+
+            if (needsNewExercises) {
                 resetExerciseState();
                 generateExercises();
                 currentExercise = 0;
-                document.getElementById('exerciseContainer').style.display = 'block';
-                document.getElementById('conclusionContainer').style.display = 'none';
-                document.getElementById('resultsContainer').style.display = 'none';
+                if (exerciseContainer) exerciseContainer.style.display = 'block';
+                if (conclusionContainer) conclusionContainer.style.display = 'none';
+                if (resultsContainer) resultsContainer.style.display = 'none';
                 showCurrentExercise();
+                document.getElementById('exercisesModal').style.display = 'flex';
+                addDebugInfo("Novos exercícios gerados e modal aberto");
+                return;
+            }
+
+            // Retomar do ponto atual
+            var conclusionDisplay = conclusionContainer ? conclusionContainer.style.display : 'none';
+            var resultsDisplay = resultsContainer ? resultsContainer.style.display : 'none';
+
+            if (resultsDisplay === 'block') {
+                // Já está nos resultados - apenas exibir o modal
+            } else if (conclusionDisplay === 'block') {
+                if (exerciseContainer) exerciseContainer.style.display = 'none';
+                if (conclusionContainer) conclusionContainer.style.display = 'block';
+                if (conclusionTextSaved) {
+                    var ct = document.getElementById('conclusionText');
+                    if (ct) ct.value = conclusionTextSaved;
+                }
             } else {
-                // Retomar do ponto atual: restaurar a tela correta
-                if (document.getElementById('resultsContainer').style.display === 'block') {
-                    // Já estava nos resultados, manter assim
-                    // Mas precisamos recarregar os dados da conclusão? Os resultados já estão na tela.
-                    // Não precisa recarregar, apenas exibir o modal.
-                } else if (document.getElementById('conclusionContainer').style.display === 'block') {
-                    document.getElementById('exerciseContainer').style.display = 'none';
-                    document.getElementById('conclusionContainer').style.display = 'block';
-                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                // Está em um exercício específico
+                if (currentExercise < exercises.length) {
+                    if (exerciseContainer) exerciseContainer.style.display = 'block';
+                    if (conclusionContainer) conclusionContainer.style.display = 'none';
+                    if (resultsContainer) resultsContainer.style.display = 'none';
+                    showCurrentExercise();
                 } else {
-                    // Está em um exercício específico
-                    document.getElementById('exerciseContainer').style.display = 'block';
-                    document.getElementById('conclusionContainer').style.display = 'none';
-                    document.getElementById('resultsContainer').style.display = 'none';
-                    showCurrentExercise();  // recria o exercício atual
+                    // Fallback: gerar novos
+                    resetExerciseState();
+                    generateExercises();
+                    currentExercise = 0;
+                    if (exerciseContainer) exerciseContainer.style.display = 'block';
+                    if (conclusionContainer) conclusionContainer.style.display = 'none';
+                    if (resultsContainer) resultsContainer.style.display = 'none';
+                    showCurrentExercise();
                 }
             }
             document.getElementById('exercisesModal').style.display = 'flex';
             addDebugInfo("Modal de exercícios aberto (progresso mantido)");
         }
         
-        init();
-        window.addEventListener('load', init);
-    </script>
-    <script>
-        let studentNameFaraday = localStorage.getItem('studentNameFaraday') || '';
+        // Inicializar uma única vez
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', init);
+                } else {
+                    init();
+                }
+              </script>
+            <script>
+                let studentNameFaraday = localStorage.getItem('studentNameFaraday') || '';
 
         function ensureStudentNameFaraday() {
             if (!studentNameFaraday) {
