@@ -995,12 +995,12 @@
         
         // Fechar modal de exercícios - NÃO RESETA O ESTADO
         function closeExercisesModal() {
-            // Salvar conclusão digitada se existir
-            const conclusionTextarea = document.getElementById('conclusionText');
-            if (conclusionTextarea) conclusionTextSaved = conclusionTextarea.value;
-            document.getElementById('exercisesModal').style.display = 'none';
-            addDebugInfo("Modal de exercícios fechado (progresso mantido)");
-        }
+                    // Salvar conclusão digitada se existir
+                    const conclusionTextarea = document.getElementById('conclusionText');
+                    if (conclusionTextarea) conclusionTextSaved = conclusionTextarea.value;
+                    document.getElementById('exercisesModal').style.display = 'none';
+                    addDebugInfo("Modal de exercícios fechado");
+                }
         
         function closeSolvedExercisesModal() {
             document.getElementById('solvedExercisesModal').style.display = 'none';
@@ -1443,94 +1443,51 @@
         
         // Reiniciar exercícios do zero (botão "Reiniciar Exercícios")
         function resetAndRestartExercises() {
-            if (!confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
-                return;
-            }
-            // Chamar o enhancer se disponível
-            if (typeof window.__simulationEnhancerRestart === 'function') {
-                window.__simulationEnhancerRestart();
-            }
-            resetExerciseState();
-            generateExercises();
-            currentExercise = 0;
-            // Resetar visibilidade dos containers
-            var ec = document.getElementById('exerciseContainer');
-            var cc = document.getElementById('conclusionContainer');
-            var rc = document.getElementById('resultsContainer');
-            if (ec) ec.style.display = 'block';
-            if (cc) cc.style.display = 'none';
-            if (rc) rc.style.display = 'none';
-            showCurrentExercise();
-            addDebugInfo('Exercícios reiniciados pelo usuário');
-        }
+                    if (!confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
+                        return;
+                    }
+                    resetExerciseState();
+                    // Limpar cache do enhancer para evitar restauração após reset
+                    var enhancerKey = 'simulationEnhancer:lei-de-faraday-v2:exercise-state';
+                    try {
+                        localStorage.removeItem(enhancerKey);
+                    } catch (e) { /* ignorar */ }
+                    generateExercises();
+                    currentExercise = 0;
+                    // Resetar visibilidade dos containers
+                    var ec = document.getElementById('exerciseContainer');
+                    var cc = document.getElementById('conclusionContainer');
+                    var rc = document.getElementById('resultsContainer');
+                    if (ec) ec.style.display = 'block';
+                    if (cc) cc.style.display = 'none';
+                    if (rc) rc.style.display = 'none';
+                    showCurrentExercise();
+                    addDebugInfo('Exercícios reiniciados pelo usuário');
+                }
         
         // Abrir modal de exercícios - com retomada de progresso
         function openExercisesModal() {
-            // Garantir que containers existam
-            const exerciseContainer = document.getElementById('exerciseContainer');
-            const conclusionContainer = document.getElementById('conclusionContainer');
-            const resultsContainer = document.getElementById('resultsContainer');
+                    // Garantir que containers existam
+                    var exerciseContainer = document.getElementById('exerciseContainer');
+                    var conclusionContainer = document.getElementById('conclusionContainer');
+                    var resultsContainer = document.getElementById('resultsContainer');
 
-            // Se não há exercícios gerados, ou currentExercise está fora dos limites, gerar novos
-            var needsNewExercises = exercises.length === 0;
-
-            if (exercises.length > 0 && currentExercise >= exercises.length) {
-                // Verificar se já estamos em results ou conclusion
-                var isInResults = resultsContainer && resultsContainer.style.display === 'block';
-                var isInConclusion = conclusionContainer && conclusionContainer.style.display === 'block';
-                if (!isInResults && !isInConclusion) {
-                    // Estado inconsistente: currentExercise passou do fim mas não está em results/conclusion
-                    needsNewExercises = true;
-                }
-            }
-
-            if (needsNewExercises) {
-                resetExerciseState();
-                generateExercises();
-                currentExercise = 0;
-                if (exerciseContainer) exerciseContainer.style.display = 'block';
-                if (conclusionContainer) conclusionContainer.style.display = 'none';
-                if (resultsContainer) resultsContainer.style.display = 'none';
-                showCurrentExercise();
-                document.getElementById('exercisesModal').style.display = 'flex';
-                addDebugInfo("Novos exercícios gerados e modal aberto");
-                return;
-            }
-
-            // Retomar do ponto atual
-            var conclusionDisplay = conclusionContainer ? conclusionContainer.style.display : 'none';
-            var resultsDisplay = resultsContainer ? resultsContainer.style.display : 'none';
-
-            if (resultsDisplay === 'block') {
-                // Já está nos resultados - apenas exibir o modal
-            } else if (conclusionDisplay === 'block') {
-                if (exerciseContainer) exerciseContainer.style.display = 'none';
-                if (conclusionContainer) conclusionContainer.style.display = 'block';
-                if (conclusionTextSaved) {
-                    var ct = document.getElementById('conclusionText');
-                    if (ct) ct.value = conclusionTextSaved;
-                }
-            } else {
-                // Está em um exercício específico
-                if (currentExercise < exercises.length) {
-                    if (exerciseContainer) exerciseContainer.style.display = 'block';
-                    if (conclusionContainer) conclusionContainer.style.display = 'none';
-                    if (resultsContainer) resultsContainer.style.display = 'none';
-                    showCurrentExercise();
-                } else {
-                    // Fallback: gerar novos
+                    // Sempre gerar novos exercícios (como o CorpoNegro faz)
+                    // Isso evita problemas com o enhancer que pode restaurar estado antigo
                     resetExerciseState();
+                    // Limpar localStorage do enhancer
+                    try {
+                        localStorage.removeItem('simulationEnhancer:lei-de-faraday-v2:exercise-state');
+                    } catch (e) { /* ignorar */ }
                     generateExercises();
                     currentExercise = 0;
                     if (exerciseContainer) exerciseContainer.style.display = 'block';
                     if (conclusionContainer) conclusionContainer.style.display = 'none';
                     if (resultsContainer) resultsContainer.style.display = 'none';
                     showCurrentExercise();
+                    document.getElementById('exercisesModal').style.display = 'flex';
+                    addDebugInfo("Modal de exercícios aberto (sempre gera novos)");
                 }
-            }
-            document.getElementById('exercisesModal').style.display = 'flex';
-            addDebugInfo("Modal de exercícios aberto (progresso mantido)");
-        }
         
         // Inicializar uma única vez
                 if (document.readyState === 'loading') {
