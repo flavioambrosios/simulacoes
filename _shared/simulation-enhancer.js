@@ -169,8 +169,13 @@
             '.enhancer-save-indicator { position: fixed; right: 18px; bottom: 18px; z-index: 3000; max-width: 260px; padding: 10px 14px; border-radius: 12px; background: rgba(12, 22, 32, 0.92); border: 1px solid rgba(120, 255, 190, 0.5); color: #d9ffee; font-size: 0.92rem; font-weight: 700; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; }',
             '.enhancer-save-indicator.is-visible { opacity: 1; transform: translateY(0); }',
             '.enhancer-save-indicator strong { color: #7fffc0; }',
-            '.enhancer-hidden { display: none !important; }',
-            '.enhancer-hidden-legacy-audio { display: none !important; }',
+            '.enhancer-visitor-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 204, 0, 0.15); cursor: pointer; }',
+                        '.enhancer-visitor-checkbox input { width: auto; margin: 0; cursor: pointer; }',
+                        '.enhancer-visitor-checkbox label { margin: 0; cursor: pointer; font-size: 0.95rem; color: #ffdd88; }',
+                        '.enhancer-visitor-fields { display: block; }',
+                        '.enhancer-visitor-fields.enhancer-hidden { display: none !important; }',
+                        '.enhancer-hidden { display: none !important; }',
+                        '.enhancer-hidden-legacy-audio { display: none !important; }',
             '@media (max-width: 768px) { .enhancer-audio-controls { flex-direction: column; align-items: stretch; } .enhancer-audio-controls button, .enhancer-audio-controls select { width: 100%; } .enhancer-voice-group { width: 100%; flex-direction: column; align-items: stretch; } .enhancer-save-indicator { left: 12px; right: 12px; bottom: 12px; max-width: none; } }'
         ].join('');
         document.head.appendChild(style);
@@ -233,79 +238,124 @@
         };
 
         emailForm.innerHTML = [
-            '<div class="form-row">',
-            '<label for="studentTrail">Trilha:</label>',
-            '<select id="studentTrail">',
-            '<option value="" selected>Nenhuma (Turma de Fisica)</option>',
-            TRAIL_OPTIONS.filter(function (o) { return o !== 'Nenhuma (Turma de Fisica)'; }).map(function (option) {
-                                return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
-                            }).join(''),
-            '</select>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="studentGrade" class="required">Série:</label>',
-            '<select id="studentGrade" required>',
-            '<option value="">Selecione sua série</option>',
-            '<option value="1o ano">1º ano</option>',
-            '<option value="2o ano">2º ano</option>',
-            '<option value="3o ano">3º ano</option>',
-            '</select>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="studentClass" class="required">Turma:</label>',
-            '<select id="studentClass" required>',
-            '<option value="">Selecione sua turma</option>',
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').slice(0, 19).map(function (letter) { return '<option value="' + letter + '">' + letter + '</option>'; }).join(''),
-            '</select>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="studentNameSelect" class="required">Nome Completo:</label>',
-            '<select id="studentNameSelect" required><option value="">Selecione primeiro a série, a turma e a trilha</option></select>',
-            '<input type="hidden" id="studentName">',
-            '</div>',
-            '<div class="form-row enhancer-hidden" id="studentNameManualRow">',
-            '<label for="studentNameManual" class="required">Caso o nome não esteja na lista, escreva o nome completo:</label>',
-            '<input type="text" id="studentNameManual">',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="studentEmail">E-mail para cópia:</label>',
-            '<input type="email" id="studentEmail" placeholder="seu@email.com">',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="schoolTerm" class="required">Bimestre:</label>',
-            '<select id="schoolTerm" required>',
-            '<option value="">Selecione o bimestre</option>',
-            config.termOptions.map(function (term) {
-                return '<option value="' + escapeHtml(term) + '">' + escapeHtml(term.replace('o', 'º bimestre')) + '</option>';
-            }).join(''),
-            '</select>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="criticismInput">Críticas:</label>',
-            '<textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="suggestionInput">Sugestões:</label>',
-            '<textarea id="suggestionInput" rows="3" placeholder="Tem alguma sugestão para melhorar a experiência de aprendizado?"></textarea>',
-            '</div>',
-            '<div class="form-row">',
-            '<label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>',
-            '<textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>',
-            '</div>',
-            '<div id="emailStatus" class="email-status"></div>',
-            '<button id="sendResults" class="check-btn">Enviar Resultados</button>'
-        ].join('');
+                    '<div class="form-row enhancer-visitor-checkbox">',
+                                '<input type="checkbox" id="visitorMode">',
+                                '<label for="visitorMode">Sou visitante (não tenho série, turma ou trilha definida)</label>',
+                                '</div>',
+                                '<div id="studentFieldsArea" class="enhancer-visitor-fields">',
+                    '<div class="form-row">',
+                    '<label for="studentTrail">Trilha:</label>',
+                    '<select id="studentTrail">',
+                    '<option value="" selected>Nenhuma (Turma de Fisica)</option>',
+                    TRAIL_OPTIONS.filter(function (o) { return o !== 'Nenhuma (Turma de Fisica)'; }).map(function (option) {
+                                        return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
+                                    }).join(''),
+                    '</select>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="studentGrade" class="required">Série:</label>',
+                    '<select id="studentGrade" required>',
+                    '<option value="">Selecione sua série</option>',
+                    '<option value="1o ano">1º ano</option>',
+                    '<option value="2o ano">2º ano</option>',
+                    '<option value="3o ano">3º ano</option>',
+                    '</select>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="studentClass" class="required">Turma:</label>',
+                    '<select id="studentClass" required>',
+                    '<option value="">Selecione sua turma</option>',
+                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').slice(0, 19).map(function (letter) { return '<option value="' + letter + '">' + letter + '</option>'; }).join(''),
+                    '</select>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="studentNameSelect" class="required">Nome Completo:</label>',
+                    '<select id="studentNameSelect" required><option value="">Selecione primeiro a série, a turma e a trilha</option></select>',
+                    '<input type="hidden" id="studentName">',
+                    '</div>',
+                    '<div class="form-row enhancer-hidden" id="studentNameManualRow">',
+                    '<label for="studentNameManual" class="required">Caso o nome não esteja na lista, escreva o nome completo:</label>',
+                    '<input type="text" id="studentNameManual">',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="studentEmail">E-mail para cópia:</label>',
+                    '<input type="email" id="studentEmail" placeholder="seu@email.com">',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="schoolTerm" class="required">Bimestre:</label>',
+                    '<select id="schoolTerm" required>',
+                    '<option value="">Selecione o bimestre</option>',
+                    config.termOptions.map(function (term) {
+                        return '<option value="' + escapeHtml(term) + '">' + escapeHtml(term.replace('o', 'º bimestre')) + '</option>';
+                    }).join(''),
+                    '</select>',
+                    '</div>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="criticismInput">Críticas:</label>',
+                    '<textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="suggestionInput">Sugestões:</label>',
+                    '<textarea id="suggestionInput" rows="3" placeholder="Tem alguma sugestão para melhorar a experiência de aprendizado?"></textarea>',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>',
+                    '<textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>',
+                    '</div>',
+                    '<div id="emailStatus" class="email-status"></div>',
+                    '<button id="sendResults" class="check-btn">Enviar Resultados</button>'
+                ].join('');
 
         restoreFormState(currentValues);
-        setupStudentFieldInteractions();
-        bindFormPersistence();
-        loadStudentDatabase().then(function () {
-            populateSimulationStudentOptions(currentValues.studentNameSelect || '');
-        });
+                setupStudentFieldInteractions();
+                setupVisitorModeToggle();
+                bindFormPersistence();
+                loadStudentDatabase().then(function () {
+                    populateSimulationStudentOptions(currentValues.studentNameSelect || '');
+                });
     }
 
-    function setupStudentFieldInteractions() {
-        ['studentTrail', 'studentGrade', 'studentClass'].forEach(function (fieldId) {
+    function setupVisitorModeToggle() {
+            const visitorCheckbox = document.getElementById('visitorMode');
+            const fieldsArea = document.getElementById('studentFieldsArea');
+            if (!visitorCheckbox || !fieldsArea) {
+                return;
+            }
+
+            function toggleVisitorMode() {
+                const isVisitor = visitorCheckbox.checked;
+                fieldsArea.classList.toggle('enhancer-hidden', isVisitor);
+                const requiredFields = fieldsArea.querySelectorAll('[required]');
+                requiredFields.forEach(function (field) {
+                    field.required = !isVisitor;
+                    if (isVisitor) {
+                        field.value = '';
+                    }
+                });
+                // Quando visitante, mostrar campo de nome manual
+                const manualRow = document.getElementById('studentNameManualRow');
+                const manualInput = document.getElementById('studentNameManual');
+                if (isVisitor && manualRow) {
+                    manualRow.classList.remove('enhancer-hidden');
+                    if (manualInput) manualInput.required = true;
+                }
+                saveExerciseState();
+            }
+
+            visitorCheckbox.addEventListener('change', toggleVisitorMode);
+            visitorCheckbox.dataset.enhancerBound = 'true';
+
+            // Aplicar estado inicial salvo
+            const savedState = getSavedExerciseState();
+            if (savedState && savedState.formState && savedState.formState.visitorMode) {
+                visitorCheckbox.checked = true;
+                toggleVisitorMode();
+            }
+        }
+
+        function setupStudentFieldInteractions() {
+            ['studentTrail', 'studentGrade', 'studentClass'].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
             if (!field || field.dataset.enhancerRosterBound === 'true') {
                 return;
@@ -1446,18 +1496,19 @@
             selectedOption: selectedOption ? selectedOption.dataset.value : '',
             view: getCurrentView(),
             formState: {
-                studentTrail: getFieldValue('studentTrail'),
-                studentName: getFieldValue('studentName'),
-                studentNameSelect: getFieldValue('studentNameSelect'),
-                studentNameManual: getFieldValue('studentNameManual'),
-                studentGrade: getFieldValue('studentGrade'),
-                studentClass: getFieldValue('studentClass'),
-                schoolTerm: getFieldValue('schoolTerm'),
-                studentEmail: getFieldValue('studentEmail'),
-                criticismInput: getFieldValue('criticismInput'),
-                suggestionInput: getFieldValue('suggestionInput'),
-                finalConclusion: finalConclusion ? finalConclusion.value : ''
-            },
+                            studentTrail: getFieldValue('studentTrail'),
+                            studentName: getFieldValue('studentName'),
+                            studentNameSelect: getFieldValue('studentNameSelect'),
+                            studentNameManual: getFieldValue('studentNameManual'),
+                            studentGrade: getFieldValue('studentGrade'),
+                            studentClass: getFieldValue('studentClass'),
+                            schoolTerm: getFieldValue('schoolTerm'),
+                            studentEmail: getFieldValue('studentEmail'),
+                            criticismInput: getFieldValue('criticismInput'),
+                            suggestionInput: getFieldValue('suggestionInput'),
+                            finalConclusion: finalConclusion ? finalConclusion.value : '',
+                            visitorMode: document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false
+                        },
             aiAnalysis: lastAiAnalysis
         };
     }
@@ -2042,10 +2093,24 @@
             finalConclusion: getFieldValue('finalConclusion')
         };
 
-        if (!formData.studentName || !formData.studentGrade || !formData.studentClass || !formData.schoolTerm || !formData.finalConclusion) {
-            alert('Preencha nome, série, turma, bimestre e conclusão antes de enviar.');
-            return;
-        }
+        const isVisitor = document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false;
+
+                if (isVisitor) {
+                    if (!formData.studentName || !formData.finalConclusion) {
+                        alert('Preencha o nome e a conclusão antes de enviar.');
+                        return;
+                    }
+                    // Para visitantes, usar valores padrão
+                    formData.studentGrade = 'Visitante';
+                    formData.studentClass = 'Visitante';
+                    formData.schoolTerm = 'Visitante';
+                    formData.studentTrail = 'Visitante';
+                } else {
+                    if (!formData.studentName || !formData.studentGrade || !formData.studentClass || !formData.schoolTerm || !formData.finalConclusion) {
+                        alert('Preencha nome, série, turma, bimestre e conclusão antes de enviar.');
+                        return;
+                    }
+                }
 
         const exercises = Array.isArray(readGlobalBinding('exercises')) ? readGlobalBinding('exercises') : [];
         const exerciseResults = Array.isArray(readGlobalBinding('exerciseResults')) ? readGlobalBinding('exerciseResults') : [];
