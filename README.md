@@ -1,6 +1,6 @@
 # Simulações Interativas de Física
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14860563.svg)](https://doi.org/10.5281/zenodo.14860563)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20737876.svg)](https://doi.org/10.5281/zenodo.20737876)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-blue)](https://flavioambrosios.github.io/simulacoes/)
 
@@ -151,9 +151,9 @@ Este projeto é distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE
 
 ### DOI e Registro
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.14860563.svg)](https://doi.org/10.5281/zenodo.14860563)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20737876.svg)](https://doi.org/10.5281/zenodo.20737876)
 
-Este conjunto de simulações está registrado no **Zenodo** com DOI: [10.5281/zenodo.14860563](https://doi.org/10.5281/zenodo.14860563). O registro assegura a **autoria e data de criação** do trabalho, servindo como referência permanente para citações acadêmicas.
+Este conjunto de simulações está registrado no **Zenodo** com DOI: [10.5281/zenodo.20737876](https://doi.org/10.5281/zenodo.20737876). O registro assegura a **autoria e data de criação** do trabalho, servindo como referência permanente para citações acadêmicas.
 
 ### Créditos
 
@@ -179,5 +179,6 @@ Se você utilizar este material em pesquisas acadêmicas, por favor cite-o utili
 
 ```
 Ambrósio, F. (2026). Simulações Interativas de Física para o Ensino Médio. 
-Zenodo. https://doi.org/10.5281/zenodo.14860563
+Zenodo. https://doi.org/10.5281/zenodo.20737876
 ```
+
