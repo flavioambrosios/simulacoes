@@ -4,6 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-blue)](https://flavioambrosios.github.io/simulacoes/)
 
+> **🧠 Nota sobre o desenvolvimento:** Este projeto foi **concebido e planejado integralmente pelo Prof. Flávio Ambrósio Campos**. Os códigos foram implementados com assistência de **ferramentas de Inteligência Artificial** (DeepSeek e ChatGPT), sob supervisão e curadoria humana. Veja a seção [Inteligência Artificial no Desenvolvimento](#-inteligência-artificial-no-desenvolvimento) para detalhes.
+
 Um conjunto de simulações interativas para o ensino de Física no Ensino Médio, desenvolvidas para uso em sala de aula com estudantes do **CEAN - Centro de Ensino Médio Asa Norte** (Brasília-DF). As simulações combinam visualizações em Canvas/Three.js com exercícios formativos, narração por síntese de voz e análise automatizada de conclusões escritas.
 
 ---
@@ -160,6 +162,17 @@ Este conjunto de simulações está registrado no **Zenodo** com DOI: [10.5281/z
 - **Simulações PhET Interactive Simulations** ([University of Colorado Boulder](https://phet.colorado.edu/)) — utilizadas sob licença CC-BY 4.0 em algumas simulações (Corpo Negro, Efeito Fotoelétrico, Lei de Faraday)
 - **Three.js** — biblioteca 3D utilizada em algumas simulações (Espectrômetro de Massa, Estrelas, Força Magnética, entre outras)
 - **Google Apps Script** — para coleta e armazenamento de dados dos alunos
+
+### 🤖 Inteligência Artificial no Desenvolvimento
+
+Este projeto foi **concebido e planejado integralmente pelo Prof. Flávio Ambrósio Campos**. A implementação dos códigos, no entanto, contou com o auxílio de **ferramentas de Inteligência Artificial generativa** ao longo de aproximadamente 12 meses de desenvolvimento (2024–2025):
+
+- **DeepSeek** — utilizado para auxiliar na estruturação de lógicas de simulação, criação de algoritmos de geração dinâmica de exercícios, depuração e revisão de código
+- **ChatGPT** — utilizado para auxiliar na criação de conteúdo textual explicativo, documentação, sugestões de design e prototipagem de funcionalidades
+
+> **Esclarecimento importante:** O papel das IAs foi exclusivamente de **assistência técnica**. A **concepção conceitual**, o **planejamento pedagógico**, a **curadoria do conteúdo**, a **validação científica** e a **adequação curricular** foram realizados exclusivamente pelo autor, garantindo que o material reflita sua experiência docente e atenda aos objetivos educacionais propostos. Cada linha de código gerada ou sugerida pelas IAs foi revisada, adaptada e aprovada manualmente antes de ser incorporada ao projeto.
+
+Nas simulações individuais, essa informação é registrada como comentário nos metadados do `<head>` de cada arquivo HTML.
 
 ---
 
