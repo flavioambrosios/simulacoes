@@ -6,7 +6,7 @@
 
 > **🧠 Nota sobre o desenvolvimento:** Este projeto foi **concebido e planejado integralmente pelo Prof. Flávio Ambrósio Campos**. Os códigos foram implementados com assistência de **ferramentas de Inteligência Artificial** (DeepSeek e ChatGPT), sob supervisão e curadoria humana. Veja a seção [Inteligência Artificial no Desenvolvimento](#-inteligência-artificial-no-desenvolvimento) para detalhes.
 
-Um conjunto de simulações interativas para o ensino de Física no Ensino Médio, desenvolvidas para uso em sala de aula com estudantes do **CEAN - Centro de Ensino Médio Asa Norte** (Brasília-DF). As simulações combinam visualizações em Canvas/Three.js com exercícios formativos, narração por síntese de voz e análise automatizada de conclusões escritas.
+Um conjunto de simulações interativas para o ensino de Física no Ensino Médio, desenvolvidas e **testadas no dia a dia da sala de aula**. As simulações combinam visualizações em Canvas/Three.js com exercícios formativos, narração por síntese de voz e análise automatizada de conclusões escritas.
 
 ---
 
@@ -163,14 +163,72 @@ Este conjunto de simulações está registrado no **Zenodo** com DOI: [10.5281/z
 - **Three.js** — biblioteca 3D utilizada em algumas simulações (Espectrômetro de Massa, Estrelas, Força Magnética, entre outras)
 - **Google Apps Script** — para coleta e armazenamento de dados dos alunos
 
-### 🤖 Inteligência Artificial no Desenvolvimento
+### 💻 Processo de Desenvolvimento
 
-Este projeto foi **concebido e planejado integralmente pelo Prof. Flávio Ambrósio Campos**. A implementação dos códigos, no entanto, contou com o auxílio de **ferramentas de Inteligência Artificial generativa** ao longo de aproximadamente 12 meses de desenvolvimento (2024–2025):
+Este projeto é construído em um **fluxo de trabalho híbrido** que combina concepção pedagógica humana com assistência intensiva de Inteligência Artificial na produção de código. Abaixo está a descrição detalhada de cada etapa do processo, que se mantém em **construção permanente**.
 
-- **DeepSeek** — utilizado para auxiliar na estruturação de lógicas de simulação, criação de algoritmos de geração dinâmica de exercícios, depuração e revisão de código
-- **ChatGPT** — utilizado para auxiliar na criação de conteúdo textual explicativo, documentação, sugestões de design e prototipagem de funcionalidades
+#### 👨‍🏫 1. Concepção e Planejamento (100% humano)
 
-> **Esclarecimento importante:** O papel das IAs foi exclusivamente de **assistência técnica**. A **concepção conceitual**, o **planejamento pedagógico**, a **curadoria do conteúdo**, a **validação científica** e a **adequação curricular** foram realizados exclusivamente pelo autor, garantindo que o material reflita sua experiência docente e atenda aos objetivos educacionais propostos. Cada linha de código gerada ou sugerida pelas IAs foi revisada, adaptada e aprovada manualmente antes de ser incorporada ao projeto.
+**Totalmente de minha autoria**, como professor da disciplina:
+- Escolha dos tópicos de Física com base no **currículo do Ensino Médio** e nas dificuldades recorrentes dos alunos
+- Definição da **estrutura pedagógica** de cada simulação (teoria → exemplos resolvidos → exercícios formativos → conclusão)
+- Criação dos **enunciados, fórmulas e parâmetros** dos exercícios
+- **Testes em sala de aula** com turmas reais, com observação direta do uso pelos alunos
+- **Iterações de melhoria** a partir do feedback dos estudantes: ajustes na dificuldade, clareza dos enunciados, usabilidade da interface e sugestões de novos recursos
+- Planejamento da **progressão conceitual** e da **linguagem pedagógica** utilizada nas narrações em áudio
+
+#### 🤖 2. Ferramentas de IA Utilizadas
+
+O código é **majoritariamente produzido por ferramentas de IA**, sob minha supervisão e curadoria:
+
+| Ferramenta | Modelos/Ambiente | Papel no projeto |
+|-----------|-----------------|------------------|
+| **DeepSeek** (chat) | DeepSeek-V3 / R1 | Estruturação de lógicas de simulação, algoritmos de geração dinâmica de exercícios, criação de interfaces Canvas/Three.js, depuração e revisão de código |
+| **ChatGPT** (chat) | GPT-4o / GPT-4.1 | Criação de conteúdo textual explicativo, documentação, sugestões de CSS/design e prototipagem de funcionalidades |
+| **Continue.dev** (IDE) | DeepSeek Coder V2 / Qwen2.5-Coder | Assistência direta no editor VS Code para escrever, refatorar e depurar blocos de código durante o desenvolvimento, com modelos locais e remotos |
+| **GitHub Copilot** (IDE) | Modelo proprietário Microsoft | Autocomplete de código e sugestões contextuais durante a escrita no VS Code |
+| **GitHub** | — | Versionamento, armazenamento e **publicação automática via GitHub Pages** |
+
+#### 🔄 3. Fluxo de Trabalho
+
+1. **Eu descrevo o objetivo pedagógico** em linguagem natural para a IA (ex.: "Preciso de uma simulação de troca de calor onde o aluno possa variar as massas e temperaturas iniciais")
+2. **A IA gera o código** (HTML, CSS, JavaScript) como ponto de partida
+3. **Eu testo, reviso e adapto** cada funcionalidade, ajustando parâmetros, corrigindo comportamentos e refinando a experiência do usuário
+4. **Levo para a sala de aula**, observo os alunos usando e identifico pontos de melhoria
+5. **Volto com o feedback** para novas iterações com a IA, gerando novas versões
+
+Esse ciclo se repete **dezenas de vezes para cada simulação**, ao longo de aproximadamente 12 meses (2024–2025).
+
+#### 🧪 4. Testes em Sala de Aula e Iterações
+
+As simulações são **testadas e validadas com turmas reais** do Ensino Médio no dia a dia da sala de aula. Esse processo revela:
+- Necessidade de **ajustes na dificuldade** dos exercícios (muitos parâmetros são recalibrados)
+- **Melhorias na interface** sugeridas pelos próprios alunos (posição de botões, tamanho de fontes, contraste)
+- **Correções conceituais** apontadas durante as discussões em aula
+- **Novos tipos de exercício** que são adicionados a partir de dúvidas recorrentes
+
+Cada simulação reflete, portanto, não apenas o planejamento inicial, mas **um ciclo contínuo de aprimoramento** baseado na prática docente.
+
+#### 📝 5. Sistema de Exercícios (fase atual)
+
+Os exercícios formativos são propositalmente **simples e sem contextualização** — o foco nesta fase do projeto é a **aplicação direta de valores nas fórmulas**. São gerados **randomicamente** com parâmetros variáveis, permitindo que o estudante **refaça sempre com dados diferentes**, consolidando o domínio operacional dos conceitos.
+
+Esta escolha é intencional: antes de avançar para problemas contextualizados, o aluno precisa **ganhar fluência no uso das equações**. A **próxima fase do projeto** prevê exatamente a criação de **exercícios contextualizados**, com situações-problema inspiradas no cotidiano e em fenômenos reais, seguindo a progressão: domínio técnico → aplicação contextualizada → análise crítica.
+
+#### 📖 6. Material Teórico
+
+Cada simulação inclui uma **contextualização inicial** do fenômeno físico e a **descrição detalhada das fórmulas** e grandezas envolvidas, acompanhadas de legendas interpretativas. A **teoria completa**, com deduções, demonstrações formais e aprofundamento conceitual, está disponível nas **referências bibliográficas** indicadas em cada simulação e nos materiais didáticos adotados em sala de aula.
+
+#### 📝 7. Esclarecimento sobre a Autoria do Código
+
+É importante ser transparente: **a maioria esmagadora do código é gerada por IAs**, a partir de minhas instruções em linguagem natural. Meu papel é:
+- ✅ **Conceber** o que cada simulação deve fazer
+- ✅ **Orientar** a IA com descrições precisas do resultado esperado
+- ✅ **Revisar** cada bloco de código gerado, adaptando e corrigindo manualmente
+- ✅ **Testar** exaustivamente em sala de aula
+- ✅ **Iterar** com melhorias contínuas
+
+O código final, portanto, é **fruto de um processo colaborativo humano-IA**, onde a direção pedagógica, a curadoria e a validação são **exclusivamente humanas**, e a produção do código é **majoritariamente assistida por IA**.
 
 Nas simulações individuais, essa informação é registrada como comentário nos metadados do `<head>` de cada arquivo HTML.
 
