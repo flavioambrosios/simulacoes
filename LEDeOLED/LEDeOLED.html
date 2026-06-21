@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulacao de Diodo Emissor de Luz - LED e OLED</title>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulacao: LED e OLED">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/LEDeOLED/">
+    <!-- Nota sobre o desenvolvimento:
+         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+
     
     <style>
         * {
@@ -563,10 +574,10 @@
                 <div class="formula-box">
                     <h3>Relacoes principais</h3>
                     <p>E = h . f</p>
-                    <p>c = lambda . f</p>
-                    <p>E = h . c / lambda</p>
-                    <p>E(eV) ~= 1240 / lambda(nm)</p>
-                    <p>q . V ~= Delta E</p>
+                    <p>c = λ · f</p>
+                    <p>E = h . c / λ</p>
+                    <p>E(eV) ~= 1240 / λ(nm)</p>
+                    <p>q . V ~= ΔE</p>
                     <p>P eletrica = V . I</p>
                     <p>Brilho relativo ~= corrente . eficiencia</p>
                     <p>No LED, o salto quantico ocorre no semicondutor. No OLED, em materiais organicos excitados.</p>
@@ -587,7 +598,7 @@
                     <div class="measurement-item"><div class="measurement-label">Comprimento de onda</div><div class="measurement-value" id="wavelengthDisplay">650 nm</div></div>
                     <div class="measurement-item"><div class="measurement-label">Frequencia</div><div class="measurement-value" id="frequencyDisplay">461.2 THz</div></div>
                     <div class="measurement-item"><div class="measurement-label">Energia do foton</div><div class="measurement-value" id="photonEnergyDisplay">1.91 eV</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Salto quantico (Delta E)</div><div class="measurement-value" id="gapDisplay">1.91 eV</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Salto quantico (ΔE)</div><div class="measurement-value" id="gapDisplay">1.91 eV</div></div>
                     <div class="measurement-item"><div class="measurement-label">Tensao direta estimada</div><div class="measurement-value" id="forwardVoltageDisplay">1.91 V</div></div>
                     <div class="measurement-item"><div class="measurement-label">Potencia eletrica</div><div class="measurement-value" id="electricalPowerDisplay">34.4 mW</div></div>
                     <div class="measurement-item"><div class="measurement-label">Taxa de fotons</div><div class="measurement-value" id="photonRateDisplay">6.97 x 10^16 /s</div></div>
@@ -698,7 +709,7 @@
             <div class="solved-exercise">
                 <h4>Exemplo 1: Energia do foton</h4>
                 <p><strong>Problema:</strong> Um LED azul emite luz com comprimento de onda de 470 nm. Qual e a energia aproximada de cada foton?</p>
-                <div class="solution-step"><strong>Formula:</strong> E(eV) ~= 1240 / lambda(nm)</div>
+                <div class="solution-step"><strong>Formula:</strong> E(eV) ~= 1240 / λ(nm)</div>
                 <div class="solution-step"><strong>Calculo:</strong> E ~= 1240 / 470 ~= 2.64 eV</div>
                 <div class="solution-step"><strong>Conclusao:</strong> Como a energia e maior, a cor azul precisa de uma diferenca de energia maior do que a vermelha.</div>
             </div>
@@ -712,19 +723,19 @@
             </div>
 
             <div class="solved-exercise">
-                <h4>Exemplo 3: De onde vem E ~= 1240 / lambda?</h4>
+                <h4>Exemplo 3: De onde vem E ~= 1240 / λ?</h4>
                 <p><strong>Problema:</strong> Justifique a formula pratica usada para calcular a energia do foton em eletron-volts.</p>
                 <div class="solution-step"><strong>Passo 1:</strong> Comecamos com E = h . f.</div>
-                <div class="solution-step"><strong>Passo 2:</strong> Como c = lambda . f, entao f = c / lambda.</div>
-                <div class="solution-step"><strong>Passo 3:</strong> Substituindo em E = h . f, obtemos E = h . c / lambda.</div>
-                <div class="solution-step"><strong>Passo 4:</strong> Trocando joule por eV e metro por nm, surge a aproximacao E(eV) ~= 1240 / lambda(nm).</div>
+                <div class="solution-step"><strong>Passo 2:</strong> Como c = λ · f, entao f = c / λ.</div>
+                <div class="solution-step"><strong>Passo 3:</strong> Substituindo em E = h . f, obtemos E = h . c / λ.</div>
+                <div class="solution-step"><strong>Passo 4:</strong> Trocando joule por eV e metro por nm, surge a aproximacao E(eV) ~= 1240 / λ(nm).</div>
             </div>
 
             <div class="solved-exercise">
                 <h4>Exemplo 4: Ligacao entre ddp e cor emitida</h4>
                 <p><strong>Problema:</strong> Se a diferenca de energia responsavel pela emissao for de 2.2 eV, qual comprimento de onda aproximado esperamos?</p>
-                <div class="solution-step"><strong>Ideia:</strong> No modelo simplificado do LED, q . V ~= Delta E e Delta E ~= E do foton.</div>
-                <div class="solution-step"><strong>Calculo:</strong> lambda ~= 1240 / 2.2 ~= 564 nm.</div>
+                <div class="solution-step"><strong>Ideia:</strong> No modelo simplificado do LED, q . V ~= ΔE e ΔE ~= E do foton.</div>
+                <div class="solution-step"><strong>Calculo:</strong> λ ~= 1240 / 2.2 ~= 564 nm.</div>
                 <div class="solution-step"><strong>Conclusao:</strong> Esse valor fica na regiao do amarelo-esverdeado, mostrando a ligacao entre salto quantico e cor emitida.</div>
             </div>
 
@@ -796,29 +807,29 @@
 
                 <div class="theory-section">
                     <h3>Saltos quanticos e niveis de energia</h3>
-                    <p>A emissao luminosa pode ser interpretada como um <span class="highlight">salto quantico</span>. O sistema passa de um nivel de energia mais alto para outro mais baixo. A diferenca entre esses niveis e <span class="highlight">Delta E</span>, e essa energia aparece no foton emitido:</p>
-                    <div class="theory-formula">Delta E = E do foton = h . f</div>
+                    <p>A emissao luminosa pode ser interpretada como um <span class="highlight">salto quantico</span>. O sistema passa de um nivel de energia mais alto para outro mais baixo. A diferenca entre esses niveis e <span class="highlight">ΔE</span>, e essa energia aparece no foton emitido:</p>
+                    <div class="theory-formula">ΔE = E do foton = h . f</div>
                     <p>No LED, essa diferenca esta ligada ao <span class="highlight">gap de energia</span> do semicondutor. No OLED, a ideia continua parecida, mas a emissao acontece em estados excitados de moleculas organicas.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>De onde vem E(eV) ~= 1240 / lambda(nm)?</h3>
+                    <h3>De onde vem E(eV) ~= 1240 / λ(nm)?</h3>
                     <p>Essa expressao nao surge do nada. Ela vem de duas relacoes fundamentais da fisica moderna:</p>
                     <div class="theory-formula">E = h . f</div>
-                    <div class="theory-formula">c = lambda . f</div>
-                    <p>Isolando a frequencia, obtemos <span class="highlight">f = c / lambda</span>. Substituindo na expressao da energia:</p>
-                    <div class="theory-formula">E = h . c / lambda</div>
+                    <div class="theory-formula">c = λ · f</div>
+                    <p>Isolando a frequencia, obtemos <span class="highlight">f = c / λ</span>. Substituindo na expressao da energia:</p>
+                    <div class="theory-formula">E = h . c / λ</div>
                     <p>Se usarmos <span class="highlight">h = 6.63 x 10^-34 J.s</span>, <span class="highlight">c = 3.0 x 10^8 m/s</span>, <span class="highlight">1 eV = 1.60 x 10^-19 J</span> e convertermos metro para nanometro, aparece a forma pratica:</p>
-                    <div class="theory-formula">E(eV) ~= 1240 / lambda(nm)</div>
+                    <div class="theory-formula">E(eV) ~= 1240 / λ(nm)</div>
                     <p>Por isso, quando o comprimento de onda diminui, a energia do foton aumenta. Assim, a luz azul transporta mais energia por foton do que a vermelha.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>Ligacao com a ddp aplicada</h3>
                     <p>Quando uma carga elementar <span class="highlight">q</span> atravessa uma diferenca de potencial <span class="highlight">V</span>, a variacao de energia eletrica vale:</p>
-                    <div class="theory-formula">Delta E_eletrica = q . V</div>
+                    <div class="theory-formula">ΔE_eletrica = q . V</div>
                     <p>No modelo simplificado do LED, essa energia pode ser associada ao salto quantico que gera o foton. Por isso usamos a aproximacao:</p>
-                    <div class="theory-formula">q . V ~= Delta E ~= h . f ~= h . c / lambda</div>
+                    <div class="theory-formula">q . V ~= ΔE ~= h . f ~= h . c / λ</div>
                     <p>Na pratica, nao e uma igualdade perfeita, porque parte da energia pode virar calor. Mesmo assim, essa relacao ajuda muito a estimar a cor emitida e a ordem de grandeza da tensao direta.</p>
                 </div>
 
@@ -836,9 +847,9 @@
                     <h3>Equacoes uteis para esta atividade</h3>
                     <ul>
                         <li><span class="highlight">Energia do foton:</span> E = h . f</li>
-                        <li><span class="highlight">Relacao ondulatoria:</span> c = lambda . f</li>
-                        <li><span class="highlight">Forma pratica:</span> E(eV) ~= 1240 / lambda(nm)</li>
-                        <li><span class="highlight">Energia eletrica por carga:</span> Delta E = q . V</li>
+                        <li><span class="highlight">Relacao ondulatoria:</span> c = λ · f</li>
+                        <li><span class="highlight">Forma pratica:</span> E(eV) ~= 1240 / λ(nm)</li>
+                        <li><span class="highlight">Energia eletrica por carga:</span> ΔE = q . V</li>
                         <li><span class="highlight">Potencia eletrica:</span> P = V . I</li>
                         <li><span class="highlight">Numero de fotons por segundo:</span> N ~= potencia luminosa / energia de cada foton</li>
                     </ul>
@@ -850,7 +861,7 @@
                         <li><span class="highlight">LED:</span> pequeno, resistente, muito usado em lampadas, sinais e indicadores.</li>
                         <li><span class="highlight">OLED:</span> camada luminosa espalhada, muito usado em telas modernas.</li>
                         <li><span class="highlight">Corrente maior:</span> tende a aumentar o brilho, mas tambem aumenta o consumo e o aquecimento.</li>
-                        <li><span class="highlight">Maior Delta E:</span> significa fotons mais energeticos e, em geral, comprimentos de onda menores.</li>
+                        <li><span class="highlight">Maior ΔE:</span> significa fotons mais energeticos e, em geral, comprimentos de onda menores.</li>
                         <li><span class="highlight">Area maior:</span> no OLED ajuda a espalhar a emissao por uma superficie maior.</li>
                     </ul>
                 </div>
@@ -865,7 +876,20 @@
                     </ul>
                 </div>
             </div>
-
+            
+            <div class="theory-section">
+                <h3>Referencias Bibliograficas Sugeridas</h3>
+                <ol style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
+                    <li>SOUZA, Maria Jose de; PIETROCOLA, Mauricio. <strong>Fisica moderna e contemporanea no ensino medio: uma experiencia com o efeito fotoeletrico e LEDs.</strong>
+                    Caderno Brasileiro de Ensino de Fisica, v. 29, n. 2, 2012.
+                    Disponivel em: <a href="https://periodicos.ufsc.br/index.php/fisica/article/view/2175-7941.2012v29n2p317" target="_blank" style="color: #ffcc00;">periodicos.ufsc.br</a></li>
+                    <li>MACHADO, Kleber Daum. <strong>Semicondutores e dispositivos optoeletronicos: uma introducao ao funcionamento de LEDs.</strong>
+                    Editora Livraria da Fisica, 2018.</li>
+                    <li>CHAVES, Alaor. <strong>Fisica: Eletromagnetismo e Fisica Moderna.</strong>
+                    Rio de Janeiro: Reichmann & Affonso Editores, 2001. (Capitulo sobre semicondutores e emissao de luz)</li>
+                </ol>
+            </div>
+            
             <div class="buttons-container">
                 <button id="closeTheory" class="check-btn">Fechar</button>
             </div>
@@ -1561,8 +1585,8 @@ function drawBackground() {
 
             ctx.fillStyle = '#ffd166';
             ctx.font = 'bold 11px Arial';
-            ctx.fillText('Delta E = ' + quantumJumpEV.toFixed(2) + ' eV', boxX + 40, boxY + boxHeight - 52);
-            ctx.fillText('lambda = ' + wavelength.toFixed(0) + ' nm', boxX + 40, boxY + boxHeight - 34);
+            ctx.fillText('ΔE = ' + quantumJumpEV.toFixed(2) + ' eV', boxX + 40, boxY + boxHeight - 52);
+            ctx.fillText('λ = ' + wavelength.toFixed(0) + ' nm', boxX + 40, boxY + boxHeight - 34);
             ctx.fillText('f = ' + frequencyTHz.toFixed(1) + ' THz', boxX + 40, boxY + boxHeight - 16);
 
             ctx.fillStyle = '#cfe8ff';
@@ -1653,7 +1677,7 @@ function drawBackground() {
             ctx.fillText('Cor selecionada: ' + colorMap[String(wavelength)].name, canvas.width / 2, 58);
 
             ctx.fillStyle = '#cfd8dc';
-            ctx.fillText('Corrente = ' + currentmA.toFixed(0) + ' mA  |  Area = ' + areaCm2.toFixed(1) + ' cm²  |  Delta E = ' + quantumJumpEV.toFixed(2) + ' eV', canvas.width / 2, canvas.height - 18);
+            ctx.fillText('Corrente = ' + currentmA.toFixed(0) + ' mA  |  Area = ' + areaCm2.toFixed(1) + ' cm²  |  ΔE = ' + quantumJumpEV.toFixed(2) + ' eV', canvas.width / 2, canvas.height - 18);
         }
 
         function hexToRgba(hex, alpha) {
@@ -1786,7 +1810,7 @@ function drawBackground() {
             document.getElementById('resetBtn').addEventListener('click', resetSimulation);
 
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert('Como usar:\n\n• Escolha a tecnologia LED ou OLED.\n• Mude a cor emitida para comparar comprimento de onda, frequencia e energia do foton.\n• Clique nas cores do quadro de niveis de energia para trocar rapidamente o salto quantico.\n• Clique nos niveis ou na seta para destacar estado excitado, estado final e transicao.\n• Ajuste a corrente para observar o aumento do brilho e da potencia.\n• Ajuste a area emissora para perceber a diferenca entre ponto luminoso e painel emissor.\n• Use a eficiencia relativa para discutir que nem toda energia eletrica vira luz util.\n\nDica: compare um LED azul com um LED vermelho e relacione a mudanca de cor com Delta E.');
+                alert('Como usar:\n\n• Escolha a tecnologia LED ou OLED.\n• Mude a cor emitida para comparar comprimento de onda, frequencia e energia do foton.\n• Clique nas cores do quadro de niveis de energia para trocar rapidamente o salto quantico.\n• Clique nos niveis ou na seta para destacar estado excitado, estado final e transicao.\n• Ajuste a corrente para observar o aumento do brilho e da potencia.\n• Ajuste a area emissora para perceber a diferenca entre ponto luminoso e painel emissor.\n• Use a eficiencia relativa para discutir que nem toda energia eletrica vira luz util.\n\nDica: compare um LED azul com um LED vermelho e relacione a mudanca de cor com ΔE.');
             });
 
             
@@ -1891,9 +1915,9 @@ canvas.addEventListener('click', handleCanvasClick);
 
             exercises.push({
                 type: 'derivacao',
-                question: 'Qual sequencia de equacoes leva corretamente a forma E = h . c / lambda?',
-                answer: 'E = h . f e c = lambda . f',
-                options: shuffleArray(['E = h . f e c = lambda . f', 'P = V . I e F = q . v . B', 'V = R . I e Q = m . c . Delta T', 'F = m . a e c = lambda / f'])
+                question: 'Qual sequencia de equacoes leva corretamente a forma E = h . c / λ?',
+                answer: 'E = h . f e c = λ · f',
+                options: shuffleArray(['E = h . f e c = λ · f', 'P = V . I e F = q . v . B', 'V = R . I e Q = m . c . ΔT', 'F = m . a e c = lambda / f'])
             });
 
             const sampleVoltage = (Math.random() * 1.5 + 1.8).toFixed(1);
@@ -2229,7 +2253,7 @@ canvas.addEventListener('click', handleCanvasClick);
                 return 'Quando voce aumentar a area emissora em modo OLED, repare que a luz fica distribuida em uma superficie maior. Isso ajuda a explicar por que essa tecnologia e tao importante para telas.';
             },
             function() {
-                return 'Depois da exploracao, use os exercicios para consolidar ideias centrais: energia do foton, origem da formula E igual a h c sobre lambda, potencia eletrica, salto quantico e diferenca estrutural entre LED e OLED.';
+                return 'Depois da exploracao, use os exercicios para consolidar ideias centrais: energia do foton, origem da formula E igual a h c sobre λ, potencia eletrica, salto quantico e diferenca estrutural entre LED e OLED.';
             }
         ];
 
@@ -2247,5 +2271,6 @@ canvas.addEventListener('click', handleCanvasClick);
         };
     </script>
     <script src="../_shared/simulation-enhancer.js"></script>
+<footer style="text-align: center; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; color: #ccc; font-size: 0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color: #ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
