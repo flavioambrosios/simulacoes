@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atividade Interativa - Física da Fotossíntese</title>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulacao: Fotossintese Solar">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/FotossinteseSolar/">
+    <!-- Nota sobre o desenvolvimento:
+         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+
     <!-- Canvas 2D substituindo Three.js -->
     <style>
         /* ===== ESTILOS COMPLETOS (mesmos do original) ===== */
@@ -675,7 +686,7 @@
             </div>
             <div class="formula-box">
                 <h3>Energia química na glicose</h3>
-                <p>Energia ≈ n · 2803 kJ/mol</p>
+                <p>Energia ≈ n · 2800 kJ/mol</p>
             </div>
             <div class="exercise-buttons">
                 <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
@@ -751,7 +762,7 @@
         <div id="solvedExercivesContainer">
             <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Fórmula:</strong> E = 1240 / λ, com λ em nm</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
             <div class="solved-exercise"><h4>Exemplo 2: Absorção da clorofila e cor verde</h4><p><strong>Problema:</strong> Por que folhas geralmente parecem verdes quando recebem luz branca do Sol?</p><div class="solution-step"><strong>Observação física:</strong> A clorofila absorve melhor luz azul e vermelha.</div><div class="solution-step"><strong>Faixa menos absorvida:</strong> A região verde do espectro sofre menor absorção.</div><div class="solution-step"><strong>Conclusão:</strong> A luz verde é mais refletida ou transmitida pela folha e, por isso, chega aos nossos olhos.</div></div>
-            <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2803 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2803 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2800 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2800 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
             <div class="solved-exercise"><h4>Exemplo 4: Comparação entre cenários fotossintéticos</h4><p><strong>Problema:</strong> Qual cenário tende a produzir maior taxa fotossintética? Cenário A: 450 nm, 930 W/m², 470 ppm de CO₂, 84% de água e Clorofila b. Cenário B: 540 nm, 800 W/m², 360 ppm de CO₂, 34% de água e Clorofila a.</p><div class="solution-step"><strong>Passo 1:</strong> Comparar a faixa do espectro. Em 450 nm a luz está na região azul, muito bem absorvida pela clorofila b. Em 540 nm a luz cai na região verde, em que a absorção tende a ser bem menor.</div><div class="solution-step"><strong>Passo 2:</strong> Comparar os reagentes e a intensidade. O cenário A também tem maior intensidade luminosa, mais CO₂ e muito mais água disponível.</div><div class="solution-step"><strong>Passo 3:</strong> Aplicando a lógica da simulação, o cenário A atinge taxa relativa aproximada de 74,8%, enquanto o cenário B fica em torno de 1,4%.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Cenário A</strong>.</div></div>
             <div class="solved-exercise"><h4>Exemplo 5: Classificação da absorção em 530 nm</h4><p><strong>Problema:</strong> Para um tecido vegetal em que predomina Clorofila a, a absorção de luz em 530 nm tende a ser classificada como: Alta, Baixa, Moderada ou Muito baixa?</p><div class="solution-step"><strong>Passo 1:</strong> Identificar a faixa espectral. O comprimento de onda de 530 nm está na região verde.</div><div class="solution-step"><strong>Passo 2:</strong> Lembrar do comportamento da clorofila a. Esse pigmento absorve melhor no azul e no vermelho, mas absorve pouco na região verde.</div><div class="solution-step"><strong>Passo 3:</strong> Na lógica numérica da simulação, 530 nm para clorofila a cai no nível mínimo de absorção estimada, cerca de 0,05.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Muito baixa</strong>.</div></div>
         </div>
@@ -832,6 +843,210 @@
                 <div class="theory-note">
                     <strong>Regra prática para os exercícios:</strong> se a questão destacar azul ou vermelho, pense primeiro em absorção maior. Se destacar verde, pense em absorção menor e maior reflexão. Se comparar pigmentos, procure qual deles tem o pico de absorção mais próximo do comprimento de onda informado.
                 </div>
+                
+                <div class="theory-section">
+                    <h3>Curvas de Absorção dos Pigmentos</h3>
+                    <p>O gráfico abaixo mostra a absorbância relativa dos principais pigmentos fotossintetizantes em função do comprimento de onda:</p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <canvas id="absorptionChart" width="600" height="350" style="background: rgba(0,0,0,0.3); border-radius: 10px; max-width: 100%;"></canvas>
+                    </div>
+                    <script>
+                    (function() {
+                        function drawAbsorptionChart() {
+                            var canvas = document.getElementById("absorptionChart");
+                            if (!canvas) return;
+                            var ctx = canvas.getContext("2d");
+                            var w = canvas.width, h = canvas.height;
+                            var pad = {left: 60, right: 20, top: 30, bottom: 40};
+                            var chartW = w - pad.left - pad.right;
+                            var chartH = h - pad.top - pad.bottom;
+                            
+                            // Dados dos pigmentos: [comprimento_onda, absorbancia] normalizada 0-1
+                            var clorofilaA = [];
+                            var clorofilaB = [];
+                            var carotenoides = [];
+                            var absorcaoTotal = [];
+                            
+                            // Gerar dados sinteticos baseados nos picos reais
+                            for (var lambda = 380; lambda <= 750; lambda += 5) {
+                                // Clorofila a: picos em ~430 nm e ~662 nm
+                                var ca = 0.3 * Math.exp(-Math.pow(lambda - 430, 2) / (2 * 25*25)) + 0.9 * Math.exp(-Math.pow(lambda - 662, 2) / (2 * 20*20)) + 0.05;
+                                // Clorofila b: picos em ~453 nm e ~642 nm
+                                var cb = 0.6 * Math.exp(-Math.pow(lambda - 453, 2) / (2 * 25*25)) + 0.7 * Math.exp(-Math.pow(lambda - 642, 2) / (2 * 22*22)) + 0.05;
+                                // Carotenoides: pico em ~460-470 nm
+                                var car = 0.7 * Math.exp(-Math.pow(lambda - 465, 2) / (2 * 35*35)) + 0.1 * Math.exp(-Math.pow(lambda - 490, 2) / (2 * 20*20)) + 0.03;
+                                // Absorcao total: combinacao ponderada
+                                var total = Math.min(1.0, 0.5 * ca + 0.3 * cb + 0.2 * car + 0.1);
+                                
+                                clorofilaA.push({x: lambda, y: Math.min(1.0, ca)});
+                                clorofilaB.push({x: lambda, y: Math.min(1.0, cb)});
+                                carotenoides.push({x: lambda, y: Math.min(1.0, car)});
+                                absorcaoTotal.push({x: lambda, y: total});
+                            }
+                            
+                            function xPos(lambda) { return pad.left + (lambda - 380) / (750 - 380) * chartW; }
+                            function yPos(val) { return pad.top + chartH - val * chartH; }
+                            
+                            function drawCurve(data, color, lineWidth) {
+                                ctx.beginPath();
+                                for (var i = 0; i < data.length; i++) {
+                                    var x = xPos(data[i].x);
+                                    var y = yPos(data[i].y);
+                                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                                }
+                                ctx.strokeStyle = color;
+                                ctx.lineWidth = lineWidth || 2;
+                                ctx.stroke();
+                            }
+                            
+                            function fillUnderCurve(data, color) {
+                                ctx.beginPath();
+                                ctx.moveTo(xPos(data[0].x), pad.top + chartH);
+                                for (var i = 0; i < data.length; i++) {
+                                    ctx.lineTo(xPos(data[i].x), yPos(data[i].y));
+                                }
+                                ctx.lineTo(xPos(data[data.length-1].x), pad.top + chartH);
+                                ctx.closePath();
+                                ctx.fillStyle = color;
+                                ctx.globalAlpha = 0.15;
+                                ctx.fill();
+                                ctx.globalAlpha = 1.0;
+                            }
+                            
+                            // Fundo
+                            ctx.fillStyle = "rgba(0,0,0,0.1)";
+                            ctx.fillRect(pad.left, pad.top, chartW, chartH);
+                            
+                            // Eixos
+                            ctx.strokeStyle = "#888";
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + chartH);
+                            ctx.lineTo(pad.left + chartW, pad.top + chartH);
+                            ctx.stroke();
+                            
+                            // Legendas eixos
+                            ctx.fillStyle = "#ccc";
+                            ctx.font = "12px Arial";
+                            ctx.textAlign = "center";
+                            ctx.fillText("Comprimento de onda (nm)", pad.left + chartW/2, h - 5);
+                            ctx.save(); ctx.translate(15, pad.top + chartH/2); ctx.rotate(-Math.PI/2); ctx.fillText("Absorbância relativa", 0, 0); ctx.restore();
+                            
+                            // Marcacoes eixo X
+                            for (var l = 400; l <= 700; l += 50) {
+                                var x = xPos(l);
+                                ctx.strokeStyle = "#555";
+                                ctx.beginPath(); ctx.moveTo(x, pad.top + chartH); ctx.lineTo(x, pad.top + chartH + 5); ctx.stroke();
+                                ctx.fillStyle = "#aaa";
+                                ctx.textAlign = "center";
+                                ctx.fillText(l.toString(), x, pad.top + chartH + 18);
+                            }
+                            
+                            // Marcacoes eixo Y
+                            for (var v = 0; v <= 1; v += 0.2) {
+                                var y = yPos(v);
+                                ctx.strokeStyle = "#444";
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y); ctx.stroke();
+                                ctx.fillStyle = "#888";
+                                ctx.textAlign = "right";
+                                ctx.fillText((v * 100).toFixed(0) + "%", pad.left - 5, y + 4);
+                            }
+                            
+                            // Faixas espectrais coloridas no fundo
+                            var bands = [
+                                {start: 380, end: 450, color: "rgba(100,50,180,0.2)"},
+                                {start: 450, end: 495, color: "rgba(50,80,255,0.2)"},
+                                {start: 495, end: 570, color: "rgba(50,200,50,0.2)"},
+                                {start: 570, end: 590, color: "rgba(200,200,50,0.2)"},
+                                {start: 590, end: 620, color: "rgba(200,120,30,0.2)"},
+                                {start: 620, end: 700, color: "rgba(200,50,50,0.2)"},
+                                {start: 700, end: 750, color: "rgba(100,50,50,0.2)"},
+                            ];
+                            for (var b = 0; b < bands.length; b++) {
+                                ctx.fillStyle = bands[b].color;
+                                ctx.fillRect(xPos(bands[b].start), pad.top, xPos(bands[b].end) - xPos(bands[b].start), chartH);
+                            }
+                            
+                            // Curvas com area
+                            fillUnderCurve(absorcaoTotal, "rgba(200,200,200,0.3)");
+                            drawCurve(absorcaoTotal, "#ffffff", 2.5);
+                            fillUnderCurve(clorofilaA, "rgba(50,180,50,0.3)");
+                            drawCurve(clorofilaA, "#33cc33", 2);
+                            fillUnderCurve(clorofilaB, "rgba(50,130,50,0.3)");
+                            drawCurve(clorofilaB, "#228822", 2);
+                            fillUnderCurve(carotenoides, "rgba(200,150,50,0.3)");
+                            drawCurve(carotenoides, "#cc8800", 2);
+                            
+                            // Picos
+                            var peaks = [
+                                {lambda: 430, label: "Clorofila a: 430 nm", color: "#33cc33", yOff: 15},
+                                {lambda: 662, label: "Clorofila a: 662 nm", color: "#33cc33", yOff: 15},
+                                {lambda: 453, label: "Clorofila b: 453 nm", color: "#228822", yOff: -15},
+                                {lambda: 642, label: "Clorofila b: 642 nm", color: "#228822", yOff: -15},
+                                {lambda: 465, label: "Carotenoides: ~465 nm", color: "#cc8800", yOff: -15},
+                            ];
+                            for (var p = 0; p < peaks.length; p++) {
+                                var px = xPos(peaks[p].lambda);
+                                ctx.fillStyle = peaks[p].color;
+                                ctx.font = "bold 10px Arial";
+                                ctx.textAlign = "center";
+                                ctx.fillText(peaks[p].label, px, pad.top + chartH + peaks[p].yOff + 30);
+                                ctx.fillStyle = "#fff";
+                                ctx.beginPath();
+                                ctx.arc(px, pad.top + chartH + peaks[p].yOff + 22, 3, 0, 2 * Math.PI);
+                                ctx.fill();
+                            }
+                            
+                            // Legenda
+                            var legX = pad.left + 10, legY = pad.top + 15;
+                            ctx.font = "11px Arial";
+                            var legend = [
+                                {label: "Absorção total", color: "#ffffff"},
+                                {label: "Clorofila a", color: "#33cc33"},
+                                {label: "Clorofila b", color: "#228822"},
+                                {label: "Carotenoides", color: "#cc8800"},
+                            ];
+                            for (var lg = 0; lg < legend.length; lg++) {
+                                ctx.fillStyle = legend[lg].color;
+                                ctx.fillRect(legX, legY + lg * 16, 12, 12);
+                                ctx.fillStyle = "#ccc";
+                                ctx.textAlign = "left";
+                                ctx.fillText(legend[lg].label, legX + 18, legY + lg * 16 + 10);
+                            }
+                        }
+                        setTimeout(drawAbsorptionChart, 100);
+                    })();
+                    </script>
+                    
+                    <h4>Picos de Absorção por Pigmento</h4>
+                    <table class="spectrum-table">
+                        <thead>
+                            <tr>
+                                <th>Pigmento</th>
+                                <th>Pico 1 (azul/violeta)</th>
+                                <th>Pico 2 (vermelho/laranja)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="highlight">Clorofila a</span></td>
+                                <td>430 nm</td>
+                                <td>662 nm</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Clorofila b</span></td>
+                                <td>453 nm</td>
+                                <td>642 nm</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Carotenoides</span></td>
+                                <td>465 nm (pico principal)</td>
+                                <td>490 nm (pico secundário)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <p>Nas questões comparativas, não basta observar apenas a cor da luz. A produção de glicose depende de uma combinação de fatores:</p>
                 <ul>
                     <li><span class="highlight">energia por fóton</span>, ligada ao comprimento de onda;</li>
@@ -849,7 +1064,7 @@
             <div class="theory-section">
                 <h3>Alimento e biocombustíveis</h3>
                 <p>A energia química armazenada na glicose pode seguir muitos caminhos: sustentar o crescimento da planta, alimentar outros seres vivos ou ser convertida em biomassa usada na produção de etanol, biodiesel e outros biocombustíveis.</p>
-                <div class="theory-formula">1 mol de glicose ≈ 2803 kJ</div>
+                <div class="theory-formula">1 mol de glicose ≈ 2800 kJ</div>
                 <ul>
                     <li>Na cadeia alimentar, essa energia chega aos consumidores.</li>
                     <li>Na indústria, açúcares e biomassa podem ser fermentados ou processados.</li>
@@ -991,16 +1206,16 @@
     function calculateAbsorption(lambda, pigment) {
         let absorption = 0.10;
         if (pigment === 'chlorophyllA') {
-            absorption += gaussian(lambda, 430, 22, 0.75);
-            absorption += gaussian(lambda, 662, 24, 0.90);
+            absorption += gaussian(lambda, 430, 20, 0.85);
+            absorption += gaussian(lambda, 662, 18, 0.95);
         } else if (pigment === 'chlorophyllB') {
-            absorption += gaussian(lambda, 453, 24, 0.72);
-            absorption += gaussian(lambda, 642, 24, 0.82);
+            absorption += gaussian(lambda, 453, 22, 0.78);
+            absorption += gaussian(lambda, 642, 20, 0.88);
         } else {
-            absorption += gaussian(lambda, 470, 28, 0.85);
-            absorption += gaussian(lambda, 505, 24, 0.45);
+            absorption += gaussian(lambda, 465, 30, 0.80);
+            absorption += gaussian(lambda, 490, 20, 0.50);
         }
-        absorption -= gaussian(lambda, 550, 24, 0.28);
+        absorption -= gaussian(lambda, 550, 22, 0.30);
         return clamp(absorption, 0.05, 0.98);
     }
 
@@ -1017,7 +1232,7 @@
         absorptionEfficiency = calculateAbsorption(wavelength, pigmentType);
         photosynthesisRate = calculatePhotosynthesisRate(wavelength, solarIntensity, co2Level, waterAvailability, pigmentType);
         glucoseProduction = photosynthesisRate / 10;
-        storedEnergy = glucoseProduction * 2.803;
+        storedEnergy = glucoseProduction * 2.800;
     }
 
 
@@ -2163,7 +2378,7 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
 
     function buildStorageExercise() {
         const mmol = Math.floor(Math.random() * 8) + 2;
-        const stored = (mmol / 1000) * 2803;
+        const stored = (mmol / 1000) * 2800;
         return {
             type: 'energia_glicose',
             question: `Uma planta armazenou ${mmol} mmol de glicose em uma hora. Qual é a energia química aproximada contida nessa glicose?`,
@@ -2534,5 +2749,6 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
     };
 </script>
 <script src="../_shared/simulation-enhancer.js"></script>
+<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
