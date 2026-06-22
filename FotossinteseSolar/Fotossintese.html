@@ -760,7 +760,7 @@
     <div class="modal-content">
         <div class="modal-header"><h2>Exercícios Resolvidos - Física da Fotossíntese</h2><span class="close">&times;</span></div>
         <div id="solvedExercivesContainer">
-            <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Fórmula:</strong> E = 1240 / λ, com λ em nm</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Constantes:</strong> h = 6,626 × 10<sup>-34</sup> J·s, c = 3,00 × 10<sup>8</sup> m/s, portanto h·c = 1,986 × 10<sup>-25</sup> J·m = 1240 eV·nm</div><div class="solution-step"><strong>Fórmula original:</strong> E = h·c / λ</div><div class="solution-step"><strong>Forma prática:</strong> E(eV) = 1240 / λ(nm)</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
             <div class="solved-exercise"><h4>Exemplo 2: Absorção da clorofila e cor verde</h4><p><strong>Problema:</strong> Por que folhas geralmente parecem verdes quando recebem luz branca do Sol?</p><div class="solution-step"><strong>Observação física:</strong> A clorofila absorve melhor luz azul e vermelha.</div><div class="solution-step"><strong>Faixa menos absorvida:</strong> A região verde do espectro sofre menor absorção.</div><div class="solution-step"><strong>Conclusão:</strong> A luz verde é mais refletida ou transmitida pela folha e, por isso, chega aos nossos olhos.</div></div>
             <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2800 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2800 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
             <div class="solved-exercise"><h4>Exemplo 4: Comparação entre cenários fotossintéticos</h4><p><strong>Problema:</strong> Qual cenário tende a produzir maior taxa fotossintética? Cenário A: 450 nm, 930 W/m², 470 ppm de CO₂, 84% de água e Clorofila b. Cenário B: 540 nm, 800 W/m², 360 ppm de CO₂, 34% de água e Clorofila a.</p><div class="solution-step"><strong>Passo 1:</strong> Comparar a faixa do espectro. Em 450 nm a luz está na região azul, muito bem absorvida pela clorofila b. Em 540 nm a luz cai na região verde, em que a absorção tende a ser bem menor.</div><div class="solution-step"><strong>Passo 2:</strong> Comparar os reagentes e a intensidade. O cenário A também tem maior intensidade luminosa, mais CO₂ e muito mais água disponível.</div><div class="solution-step"><strong>Passo 3:</strong> Aplicando a lógica da simulação, o cenário A atinge taxa relativa aproximada de 74,8%, enquanto o cenário B fica em torno de 1,4%.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Cenário A</strong>.</div></div>
@@ -784,8 +784,9 @@
                 <p>Quanto menor o comprimento de onda, maior a energia transportada por cada fóton.</p>
                 <ul>
                     <li><span class="highlight">λ</span> representa o comprimento de onda.</li>
-                    <li><span class="highlight">h</span> é a constante de Planck.</li>
-                    <li><span class="highlight">c</span> é a velocidade da luz.</li>
+                    <li><span class="highlight">h</span> = 6,626 × 10<sup>-34</sup> J·s (constante de Planck).</li>
+                    <li><span class="highlight">c</span> = 3,00 × 10<sup>8</sup> m/s (velocidade da luz).</li>
+                    <li><span class="highlight">h · c</span> = 1,986 × 10<sup>-25</sup> J·m = 1240 eV·nm (produto usado nos cálculos).</li>
                 </ul>
                 <table class="spectrum-table">
                     <thead>
@@ -846,7 +847,9 @@
                 
                 <div class="theory-section">
                     <h3>Curvas de Absorção dos Pigmentos</h3>
-                    <p>O gráfico abaixo mostra a absorbância relativa dos principais pigmentos fotossintetizantes em função do comprimento de onda:</p>
+                    <p>O gráfico abaixo mostra a <strong>absorbância relativa</strong> (escala de 0 a 100%) dos principais pigmentos fotossintetizantes em função do comprimento de onda.</p>
+                    <p><strong>O que é absorbância relativa?</strong> É uma medida da fração da luz incidente que foi absorvida pelo pigmento, normalizada entre 0% (nenhuma absorção) e 100% (absorção máxima). Cada pigmento tem seu próprio padrão de absorção, e a absorbância relativa permite comparar diretamente o comportamento de diferentes pigmentos no mesmo gráfico.</p>
+                    <p><strong>Por que a absorção total não é simplesmente a soma das curvas?</strong> Porque em uma folha real os pigmentos não atuam de forma independente: a luz que não foi absorvida por um pigmento pode ser absorvida por outro, e há sobreposição dos espectros. Além disso, a estrutura do tecido vegetal (espessura, disposição dos cloroplastos) influencia a absorção total. Portanto, a curva de absorção total representa a absorbância medida do conjunto, que é diferente da soma aritmética das absorbâncias individuais.</p>
                     <div style="text-align: center; margin: 15px 0;">
                         <canvas id="absorptionChart" width="600" height="350" style="background: rgba(0,0,0,0.3); border-radius: 10px; max-width: 100%;"></canvas>
                     </div>
@@ -1072,7 +1075,15 @@
                 </ul>
             </div>
         </div>
-        <div class="buttons-container">
+                    <div class="theory-section">
+                <h3>Referências Bibliográficas Sugeridas</h3>
+                <ol style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
+                    <li>TAIZ, Lincoln; ZEIGER, Eduardo. <strong>Fisiologia Vegetal.</strong> 5. ed. Porto Alegre: Artmed, 2013. (Capítulo 7: Absorção de Luz e Transferência de Energia)</li>
+                    <li>SOUZA, Maria José de; PIETROCOLA, Maurício. <strong>Física moderna e contemporânea no ensino médio: uma experiência com o efeito fotoelétrico e LEDs.</strong> Caderno Brasileiro de Ensino de Física, v. 29, n. 2, 2012.</li>
+                    <li>GREF - GRUPO DE REELABORAÇÃO DO ENSINO DE FÍSICA. <strong>Física 3: Eletromagnetismo.</strong> 5. ed. São Paulo: EDUSP, 2000. (Capítulo sobre ondas eletromagnéticas e espectro)</li>
+                </ol>
+            </div>
+<div class="buttons-container">
             <button id="closeTheory" class="check-btn">Fechar</button>
         </div>
     </div>
