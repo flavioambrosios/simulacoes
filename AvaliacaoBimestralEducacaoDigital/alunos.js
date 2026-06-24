@@ -64,7 +64,8 @@ const STUDENT_DATABASE = {
             "SUELLEN DA SILVA REZENDE",
             "TALYS GABRIEL ALVES DOS SANTOS",
             "THEO PINHEIRO ALVES",
-            "YASMIN DA SILVA SARAIVA"
+            "YASMIN DA SILVA SARAIVA",
+            "ZULU SILVA"
         ],
         "3o ano A": [
             "AISLAN BARBOSA DE OLIVEIRA",
@@ -331,7 +332,8 @@ const STUDENT_DATABASE = {
             "SOFIA LOPES ROSIMO",
             "SOPHIA LIS SILVA MACHADO",
             "SUELLEN DA SILVA REZENDE",
-            "TALYS GABRIEL ALVES DOS SANTOS"
+            "TALYS GABRIEL ALVES DOS SANTOS",
+            "ZULU SILVA"
         ],
         "3o ano|A": [
             "AISLAN BARBOSA DE OLIVEIRA",
