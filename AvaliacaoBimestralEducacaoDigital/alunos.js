@@ -47,7 +47,6 @@ const STUDENT_DATABASE = {
             "LOURDES VITÓRIA FERNANDES PINHEIRO",
             "LUANA TAVARES MARINELL",
             "LUCAS DA COSTA DE AZEVEDO",
-            "LUIS ANTONIO",
             "LUIS ANTONIO GOMES FONTANA",
             "MARIA CLARA F (Transferida)",
             "MARIA CLARA RIBEIRO MONTEIRO",
