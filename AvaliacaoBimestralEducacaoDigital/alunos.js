@@ -29,8 +29,7 @@ const STUDENT_DATABASE = {
             "PEDRO LUIS CASTRO RODRIGUES",
             "RAFAEL MACEDO PENNA",
             "SAMARA BORGES RAMOS",
-            "WILLIANY CAVALCANTE DOS SANTOS",
-            "ZULU SILVA"
+            "WILLIANY CAVALCANTE DOS SANTOS"
         ],
         "2o ano B": [
             "ALICIA GABRIELA MEDEIROS DE ARAUJO",
