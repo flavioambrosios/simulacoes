@@ -47,6 +47,7 @@ const STUDENT_DATABASE = {
             "LOURDES VITÓRIA FERNANDES PINHEIRO",
             "LUANA TAVARES MARINELL",
             "LUCAS DA COSTA DE AZEVEDO",
+            "LUIS ANTONIO",
             "LUIS ANTONIO GOMES FONTANA",
             "MARIA CLARA F (Transferida)",
             "MARIA CLARA RIBEIRO MONTEIRO",
@@ -64,8 +65,7 @@ const STUDENT_DATABASE = {
             "SUELLEN DA SILVA REZENDE",
             "TALYS GABRIEL ALVES DOS SANTOS",
             "THEO PINHEIRO ALVES",
-            "YASMIN DA SILVA SARAIVA",
-            "ZULU SILVA"
+            "YASMIN DA SILVA SARAIVA"
         ],
         "3o ano A": [
             "AISLAN BARBOSA DE OLIVEIRA",
@@ -317,6 +317,7 @@ const STUDENT_DATABASE = {
             "LARISSA OLIVEIRA DOS SANTOS",
             "LUANA TAVARES MARINELL",
             "LUCAS DA COSTA DE AZEVEDO",
+            "LUIS ANTONIO",
             "LUIS ANTONIO GOMES FONTANA",
             "MARIA CLARA F (Transferida)",
             "MARIA CLARA RIBEIRO MONTEIRO",
