@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulacao da Lei de Coulomb com Exercicios</title>
+    <title>Simulação da Lei de Coulomb com Exercícios</title>
     <style>
         * {
             box-sizing: border-box;
@@ -463,13 +463,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulacao da Lei de Coulomb com Exercicios</h1>
+            <h1>Simulação da Lei de Coulomb com Exercícios</h1>
             <p class="subtitle">Prof. Flavio Ambrosio</p>
         </header>
 
         <div class="content">
             <div class="simulation-panel">
-                <h2 class="panel-title">Laboratorio Virtual - PhET</h2>
+                <h2 class="panel-title">Laboratório Virtual - PhET</h2>
                 <div class="simulation-container">
                     <iframe src="https://phet.colorado.edu/sims/html/coulombs-law/latest/coulombs-law_pt_BR.html"
                             width="800"
@@ -479,11 +479,11 @@
                 </div>
 
                 <div class="visualization-toggle">
-                    <button id="helpBtn">Como Usar a Simulacao</button>
+                    <button id="helpBtn">Como Usar a Simulação</button>
                 </div>
 
                 <div class="legend">
-                    <p><strong>Roteiro rapido:</strong> altere os valores das cargas, aproxime e afaste as esferas e observe como a forca muda de intensidade e de sentido. Compare cargas de mesmo sinal com cargas de sinais opostos.</p>
+                    <p><strong>Roteiro rápido:</strong> altere os valores das cargas, aproxime e afaste as esferas e observe como a força muda de intensidade e de sentido. Compare cargas de mesmo sinal com cargas de sinais opostos.</p>
                 </div>
             </div>
 
@@ -493,29 +493,29 @@
                 <div class="control-group">
                     <label for="scenarioSelect">Cenario de Estudo:</label>
                     <select id="scenarioSelect">
-                        <option value="atracao">Cargas opostas em aproximacao</option>
-                        <option value="repulsao">Cargas iguais em afastamento</option>
+                        <option value="atração">Cargas opostas em aproximacao</option>
+                        <option value="repulsão">Cargas iguais em afastamento</option>
                         <option value="distancia">Dobrar a distancia</option>
                         <option value="carga">Dobrar uma das cargas</option>
                     </select>
                 </div>
 
                 <div class="scenario-note" id="scenarioDescription">
-                    Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com forca de 0,054 N. A interacao e de atracao.
+                    Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.
                 </div>
 
                 <div class="formula-box">
                     <h3>Lei de Coulomb</h3>
                     <p>F = k . |q1 . q2| / r²</p>
-                    <p>k = 9 . 10^9 N.m²/C²</p>
+                    <p>k = 9 . 10⁹ N.m²/C²</p>
                     <p>q1 e q2 em coulombs</p>
                     <p>r = distancia entre as cargas</p>
                 </div>
 
                 <div class="formula-box">
                     <h3>Sinal da Interacao</h3>
-                    <p>Sinais iguais -> repulsao</p>
-                    <p>Sinais opostos -> atracao</p>
+                    <p>Sinais iguais -> repulsão</p>
+                    <p>Sinais opostos -> atração</p>
                 </div>
 
                 <div class="formula-box">
@@ -525,21 +525,21 @@
                 </div>
 
                 <div class="formula-box">
-                    <h3>Campo Eletrico</h3>
+                    <h3>Campo Elétrico</h3>
                     <p>E = F / q</p>
                     <p>ou E = k . |Q| / r²</p>
                     <p>Unidade: N/C</p>
                 </div>
 
                 <div class="exercise-buttons">
-                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
-                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
-                    <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
                 </div>
             </div>
 
             <div class="measurement-panel">
-                <h2 class="panel-title">Medicoes e Resultados Esperados</h2>
+                <h2 class="panel-title">Medições e Resultados Esperados</h2>
                 <div class="measurement-grid">
                     <div class="measurement-item">
                         <div class="measurement-label">Carga 1</div>
@@ -554,15 +554,15 @@
                         <div class="measurement-value" id="distanceDisplay">1,0 m</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">Forca Eletrostatica</div>
+                        <div class="measurement-label">Força Eletrostática</div>
                         <div class="measurement-value" id="forceDisplay">0,054 N</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Tipo de Interacao</div>
-                        <div class="measurement-value" id="interactionDisplay">Atracao</div>
+                        <div class="measurement-value" id="interactionDisplay">Atração</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">Foco Didatico</div>
+                        <div class="measurement-label">Foco Didático</div>
                         <div class="measurement-value" id="focusDisplay">Lei de Coulomb</div>
                     </div>
                 </div>
@@ -573,7 +573,7 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios sobre a Lei de Coulomb</h2>
+                <h2>Exercícios sobre a Lei de Coulomb</h2>
                 <span class="close">&times;</span>
             </div>
 
@@ -589,15 +589,15 @@
             <div id="exerciseContainer"></div>
 
             <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusao de Estudo</h3>
-                <p>Escreva abaixo o que voce percebeu sobre a relacao entre cargas, distancia e intensidade da forca.</p>
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo o que você percebeu sobre a relação entre cargas, distancia e intensidade da força.</p>
                 <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..."
                         style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
 
             <div id="resultsContainer" style="display: none;">
-                <h3>Resultados dos Exercicios</h3>
+                <h3>Resultados dos Exercícios</h3>
                 <div id="resultsSummary"></div>
 
                 <h3>Enviar Resultados</h3>
@@ -610,12 +610,12 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="studentGrade" class="required">Serie:</label>
+                        <label for="studentGrade" class="required">Série:</label>
                         <select id="studentGrade" required>
-                            <option value="">Selecione sua serie</option>
-                            <option value="1o ano">1o ano</option>
-                            <option value="2o ano">2o ano</option>
-                            <option value="3o ano">3o ano</option>
+                            <option value="">Selecione sua série</option>
+                            <option value="1º ano">1º ano</option>
+                            <option value="2º ano">2º ano</option>
+                            <option value="3º ano">3º ano</option>
                         </select>
                     </div>
 
@@ -651,18 +651,18 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="criticismInput">Criticas:</label>
+                        <label for="criticismInput">Críticas:</label>
                         <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
                     </div>
 
                     <div class="form-row">
-                        <label for="suggestionInput">Sugestoes:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
                     </div>
 
                     <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
                     </div>
 
                     <div id="emailStatus" class="email-status"></div>
@@ -676,36 +676,36 @@
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios Resolvidos - Lei de Coulomb</h2>
+                <h2>Exercícios Resolvidos - Lei de Coulomb</h2>
                 <span class="close">&times;</span>
             </div>
 
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
-                    <h4>Exemplo 1: Calculo da forca entre duas cargas</h4>
-                    <p><strong>Problema:</strong> Duas cargas puntiformes de 2 uC e 3 uC estao separadas por 1 m. Qual e a intensidade da forca eletrostatica entre elas?</p>
-                    <div class="solution-step"><strong>Formula:</strong> F = k . |q1 . q2| / r²</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter as cargas: 2 uC = 2 . 10^-6 C e 3 uC = 3 . 10^-6 C.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir na formula: F = 9 . 10^9 . (2 . 10^-6 . 3 . 10^-6) / 1².</div>
+                    <h4>Exemplo 1: Cálculo da força entre duas cargas</h4>
+                    <p><strong>Problema:</strong> Duas cargas puntiformes de 2 uC e 3 uC estão separadas por 1 m. Qual é a intensidade da força eletrostática entre elas?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> F = k . |q1 . q2| / r²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter as cargas: 2 uC = 2 . 10⁻⁶ C e 3 uC = 3 . 10⁻⁶ C.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir na formula: F = 9 . 10⁹ . (2 . 10⁻⁶ . 3 . 10⁻⁶) / 1².</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular: F = 0,054 N.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A intensidade da forca eletrostatica e 0,054 N.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A intensidade da força eletrostática e 0,054 N.</div>
                 </div>
 
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Efeito da distancia</h4>
-                    <p><strong>Problema:</strong> Se a distancia entre duas cargas dobrar, o que acontece com a intensidade da forca eletrostatica?</p>
-                    <div class="solution-step"><strong>Ideia central:</strong> A forca varia com o inverso do quadrado da distancia.</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Se a distancia passa de r para 2r, o denominador vira (2r)² = 4r².</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Isso torna a nova forca igual a F / 4.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> Ao dobrar a distancia, a forca cai para um quarto do valor inicial.</div>
+                    <p><strong>Problema:</strong> Sé a distância entre duas cargas dobrar, o que acontece com a intensidade da força eletrostática?</p>
+                    <div class="solution-step"><strong>Ideia central:</strong> A força varia com o inverso do quadrado da distancia.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Sé a distância passa de r para 2r, o denominador vira (2r)² = 4r².</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Isso torna a nova força igual a F / 4.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Ao dobrar a distancia, a força cai para um quarto do valor inicial.</div>
                 </div>
 
                 <div class="solved-exercise">
-                    <h4>Exemplo 3: Atracao ou repulsao</h4>
-                    <p><strong>Problema:</strong> Uma carga positiva interage com uma carga negativa. A interacao e de atracao ou repulsao?</p>
+                    <h4>Exemplo 3: Atração ou repulsão</h4>
+                    <p><strong>Problema:</strong> Uma carga positiva interage com uma carga negativa. A interação é de atração ou repulsão?</p>
                     <div class="solution-step"><strong>Passo 1:</strong> Identificar os sinais das cargas.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Cargas de sinais opostos se atraem.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A interacao e de atracao.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A interação é de atração.</div>
                 </div>
             </div>
 
@@ -725,54 +725,54 @@
             <div class="theory-content">
                 <div class="theory-section">
                     <h3>O que estuda a Lei de Coulomb?</h3>
-                    <p>A Lei de Coulomb descreve a intensidade da forca eletrica entre duas cargas puntiformes. Essa forca pode ser de atracao ou de repulsao, dependendo do sinal das cargas envolvidas.</p>
-                    <p>Na simulacao do PhET, voce pode modificar o valor das cargas e a distancia entre elas. Isso permite observar diretamente como a forca aumenta ou diminui e como o sentido da interacao depende do sinal de cada carga.</p>
+                    <p>A Lei de Coulomb descrevé a intensidade da força elétrica entre duas cargas puntiformes. Essa força pode ser de atração ou de repulsão, dependendo do sinal das cargas envolvidas.</p>
+                    <p>Na simulação do PhET, você pode modificar o valor das cargas é a distância entre elas. Isso permite observar diretamente como a força aumenta ou diminui e como o sentido da interação depende do sinal de cada carga.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Expressao matematica</h3>
-                    <p>A intensidade da forca eletrostatica e dada por:</p>
+                    <h3>Expressão matemática</h3>
+                    <p>A intensidade da força eletrostática é dada por:</p>
                     <div class="theory-formula">F = k . |q1 . q2| / r²</div>
                     <ul>
-                        <li><span class="highlight">F</span> e a intensidade da forca eletrica, em newtons.</li>
-                        <li><span class="highlight">k</span> e a constante eletrostatica no vacuo.</li>
-                        <li><span class="highlight">q1</span> e <span class="highlight">q2</span> sao as cargas eletricas, em coulombs.</li>
-                        <li><span class="highlight">r</span> e a distancia entre as cargas, em metros.</li>
+                        <li><span class="highlight">F</span> é a intensidade da força elétrica, em newtons.</li>
+                        <li><span class="highlight">k</span> é a constante eletrostática no vácuo.</li>
+                        <li><span class="highlight">q1</span> e <span class="highlight">q2</span> sao as cargas elétricas, em coulombs.</li>
+                        <li><span class="highlight">r</span> é a distância entre as cargas, em metros.</li>
                     </ul>
                 </div>
 
                 <div class="theory-section">
                     <h3>Sinal das cargas</h3>
-                    <p>O sinal nao altera a intensidade numerica calculada pela formula, mas determina o tipo de interacao:</p>
+                    <p>O sinal nao altera a intensidade numerica calculada pela formula, mas determina o tipo de interação:</p>
                     <ul>
                         <li>Cargas com sinais iguais se repelem.</li>
                         <li>Cargas com sinais opostos se atraem.</li>
                     </ul>
-                    <p>Na simulacao, isso aparece visualmente no sentido da forca sobre cada esfera.</p>
+                    <p>Na simulação, isso aparece visualmente no sentido da força sobre cada esfera.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>Importancia da distancia</h3>
-                    <p>A forca eletrica varia com o inverso do quadrado da distancia. Isso significa que pequenas mudancas em r podem provocar grandes mudancas na intensidade da forca.</p>
+                    <p>A força elétrica varia com o inverso do quadrado da distancia. Isso significa que pequenas mudanças em r podem provocar grandes mudanças na intensidade da força.</p>
                     <div class="theory-formula">F proporcional a 1 / r²</div>
-                    <p>Se a distancia dobra, a forca cai para um quarto. Se a distancia reduz pela metade, a forca quadruplica.</p>
+                    <p>Sé a distância dobra, a força cai para um quarto. Sé a distância reduz pela metade, a força quadruplica.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Campo eletrico</h3>
-                    <p>O campo eletrico representa a influencia que uma carga cria ao seu redor. Uma carga de prova colocada nesse campo sofre uma forca eletrica.</p>
+                    <h3>Campo elétrico</h3>
+                    <p>O campo elétrico representa a influência qué uma carga cria ao seu redor. Uma carga de prova colocada nesse campo sofré uma força elétrica.</p>
                     <div class="theory-formula">E = F / q</div>
-                    <p>Para uma carga puntiforme isolada, tambem podemos usar a relacao <span class="highlight">E = k . |Q| / r²</span>.</p>
+                    <p>Para uma carga puntiforme isolada, também podemos usar a relação <span class="highlight">E = k . |Q| / r²</span>.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>O que observar no PhET</h3>
                     <ul>
-                        <li>Mude o sinal de uma das cargas para comparar atracao e repulsao.</li>
-                        <li>Aproxime as cargas e veja como a forca cresce rapidamente.</li>
-                        <li>Dobre a distancia e compare com a previsao de queda para um quarto.</li>
-                        <li>Dobre uma das cargas e observe que a forca tambem dobra.</li>
-                        <li>Use a simulacao para verificar previsoes feitas antes do experimento.</li>
+                        <li>Mude o sinal dé uma das cargas para comparar atração e repulsão.</li>
+                        <li>Aproxime as cargas e veja como a força cresce rapidamente.</li>
+                        <li>Dobré a distância e compare com a previsão de queda para um quarto.</li>
+                        <li>Dobré uma das cargas e observe que a força também dobra.</li>
+                        <li>Use a simulação para verificar previsões feitas antes do experimento.</li>
                     </ul>
                 </div>
             </div>
@@ -793,47 +793,47 @@
         const kMicro = 0.009;
 
         const scenarios = {
-            atracao: {
+            atração: {
                 charge1: '+2 uC',
                 charge2: '-3 uC',
                 distance: '1,0 m',
                 force: '0,054 N',
-                interaction: 'Atracao',
+                interaction: 'Atração',
                 focus: 'Lei de Coulomb',
-                description: 'Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com forca de 0,054 N. A interacao e de atracao.'
+                description: 'Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.'
             },
-            repulsao: {
+            repulsão: {
                 charge1: '+4 uC',
                 charge2: '+4 uC',
                 distance: '2,0 m',
                 force: '0,036 N',
-                interaction: 'Repulsao',
+                interaction: 'Repulsão',
                 focus: 'Sinal das cargas',
-                description: 'Duas cargas positivas de 4 uC, separadas por 2 m, interagem com forca de 0,036 N. Como os sinais sao iguais, a interacao e de repulsao.'
+                description: 'Duas cargas positivas de 4 uC, separadas por 2 m, interagem com força de 0,036 N. Como os sinais sao iguais, a interação é de repulsão.'
             },
             distancia: {
                 charge1: '+3 uC',
                 charge2: '-3 uC',
                 distance: '1,0 m -> 2,0 m',
                 force: '0,081 N -> 0,020 N',
-                interaction: 'Atracao menor',
+                interaction: 'Atração menor',
                 focus: 'Inverso do quadrado da distancia',
-                description: 'Ao dobrar a distancia entre duas cargas de 3 uC e -3 uC, a forca cai de aproximadamente 0,081 N para cerca de 0,020 N, isto e, para um quarto do valor inicial.'
+                description: 'Ao dobrar a distancia entre duas cargas de 3 uC e -3 uC, a força cai de aproximadamente 0,081 N para cerca de 0,020 N, isto e, para um quarto do valor inicial.'
             },
             carga: {
                 charge1: '+2 uC -> +4 uC',
                 charge2: '-5 uC',
                 distance: '1,0 m',
                 force: '0,090 N -> 0,180 N',
-                interaction: 'Atracao mais intensa',
+                interaction: 'Atração mais intensa',
                 focus: 'Proporcionalidade com a carga',
-                description: 'Se a carga 1 dobra de 2 uC para 4 uC, mantendo a distancia e a outra carga constantes, a intensidade da forca tambem dobra.'
+                description: 'Se a carga 1 dobra de 2 uC para 4 uC, mantendo a distancia e a outra carga constantes, a intensidade da força também dobra.'
             }
         };
 
         function setupEventListeners() {
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert('Como usar a simulacao:\n\n• Ajuste o valor das cargas no PhET.\n• Observe se a interacao e de atracao ou repulsao.\n• Aproxime e afaste as cargas para comparar a intensidade da forca.\n• Teste o efeito de dobrar a distancia.\n• Compare os resultados com a Lei de Coulomb antes de medir.\n\nDica: use primeiro numeros pequenos e depois faca previsoes antes de alterar os controles.');
+                alert('Como usar a simulação:\n\n• Ajuste o valor das cargas no PhET.\n• Observe se a interação é de atração ou repulsão.\n• Aproxime e afaste as cargas para comparar a intensidade da força.\n• Teste o efeito de dobrar a distancia.\n• Compare os resultados com a Lei de Coulomb antes de medir.\n\nDica: use primeiro números pequenos e depois faca previsões antes de alterar os controles.');
             });
 
             document.getElementById('scenarioSelect').addEventListener('change', updateScenarioPanel);
@@ -942,70 +942,96 @@
         }
 
         function createForceExercise() {
-            const charges = [1, 2, 3, 4, 5, 6];
-            const q1 = charges[Math.floor(Math.random() * charges.length)];
-            const q2 = charges[Math.floor(Math.random() * charges.length)];
-            const distance = [1, 2, 3][Math.floor(Math.random() * 3)];
-            const force = calculateForceMicro(q1, q2, distance);
+            var charges = [1, 2, 3, 4, 5, 6, 7, 8];
+            var q1 = charges[Math.floor(Math.random() * charges.length)];
+            var q2 = charges[Math.floor(Math.random() * charges.length)];
+            var distances = [0.5, 1, 1.5, 2, 3];
+            var distance = distances[Math.floor(Math.random() * distances.length)];
+            var force = calculateForceMicro(q1, q2, distance);
             return {
                 type: 'forca',
-                question: `Duas cargas puntiformes de ${q1} uC e ${q2} uC estao separadas por ${distance} m. Qual e a intensidade da forca eletrica entre elas?`,
+                question: 'Duas cargas puntiformes de ' + q1 + ' uC e ' + q2 + ' uC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Qual é a intensidade da força elétrica entre elas?',
                 answer: formatForce(force),
                 options: generateOptions(force, formatForce, function(correctValue, attempts) {
-                    if (attempts % 3 === 0) {
-                        return correctValue * 2;
-                    }
-                    if (attempts % 3 === 1) {
-                        return correctValue / 2;
-                    }
+                    if (attempts % 4 === 0) return correctValue * 2;
+                    if (attempts % 4 === 1) return correctValue / 2;
+                    if (attempts % 4 === 2) return correctValue * 3;
                     return correctValue * (Math.random() * 0.8 + 0.6);
                 })
             };
         }
 
         function createDistanceExercise() {
-            const distanceMultiplier = [2, 3, 4][Math.floor(Math.random() * 3)];
-            const ratio = 1 / (distanceMultiplier * distanceMultiplier);
+            var distanceMultiplier = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+            var ratio = 1 / (distanceMultiplier * distanceMultiplier);
             return {
                 type: 'distancia',
-                question: `Se a distancia entre duas cargas for multiplicada por ${distanceMultiplier}, a nova forca eletrica passara a valer quanto da forca inicial?`,
+                question: 'Se a distância entre duas cargas for multiplicada por ' + distanceMultiplier + ', a nova força elétrica passará a valer quanto da força inicial?',
                 answer: formatRatio(ratio),
                 options: shuffleArray([
                     formatRatio(ratio),
                     formatRatio(distanceMultiplier),
                     formatRatio(1 / distanceMultiplier),
                     formatRatio(distanceMultiplier * distanceMultiplier),
-                    formatRatio(1 / (distanceMultiplier + 1))
+                    formatRatio(1 / (distanceMultiplier + 1)),
+                    formatRatio(1 / (distanceMultiplier - 0.5))
                 ])
             };
         }
 
         function createInteractionExercise() {
             const combinations = [
-                { first: 'positiva', second: 'positiva', answer: 'Repulsao' },
-                { first: 'negativa', second: 'negativa', answer: 'Repulsao' },
-                { first: 'positiva', second: 'negativa', answer: 'Atracao' },
-                { first: 'negativa', second: 'positiva', answer: 'Atracao' }
+                { first: 'positiva', second: 'positiva', answer: 'Repulsão' },
+                { first: 'negativa', second: 'negativa', answer: 'Repulsão' },
+                { first: 'positiva', second: 'negativa', answer: 'Atração' },
+                { first: 'negativa', second: 'positiva', answer: 'Atração' }
             ];
             const choice = combinations[Math.floor(Math.random() * combinations.length)];
             return {
                 type: 'interacao',
-                question: `Uma carga ${choice.first} interage com uma carga ${choice.second}. Qual e o tipo de interacao entre elas?`,
+                question: `Uma carga ${choice.first} interage com uma carga ${choice.second}. Qual é o tipo de interação éntre elas?`,
                 answer: choice.answer,
-                options: shuffleArray(['Atracao', 'Repulsao', 'Forca nula', 'Campo uniforme', 'Equilibrio eletrico'])
+                options: shuffleArray(['Atração', 'Repulsão', 'Força nula', 'Campo uniforme', 'Equilibrio elétrico'])
             };
         }
 
         function generateExercises() {
-            exercises = [
-                createForceExercise(),
-                createForceExercise(),
-                createDistanceExercise(),
-                createDistanceExercise(),
-                createInteractionExercise(),
-                createInteractionExercise()
-            ];
+            exercises = [];
+            // 6 exercicios variados: todos com complexidade adequada
+            exercises.push(createMistoExercise());
+            exercises.push(createForceExercise());
+            exercises.push(createMistoExercise());
+            exercises.push(createDistanceExercise());
+            exercises.push(createMistoExercise());
+            exercises.push(createForceExercise());
             exercises = shuffleArray(exercises);
+        }
+
+        function createMistoExercise() {
+            // Valores de carga com sinal: combina positivo e negativo
+            var cargasComSinal = [-8, -6, -5, -4, -3, -2, 2, 3, 4, 5, 6, 8];
+            var q1 = cargasComSinal[Math.floor(Math.random() * cargasComSinal.length)];
+            var q2 = cargasComSinal[Math.floor(Math.random() * cargasComSinal.length)];
+            var distances = [0.5, 1.0, 1.5, 2.0, 3.0];
+            var distance = distances[Math.floor(Math.random() * distances.length)];
+            var absQ1 = Math.abs(q1);
+            var absQ2 = Math.abs(q2);
+            var force = calculateForceMicro(absQ1, absQ2, distance);
+            var tipo = (q1 * q2 > 0) ? 'Repulsao' : 'Atracao';
+            var q1Str = q1 > 0 ? '' + q1 : '-' + absQ1;
+            var q2Str = q2 > 0 ? '' + q2 : '-' + absQ2;
+            return {
+                type: 'misto',
+                question: 'Duas cargas puntiformes de ' + q1Str + ' uC e ' + q2Str + ' uC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Calcule a intensidade da força elétrica e determine o tipo de interação (atração ou repulsão).',
+                answer: formatForce(force) + ' - ' + tipo,
+                options: shuffleArray([
+                    formatForce(force) + ' - ' + tipo,
+                    formatForce(force * 2) + ' - ' + tipo,
+                    formatForce(force / 2) + ' - ' + tipo,
+                    formatForce(force) + ' - ' + (tipo === 'Atracao' ? 'Repulsao' : 'Atracao'),
+                    formatForce(force * 1.5) + ' - ' + tipo
+                ])
+            };
         }
 
         function showCurrentExercise() {
@@ -1043,7 +1069,7 @@
             const options = container.querySelectorAll('.option');
 
             if (!selectedOption) {
-                resultDiv.textContent = 'Por favor, selecione uma opcao.';
+                resultDiv.textContent = 'Por favor, selecioné uma opção.';
                 resultDiv.className = 'result error';
                 return;
             }
@@ -1087,7 +1113,7 @@
 
         function generateNewExerciseOfSameType() {
             const currentType = exercises[currentExercise].type;
-            if (currentType === 'forca') {
+            if (currentType === 'força') {
                 exercises[currentExercise] = createForceExercise();
                 return;
             }
@@ -1150,7 +1176,7 @@
             submitButton.onclick = function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
                 showResults(conclusionText);
@@ -1166,9 +1192,9 @@
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
 
             document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercicios respondidos: ${totalExercises}</p>
+                <p>Exercícios respondidos: ${totalExercises}</p>
                 <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercicios pulados: ${skippedQuestions}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${scorePercentage}%</p>
             `;
 
@@ -1205,16 +1231,16 @@
 
             const dadosCompletos = {
                 timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
+                série: studentGrade,
                 turma: studentClass,
                 estudante: studentName,
-                simulacao: 'Lei de Coulomb',
+                simulação: 'Lei de Coulomb',
                 questoes_puladas: skippedQuestions,
                 acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
                 nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
+                conclusão: finalConclusion,
+                críticas: criticism,
+                sugestões: suggestion,
                 email: studentEmail || '',
                 to_email: 'flavio.ambrosio@edu.se.df.gov.br',
                 nome_aluno: studentName,
@@ -1248,15 +1274,15 @@
                 const emailDataAluno = {
                     to_email: studentEmail,
                     nome_aluno: studentName || 'Nao informado',
-                    serie: studentGrade || 'Nao informado',
+                    série: studentGrade || 'Nao informado',
                     turma: studentClass || 'Nao informado',
                     nota: scorePercentage + '%' || '0%',
                     acertos: `${correctAnswers}/${totalExercises}` || '0/0',
                     questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Nao informado',
+                    conclusão: finalConclusion || 'Nao informado',
                     data_envio: new Date().toLocaleString('pt-BR'),
-                    simulacao: 'Lei de Coulomb',
-                    mensagem: `Confirmacao de Envio - Simulacao da Lei de Coulomb\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulacoes Fisicas`
+                    simulação: 'Lei de Coulomb',
+                    mensagem: `Confirmação de Envio - Simulação da Lei de Coulomb\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
                 };
 
                 return fetch(emailScriptUrl, {
@@ -1308,7 +1334,7 @@
             if (!studentNameLeiDeCoulomb) {
                 let promptedName = '';
                 try {
-                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                    promptedName = prompt('Qual é o seu nome? Vou usar isso nos audios da simulação.');
                 } catch (error) {
                     promptedName = '';
                 }
@@ -1321,32 +1347,32 @@
         const tracks = [
             function () {
                 ensureStudentNameLeiDeCoulomb();
-                return `Ola, ${studentNameLeiDeCoulomb}. Esta pagina usa a simulacao do PhET para estudar a Lei de Coulomb. O objetivo e observar como a forca eletrica depende do valor das cargas, da distancia entre elas e do sinal de cada carga.`;
+                return `Ola, ${studentNameLeiDeCoulomb}. Esta pagina usa a simulação do PhET para estudar a Lei de Coulomb. O objetivo e observar como a força elétrica depende do valor das cargas, da distancia entre elas e do sinal de cada carga.`;
             },
             function () {
-                return 'A Lei de Coulomb descreve a intensidade da forca entre duas cargas puntiformes. Quanto maiores forem as cargas, maior sera a forca eletrica. Quanto maior for a distancia entre elas, menor sera essa forca.';
+                return 'A Lei de Coulomb descrevé a intensidade da força entre duas cargas puntiformes. Quanto maiores forem as cargas, maior sera a força elétrica. Quanto maior for a distancia entre elas, menor sera essa força.';
             },
             function () {
-                return 'O sinal das cargas determina o tipo de interacao. Cargas com o mesmo sinal se repelem. Cargas com sinais opostos se atraem. Essa e uma das observacoes mais importantes para fazer no simulador.';
+                return 'O sinal das cargas determina o tipo de interação. Cargas com o mesmo sinal se repelem. Cargas com sinais opostos se atraem. Essa é uma das observacoes mais importantes para fazer no simulador.';
             },
             function () {
-                return 'Outro ponto central e a dependencia com o inverso do quadrado da distancia. Isso significa que a forca nao diminui de modo linear. Se a distancia dobra, a forca passa a valer apenas um quarto do valor inicial.';
+                return 'Outro ponto central e a dependencia com o inverso do quadrado da distancia. Isso significa que a força nao diminui de modo linear. Sé a distância dobra, a força passa a valer apenas um quarto do valor inicial.';
             },
             function () {
-                return 'No painel lateral desta pagina, voce encontra cenarios de estudo com valores esperados. A ideia e prever o resultado, testar no PhET e depois comparar a observacao com o calculo teorico.';
+                return 'No painel lateral desta pagina, você encontra cenarios de estudo com valores esperados. A ideia e prever o resultado, testar no PhET e depois comparar a observação com o cálculo teórico.';
             },
             function () {
-                return 'O campo eletrico aparece como uma extensao natural dessa discussao. Ele representa a influencia exercida por uma carga sobre a regiao ao seu redor e pode ser relacionado a forca que atuaria sobre uma carga de prova.';
+                return 'O campo elétrico aparece como uma extensão natural dessa discussao. Ele representa a influência exercida por uma carga sobre a regiao ao seu redor e pode ser relacionado a força que atuaria sobré uma carga de prova.';
             },
             function () {
-                return 'Depois da exploracao, resolva os exercicios e tente justificar cada resposta. Mais importante do que acertar um numero e saber por que a forca aumentou, diminuiu, atraiu ou repeliu.';
+                return 'Depois da exploração, resolva os exercícios e tente justificar cada resposta. Mais importante do que acertar um número e saber por que a força aumentou, diminuiu, atraiu ou repeliu.';
             }
         ];
 
         const exampleNarrations = {
-            '1': 'No primeiro exemplo, calculamos a intensidade da forca entre duas cargas conhecidas. O passo essencial e converter microcoulombs para coulombs e depois aplicar corretamente a Lei de Coulomb. Esse exemplo mostra que a forca pode ser numericamente pequena, mas ainda assim representar uma interacao importante.',
-            '2': 'No segundo exemplo, o foco nao esta em substituir valores, mas em compreender a relacao inversa com o quadrado da distancia. Essa ideia aparece muitas vezes na eletrostatica e precisa ser consolidada com calma.',
-            '3': 'No terceiro exemplo, a resposta depende apenas do sinal das cargas. Isso mostra que, na eletrostatica, a intensidade e o tipo de interacao sao aspectos diferentes: a formula fornece a intensidade, e os sinais dizem se a forca e de atracao ou de repulsao.'
+            '1': 'No primeiro exemplo, calculamos a intensidade da força entre duas cargas conhecidas. O passo essencial e converter microcoulombs para coulombs e depois aplicar corretamente a Lei de Coulomb. Esse exemplo mostra que a força pode ser numericamente pequena, mas ainda assim representar uma interação importante.',
+            '2': 'No segundo exemplo, o foco nao esta em substituir valores, mas em compreender a relação inversa com o quadrado da distancia. Essa ideia aparece muitas vezes na eletrostática e precisa ser consolidada com calma.',
+            '3': 'No terceiro exemplo, a resposta depende apenas do sinal das cargas. Isso mostra que, na eletrostática, a intensidade é o tipo de interação são aspectos diferentes: a formula fornecé a intensidade, e os sinais dizem se a força é de atração ou de repulsão.'
         };
     </script>
     <script>
