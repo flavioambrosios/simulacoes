@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulacao: Fluxo de Calor e Lei de Fourier">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737877">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/FluxoDeCalor/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulacao de Fluxo de Calor e Lei de Fourier</title>
@@ -484,11 +491,6 @@
                 margin-bottom: 14px;
             }
         }
-            .simulation-panel, .controls-panel {
-                flex: 1;
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -578,10 +580,11 @@
 
                 <div class="formula-box">
                     <h3>Lei de Fourier</h3>
-                    <p>Q/t = -k.A.(dT/dx)</p>
-                    <p>Para gradiente uniforme:</p>
-                    <p>Q/t = k.A.(DeltaT/L)</p>
-                    <p>O sinal negativo indica fluxo do quente para o frio.</p>
+                    <p>Q/t = k.A.(ΔT/L)</p>
+                    <p>Para diferenca de temperatura (ΔT) uniforme:
+                    <p>ΔT = T<sub>quente</sub> - T<sub>frio</sub> </p></p>
+                    
+                    
                 </div>
 
                 <div class="exercise-buttons">
@@ -599,7 +602,7 @@
                         <div class="measurement-value" id="materialDisplay">Cobre</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">DeltaT</div>
+                        <div class="measurement-label">ΔT</div>
                         <div class="measurement-value" id="deltaTempDisplay">100 °C</div>
                     </div>
                     <div class="measurement-item">
@@ -744,7 +747,7 @@
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Calculo do fluxo de calor</h4>
                     <p><strong>Problema:</strong> Uma barra de cobre tem k = 400 W/m.K, area de 0,010 m², comprimento de 1,0 m e diferenca de temperatura de 80 °C. Qual e o fluxo de calor?</p>
-                    <div class="solution-step"><strong>Formula:</strong> Q/t = k.A.(DeltaT/L)</div>
+                    <div class="solution-step"><strong>Formula:</strong> Q/t = k.A.(ΔT/L)</div>
                     <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: Q/t = 400 . 0,010 . 80 / 1,0</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Calcular: Q/t = 320 W</div>
                     <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor e 320 W.</div>
@@ -752,9 +755,9 @@
 
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Efeito do comprimento</h4>
-                    <p><strong>Problema:</strong> Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?</p>
+                    <p><strong>Problema:</strong> Se o comprimento da barra dobrar, mantendo k, A e ΔT constantes, o que acontece com o fluxo de calor?</p>
                     <div class="solution-step"><strong>Ideia:</strong> Na Lei de Fourier, o comprimento aparece no denominador.</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Se L dobra, a razao DeltaT/L fica pela metade.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Se L dobra, a razao ΔT/L fica pela metade.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> O fluxo de calor tambem cai pela metade.</div>
                     <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor fica igual a metade do valor inicial.</div>
                 </div>
@@ -790,21 +793,21 @@
                 <div class="theory-section">
                     <h3>Lei de Fourier</h3>
                     <p>A Lei de Fourier descreve quantitativamente o fluxo de calor por conducao:</p>
-                    <div class="theory-formula">Q/t = -k.A.(dT/dx)</div>
+                    <div class="theory-formula">Q/t = k.A.(ΔT/L)</div>
                     <p>Onde:</p>
                     <ul>
                         <li><span class="highlight">Q/t</span> = taxa de transferencia de calor, em watts</li>
                         <li><span class="highlight">k</span> = condutividade termica do material</li>
                         <li><span class="highlight">A</span> = area da secao transversal</li>
-                        <li><span class="highlight">dT/dx</span> = gradiente de temperatura ao longo da barra</li>
+                        <li><span class="highlight">ΔT/Δx</span> = diferenca de temperatura ao longo da barra</li>
                     </ul>
-                    <p>O sinal negativo indica que o calor flui no sentido de diminuicao da temperatura.</p>
+                    
                 </div>
 
                 <div class="theory-section">
-                    <h3>Barra com gradiente uniforme</h3>
+                    <h3>Barra com diferenca de temperatura (ΔT) uniforme</h3>
                     <p>Quando a barra tem secao constante e as temperaturas das extremidades sao fixas, podemos usar a forma simplificada:</p>
-                    <div class="theory-formula">Q/t = k.A.(DeltaT/L)</div>
+                    <div class="theory-formula">Q/t = k.A.(ΔT/L)</div>
                     <p>Nessa forma, o valor calculado representa a intensidade do fluxo de calor. O sentido fisico continua sendo do quente para o frio.</p>
                 </div>
 
@@ -813,7 +816,7 @@
                     <ul>
                         <li><span class="highlight">k maior:</span> materiais melhores condutores transferem calor mais rapidamente.</li>
                         <li><span class="highlight">A maior:</span> uma barra mais grossa permite maior transferencia de energia por segundo.</li>
-                        <li><span class="highlight">DeltaT maior:</span> quanto maior a diferenca de temperatura, maior o fluxo.</li>
+                        <li><span class="highlight">ΔT maior:</span> quanto maior a diferenca de temperatura, maior o fluxo.</li>
                         <li><span class="highlight">L maior:</span> barras mais longas dificultam a transferencia, reduzindo o fluxo.</li>
                     </ul>
                 </div>
@@ -1259,7 +1262,7 @@
             ctx.textAlign = 'right';
             ctx.fillText(`${lengthBar.toFixed(2)} m`, xEnd, graphY + graphHeight + 16);
             ctx.textAlign = 'left';
-            ctx.fillText(`dT/dx = ${gradient.toFixed(1)} °C/m`, graphX, graphY + 12);
+            ctx.fillText(`ΔT/Δx = ${gradient.toFixed(1)} °C/m`, graphX, graphY + 12);
         }
 
 
@@ -1526,52 +1529,7 @@
             document.getElementById('theoryModal').style.display = 'flex';
         }
 
-        function generateExercises() {
-            exercises = [];
-            for (let i = 0; i < 2; i++) {
-                const k = [0.12, 1.0, 50, 205, 400][Math.floor(Math.random() * 5)];
-                const a = ((Math.floor(Math.random() * 9) + 2) / 1000).toFixed(3);
-                const delta = (Math.floor(Math.random() * 10) + 3) * 10;
-                const length = ((Math.floor(Math.random() * 8) + 4) / 10).toFixed(1);
-                const flow = (k * parseFloat(a) * delta / parseFloat(length)).toFixed(2);
-
-                exercises.push({
-                    type: 'calcular_fluxo',
-                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura DeltaT = ${delta} °C. Qual e o fluxo de calor?`,
-                    answer: `${flow} W`,
-                    options: generateOptions(parseFloat(flow), 'W')
-                });
-
-                const ratioType = Math.random() < 0.5 ? 'comprimento' : 'area';
-                const ratioAnswer = ratioType === 'comprimento' ? 'metade do valor inicial' : 'dobro do valor inicial';
-                exercises.push({
-                    type: 'proporcionalidade',
-                    question: ratioType === 'comprimento'
-                        ? 'Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?'
-                        : 'Se a area da secao transversal dobrar, mantendo k, L e DeltaT constantes, o que acontece com o fluxo de calor?',
-                    answer: ratioAnswer,
-                    options: shuffleArray(['metade do valor inicial', 'dobro do valor inicial', 'permanece igual', 'cai para um quarto', 'quadruplica'])
-                });
-
-                const hot = (Math.floor(Math.random() * 8) + 8) * 10;
-                const cold = (Math.floor(Math.random() * 4) + 1) * 10;
-                exercises.push({
-                    type: 'sentido_fluxo',
-                    question: `Uma extremidade da barra esta a ${hot} °C e a outra esta a ${cold} °C. Qual e o sentido do fluxo de calor?`,
-                    answer: `de ${hot} °C para ${cold} °C`,
-                    options: shuffleArray([
-                        `de ${hot} °C para ${cold} °C`,
-                        `de ${cold} °C para ${hot} °C`,
-                        'nao ha fluxo de calor',
-                        'o fluxo alterna de sentido',
-                        'depende apenas da area'
-                    ])
-                });
-            }
-            exercises = shuffleArray(exercises);
-        }
-
-        function generateOptions(correctValue, unit) {
+        function generateExercises(){exercises=[];var tipos=shuffleArray(['fluxo','k','area','L','int','comp']);for(var i=0;i<6;i++){var t=tipos[i];if(t==='fluxo'){var k=[0.12,1.0,50,205,400][Math.floor(Math.random()*5)];var a=((Math.floor(Math.random()*9)+2)/1000).toFixed(3);var d=(Math.floor(Math.random()*10)+3)*10;var l=((Math.floor(Math.random()*8)+4)/10).toFixed(1);var f=(k*parseFloat(a)*d/parseFloat(l)).toFixed(2);var q='Uma barra de '+k+' W/m.K, A='+a+String.fromCharCode(178)+', L='+l+' m E '+String.fromCharCode(916)+'T='+d+String.fromCharCode(176)+'C. Qual fluxo?';exercises.push({type:t,question:q,answer:f+' W',options:generateOptions(parseFloat(f),'W')})}else if(t==='k'){var fk=Math.floor(Math.random()*200)+100;var ak=((Math.floor(Math.random()*4)+5)/1000).toFixed(3);var dk=(Math.floor(Math.random()*8)+2)*10;var lk=((Math.floor(Math.random()*3)+3)/10).toFixed(1);var kv=(fk*parseFloat(lk)/(parseFloat(ak)*dk)).toFixed(1);var qk='Q/t='+fk+' W, A='+ak+String.fromCharCode(178)+', L='+lk+' m, '+String.fromCharCode(916)+'T='+dk+String.fromCharCode(176)+'C. Qual k?';exercises.push({type:t,question:qk,answer:kv+' W/m.K',options:generateOptions(parseFloat(kv),'W/m.K')})}else if(t==='area'){var fa=Math.floor(Math.random()*200)+100;var ka=[50,205,400][Math.floor(Math.random()*3)];var da=(Math.floor(Math.random()*8)+2)*10;var la=((Math.floor(Math.random()*3)+3)/10).toFixed(1);var av=(fa*parseFloat(la)/(ka*da)).toFixed(4);var qa='Q/t='+fa+' W, k='+ka+', L='+la+' m, '+String.fromCharCode(916)+'T='+da+String.fromCharCode(176)+'C. Qual area?';exercises.push({type:t,question:qa,answer:av+String.fromCharCode(178),options:generateOptions(parseFloat(av),String.fromCharCode(178))})}else if(t==='L'){var fl=Math.floor(Math.random()*200)+100;var kl=[50,205,400][Math.floor(Math.random()*3)];var al=((Math.floor(Math.random()*4)+5)/1000).toFixed(3);var dl=(Math.floor(Math.random()*8)+2)*10;var lv=(kl*parseFloat(al)*dl/fl).toFixed(2);var ql='Q/t='+fl+' W, k='+kl+', A='+al+String.fromCharCode(178)+', '+String.fromCharCode(916)+'T='+dl+String.fromCharCode(176)+'C. Qual L?';exercises.push({type:t,question:ql,answer:lv+' m',options:generateOptions(parseFloat(lv),'m')})}else if(t==='int'){var opts=[{q:'Se L triplicar (k, A, '+String.fromCharCode(916)+'T const), fluxo?',r:'cai para 1/3',o:['cai para 1/3','triplica','igual','cai a metade','9x']},{q:'Alta condutividade termica:',r:'transfere calor rapido',o:['transfere rapido','transfere devagar','isola calor','so a baixas T','armazena']},{q:'Cobre (k=400) e vidro (k=1,0) mesmo '+String.fromCharCode(916)+'T. Cobre:',r:'400x mais',o:['400x mais','400x menos','igual','40x','nao']},{q:'Area barra reduzida a metade? Fluxo:',r:'cai a metade',o:['cai a metade','dobra','quadruplica','constante','depende']}];var esc=opts[Math.floor(Math.random()*opts.length)];exercises.push({type:t,question:esc.q,answer:esc.r,options:shuffleArray(esc.o)})}else if(t==='comp'){var mats=['cobre','aluminio','aco','vidro','madeira'];var ks=[400,205,50,1.0,0.12];var i1=Math.floor(Math.random()*5);var i2=Math.floor(Math.random()*5);while(i2===i1)i2=Math.floor(Math.random()*5);var rc=(ks[i1]/ks[i2]).toFixed(1);var qc='Comparando '+mats[i1]+' (k='+ks[i1]+') e '+mats[i2]+' (k='+ks[i2]+'), '+mats[i1]+' transmite quantas x mais calor?';exercises.push({type:t,question:qc,answer:rc+'x',options:shuffleArray([rc+'x',(ks[i2]/ks[i1]).toFixed(1)+'x','1x','0x',Math.round(ks[i1]/ks[i2])*2+'x'])})}}exercises=shuffleArray(exercises)}function generateOptions(correctValue, unit) {
             const options = [];
             let attempts = 0;
             const maxAttempts = 15;
@@ -1715,7 +1673,7 @@
                 const flow = (k * parseFloat(a) * delta / parseFloat(length)).toFixed(2);
                 exercises[currentExercise] = {
                     type: 'calcular_fluxo',
-                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura DeltaT = ${delta} °C. Qual e o fluxo de calor?`,
+                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura ΔT = ${delta} °C. Qual e o fluxo de calor?`,
                     answer: `${flow} W`,
                     options: generateOptions(parseFloat(flow), 'W')
                 };
@@ -1728,8 +1686,8 @@
                 exercises[currentExercise] = {
                     type: 'proporcionalidade',
                     question: ratioType === 'comprimento'
-                        ? 'Se o comprimento da barra dobrar, mantendo k, A e DeltaT constantes, o que acontece com o fluxo de calor?'
-                        : 'Se a area da secao transversal dobrar, mantendo k, L e DeltaT constantes, o que acontece com o fluxo de calor?',
+                        ? 'Se o comprimento da barra dobrar, mantendo k, A e ΔT constantes, o que acontece com o fluxo de calor?'
+                        : 'Se a area da secao transversal dobrar, mantendo k, L e ΔT constantes, o que acontece com o fluxo de calor?',
                     answer: ratioAnswer,
                     options: shuffleArray(['metade do valor inicial', 'dobro do valor inicial', 'permanece igual', 'cai para um quarto', 'quadruplica'])
                 };
@@ -1971,7 +1929,7 @@
                 return 'O primeiro ponto importante e lembrar que calor nao e a mesma coisa que temperatura. Temperatura mede um estado termico, enquanto calor e energia em transito. Quando existe diferenca de temperatura entre duas regioes, surge transferencia de energia termica.';
             },
             function() {
-                return 'A Lei de Fourier afirma que a taxa de transferencia de calor depende da condutividade do material, da area da secao transversal e do gradiente de temperatura. Em uma barra uniforme, essa relacao pode ser escrita como Q sobre t igual a k vezes A vezes Delta T sobre L.';
+                return 'A Lei de Fourier afirma que a taxa de transferencia de calor depende da condutividade do material, da area da secao transversal e do diferenca de temperatura (ΔT). Em uma barra uniforme, essa relacao pode ser escrita como Q sobre t igual a k vezes A vezes Delta T sobre L.';
             },
             function() {
                 return 'Observe que o comprimento aparece no denominador. Isso significa que barras mais longas dificultam a passagem de calor. Ja barras mais curtas facilitam a transferencia de energia termica.';
@@ -2000,5 +1958,12 @@
         };
     </script>
     <script src="../_shared/simulation-enhancer.js"></script>
+
+<!-- Nota sobre o desenvolvimento:
+     Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
+     Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+
+<!-- Footer / Creditos -->
+<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
