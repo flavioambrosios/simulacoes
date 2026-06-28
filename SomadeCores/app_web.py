@@ -108,6 +108,7 @@ SESSION_EXERCISE_TYPES = [
     "smoothing-observe",
     "frequency-window",
     "color-compare",
+    "real-world-correlation",
 ]
 STUDENT_DATABASE_PATH = Path(__file__).resolve().parents[1] / "AvaliacaoBimestralEducacaoDigital" / "alunos.js"
 GRADE_OPTIONS = [
@@ -1224,8 +1225,8 @@ def build_intensity_figure(amps1, amps2):
         rows=1,
         cols=2,
         subplot_titles=(
-            "Controle de Onda 1",
-            "Controle de Onda 2",
+            "Amplitude 1",
+            "Amplitude 2",
         ),
         horizontal_spacing=0.1,
     )
@@ -1255,7 +1256,7 @@ def build_intensity_figure(amps1, amps2):
 
     for col in [1, 2]:
         figure.update_xaxes(title_text="Frequência (THz)", dtick=40, row=1, col=col)
-        figure.update_yaxes(title_text="Amplitude", range=[AMP_MIN, AMP_MAX], row=1, col=col)
+        figure.update_yaxes(title_text=None, range=[AMP_MIN, AMP_MAX], row=1, col=col)
 
     figure.update_layout(
         height=360,
@@ -1542,6 +1543,23 @@ def generate_random_exercise(previous_id=None, forced_type=None):
             "min_keyword_groups": 0,
             "min_words": 4,
             "target_diff": target_diff,
+        },
+        {
+            "type": "real-world-correlation",
+            "title": "Exercicio: simulacao e decomposicao da luz real",
+            "difficulty": "avancado",
+            "prompt": (
+                "Relacione esta simulacao com uma experiencia real de decomposicao da luz (como prisma, CD/DVD ou goticulas de agua formando arco-iris). "
+                "Escreva uma conclusao curta explicando como a separacao por frequencias observada no simulador ajuda a interpretar o fenomeno real."
+            ),
+            "checklist": [
+                "Cite ao menos uma experiencia real de decomposicao da luz.",
+                "Conecte frequencia/cor do simulador com o que aparece no experimento real.",
+                "Descreva a relacao em linguagem curta e objetiva.",
+            ],
+            "keyword_groups": [["prisma", "arco-iris", "cd", "dvd", "goticulas"], ["frequencia", "cor", "decomposicao", "espectro"]],
+            "min_keyword_groups": 1,
+            "min_words": 8,
         },
     ]
 
@@ -1985,6 +2003,15 @@ def evaluate_exercise(exercise, metrics, answer_text):
         metric_message = (
             f"Diferença atual: {metrics['max_diff']:.3f}. Meta: <= {exercise['target_diff']:.2f}. "
             f"Otimizacao executada: {'sim' if metrics['has_optimization'] else 'nao'}."
+        )
+    elif exercise["type"] == "real-world-correlation":
+        active_total = int(metrics["active_count1"] + metrics["active_count2"])
+        numeric_pass = active_total >= 2
+        numeric_score = 1.0 if numeric_pass else 0.5
+        metric_message = (
+            "Etapa de correlacao com fenomeno real. "
+            f"Componentes ativas totais: {active_total}. "
+            "Meta: usar o simulador para sustentar a explicacao do experimento real."
         )
 
     total_score = int(round((0.65 * numeric_score + 0.35 * text_score) * 100))
