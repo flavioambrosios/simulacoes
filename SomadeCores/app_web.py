@@ -42,6 +42,8 @@ TARGET_DIFF = 0.25
 ZERO_AMPS = np.zeros(N_FREQS)
 BASIS = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T[None, :])
 BASIS_OPT = np.sin(2 * np.pi * FREQS[:, None] * 1e12 * T_OPT[None, :])
+TIME_WINDOW_OPTIONS = [200, 150, 100, 50]
+DEFAULT_TIME_WINDOW_FS = TIME_WINDOW_OPTIONS[0]
 MAX_FREQ_DELTA = int(FREQS[-1] - FREQS[0])
 DEFAULT_SMOOTHING = 1
 DEFAULT_FREQ_DELTA = MAX_FREQ_DELTA
@@ -99,6 +101,8 @@ PROFESSOR_EMAIL = "flavio.ambrosio@edu.se.df.gov.br"
 PLANILHA_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec"
 EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec"
 CLASS_SHEET_SIMULATION_TITLE = "Soma de Cores"
+SIMULATION_DOI = "10.5281/zenodo.20737876"
+SIMULATION_URL = "https://flavioambrosios.github.io/simulacoes/SomadeCores/"
 SESSION_EXERCISE_TYPES = [
     "envelope-target",
     "smoothing-observe",
@@ -1139,13 +1143,18 @@ def lock_figure_interaction(figure):
     return figure
 
 
-def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
+def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING, time_window_fs=DEFAULT_TIME_WINDOW_FS):
     wave1 = generate_wave(amps1)
     wave2 = generate_wave(amps2)
     envelope1 = compute_envelope(wave1, smoothing_window)
     envelope2 = compute_envelope(wave2, smoothing_window)
     diff = envelope1 - envelope2
     envelope_title = "Envelopes"
+    sanitized_window = int(time_window_fs or DEFAULT_TIME_WINDOW_FS)
+    if sanitized_window not in TIME_WINDOW_OPTIONS:
+        sanitized_window = DEFAULT_TIME_WINDOW_FS
+    tick_map = {200: 25, 150: 25, 100: 20, 50: 10}
+    axis_tick = tick_map.get(sanitized_window, 25)
 
     figure = make_subplots(
         rows=2,
@@ -1188,8 +1197,15 @@ def build_main_figure(amps1, amps2, smoothing_window=DEFAULT_SMOOTHING):
     figure.add_hline(y=0, line_width=1, line_color="black", opacity=0.5, row=2, col=2)
 
     for col in [1, 2]:
-        figure.update_xaxes(range=[0, 200], dtick=25, row=1, col=col)
-        figure.update_xaxes(title_text="Tempo (fs)", title_standoff=10, range=[0, 200], dtick=25, row=2, col=col)
+        figure.update_xaxes(range=[0, sanitized_window], dtick=axis_tick, row=1, col=col)
+        figure.update_xaxes(
+            title_text="Tempo (fs)",
+            title_standoff=10,
+            range=[0, sanitized_window],
+            dtick=axis_tick,
+            row=2,
+            col=col,
+        )
 
     for row, col in [(1, 1), (1, 2), (2, 1), (2, 2)]:
         figure.update_yaxes(row=row, col=col)
@@ -2127,7 +2143,22 @@ def build_mobile_visual_content(view_name, intensity_figure, main_figure, scale_
 
 app = Dash(
         __name__,
-        meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1, maximum-scale=1"}],
+        meta_tags=[
+            {"name": "viewport", "content": "width=device-width, initial-scale=1, maximum-scale=1"},
+            {"name": "citation_title", "content": "Simulacao: Soma de Cores"},
+            {"name": "citation_author", "content": "Flavio Ambrosio Campos"},
+            {"name": "citation_publication_date", "content": "2026"},
+            {"name": "citation_doi", "content": SIMULATION_DOI},
+            {"name": "citation_publisher", "content": "GitHub Pages - CEAN"},
+            {"name": "citation_url", "content": SIMULATION_URL},
+            {
+                "name": "description",
+                "content": (
+                    "Concepcao e planejamento pedagogico: Flavio Ambrosio Campos. "
+                    "Codigo assistido por ferramentas de IA sob supervisao humana."
+                ),
+            },
+        ],
 )
 server = app.server
 
@@ -2285,6 +2316,23 @@ app.layout = html.Div(
                                                 ),
                                                 html.Div(id="mobile-active-summary", style={"marginTop": "14px"}),
                                             ],
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Label("Janela de tempo dos graficos (zoom horizontal)"),
+                                                dcc.RadioItems(
+                                                    id="time-window-selector",
+                                                    options=[
+                                                        {"label": f"{value} fs", "value": value}
+                                                        for value in TIME_WINDOW_OPTIONS
+                                                    ],
+                                                    value=DEFAULT_TIME_WINDOW_FS,
+                                                    inline=True,
+                                                    labelStyle={"marginRight": "12px"},
+                                                    style={"marginTop": "8px"},
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px"},
                                         ),
                                         html.Div(
                                             [
@@ -2879,6 +2927,23 @@ app.layout = html.Div(
                 ),
             ]
         ),
+        html.Footer(
+            html.P(
+                [
+                    "Simulacao parte do repositorio ",
+                    html.Strong("Simulacoes Interativas de Fisica"),
+                    " | DOI: ",
+                    html.A(
+                        SIMULATION_DOI,
+                        href=f"https://doi.org/{SIMULATION_DOI}",
+                        target="_blank",
+                        style={"color": "#1d4ed8"},
+                    ),
+                    " | Licenca MIT | Prof. Flavio Ambrosio - CEAN",
+                ]
+            ),
+            className="simulation-footer",
+        ),
     ],
     className="app-shell",
 )
@@ -3020,8 +3085,18 @@ def refresh_lab_rgb(refresh_clicks):
     Input("smoothing-slider", "value"),
     Input("freq-delta-slider", "value"),
     Input("mobile-visual-view", "value"),
+    Input("time-window-selector", "value"),
 )
-def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoothing_window, freq_delta, mobile_visual_view):
+def refresh_outputs(
+    table_data,
+    history_data,
+    rgb_mode,
+    rgb_refresh_clicks,
+    smoothing_window,
+    freq_delta,
+    mobile_visual_view,
+    time_window_fs,
+):
     if table_data is None:
         table_data = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
     if history_data is None:
@@ -3034,6 +3109,8 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
         freq_delta = DEFAULT_FREQ_DELTA
     if mobile_visual_view is None:
         mobile_visual_view = "main"
+    if time_window_fs is None:
+        time_window_fs = DEFAULT_TIME_WINDOW_FS
 
     # Este callback reconstrói praticamente toda a página a partir do estado atual da tabela e do histórico.
     current1, current2 = table_data_to_amps(table_data)
@@ -3050,6 +3127,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     fourier_after = generate_fourier_equation(after1, "Onda 1") + "\n\n" + generate_fourier_equation(after2, "Onda 2")
     control_note = html.Div(
         [
+            html.Div(f"Janela de tempo exibida: {int(time_window_fs)} fs."),
             html.Div(f"Suavização atual dos envelopes: {control_smoothing} ponto(s)."),
             html.Div(f"Janela atual da otimização em delta f: {format_frequency_delta(freq_delta)}."),
         ]
@@ -3070,7 +3148,7 @@ def refresh_outputs(table_data, history_data, rgb_mode, rgb_refresh_clicks, smoo
     ]
 
     intensity_figure = build_intensity_figure(current1, current2)
-    main_figure = build_main_figure(current1, current2, smoothing_window)
+    main_figure = build_main_figure(current1, current2, smoothing_window, time_window_fs)
     summary_box = build_summary(current1, current2, smoothing_window, freq_delta)
     mobile_visual_content = build_mobile_visual_content(
         mobile_visual_view,
