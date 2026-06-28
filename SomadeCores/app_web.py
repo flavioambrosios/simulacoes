@@ -2319,23 +2319,6 @@ app.layout = html.Div(
                                         ),
                                         html.Div(
                                             [
-                                                html.Label("Janela de tempo dos graficos (zoom horizontal)"),
-                                                dcc.RadioItems(
-                                                    id="time-window-selector",
-                                                    options=[
-                                                        {"label": f"{value} fs", "value": value}
-                                                        for value in TIME_WINDOW_OPTIONS
-                                                    ],
-                                                    value=DEFAULT_TIME_WINDOW_FS,
-                                                    inline=True,
-                                                    labelStyle={"marginRight": "12px"},
-                                                    style={"marginTop": "8px"},
-                                                ),
-                                            ],
-                                            style={"marginTop": "18px"},
-                                        ),
-                                        html.Div(
-                                            [
                                                 html.Label("Suavização dos envelopes de Hilbert"),
                                                 dcc.Slider(
                                                     id="smoothing-slider",
@@ -2419,6 +2402,29 @@ app.layout = html.Div(
                                 ),
                                 html.Div(
                                     [
+                                        html.Div(
+                                            [
+                                                html.Label("Janela de tempo dos graficos (zoom horizontal)"),
+                                                dcc.RadioItems(
+                                                    id="time-window-selector",
+                                                    options=[
+                                                        {"label": f"{value} fs", "value": value}
+                                                        for value in TIME_WINDOW_OPTIONS
+                                                    ],
+                                                    value=DEFAULT_TIME_WINDOW_FS,
+                                                    inline=True,
+                                                    labelStyle={"display": "inline-block", "marginRight": "12px", "marginBottom": "8px"},
+                                                    style={"marginTop": "8px"},
+                                                ),
+                                            ],
+                                            style={
+                                                "marginBottom": "14px",
+                                                "padding": "12px",
+                                                "border": "1px solid #d7deea",
+                                                "borderRadius": "12px",
+                                                "background": "#ffffff",
+                                            },
+                                        ),
                                         html.Div(
                                             className="desktop-only graph-stack",
                                             children=[
