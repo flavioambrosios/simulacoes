@@ -31,8 +31,25 @@
 2. Brasil. Conselho Nacional de Saúde. Resolução CNS no 510/2016.
 3. Brasil. Ministério da Educação. Base Nacional Comum Curricular (BNCC).
 
+## 6) Referências em português (educação geral e ensino de Ciências)
+
+1. Freire, P. (1996). *Pedagogia da autonomia: saberes necessários à prática educativa*. Paz e Terra.
+2. Libâneo, J. C. (1994). *Didática*. Cortez.
+3. Bacich, L.; Moran, J. (org.). (2018). *Metodologias ativas para uma educação inovadora: uma abordagem teórico-prática*. Penso.
+4. Luckesi, C. C. (2011). *Avaliação da aprendizagem escolar: estudos e proposições*. Cortez.
+5. Delizoicov, D.; Angotti, J. A.; Pernambuco, M. M. (2002). *Ensino de ciências: fundamentos e métodos*. Cortez.
+6. Carvalho, A. M. P. (org.). (2013). *Ensino de ciências por investigação: condições para implementação em sala de aula*. Cengage Learning.
+7. Lüdke, M.; André, M. E. D. A. (1986). *Pesquisa em educação: abordagens qualitativas*. EPU.
+
+## 7) Pedagogia histórico-crítica (Dermeval Saviani)
+
+1. Saviani, D. (2011). *Pedagogia histórico-crítica: primeiras aproximações* (11. ed.). Autores Associados.
+2. Saviani, D. (2012). *Escola e democracia* (42. ed.). Autores Associados.
+3. Saviani, D.; Duarte, N. (org.). (2012). *Pedagogia histórico-crítica e luta de classes na educação escolar*. Autores Associados.
+4. Saviani, D. (2008). *História das ideias pedagógicas no Brasil*. Autores Associados.
+
 ## Sugestão de uso prático
 
 - Curto prazo: Rutten (2012), Smetana & Bell (2012), Black & Wiliam (1998), LGPD.
-- Médio prazo: de Jong et al. (2013), Mayer (2009), Hattie & Timperley (2007), Creswell (2018).
+- Médio prazo: de Jong et al. (2013), Mayer (2009), Hattie & Timperley (2007), Creswell (2018), Carvalho (2013), Delizoicov et al. (2002).
 - Longo prazo: ampliar para desenho quase-experimental e metanálises recentes.
