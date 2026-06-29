@@ -39,6 +39,9 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 - Termo de ciência e consentimento (modelo): [docs/TERMO-CONSENTIMENTO-MODELO.md](docs/TERMO-CONSENTIMENTO-MODELO.md)
 - Termo de ciência e consentimento (versão curta, 1 página): [docs/TERMO-CONSENTIMENTO-1PAGINA.md](docs/TERMO-CONSENTIMENTO-1PAGINA.md)
 - Política de retenção e governança de dados: [docs/POLITICA-RETENCAO-DADOS.md](docs/POLITICA-RETENCAO-DADOS.md)
+- Dicionário de dados: [docs/DICIONARIO-DE-DADOS.md](docs/DICIONARIO-DE-DADOS.md)
+- Checklist de anonimização e publicação: [docs/CHECKLIST-ANONIMIZACAO-E-PUBLICACAO.md](docs/CHECKLIST-ANONIMIZACAO-E-PUBLICACAO.md)
+- Checklist rápido de publicação: [docs/CHECKLIST-RAPIDO-PUBLICACAO.md](docs/CHECKLIST-RAPIDO-PUBLICACAO.md)
 - Rubrica para respostas discursivas: [docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md](docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md)
 - Protocolo metodológico (versão inicial): [docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md](docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md)
 - Pré-projeto de doutorado (estrutura acadêmica): [docs/PRE-PROJETO-DOUTORADO.md](docs/PRE-PROJETO-DOUTORADO.md)
@@ -228,15 +231,23 @@ O projeto adota, como princípio, minimização de dados e análise agregada.
 
 ### Situação atual
 
-- O termo formal de consentimento e a política de retenção ainda estão em elaboração.
+- O projeto já dispõe de versões iniciais de termo de consentimento, política de retenção e governança de dados, rubrica de análise discursiva e protocolo metodológico.
+- A coleta pública prevista permanece restrita a dados agregados, sem individualização de estudantes.
 
-### Recomendações práticas para próxima fase
+### Ações práticas já implementadas
 
-1. Criar termo de consentimento para estudantes e responsáveis, com linguagem simples e finalidade pedagógica/científica explícita.
-2. Definir política de retenção (por exemplo, prazo fixo e regra de descarte).
-3. Implementar rotina de anonimização antes de qualquer análise externa.
-4. Documentar base legal aplicável e governança de acesso aos dados.
-5. Incluir versão pública resumida da política no repositório.
+1. Foi criado um termo de ciência e consentimento, em versão resumida e em versão estendida.
+2. Foi definida uma política inicial de retenção e governança de dados.
+3. Foi estruturado um dicionário de dados para padronizar campos de coleta.
+4. Foi criado um checklist de anonimização e publicação para revisão antes de divulgar resultados.
+5. Foi criado um checklist rápido de publicação para conferência imediata antes de reuniões, slides e textos externos.
+
+### Próximas recomendações práticas
+
+1. Aplicar o checklist de anonimização antes de qualquer apresentação ou publicação externa.
+2. Validar institucionalmente o termo e a política de dados para uso em pesquisa formal.
+3. Revisar periodicamente o dicionário de dados para manter apenas campos realmente necessários.
+4. Registrar, a cada semestre, a revisão de acesso, retenção e descarte dos dados.
 
 Nota: este README não substitui orientação jurídica institucional. Para uso em pesquisa formal, recomenda-se alinhamento com comitê de ética e normativas da rede de ensino.
 
