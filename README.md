@@ -43,6 +43,8 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 - Checklist de anonimização e publicação: [docs/CHECKLIST-ANONIMIZACAO-E-PUBLICACAO.md](docs/CHECKLIST-ANONIMIZACAO-E-PUBLICACAO.md)
 - Checklist rápido de publicação: [docs/CHECKLIST-RAPIDO-PUBLICACAO.md](docs/CHECKLIST-RAPIDO-PUBLICACAO.md)
 - Rotina de trabalho pedagógico e analítico: [docs/ROTINA-DE-TRABALHO.md](docs/ROTINA-DE-TRABALHO.md)
+- Formulário de aplicação por simulação: [docs/FORMULARIO-APLICACAO-SIMULACAO.md](docs/FORMULARIO-APLICACAO-SIMULACAO.md)
+- Cronograma operacional (12 meses): [docs/CRONOGRAMA-OPERACIONAL-12-MESES.md](docs/CRONOGRAMA-OPERACIONAL-12-MESES.md)
 - Rubrica para respostas discursivas: [docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md](docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md)
 - Protocolo metodológico (versão inicial): [docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md](docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md)
 - Pré-projeto de doutorado (estrutura acadêmica): [docs/PRE-PROJETO-DOUTORADO.md](docs/PRE-PROJETO-DOUTORADO.md)
