@@ -191,7 +191,7 @@ O código é **majoritariamente produzido por ferramentas de IA**, sob minha sup
 
 #### 🔄 3. Fluxo de Trabalho
 
-1. **Eu descrevo o objetivo pedagógico** em linguagem natural para a IA (ex.: "Preciso de uma simulação de troca de calor onde o aluno possa variar as massas e temperaturas iniciais")
+1. **Eu descrevo o objetivo pedagógico** em linguagem natural para a IA (ex.: "Preciso de uma simulação de troca de calor onde o aluno possa variar as massas e temperaturas iniciais, com animação interativa, controles do tipo sliders para escolha de dados iniciais, exercícios objetivos, espaços para envio de conclusão, críticas e sugestões". Na fase atual de produção eu já tenho modelos para servir de ponto de partida e criar novas simulações.)
 2. **A IA gera o código** (HTML, CSS, JavaScript) como ponto de partida
 3. **Eu testo, reviso e adapto** cada funcionalidade, ajustando parâmetros, corrigindo comportamentos e refinando a experiência do usuário
 4. **Levo para a sala de aula**, observo os alunos usando e identifico pontos de melhoria
