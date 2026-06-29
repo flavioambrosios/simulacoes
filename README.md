@@ -1,255 +1,322 @@
-# Simulações Interativas de Física
+# Portal das Simulações - Simulações Interativas de Física
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20737876.svg)](https://doi.org/10.5281/zenodo.20737876)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-blue)](https://flavioambrosios.github.io/simulacoes/)
 
-> **🧠 Nota sobre o desenvolvimento:** Este projeto foi **concebido e planejado integralmente pelo Prof. Flávio Ambrósio Campos**. Os códigos foram implementados com assistência de **ferramentas de Inteligência Artificial** (DeepSeek e ChatGPT), sob supervisão e curadoria humana. Veja a seção [Inteligência Artificial no Desenvolvimento](#-inteligência-artificial-no-desenvolvimento) para detalhes.
+Repositório didático e de pesquisa aplicada para o ensino de Física no Ensino Médio, com simulações interativas testadas em contexto real de sala de aula.
 
-Um conjunto de simulações interativas para o ensino de Física no Ensino Médio, desenvolvidas e **testadas no dia a dia da sala de aula**. As simulações combinam visualizações em Canvas/Three.js com exercícios formativos, narração por síntese de voz e análise automatizada de conclusões escritas.
+## Resumo Executivo
+
+Este projeto integra duas frentes com pesos equivalentes:
+
+- Frente didática: produção e uso de simulações interativas para apoiar aprendizagem conceitual e procedimental em Física.
+- Frente de pesquisa aplicada: observação sistemática de adesão, desempenho e qualidade das respostas, com análise em nível agregado (sem individualização).
+
+As simulações combinam Canvas/Three.js, exercícios formativos, síntese de voz e coleta de dados educacionais para retroalimentar melhorias pedagógicas contínuas.
+
+## Objetivos
+
+- Apoiar o ensino de Física com recursos digitais interativos alinhados ao currículo do Ensino Médio.
+- Fortalecer a prática docente por meio de ciclos de teste, observação e ajuste em sala de aula.
+- Construir uma base de evidências para investigações em Ensino de Física e Tecnologias Educacionais.
+- Estabelecer diálogo com professores, desenvolvedores de simulações didáticas e pesquisadores em Educação em Ciências.
+
+## Público-Alvo
+
+- Professores da Educação Básica.
+- Estudantes do Ensino Médio.
+- Pesquisadores em Ensino de Física, Educação em Ciências, avaliação educacional e tecnologias educacionais.
+- Desenvolvedores interessados em recursos educacionais abertos.
+
+## Acesso
+
+- Site (GitHub Pages): https://flavioambrosios.github.io/simulacoes/
+- Registro DOI (Zenodo): https://doi.org/10.5281/zenodo.20737876
+
+## Documentos de Apoio
+
+- Termo de ciência e consentimento (modelo): [docs/TERMO-CONSENTIMENTO-MODELO.md](docs/TERMO-CONSENTIMENTO-MODELO.md)
+- Termo de ciência e consentimento (versão curta, 1 página): [docs/TERMO-CONSENTIMENTO-1PAGINA.md](docs/TERMO-CONSENTIMENTO-1PAGINA.md)
+- Política de retenção e governança de dados: [docs/POLITICA-RETENCAO-DADOS.md](docs/POLITICA-RETENCAO-DADOS.md)
+- Rubrica para respostas discursivas: [docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md](docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md)
+- Protocolo metodológico (versão inicial): [docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md](docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md)
+- Pré-projeto de doutorado (estrutura acadêmica): [docs/PRE-PROJETO-DOUTORADO.md](docs/PRE-PROJETO-DOUTORADO.md)
+- Resumo expandido para potencial orientador (2 a 4 páginas): [docs/RESUMO-EXPANDIDO-ORIENTADOR.md](docs/RESUMO-EXPANDIDO-ORIENTADOR.md)
+- Referências sugeridas: [docs/REFERENCIAS-SUGERIDAS.md](docs/REFERENCIAS-SUGERIDAS.md)
+- Referências em ABNT (lista padronizada): [docs/REFERENCIAS-ABNT-COMPLETO.md](docs/REFERENCIAS-ABNT-COMPLETO.md)
+- Estado da arte (resumo): [docs/ESTADO-DA-ARTE-SIMULACOES-DIDATICAS.md](docs/ESTADO-DA-ARTE-SIMULACOES-DIDATICAS.md)
 
 ---
 
-## 🧪 Simulações Disponíveis
+## Simulações Disponíveis
 
 | Simulação | Tópico | Tecnologia | Link |
 |-----------|--------|------------|------|
-| **Átomo de Hidrogênio** | Modelo atômico, espectros | Canvas | [Abrir](AtomodeHidrogenio/) |
-| **Calorimetria** | Troca de calor, equilíbrio térmico | Canvas | [Abrir](Calorimetria/) |
-| **Circuitos Elétricos DC** | Circuitos, resistores, leis de Kirchhoff | Canvas | [Abrir](CircuitosEletricosDC/) |
-| **Cores** | Síntese aditiva/subtrativa, RGB | Canvas | [Abrir](Cores/) |
-| **Corpo Negro** | Radiação térmica, Lei de Wien | PhET + Canvas | [Abrir](CorpoNegro/) |
-| **Dilatação Térmica** | Dilatação linear, superficial, volumétrica | Canvas | [Abrir](DilatacaoTermica/) |
-| **Efeito Fotoelétrico** | Einstein, fótons, função trabalho | PhET + Canvas | [Abrir](EfeitoFotoEletrico/) |
-| **Escalas Termométricas** | Celsius, Fahrenheit, Kelvin | Canvas | [Abrir](EscalasTermométricas/) |
-| **Espectrômetro de Massa** | Campos elétrico e magnético | Canvas + Three.js | [Abrir](EspectrometrodeMassa/) |
-| **Estrelas (Diagrama HR)** | Evolução estelar, classificação | Three.js | [Abrir](ESTRELAS/) |
-| **Fluxo de Calor** | Condução, convecção, radiação | Canvas | [Abrir](FluxoDeCalor/) |
-| **Força Elétrica** | Lei de Coulomb | Canvas | [Abrir](ForcaEletrica/) |
-| **Força Magnética** | Carga em campo magnético | Three.js | [Abrir](ForcaMagnetica/) |
-| **Fotossíntese** | Física da fotossíntese, absorção de luz | Canvas | [Abrir](FotossinteseSolar/) |
-| **LED e OLED** | Semicondutores, emissão de luz | Canvas | [Abrir](LEDeOLED/) |
-| **Lei de Ampère** | Campo magnético em condutores | Three.js | [Abrir](LeideAmpere/) |
-| **Lei de Coulomb** | Força entre cargas, campo elétrico | Canvas | [Abrir](LeiDeCoulomb/) |
-| **Lei de Faraday** | Indução eletromagnética, geradores | PhET + Canvas | [Abrir](LeideFaraday/) |
-| **Lei de Ohm** | Resistência, tensão, corrente | Canvas | [Abrir](LeideOhm/) |
-| **Máquina de Carnot** | Ciclo termodinâmico, rendimento | Canvas | [Abrir](MaquinadeCarnot/) |
-| **Momento Magnético** | Espira em campo magnético | Three.js | [Abrir](MomentoMagnetico/) |
-| **Ondas 1D** | Ondas mecânicas, superposição | Canvas | [Abrir](Ondas/Ondas1D/) |
-| **Óptica Geométrica** | Reflexão, refração, lentes | Canvas | [Abrir](OpticaGeometrica/) |
-| **Radiação de Corpo Negro** | Espectro, Planck, Stefan-Boltzmann | PhET + Canvas | [Abrir](RadiacaodeCorpoNegro/) |
-| **Relatividade Especial** | Dilatação do tempo, contração | Canvas | [Abrir](RelatividadeEspecial/) |
-| **Resistência Elétrica** | Resistividade, geometria | Canvas | [Abrir](Resistencia/) |
-| **Solenoide** | Campo magnético em solenoide | Three.js | [Abrir](Solenoide/) |
-| **Soma de Cores** | Síntese de Fourier, análise espectral | Python + Canvas | [Abrir](SomadeCores/) |
-| **Spin do Elétron** | Experimento de Stern-Gerlach | Three.js | [Abrir](SPINOR/) |
-| **Transformadores** | Indução mútua, relação de espiras | Canvas | [Abrir](Transformadores/) |
-| **Tunelamento Quântico** | Mecânica quântica, barreira de potencial | Canvas | [Abrir](TunelamentoQuantico/) |
+| Átomo de Hidrogênio | Modelo atômico, espectros | Canvas | [Abrir](AtomodeHidrogenio/) |
+| Calorimetria | Troca de calor, equilíbrio térmico | Canvas | [Abrir](Calorimetria/) |
+| Circuitos Elétricos DC | Circuitos, resistores, leis de Kirchhoff | Canvas | [Abrir](CircuitosEletricosDC/) |
+| Cores | Síntese aditiva/subtrativa, RGB | Canvas | [Abrir](Cores/) |
+| Corpo Negro | Radiação térmica, Lei de Wien | PhET + Canvas | [Abrir](CorpoNegro/) |
+| Dilatação Térmica | Dilatação linear, superficial, volumétrica | Canvas | [Abrir](DilatacaoTermica/) |
+| Efeito Fotoelétrico | Einstein, fótons, função trabalho | PhET + Canvas | [Abrir](EfeitoFotoEletrico/) |
+| Escalas Termométricas | Celsius, Fahrenheit, Kelvin | Canvas | [Abrir](EscalasTermometricas/) |
+| Espectrômetro de Massa | Campos elétrico e magnético | Canvas + Three.js | [Abrir](EspectrometrodeMassa/) |
+| Estrelas (Diagrama HR) | Evolução estelar, classificação | Three.js | [Abrir](ESTRELAS/) |
+| Fluxo de Calor | Condução, convecção, radiação | Canvas | [Abrir](FluxoDeCalor/) |
+| Força Elétrica | Lei de Coulomb | Canvas | [Abrir](ForcaEletrica/) |
+| Força Magnética | Carga em campo magnético | Three.js | [Abrir](ForcaMagnetica/) |
+| Fotossíntese | Física da fotossíntese, absorção de luz | Canvas | [Abrir](FotossinteseSolar/) |
+| LED e OLED | Semicondutores, emissão de luz | Canvas | [Abrir](LEDeOLED/) |
+| Lei de Ampère | Campo magnético em condutores | Three.js | [Abrir](LeideAmpere/) |
+| Lei de Coulomb | Força entre cargas, campo elétrico | Canvas | [Abrir](LeiDeCoulomb/) |
+| Lei de Faraday | Indução eletromagnética, geradores | PhET + Canvas | [Abrir](LeideFaraday/) |
+| Lei de Ohm | Resistência, tensão, corrente | Canvas | [Abrir](LeideOhm/) |
+| Máquina de Carnot | Ciclo termodinâmico, rendimento | Canvas | [Abrir](MaquinadeCarnot/) |
+| Momento Magnético | Espira em campo magnético | Three.js | [Abrir](MomentoMagnetico/) |
+| Ondas 1D | Ondas mecânicas, superposição | Canvas | [Abrir](Ondas/Ondas1D/) |
+| Óptica Geométrica | Reflexão, refração, lentes | Canvas | [Abrir](OpticaGeometrica/) |
+| Radiação de Corpo Negro | Espectro, Planck, Stefan-Boltzmann | PhET + Canvas | [Abrir](RadiacaodeCorpoNegro/) |
+| Relatividade Especial | Dilatação do tempo, contração | Canvas | [Abrir](RelatividadeEspecial/) |
+| Resistência Elétrica | Resistividade, geometria | Canvas | [Abrir](Resistencia/) |
+| Solenoide | Campo magnético em solenoide | Three.js | [Abrir](Solenoide/) |
+| Soma de Cores | Síntese de Fourier, análise espectral | Python + Canvas | [Abrir](SomadeCores/) |
+| Spin do Elétron | Experimento de Stern-Gerlach | Three.js | [Abrir](SPINOR/) |
+| Transformadores | Indução mútua, relação de espiras | Canvas | [Abrir](Transformadores/) |
+| Tunelamento Quântico | Mecânica quântica, barreira de potencial | Canvas | [Abrir](TunelamentoQuantico/) |
 
 ---
 
-## ✨ Funcionalidades Comuns
+## Funcionalidades Comuns
 
-Todas as simulações compartilham um sistema unificado de funcionalidades pedagógicas:
+Todas as simulações compartilham um sistema unificado de apoio pedagógico.
 
-### 🎮 Sistema de Exercícios
-- **Exercícios formativos** gerados dinamicamente com parâmetros aleatórios
-- **Múltipla escolha** com 5 opções, embaralhadas a cada tentativa
-- **Feedback imediato** com correção e resposta correta
-- **Opção de pular** exercícios (com confirmação)
-- **Barra de progresso** visual com 6 etapas
-- **Persistência de progresso**: o aluno pode fechar e retomar os exercícios depois
+### Sistema de Exercícios
 
-### 🎤 Narração por Síntese de Voz
-- Faixas de áudio explicativas para cada simulação
-- Controles de navegação (anterior/próximo/pausar/retomar)
-- Seleção de voz (português brasileiro preferencial)
-- Botões "Ouvir resolução" nos exercícios resolvidos
-- As faixas são geradas automaticamente a partir do conteúdo da página ou podem ser personalizadas via vetor `tracks` no JavaScript local
+- Exercícios formativos com parâmetros aleatórios.
+- Questões de múltipla escolha com alternativas embaralhadas.
+- Feedback imediato com correção.
+- Barra de progresso e persistência de estado.
+- Exercícios resolvidos com passo a passo.
 
-### 📊 Coleta e Análise de Dados
-- Envio de resultados para **planilha Google Sheets** via Apps Script
-- **Análise automatizada** da conclusão escrita (extensão, coerência temática, evidências de aprendizagem)
-- **Nota composta** combinando acertos nos exercícios (50%) e qualidade da conclusão (50%)
-- Envio de e-mail de cópia para o professor e para o aluno (quando e-mail é fornecido)
-- **Modo visitante**: checkbox que permite participação sem vínculo com série/turma
+### Narração por Síntese de Voz
 
-### 🧠 Aprimoramento Pedagógico
-- **Exercícios resolvidos** com passo a passo para consulta
-- **Modal de teoria** com explicações completas e fórmulas
-- Controles interativos (sliders, seletores) vinculados à simulação visual
-- Legendas com codificação de cores para grandezas físicas
-- Painel de medições em tempo real
+- Trilhas de áudio explicativas.
+- Controles de navegação e pausa/retomada.
+- Seleção de voz (preferência para português brasileiro).
+- Narração automática a partir do conteúdo e opção de trilhas customizadas.
 
----
+### Coleta e Análise Pedagógica
 
-## 🏗️ Arquitetura
+- Envio de resultados para Google Sheets via Apps Script.
+- Análise automatizada de respostas discursivas.
+- Indicador composto de desempenho (itens objetivos e subjetivos).
+- Modo visitante para participação sem vínculo nominal.
 
-```
+## Arquitetura Técnica
+
+```text
 simulacoes/
-├── _shared/
-│   └── simulation-enhancer.js   ← Sistema compartilhado (exercícios, áudio, envio)
-├── alunoscópio.js                ← Cadastro de alunos (opcional)
-├── index.html                    ← Página inicial com lista de simulações
-├── LICENSE                       ← MIT License
-├── README.md                     ← Este arquivo
-│
-├── NomeDaSimulacao/
-│   ├── index.html (ou NomeDaSimulacao.html)
-│   └── ... (assets específicos)
-│
-└── ... (demais simulações)
+|-- _shared/
+|   `-- simulation-enhancer.js
+|-- alunoscopio.js
+|-- index.html
+|-- LICENSE
+|-- README.md
+|-- NomeDaSimulacao/
+|   |-- index.html (ou NomeDaSimulacao.html)
+|   `-- ...
+`-- ...
 ```
 
-### Para criar uma nova simulação
+### Como criar uma nova simulação
 
-1. Crie uma pasta com o nome da simulação
-2. Crie um arquivo HTML com a estrutura padrão (canvas/Three.js + controles + medições + modais)
-3. No final do HTML, adicione a configuração do enhancer:
+1. Crie uma pasta com o nome da simulação.
+2. Estruture o HTML com visualização, controles e seção de exercícios.
+3. Configure o enhancer ao final da página.
 
-```javascript
+```html
 <script>
 window.SIMULATION_ENHANCER_CONFIG = {
-    simulationName: 'Nome da Simulação',
-    storageKey: 'nome-da-simulacao'
+    simulationName: "Nome da Simulação",
+    storageKey: "nome-da-simulacao"
 };
 </script>
 <script src="../_shared/simulation-enhancer.js"></script>
 ```
 
-4. Opcionalmente, defina um vetor de faixas de narração personalizadas:
+4. Opcionalmente, defina trilhas de narração personalizadas.
 
 ```javascript
 const tracks = [
-    'Primeira faixa explicativa...',
-    'Segunda faixa...'
+    "Primeira faixa explicativa...",
+    "Segunda faixa..."
 ];
 
 const exampleNarrations = {
-    '1': 'Narração para o exemplo 1...',
-    '2': 'Narração para o exemplo 2...'
+    "1": "Narração para o exemplo 1...",
+    "2": "Narração para o exemplo 2..."
 };
 ```
 
 ---
 
-## 🚀 Publicação
+## Metodologia de Produção (Humano + IA)
 
-O repositório está configurado para publicação automática via **GitHub Pages** a partir da branch `main`. As simulações ficam disponíveis em:
+O projeto segue fluxo híbrido: direção pedagógica e curadoria humanas, com suporte intensivo de IA na implementação técnica.
 
-```
-https://flavioambrosios.github.io/simulacoes/
+### Etapas
+
+1. Definição do objetivo didático e da sequência pedagógica.
+2. Prototipagem de código com apoio de IA.
+3. Revisão técnica e conceitual pelo autor.
+4. Teste em sala de aula com turmas reais.
+5. Iterações sucessivas com base em observações de uso.
+
+### Governança de autoria e uso de IA
+
+- Concepção pedagógica, escolha de conteúdos, critérios de avaliação e validação final: responsabilidade humana.
+- Implementação de código: majoritariamente assistida por IA sob supervisão.
+- Revisão crítica do código gerado antes da publicação.
+- Registro transparente dessa metodologia neste repositório e nas simulações individuais.
+
+Ferramentas utilizadas ao longo do desenvolvimento: DeepSeek, ChatGPT, Continue.dev, GitHub Copilot e GitHub.
+
+---
+
+## Metodologia de Pesquisa Aplicada (Em construção)
+
+Este repositório também funciona como base para investigação acadêmica, com foco em Ensino de Física e Tecnologias Educacionais, incluindo avaliação da aprendizagem.
+
+### Recorte de doutorado (proposta)
+
+- Área principal: Ensino de Física.
+- Interface: Tecnologias Educacionais e avaliação educacional.
+- Escopo empírico: uso de simulações em uma escola pública de Brasília.
+
+### Perguntas de pesquisa (exemplos)
+
+- Como o uso sistemático de simulações interativas impacta adesão e desempenho em Física no Ensino Médio?
+- Quais características de interface e feedback favorecem maior engajamento e melhor qualidade argumentativa nas respostas?
+- Que evidências de aprendizagem emergem da combinação entre itens objetivos e respostas discursivas?
+
+### Desenho metodológico sugerido
+
+- Abordagem mista (quantitativa + qualitativa).
+- Unidade de análise prioritária: turma e série (dados agregados).
+- Comparações por tópico, período e versão da simulação.
+- Ciclos de melhoria contínua orientados por dados de uso.
+
+### Indicadores possíveis
+
+- Taxa de adesão por atividade.
+- Taxa de conclusão da simulação.
+- Desempenho médio em itens objetivos.
+- Qualidade média de respostas discursivas por rubrica.
+- Evolução temporal por turma/série.
+
+---
+
+## Ética, Privacidade e LGPD
+
+O projeto adota, como princípio, minimização de dados e análise agregada.
+
+- Não utilizar nomes de estudantes em análises e relatórios.
+- Priorizar dados estatísticos de adesão e desempenho coletivo.
+- Evitar individualização de resultados.
+- Em publicações externas, preferir a expressão "uma escola pública de Brasília", sem identificação direta da instituição.
+
+### Situação atual
+
+- O termo formal de consentimento e a política de retenção ainda estão em elaboração.
+
+### Recomendações práticas para próxima fase
+
+1. Criar termo de consentimento para estudantes e responsáveis, com linguagem simples e finalidade pedagógica/científica explícita.
+2. Definir política de retenção (por exemplo, prazo fixo e regra de descarte).
+3. Implementar rotina de anonimização antes de qualquer análise externa.
+4. Documentar base legal aplicável e governança de acesso aos dados.
+5. Incluir versão pública resumida da política no repositório.
+
+Nota: este README não substitui orientação jurídica institucional. Para uso em pesquisa formal, recomenda-se alinhamento com comitê de ética e normativas da rede de ensino.
+
+---
+
+## Publicação
+
+O repositório é publicado via GitHub Pages na branch main:
+
+<https://flavioambrosios.github.io/simulacoes/>
+
+## Contribuições
+
+Contribuições são bem-vindas de professores, pesquisadores e desenvolvedores.
+
+### Trilha 1: Professor(a)
+
+1. Teste uma simulação com sua turma.
+2. Registre observações de uso (engajamento, dificuldades, sugestões).
+3. Abra uma issue descrevendo contexto, série e resultados agregados.
+
+### Trilha 2: Pesquisador(a)
+
+1. Proponha questões de pesquisa e indicadores comparáveis.
+2. Sugira ajustes de instrumento e rubricas de análise.
+3. Colabore com protocolos replicáveis de avaliação.
+
+### Trilha 3: Desenvolvedor(a)
+
+1. Abra issue descrevendo melhoria técnica.
+2. Envie pull request com justificativa pedagógica da alteração.
+3. Inclua evidências de teste da funcionalidade proposta.
+
+Issues: <https://github.com/flavioambrosios/simulacoes/issues>
+
+---
+
+## Licença, DOI e Créditos
+
+Este projeto é distribuído sob licença MIT. Consulte [LICENSE](LICENSE).
+
+Autor: Prof. Flávio Ambrósio Campos  
+Contato: flavio.ambrosio@edu.se.df.gov.br
+
+Registro DOI: [10.5281/zenodo.20737876](https://doi.org/10.5281/zenodo.20737876)
+
+Créditos técnicos:
+
+- PhET Interactive Simulations (University of Colorado Boulder), sob CC-BY 4.0 em simulações específicas.
+- Three.js para visualizações 3D.
+- Google Apps Script para coleta e armazenamento pedagógico.
+
+## Citação
+
+### Formato simples
+
+Ambrósio, F. (2026). Simulações Interativas de Física para o Ensino Médio. Zenodo. https://doi.org/10.5281/zenodo.20737876
+
+### ABNT (sugestão)
+
+AMBRÓSIO, Flávio. Simulações interativas de Física para o Ensino Médio. Zenodo, 2026. Disponível em: https://doi.org/10.5281/zenodo.20737876. Acesso em: 29 jun. 2026.
+
+### BibTeX
+
+```bibtex
+@misc{ambrosio2026simulacoes,
+    author       = {Ambrósio, Flávio},
+    title        = {Simulações Interativas de Física para o Ensino Médio},
+    year         = {2026},
+    publisher    = {Zenodo},
+    doi          = {10.5281/zenodo.20737876},
+    url          = {https://doi.org/10.5281/zenodo.20737876}
+}
 ```
 
 ---
 
-## 📜 Licença e Atribuição
+## Roadmap (Próximas etapas)
 
-Este projeto é distribuído sob a licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para detalhes.
-
-**Autor:** Prof. Flávio Ambrósio Campos  
-**Instituição:** CEAN - Centro de Ensino Médio Asa Norte (Brasília-DF)  
-**E-mail:** flavio.ambrosio@edu.se.df.gov.br
-
-### DOI e Registro
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20737876.svg)](https://doi.org/10.5281/zenodo.20737876)
-
-Este conjunto de simulações está registrado no **Zenodo** com DOI: [10.5281/zenodo.20737876](https://doi.org/10.5281/zenodo.20737876). O registro assegura a **autoria e data de criação** do trabalho, servindo como referência permanente para citações acadêmicas.
-
-### Créditos
-
-- **Simulações PhET Interactive Simulations** ([University of Colorado Boulder](https://phet.colorado.edu/)) — utilizadas sob licença CC-BY 4.0 em algumas simulações (Corpo Negro, Efeito Fotoelétrico, Lei de Faraday)
-- **Three.js** — biblioteca 3D utilizada em algumas simulações (Espectrômetro de Massa, Estrelas, Força Magnética, entre outras)
-- **Google Apps Script** — para coleta e armazenamento de dados dos alunos
-
-### 💻 Processo de Desenvolvimento
-
-Este projeto é construído em um **fluxo de trabalho híbrido** que combina concepção pedagógica humana com assistência intensiva de Inteligência Artificial na produção de código. Abaixo está a descrição detalhada de cada etapa do processo, que se mantém em **construção permanente**.
-
-#### 👨‍🏫 1. Concepção e Planejamento (100% humano)
-
-**Totalmente de minha autoria**, como professor da disciplina:
-- Escolha dos tópicos de Física com base no **currículo do Ensino Médio** e nas dificuldades recorrentes dos alunos
-- Definição da **estrutura pedagógica** de cada simulação (teoria → exemplos resolvidos → exercícios formativos → conclusão)
-- Criação dos **enunciados, fórmulas e parâmetros** dos exercícios
-- **Testes em sala de aula** com turmas reais, com observação direta do uso pelos alunos
-- **Iterações de melhoria** a partir do feedback dos estudantes: ajustes na dificuldade, clareza dos enunciados, usabilidade da interface e sugestões de novos recursos
-- Planejamento da **progressão conceitual** e da **linguagem pedagógica** utilizada nas narrações em áudio
-
-#### 🤖 2. Ferramentas de IA Utilizadas
-
-O código é **majoritariamente produzido por ferramentas de IA**, sob minha supervisão e curadoria:
-
-| Ferramenta | Modelos/Ambiente | Papel no projeto |
-|-----------|-----------------|------------------|
-| **DeepSeek** (chat) | DeepSeek-V3 / R1 | Estruturação de lógicas de simulação, algoritmos de geração dinâmica de exercícios, criação de interfaces Canvas/Three.js, depuração e revisão de código |
-| **ChatGPT** (chat) | GPT-4o / GPT-4.1 | Criação de conteúdo textual explicativo, documentação, sugestões de CSS/design e prototipagem de funcionalidades |
-| **Continue.dev** (IDE) | DeepSeek Coder V2 / Qwen2.5-Coder | Assistência direta no editor VS Code para escrever, refatorar e depurar blocos de código durante o desenvolvimento, com modelos locais e remotos |
-| **GitHub Copilot** (IDE) | Modelo proprietário Microsoft | Autocomplete de código e sugestões contextuais durante a escrita no VS Code |
-| **GitHub** | — | Versionamento, armazenamento e **publicação automática via GitHub Pages** |
-
-#### 🔄 3. Fluxo de Trabalho
-
-1. **Eu descrevo o objetivo pedagógico** em linguagem natural para a IA (ex.: "Preciso de uma simulação de troca de calor onde o aluno possa variar as massas e temperaturas iniciais, com animação interativa, controles do tipo sliders para escolha de dados iniciais, exercícios objetivos, espaços para envio de conclusão, críticas e sugestões". Na fase atual de produção eu já tenho modelos para servir de ponto de partida e criar novas simulações.)
-2. **A IA gera o código** (HTML, CSS, JavaScript) como ponto de partida
-3. **Eu testo, reviso e adapto** cada funcionalidade, ajustando parâmetros, corrigindo comportamentos e refinando a experiência do usuário
-4. **Levo para a sala de aula**, observo os alunos usando e identifico pontos de melhoria
-5. **Volto com o feedback** para novas iterações com a IA, gerando novas versões
-
-Esse ciclo se repete **dezenas de vezes para cada simulação**, ao longo de aproximadamente 12 meses (2024–2025).
-
-#### 🧪 4. Testes em Sala de Aula e Iterações
-
-As simulações são **testadas e validadas com turmas reais** do Ensino Médio no dia a dia da sala de aula. Esse processo revela:
-- Necessidade de **ajustes na dificuldade** dos exercícios (muitos parâmetros são recalibrados)
-- **Melhorias na interface** sugeridas pelos próprios alunos (posição de botões, tamanho de fontes, contraste)
-- **Correções conceituais** apontadas durante as discussões em aula
-- **Novos tipos de exercício** que são adicionados a partir de dúvidas recorrentes
-
-Cada simulação reflete, portanto, não apenas o planejamento inicial, mas **um ciclo contínuo de aprimoramento** baseado na prática docente.
-
-#### 📝 5. Sistema de Exercícios (fase atual)
-
-Os exercícios formativos são propositalmente **simples e sem contextualização** — o foco nesta fase do projeto é a **aplicação direta de valores nas fórmulas**. São gerados **randomicamente** com parâmetros variáveis, permitindo que o estudante **refaça sempre com dados diferentes**, consolidando o domínio operacional dos conceitos.
-
-Esta escolha é intencional: antes de avançar para problemas contextualizados, o aluno precisa **ganhar fluência no uso das equações**. A **próxima fase do projeto** prevê exatamente a criação de **exercícios contextualizados**, com situações-problema inspiradas no cotidiano e em fenômenos reais, seguindo a progressão: domínio técnico → aplicação contextualizada → análise crítica.
-
-#### 📖 6. Material Teórico
-
-Cada simulação inclui uma **contextualização inicial** do fenômeno físico e a **descrição detalhada das fórmulas** e grandezas envolvidas, acompanhadas de legendas interpretativas. A **teoria completa**, com deduções, demonstrações formais e aprofundamento conceitual, está disponível nas **referências bibliográficas** indicadas em cada simulação e nos materiais didáticos adotados em sala de aula.
-
-#### 📝 7. Esclarecimento sobre a Autoria do Código
-
-É importante ser transparente: **a maioria esmagadora do código é gerada por IAs**, a partir de minhas instruções em linguagem natural. Meu papel é:
-- ✅ **Conceber** o que cada simulação deve fazer
-- ✅ **Orientar** a IA com descrições precisas do resultado esperado
-- ✅ **Revisar** cada bloco de código gerado, adaptando e corrigindo manualmente
-- ✅ **Testar** exaustivamente em sala de aula
-- ✅ **Iterar** com melhorias contínuas
-
-O código final, portanto, é **fruto de um processo colaborativo humano-IA**, onde a direção pedagógica, a curadoria e a validação são **exclusivamente humanas**, e a produção do código é **majoritariamente assistida por IA**.
-
-Nas simulações individuais, essa informação é registrada como comentário nos metadados do `<head>` de cada arquivo HTML.
-
----
-
-## 🤝 Contribuições
-
-Contribuições são bem-vindas! Se você é educador, pesquisador ou desenvolvedor interessado em uso de **Tecnologias da Informação e Comunicação (TIC) na Educação**, sinta-se à vontade para:
-
-- Relatar problemas ou sugerir melhorias através de [Issues](https://github.com/flavioambrosios/simulacoes/issues)
-- Enviar *pull requests* com novas simulações ou aprimoramentos
-- Adaptar o código para suas próprias salas de aula
-
----
-
-## 📚 Uso em Pesquisa
-
-Se você utilizar este material em pesquisas acadêmicas, por favor cite-o utilizando o DOI do Zenodo:
-
-```
-Ambrósio, F. (2026). Simulações Interativas de Física para o Ensino Médio. 
-Zenodo. https://doi.org/10.5281/zenodo.20737876
-```
-
+1. Incluir exercícios contextualizados (fase seguinte do projeto).
+2. Publicar protocolo de governança de dados e retenção.
+3. Estruturar rubrica pública para avaliação das respostas escritas.
+4. Consolidar desenho metodológico para submissão em programa de doutorado.
