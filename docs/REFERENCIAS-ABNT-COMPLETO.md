@@ -42,6 +42,32 @@ BRASIL. Conselho Nacional de Saúde. Resolução no 510, de 7 de abril de 2016. 
 
 BRASIL. Ministério da Educação. Base Nacional Comum Curricular. Brasília, DF: MEC, 2018.
 
+## Referências em português (educação e ensino de Ciências)
+
+FREIRE, Paulo. Pedagogia da autonomia: saberes necessários à prática educativa. São Paulo: Paz e Terra, 1996.
+
+LIBÂNEO, José Carlos. Didática. São Paulo: Cortez, 1994.
+
+BACICH, Lilian; MORAN, José (org.). Metodologias ativas para uma educação inovadora: uma abordagem teórico-prática. Porto Alegre: Penso, 2018.
+
+LUCKESI, Cipriano Carlos. Avaliação da aprendizagem escolar: estudos e proposições. São Paulo: Cortez, 2011.
+
+DELIZOICOV, Demétrio; ANGOTTI, José André; PERNAMBUCO, Marta Maria. Ensino de ciências: fundamentos e métodos. São Paulo: Cortez, 2002.
+
+CARVALHO, Anna Maria Pessoa de (org.). Ensino de ciências por investigação: condições para implementação em sala de aula. São Paulo: Cengage Learning, 2013.
+
+LÜDKE, Menga; ANDRÉ, Marli E. D. A. Pesquisa em educação: abordagens qualitativas. São Paulo: EPU, 1986.
+
+## Pedagogia histórico-crítica (Dermeval Saviani)
+
+SAVIANI, Dermeval. Pedagogia histórico-crítica: primeiras aproximações. 11. ed. Campinas: Autores Associados, 2011.
+
+SAVIANI, Dermeval. Escola e democracia. 42. ed. Campinas: Autores Associados, 2012.
+
+SAVIANI, Dermeval; DUARTE, Newton (org.). Pedagogia histórico-crítica e luta de classes na educação escolar. Campinas: Autores Associados, 2012.
+
+SAVIANI, Dermeval. História das ideias pedagógicas no Brasil. Campinas: Autores Associados, 2008.
+
 ## Observação de uso
 
 Esta lista está em formato ABNT padronizado para facilitar incorporação em projeto, dissertação/tese e artigos. Recomenda-se conferir dados finais (DOI, paginação e local de publicação) na versão oficial de cada fonte antes de submissão acadêmica.
