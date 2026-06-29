@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Pages](https://img.shields.io/badge/hosted%20on-GitHub%20Pages-blue)](https://flavioambrosios.github.io/simulacoes/)
 
-Repositório didático e de pesquisa aplicada para o ensino de Física no Ensino Médio, com simulações interativas testadas em contexto real de sala de aula.
+Repositório didático e de pesquisa aplicada para o ensino de Física no Ensino Médio, com simulações interativas sendo testadas em contexto real de sala de aula.
 
 ## Resumo Executivo
 
