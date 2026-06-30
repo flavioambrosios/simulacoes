@@ -33,6 +33,13 @@
         bySerieTurma: {},
         byTrilha: {}
     };
+    const DEFAULT_STUDENT_ACCESS_CONFIG = {
+        enabled: true,
+        salt: 'EDU-DIGITAL-2026',
+        passwordHash: 'ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55',
+        hint: 'Solicite ao professor a senha de acesso do estudante.'
+    };
+    const STUDENT_ACCESS_SESSION_KEY = 'simulationEnhancer:student-access-auth';
     const SCORE_WEIGHTS = {
         exercises: 0.5,
         conclusion: 0.5
@@ -170,6 +177,11 @@
             '.enhancer-save-indicator.is-visible { opacity: 1; transform: translateY(0); }',
             '.enhancer-save-indicator strong { color: #7fffc0; }',
             '.enhancer-visitor-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 204, 0, 0.15); cursor: pointer; }',
+            '.enhancer-student-auth { margin-bottom: 10px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(100, 181, 246, 0.25); }',
+            '.enhancer-student-auth-btn { width: auto; margin: 0 0 8px; background: #1976d2; color: #fff; }',
+            '.enhancer-student-auth-panel { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }',
+            '.enhancer-student-auth-panel input { margin: 0; }',
+            '.enhancer-student-auth-status { margin-top: 6px; }',
                         '.enhancer-visitor-checkbox input { width: auto; margin: 0; cursor: pointer; }',
                         '.enhancer-visitor-checkbox label { margin: 0; cursor: pointer; font-size: 0.95rem; color: #ffdd88; }',
                         '.enhancer-visitor-fields { display: block; }',
@@ -238,6 +250,15 @@
         };
 
         emailForm.innerHTML = [
+                    '<div class="form-row enhancer-visitor-checkbox">',
+                                '<div class="form-row enhancer-student-auth">',
+                                '<button type="button" id="unlockStudentModeBtn" class="enhancer-student-auth-btn">Sou estudante (liberar por senha)</button>',
+                                '<div id="studentAccessPanel" class="enhancer-student-auth-panel enhancer-hidden">',
+                                '<input type="password" id="studentAccessPassword" placeholder="Digite a senha do estudante">',
+                                '<button type="button" id="confirmStudentAccessBtn" class="check-btn">Liberar acesso</button>',
+                                '</div>',
+                                '<div id="enhancerStudentAccessStatus" class="enhancer-inline-note enhancer-student-auth-status">Modo visitante ativo por padrão.</div>',
+                                '</div>',
                     '<div class="form-row enhancer-visitor-checkbox">',
                                 '<input type="checkbox" id="visitorMode">',
                                 '<label for="visitorMode">Sou visitante (não tenho série, turma ou trilha definida)</label>',
@@ -313,6 +334,7 @@
                 bindFormPersistence();
                 loadStudentDatabase().then(function () {
                     populateSimulationStudentOptions(currentValues.studentNameSelect || '');
+                    setupStudentAccessGate();
                 });
     }
 
@@ -324,6 +346,10 @@
             }
 
             function toggleVisitorMode() {
+                if (!visitorCheckbox.checked && !isStudentAccessAuthenticated()) {
+                    visitorCheckbox.checked = true;
+                    updateStudentAccessStatus('Para usar o modo estudante, informe a senha.', 'error');
+                }
                 const isVisitor = visitorCheckbox.checked;
                 fieldsArea.classList.toggle('enhancer-hidden', isVisitor);
                 const requiredFields = fieldsArea.querySelectorAll('[required]');
@@ -346,13 +372,138 @@
             visitorCheckbox.addEventListener('change', toggleVisitorMode);
             visitorCheckbox.dataset.enhancerBound = 'true';
 
-            // Aplicar estado inicial salvo
-            const savedState = getSavedExerciseState();
-            if (savedState && savedState.formState && savedState.formState.visitorMode) {
-                visitorCheckbox.checked = true;
-                toggleVisitorMode();
-            }
+            visitorCheckbox.checked = !isStudentAccessAuthenticated();
+            toggleVisitorMode();
         }
+
+    function getStudentAccessConfig() {
+        const externalConfig = window.SIMULATION_ENHANCER_STUDENT_ACCESS
+            || readGlobalBinding('SIMULATION_ENHANCER_STUDENT_ACCESS')
+            || (getStudentSource() && getStudentSource().accessControl)
+            || {};
+
+        return Object.assign({}, DEFAULT_STUDENT_ACCESS_CONFIG, externalConfig || {});
+    }
+
+    function isStudentAccessAuthenticated() {
+        try {
+            return window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) === '1';
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function setStudentAccessAuthenticated(value) {
+        try {
+            if (value) {
+                window.sessionStorage.setItem(STUDENT_ACCESS_SESSION_KEY, '1');
+            } else {
+                window.sessionStorage.removeItem(STUDENT_ACCESS_SESSION_KEY);
+            }
+        } catch (error) {
+            return;
+        }
+    }
+
+    function updateStudentAccessStatus(message, type) {
+        const status = document.getElementById('enhancerStudentAccessStatus');
+        if (!status) {
+            return;
+        }
+
+        status.textContent = message;
+        if (type === 'success') {
+            status.style.color = '#7fffc0';
+            return;
+        }
+        if (type === 'error') {
+            status.style.color = '#ff9f9f';
+            return;
+        }
+        status.style.color = '#ffdd88';
+    }
+
+    function hashStudentAccessInput(rawText) {
+        if (!window.crypto || !window.crypto.subtle || !window.TextEncoder) {
+            return Promise.resolve('');
+        }
+
+        const bytes = new TextEncoder().encode(String(rawText || ''));
+        return window.crypto.subtle.digest('SHA-256', bytes).then(function (buffer) {
+            return Array.from(new Uint8Array(buffer)).map(function (value) {
+                return value.toString(16).padStart(2, '0');
+            }).join('');
+        }).catch(function () {
+            return '';
+        });
+    }
+
+    function setupStudentAccessGate() {
+        const visitorCheckbox = document.getElementById('visitorMode');
+        const unlockButton = document.getElementById('unlockStudentModeBtn');
+        const accessPanel = document.getElementById('studentAccessPanel');
+        const passwordInput = document.getElementById('studentAccessPassword');
+        const confirmButton = document.getElementById('confirmStudentAccessBtn');
+        const config = getStudentAccessConfig();
+
+        if (!visitorCheckbox || !unlockButton || !accessPanel || !passwordInput || !confirmButton) {
+            return;
+        }
+
+        if (!config.enabled) {
+            unlockButton.classList.add('enhancer-hidden');
+            updateStudentAccessStatus('Modo estudante sem senha (controle desativado).', 'info');
+            setStudentAccessAuthenticated(true);
+            return;
+        }
+
+        updateStudentAccessStatus(config.hint || 'Para sair do modo visitante, informe a senha.', 'info');
+
+        if (isStudentAccessAuthenticated()) {
+            visitorCheckbox.checked = false;
+            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+            updateStudentAccessStatus('Acesso de estudante liberado nesta sessão.', 'success');
+        }
+
+        if (unlockButton.dataset.enhancerBound !== 'true') {
+            unlockButton.addEventListener('click', function () {
+                accessPanel.classList.toggle('enhancer-hidden');
+                if (!accessPanel.classList.contains('enhancer-hidden')) {
+                    passwordInput.focus();
+                }
+            });
+            unlockButton.dataset.enhancerBound = 'true';
+        }
+
+        if (confirmButton.dataset.enhancerBound !== 'true') {
+            confirmButton.addEventListener('click', function () {
+                const plainPassword = (passwordInput.value || '').trim();
+                if (!plainPassword) {
+                    updateStudentAccessStatus('Digite a senha antes de liberar o modo estudante.', 'error');
+                    return;
+                }
+
+                const seed = String(config.salt || '') + plainPassword;
+                hashStudentAccessInput(seed).then(function (digest) {
+                    if (!digest || digest !== String(config.passwordHash || '').toLowerCase()) {
+                        updateStudentAccessStatus('Senha inválida. Permanecendo no modo visitante.', 'error');
+                        setStudentAccessAuthenticated(false);
+                        visitorCheckbox.checked = true;
+                        visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                        return;
+                    }
+
+                    setStudentAccessAuthenticated(true);
+                    updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
+                    visitorCheckbox.checked = false;
+                    visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    passwordInput.value = '';
+                    accessPanel.classList.add('enhancer-hidden');
+                });
+            });
+            confirmButton.dataset.enhancerBound = 'true';
+        }
+    }
 
         function setupStudentFieldInteractions() {
             ['studentTrail', 'studentGrade', 'studentClass'].forEach(function (fieldId) {
@@ -2106,6 +2257,10 @@
                     formData.schoolTerm = 'Visitante';
                     formData.studentTrail = 'Visitante';
                 } else {
+                    if (!isStudentAccessAuthenticated()) {
+                        alert('Para enviar como estudante, libere o acesso por senha.');
+                        return;
+                    }
                     if (!formData.studentName || !formData.studentGrade || !formData.studentClass || !formData.schoolTerm || !formData.finalConclusion) {
                         alert('Preencha nome, série, turma, bimestre e conclusão antes de enviar.');
                         return;
