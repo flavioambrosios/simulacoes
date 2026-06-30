@@ -621,5 +621,11 @@ const STUDENT_DATABASE = {
             "THIAGO PASSOS DEOLINDO",
             "VINICIUS PITARGO SOUZA ARAUJO FILHO"
         ]
+    },
+    "accessControl": {
+        "enabled": true,
+        "salt": "EDU-DIGITAL-2026",
+        "passwordHash": "f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1",
+        "hint": "Solicite ao professor a senha de acesso do estudante."
     }
 };
