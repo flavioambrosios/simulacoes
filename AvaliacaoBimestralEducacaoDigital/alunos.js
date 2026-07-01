@@ -146,7 +146,6 @@ const STUDENT_DATABASE = {
             "LUAN PEREIRA LIMA",
             "MARIA CLARA SOUSA DE CARVALHO",
             "MARIANA SANTOS DA SILVA DE MAYA VIANA",
-            "MATEUS CRISTIANO QUEIROZ DA SILVA GOMES",
             "MIGUEL COSTA DE OLIVEIRA",
             "Mateus Cristiano Queiroz da Silva Gomes",
             "OCTAVIO HENRIQUE COELHO MARTINS",
