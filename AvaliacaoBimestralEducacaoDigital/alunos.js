@@ -146,13 +146,14 @@ const STUDENT_DATABASE = {
             "LUAN PEREIRA LIMA",
             "MARIA CLARA SOUSA DE CARVALHO",
             "MARIANA SANTOS DA SILVA DE MAYA VIANA",
+            "MATEUS CRISTIANO QUEIROZ DA SILVA GOMES",
             "MIGUEL COSTA DE OLIVEIRA",
+            "Mateus Cristiano Queiroz da Silva Gomes",
             "OCTAVIO HENRIQUE COELHO MARTINS",
             "POLLYANA ALMEIDA DA SILVA",
             "RAYMOND JULIAN MOYA SALAZAR",
             "VICTOR EMANUEL SILVA FERREIRA",
-            "YURI DOS SANTOS BARBOZA",
-            "MATEUS CRISTIANO QUEIROZ DA SILVA GOMES"
+            "YURI DOS SANTOS BARBOZA"
         ],
         "3o ano D": [
             "ANDRE LUIZ SOUZA DA CUNHA MELO",
@@ -418,6 +419,7 @@ const STUDENT_DATABASE = {
             "MARIA CLARA SOUSA DE CARVALHO",
             "MARIANA SANTOS DA SILVA DE MAYA VIANA",
             "MIGUEL COSTA DE OLIVEIRA",
+            "Mateus Cristiano Queiroz da Silva Gomes",
             "OCTAVIO HENRIQUE COELHO MARTINS",
             "POLLYANA ALMEIDA DA SILVA",
             "RAYMOND JULIAN MOYA SALAZAR",
