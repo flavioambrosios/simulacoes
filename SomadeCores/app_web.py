@@ -262,7 +262,7 @@ def infer_grade_class_from_track(track_name):
 
 def load_student_database():
     # O banco de alunos alimenta os seletores do formulário final da sessão.
-    empty_database = {"bySerieTurma": {}, "byTrilha": {}}
+    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
 
     try:
         file_text = STUDENT_DATABASE_PATH.read_text(encoding="utf-8")
@@ -282,6 +282,7 @@ def load_student_database():
         return empty_database
 
     return {
+        "bySheet": parsed.get("bySheet", {}),
         "bySerieTurma": parsed.get("bySerieTurma", {}),
         "byTrilha": parsed.get("byTrilha", {}),
     }
@@ -289,13 +290,25 @@ def load_student_database():
 
 def build_track_options(student_database):
     options = [{"label": "Turma regular (sem trilha)", "value": ""}]
-    track_names = sorted(student_database.get("byTrilha", {}).keys(), key=normalize_text)
+    track_names = set(student_database.get("byTrilha", {}).keys())
+
+    for sheet_name in student_database.get("bySheet", {}):
+        if not re.match(r"^[123]o ano\s+[A-Z]$", (sheet_name or "").strip()):
+            track_names.add(sheet_name)
+
+    track_names = sorted(track_names, key=normalize_text)
     options.extend({"label": track_name, "value": track_name} for track_name in track_names)
     return options
 
 
 def build_class_options(student_database):
     classes = set()
+
+    for sheet_name in student_database.get("bySheet", {}):
+        match = re.match(r"^[123]o ano\s+([A-Z])$", (sheet_name or "").strip())
+        if match:
+            classes.add(match.group(1).upper())
+
     for key in student_database.get("bySerieTurma", {}):
         parts = key.split("|", 1)
         if len(parts) == 2 and parts[1].strip():
@@ -310,14 +323,25 @@ def build_class_options(student_database):
 
 
 def build_student_name_options(track_name, student_grade, student_class):
-    names = []
+    names = set()
+
+    preferred_sheet = ""
+    if track_name and track_name in STUDENT_DATABASE.get("bySheet", {}):
+        preferred_sheet = track_name
+    elif student_grade and student_class:
+        candidate_sheet = f"{student_grade.strip()} {student_class.strip().upper()}"
+        if candidate_sheet in STUDENT_DATABASE.get("bySheet", {}):
+            preferred_sheet = candidate_sheet
+
+    if preferred_sheet:
+        names.update(STUDENT_DATABASE.get("bySheet", {}).get(preferred_sheet, []))
 
     if track_name:
-        names = list(STUDENT_DATABASE.get("byTrilha", {}).get(track_name, []))
+        names.update(STUDENT_DATABASE.get("byTrilha", {}).get(track_name, []))
 
-    if not names and student_grade and student_class:
+    if student_grade and student_class:
         key = f"{student_grade.strip()}|{student_class.strip().upper()}"
-        names = list(STUDENT_DATABASE.get("bySerieTurma", {}).get(key, []))
+        names.update(STUDENT_DATABASE.get("bySerieTurma", {}).get(key, []))
 
     unique_names = sorted({name.strip() for name in names if (name or "").strip()}, key=normalize_text)
     return [{"label": name, "value": name} for name in unique_names]
@@ -927,19 +951,25 @@ def build_final_session_payload(
 def send_final_session_results(payload, student_email):
     # O envio completo é um encadeamento: salva a sessão, atualiza a turma e dispara as comunicações.
     messages = []
-    success = True
+    warnings = []
 
     sheet_ok, sheet_message = send_final_session_to_google_sheets(payload)
-    success = success and sheet_ok
-    messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
+    if not sheet_ok:
+        return False, f"planilha: {sheet_message}"
+
+    messages.append("planilha principal ok")
 
     class_ok, class_message = send_final_session_to_class_worksheet(payload)
-    success = success and class_ok
-    messages.append("aba da turma ok" if class_ok else f"aba turma: {class_message}")
+    if class_ok:
+        messages.append("aba da turma ok")
+    else:
+        warnings.append(f"aba turma: {class_message}")
 
     email_ok, email_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, payload)
-    success = success and email_ok
-    messages.append("email do professor ok" if email_ok else f"email professor: {email_message}")
+    if email_ok:
+        messages.append("email do professor ok")
+    else:
+        warnings.append(f"email professor: {email_message}")
 
     student_email = (student_email or "").strip()
     if student_email:
@@ -952,10 +982,15 @@ def send_final_session_results(payload, student_email):
             f"Questões puladas: {payload.get('questoes_puladas', 0)}"
         )
         copy_ok, copy_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, student_copy)
-        success = success and copy_ok
-        messages.append("copia para estudante ok" if copy_ok else f"copia estudante: {copy_message}")
+        if copy_ok:
+            messages.append("copia para estudante ok")
+        else:
+            warnings.append(f"copia estudante: {copy_message}")
 
-    return success, " | ".join(messages)
+    if warnings:
+        return True, " | ".join(messages + ["avisos: " + " ; ".join(warnings)])
+
+    return True, " | ".join(messages)
 
 
 def append_feedback_detail(feedback, detail):
@@ -3615,7 +3650,8 @@ def handle_final_results_send(
     success, message = send_final_session_results(payload, student_email)
 
     if success:
-        return "✅ Resultados enviados com sucesso para a planilha e para os e-mails.", dict(status_style, color="#15803d")
+        status_color = "#b45309" if "avisos:" in message else "#15803d"
+        return f"✅ {message}", dict(status_style, color=status_color)
 
     return f"❌ O envio não foi concluído por completo: {message}", dict(status_style, color="#b91c1c")
 
