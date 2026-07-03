@@ -37,9 +37,13 @@
         enabled: true,
         salt: 'EDU-DIGITAL-2026',
         passwordHash: 'ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55',
-        hint: 'Solicite ao professor a senha de acesso do estudante.'
+        hint: 'Solicite ao professor a senha de acesso do estudante.',
+        rosterApiUrl: '',
+        apiTimeoutMs: 6000,
+        rosterCacheTtlMs: 15000
     };
     const STUDENT_ACCESS_SESSION_KEY = 'simulationEnhancer:student-access-auth';
+    const STUDENT_ACCESS_TOKEN_SESSION_KEY = 'simulationEnhancer:student-access-token';
     const SCORE_WEIGHTS = {
         exercises: 0.5,
         conclusion: 0.5
@@ -85,6 +89,8 @@
     let speechRequestToken = 0;
     let lastAiAnalysis = null;
     let studentDatabaseLoadPromise = null;
+    let studentOptionsRequestToken = 0;
+    let rosterApiCache = {};
     let saveIndicatorHideTimer = null;
     let lastSaveIndicatorAt = 0;
 
@@ -399,7 +405,30 @@
                 window.sessionStorage.setItem(STUDENT_ACCESS_SESSION_KEY, '1');
             } else {
                 window.sessionStorage.removeItem(STUDENT_ACCESS_SESSION_KEY);
+                window.sessionStorage.removeItem(STUDENT_ACCESS_TOKEN_SESSION_KEY);
             }
+            clearRosterApiCache();
+        } catch (error) {
+            return;
+        }
+    }
+
+    function getStudentAccessToken() {
+        try {
+            return window.sessionStorage.getItem(STUDENT_ACCESS_TOKEN_SESSION_KEY) || '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function setStudentAccessToken(token) {
+        try {
+            if (token) {
+                window.sessionStorage.setItem(STUDENT_ACCESS_TOKEN_SESSION_KEY, String(token));
+            } else {
+                window.sessionStorage.removeItem(STUDENT_ACCESS_TOKEN_SESSION_KEY);
+            }
+            clearRosterApiCache();
         } catch (error) {
             return;
         }
@@ -488,12 +517,14 @@
                     if (!digest || digest !== String(config.passwordHash || '').toLowerCase()) {
                         updateStudentAccessStatus('Senha inválida. Permanecendo no modo visitante.', 'error');
                         setStudentAccessAuthenticated(false);
+                        setStudentAccessToken('');
                         visitorCheckbox.checked = true;
                         visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
                         return;
                     }
 
                     setStudentAccessAuthenticated(true);
+                    setStudentAccessToken(digest);
                     updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
                     visitorCheckbox.checked = false;
                     visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
@@ -600,7 +631,7 @@
         return readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE;
     }
 
-    function getStudentNames(filters) {
+    function getLocalStudentNames(filters) {
         const studentSource = getStudentSource();
         const names = new Set();
         const preferredSheet = resolveSimulationSheetName(filters.serie, filters.turma, filters.trilha);
@@ -623,6 +654,101 @@
         });
     }
 
+    function shouldUseProtectedRosterApi() {
+        const config = getStudentAccessConfig();
+        const apiUrl = String(config.rosterApiUrl || '').trim();
+        if (!apiUrl) {
+            return false;
+        }
+        return isStudentAccessAuthenticated() && !!getStudentAccessToken();
+    }
+
+    function buildRosterCacheKey(filters) {
+        return [filters.serie || '', filters.turma || '', filters.trilha || ''].join('|');
+    }
+
+    function clearRosterApiCache() {
+        rosterApiCache = {};
+    }
+
+    function fetchProtectedStudentNames(filters) {
+        const config = getStudentAccessConfig();
+        const apiUrl = String(config.rosterApiUrl || '').trim();
+        const token = getStudentAccessToken();
+        if (!apiUrl || !token) {
+            return Promise.reject(new Error('API protegida não configurada para lista de alunos.'));
+        }
+
+        const cacheKey = buildRosterCacheKey(filters);
+        const cachedEntry = rosterApiCache[cacheKey];
+        if (cachedEntry && cachedEntry.expiresAt > Date.now()) {
+            return Promise.resolve(cachedEntry.names);
+        }
+
+        delete rosterApiCache[cacheKey];
+
+        const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
+
+        const timeoutMs = Math.max(1500, Number(config.apiTimeoutMs || 6000));
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller
+            ? window.setTimeout(function () { controller.abort(); }, timeoutMs)
+            : null;
+
+        return fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'getStudentNames',
+                serie: filters.serie || '',
+                turma: filters.turma || '',
+                trilha: filters.trilha || '',
+                accessToken: token
+            }),
+            signal: controller ? controller.signal : undefined
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Resposta inválida da API protegida: HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (payload) {
+                const rawNames = Array.isArray(payload)
+                    ? payload
+                    : (Array.isArray(payload.names) ? payload.names : []);
+
+                const normalized = rawNames
+                    .map(function (name) { return String(name || '').trim(); })
+                    .filter(function (name) { return !!name; })
+                    .sort(function (first, second) { return first.localeCompare(second, 'pt-BR'); });
+
+                rosterApiCache[cacheKey] = {
+                    names: normalized,
+                    expiresAt: Date.now() + cacheTtlMs
+                };
+                return normalized;
+            })
+            .finally(function () {
+                if (timeoutId) {
+                    window.clearTimeout(timeoutId);
+                }
+            });
+    }
+
+    function getStudentNamesHybrid(filters) {
+        const localNames = getLocalStudentNames(filters);
+        if (!shouldUseProtectedRosterApi()) {
+            return Promise.resolve(localNames);
+        }
+
+        return fetchProtectedStudentNames(filters)
+            .catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de alunos. Usando fallback local.', error);
+                return localNames;
+            });
+    }
+
     function populateSimulationStudentOptions(preservedValue) {
         const studentNameSelect = document.getElementById('studentNameSelect');
         if (!studentNameSelect) {
@@ -632,32 +758,40 @@
         const serie = getFieldValue('studentGrade');
         const turma = getFieldValue('studentClass');
         const trilha = getFieldValue('studentTrail');
-        const names = getStudentNames({ serie: serie, turma: turma, trilha: trilha });
+        const requestToken = ++studentOptionsRequestToken;
 
-        studentNameSelect.innerHTML = (names.length
-            ? '<option value="">Selecione o nome</option>'
-            : '<option value="">Nenhum nome encontrado para este recorte</option>')
-            + names.map(function (name) {
-                return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
-            }).join('')
-            + '<option value="__OTHER__">Meu nome não está na lista</option>';
+        studentNameSelect.innerHTML = '<option value="">Carregando nomes...</option><option value="__OTHER__">Meu nome não está na lista</option>';
 
-        if (preservedValue && (preservedValue === '__OTHER__' || names.indexOf(preservedValue) !== -1)) {
-            studentNameSelect.value = preservedValue;
-        } else {
-            studentNameSelect.value = '';
-        }
+        getStudentNamesHybrid({ serie: serie, turma: turma, trilha: trilha }).then(function (names) {
+            if (requestToken !== studentOptionsRequestToken) {
+                return;
+            }
 
-        const manualMode = studentNameSelect.value === '__OTHER__';
-        const manualRow = document.getElementById('studentNameManualRow');
-        const manualInput = document.getElementById('studentNameManual');
-        if (manualRow) {
-            manualRow.classList.toggle('enhancer-hidden', !manualMode);
-        }
-        if (manualInput) {
-            manualInput.required = manualMode;
-        }
-        syncResolvedStudentName();
+            studentNameSelect.innerHTML = (names.length
+                ? '<option value="">Selecione o nome</option>'
+                : '<option value="">Nenhum nome encontrado para este recorte</option>')
+                + names.map(function (name) {
+                    return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+                }).join('')
+                + '<option value="__OTHER__">Meu nome não está na lista</option>';
+
+            if (preservedValue && (preservedValue === '__OTHER__' || names.indexOf(preservedValue) !== -1)) {
+                studentNameSelect.value = preservedValue;
+            } else {
+                studentNameSelect.value = '';
+            }
+
+            const manualMode = studentNameSelect.value === '__OTHER__';
+            const manualRow = document.getElementById('studentNameManualRow');
+            const manualInput = document.getElementById('studentNameManual');
+            if (manualRow) {
+                manualRow.classList.toggle('enhancer-hidden', !manualMode);
+            }
+            if (manualInput) {
+                manualInput.required = manualMode;
+            }
+            syncResolvedStudentName();
+        });
     }
 
     function syncResolvedStudentName() {
