@@ -22,8 +22,8 @@
         '4o bimestre': 'V'
     };
     const TRAIL_OPTIONS = [
-        'PCA - Educação Digital 3o ano E',
-        'PCA - Educação Digital 3o ano G',
+        'PCA - Educa��o Digital 3o ano A',
+        'PCA - Educa��o Digital 3o ano B',
         'Sustentabilidade 2o ano C',
         'Outra',
         'Nenhuma (Turma de Fisica)'
@@ -36,9 +36,9 @@
     const DEFAULT_STUDENT_ACCESS_CONFIG = {
         enabled: true,
         salt: 'EDU-DIGITAL-2026',
-        passwordHash: 'ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55',
+        passwordHash: 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1',
         hint: 'Solicite ao professor a senha de acesso do estudante.',
-        rosterApiUrl: '',
+        rosterApiUrl: 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec',
         apiTimeoutMs: 6000,
         rosterCacheTtlMs: 15000
     };
@@ -91,6 +91,7 @@
     let studentDatabaseLoadPromise = null;
     let studentOptionsRequestToken = 0;
     let rosterApiCache = {};
+    let rosterSheetsCache = null;
     let saveIndicatorHideTimer = null;
     let lastSaveIndicatorAt = 0;
 
@@ -242,6 +243,7 @@
         }
 
         const currentValues = {
+            studentSheet: getFieldValue('studentSheet'),
             studentTrail: getFieldValue('studentTrail'),
             studentGrade: getFieldValue('studentGrade'),
             studentClass: getFieldValue('studentClass'),
@@ -271,33 +273,17 @@
                                 '</div>',
                                 '<div id="studentFieldsArea" class="enhancer-visitor-fields">',
                     '<div class="form-row">',
-                    '<label for="studentTrail">Trilha:</label>',
-                    '<select id="studentTrail">',
-                    '<option value="" selected>Nenhuma (Turma de Fisica)</option>',
-                    TRAIL_OPTIONS.filter(function (o) { return o !== 'Nenhuma (Turma de Fisica)'; }).map(function (option) {
-                                        return '<option value="' + escapeHtml(option) + '">' + escapeHtml(option) + '</option>';
-                                    }).join(''),
-                    '</select>',
-                    '</div>',
-                    '<div class="form-row">',
-                    '<label for="studentGrade" class="required">Série:</label>',
-                    '<select id="studentGrade" required>',
-                    '<option value="">Selecione sua série</option>',
-                    '<option value="1o ano">1º ano</option>',
-                    '<option value="2o ano">2º ano</option>',
-                    '<option value="3o ano">3º ano</option>',
-                    '</select>',
-                    '</div>',
-                    '<div class="form-row">',
-                    '<label for="studentClass" class="required">Turma:</label>',
-                    '<select id="studentClass" required>',
+                    '<label for="studentSheet" class="required">Turma / Aba da planilha:</label>',
+                    '<select id="studentSheet" required>',
                     '<option value="">Selecione sua turma</option>',
-                    'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').slice(0, 19).map(function (letter) { return '<option value="' + letter + '">' + letter + '</option>'; }).join(''),
                     '</select>',
+                    '<input type="hidden" id="studentTrail">',
+                    '<input type="hidden" id="studentGrade">',
+                    '<input type="hidden" id="studentClass">',
                     '</div>',
                     '<div class="form-row">',
                     '<label for="studentNameSelect" class="required">Nome Completo:</label>',
-                    '<select id="studentNameSelect" required><option value="">Selecione primeiro a série, a turma e a trilha</option></select>',
+                    '<select id="studentNameSelect" required><option value="">Selecione primeiro a turma</option></select>',
                     '<input type="hidden" id="studentName">',
                     '</div>',
                     '<div class="form-row enhancer-hidden" id="studentNameManualRow">',
@@ -335,6 +321,8 @@
                 ].join('');
 
         restoreFormState(currentValues);
+        syncSelectedSheetMetadata();
+        populateSimulationSheetOptions(currentValues.studentSheet || '');
                 setupStudentFieldInteractions();
                 setupVisitorModeToggle();
                 bindFormPersistence();
@@ -492,6 +480,7 @@
             visitorCheckbox.checked = false;
             visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
             updateStudentAccessStatus('Acesso de estudante liberado nesta sessão.', 'success');
+            populateSimulationSheetOptions(getFieldValue('studentSheet'));
         }
 
         if (unlockButton.dataset.enhancerBound !== 'true') {
@@ -528,6 +517,7 @@
                     updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
                     visitorCheckbox.checked = false;
                     visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                    populateSimulationSheetOptions(getFieldValue('studentSheet'));
                     passwordInput.value = '';
                     accessPanel.classList.add('enhancer-hidden');
                 });
@@ -537,13 +527,14 @@
     }
 
         function setupStudentFieldInteractions() {
-            ['studentTrail', 'studentGrade', 'studentClass'].forEach(function (fieldId) {
+            ['studentSheet'].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
             if (!field || field.dataset.enhancerRosterBound === 'true') {
                 return;
             }
 
             field.addEventListener('change', function () {
+                syncSelectedSheetMetadata();
                 populateSimulationStudentOptions();
                 syncResolvedStudentName();
                 saveExerciseState();
@@ -631,10 +622,63 @@
         return readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE;
     }
 
+    function getLocalAvailableSheets() {
+        return Object.keys(getStudentSource().bySheet || {}).sort(function (first, second) {
+            return first.localeCompare(second, 'pt-BR');
+        });
+    }
+
+    function getSheetMetadata(sheetName) {
+        const normalizedSheetName = String(sheetName || '').trim();
+        if (!normalizedSheetName) {
+            return {
+                sheetName: '',
+                serie: '',
+                turma: '',
+                trilha: ''
+            };
+        }
+
+        const exactSerieTurmaMatch = normalizedSheetName.match(/^([123]o ano)\s+([A-Z])$/i);
+        if (exactSerieTurmaMatch) {
+            return {
+                sheetName: normalizedSheetName,
+                serie: exactSerieTurmaMatch[1].replace(/\s+/g, ' ').trim(),
+                turma: exactSerieTurmaMatch[2].trim().toUpperCase(),
+                trilha: ''
+            };
+        }
+
+        const embeddedSerieTurmaMatch = normalizedSheetName.match(/([123]o ano)\s+([A-Z])/i);
+        return {
+            sheetName: normalizedSheetName,
+            serie: embeddedSerieTurmaMatch ? embeddedSerieTurmaMatch[1].replace(/\s+/g, ' ').trim() : '',
+            turma: embeddedSerieTurmaMatch ? embeddedSerieTurmaMatch[2].trim().toUpperCase() : '',
+            trilha: normalizedSheetName
+        };
+    }
+
+    function syncSelectedSheetMetadata() {
+        const metadata = getSheetMetadata(getFieldValue('studentSheet'));
+        const studentGrade = document.getElementById('studentGrade');
+        const studentClass = document.getElementById('studentClass');
+        const studentTrail = document.getElementById('studentTrail');
+
+        if (studentGrade) {
+            studentGrade.value = metadata.serie;
+        }
+        if (studentClass) {
+            studentClass.value = metadata.turma;
+        }
+        if (studentTrail) {
+            studentTrail.value = metadata.trilha;
+        }
+    }
+
     function getLocalStudentNames(filters) {
         const studentSource = getStudentSource();
         const names = new Set();
-        const preferredSheet = resolveSimulationSheetName(filters.serie, filters.turma, filters.trilha);
+        const preferredSheet = String(filters.sheetName || '').trim() || resolveSimulationSheetName(filters.serie, filters.turma, filters.trilha);
         const serieTurmaKey = filters.serie + '|' + filters.turma;
 
         if (preferredSheet && studentSource.bySheet[preferredSheet]) {
@@ -664,11 +708,111 @@
     }
 
     function buildRosterCacheKey(filters) {
-        return [filters.serie || '', filters.turma || '', filters.trilha || ''].join('|');
+        return [filters.sheetName || '', filters.serie || '', filters.turma || '', filters.trilha || ''].join('|');
     }
 
     function clearRosterApiCache() {
         rosterApiCache = {};
+        rosterSheetsCache = null;
+    }
+
+    function fetchProtectedAvailableSheets() {
+        const config = getStudentAccessConfig();
+        const apiUrl = String(config.rosterApiUrl || '').trim();
+        const token = getStudentAccessToken();
+        if (!apiUrl || !token) {
+            return Promise.reject(new Error('API protegida não configurada para lista de turmas.'));
+        }
+
+        if (rosterSheetsCache && rosterSheetsCache.expiresAt > Date.now()) {
+            return Promise.resolve(rosterSheetsCache.sheets);
+        }
+
+        rosterSheetsCache = null;
+
+        const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
+        const timeoutMs = Math.max(1500, Number(config.apiTimeoutMs || 6000));
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timeoutId = controller
+            ? window.setTimeout(function () { controller.abort(); }, timeoutMs)
+            : null;
+
+        return fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'getAvailableSheets',
+                accessToken: token
+            }),
+            signal: controller ? controller.signal : undefined
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Resposta inválida da API protegida: HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (payload) {
+                const rawSheets = Array.isArray(payload)
+                    ? payload
+                    : (Array.isArray(payload.sheets) ? payload.sheets : []);
+
+                const normalized = rawSheets
+                    .map(function (name) { return String(name || '').trim(); })
+                    .filter(function (name) { return !!name; })
+                    .sort(function (first, second) { return first.localeCompare(second, 'pt-BR'); });
+
+                rosterSheetsCache = {
+                    sheets: normalized,
+                    expiresAt: Date.now() + cacheTtlMs
+                };
+                return normalized;
+            })
+            .finally(function () {
+                if (timeoutId) {
+                    window.clearTimeout(timeoutId);
+                }
+            });
+    }
+
+    function getAvailableSheetsHybrid() {
+        const localSheets = getLocalAvailableSheets();
+        if (!shouldUseProtectedRosterApi()) {
+            return Promise.resolve(localSheets);
+        }
+
+        return fetchProtectedAvailableSheets()
+            .catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de turmas. Usando fallback local.', error);
+                return localSheets;
+            });
+    }
+
+    function populateSimulationSheetOptions(preservedValue) {
+        const studentSheetSelect = document.getElementById('studentSheet');
+        if (!studentSheetSelect) {
+            return;
+        }
+
+        studentSheetSelect.innerHTML = '<option value="">Carregando turmas...</option>';
+
+        getAvailableSheetsHybrid().then(function (sheetNames) {
+            studentSheetSelect.innerHTML = (sheetNames.length
+                ? '<option value="">Selecione sua turma</option>'
+                : '<option value="">Nenhuma turma encontrada</option>')
+                + sheetNames.map(function (sheetName) {
+                    return '<option value="' + escapeHtml(sheetName) + '">' + escapeHtml(sheetName) + '</option>';
+                }).join('');
+
+            if (preservedValue && sheetNames.indexOf(preservedValue) !== -1) {
+                studentSheetSelect.value = preservedValue;
+            } else {
+                studentSheetSelect.value = '';
+            }
+
+            syncSelectedSheetMetadata();
+            populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
+        });
     }
 
     function fetchProtectedStudentNames(filters) {
@@ -700,6 +844,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 action: 'getStudentNames',
+                sheetName: filters.sheetName || '',
                 serie: filters.serie || '',
                 turma: filters.turma || '',
                 trilha: filters.trilha || '',
@@ -755,17 +900,26 @@
             return;
         }
 
+        const sheetName = getFieldValue('studentSheet');
         const serie = getFieldValue('studentGrade');
         const turma = getFieldValue('studentClass');
         const trilha = getFieldValue('studentTrail');
         const requestToken = ++studentOptionsRequestToken;
 
+        if (!sheetName) {
+            studentNameSelect.innerHTML = '<option value="">Selecione primeiro a turma</option><option value="__OTHER__">Meu nome não está na lista</option>';
+            return;
+        }
+
         studentNameSelect.innerHTML = '<option value="">Carregando nomes...</option><option value="__OTHER__">Meu nome não está na lista</option>';
 
-        getStudentNamesHybrid({ serie: serie, turma: turma, trilha: trilha }).then(function (names) {
+        getStudentNamesHybrid({ sheetName: sheetName, serie: serie, turma: turma, trilha: trilha }).then(function (names) {
             if (requestToken !== studentOptionsRequestToken) {
                 return;
             }
+    function resolveSelectedSheetName() {
+        return getFieldValue('studentSheet');
+    }
 
             studentNameSelect.innerHTML = (names.length
                 ? '<option value="">Selecione o nome</option>'
@@ -1740,7 +1894,7 @@
 
     function bindFormPersistence() {
         [
-            'conclusionText', 'studentTrail', 'studentName', 'studentNameSelect', 'studentNameManual', 'studentGrade', 'studentClass', 'schoolTerm', 'studentEmail',
+            'conclusionText', 'studentSheet', 'studentTrail', 'studentName', 'studentNameSelect', 'studentNameManual', 'studentGrade', 'studentClass', 'schoolTerm', 'studentEmail',
             'criticismInput', 'suggestionInput', 'finalConclusion'
         ].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
@@ -1781,6 +1935,7 @@
             selectedOption: selectedOption ? selectedOption.dataset.value : '',
             view: getCurrentView(),
             formState: {
+                            studentSheet: getFieldValue('studentSheet'),
                             studentTrail: getFieldValue('studentTrail'),
                             studentName: getFieldValue('studentName'),
                             studentNameSelect: getFieldValue('studentNameSelect'),
@@ -1966,7 +2121,9 @@
             }
             field.value = formState[fieldId] || '';
         });
+        syncSelectedSheetMetadata();
         loadStudentDatabase().then(function () {
+            populateSimulationSheetOptions(getFieldValue('studentSheet'));
             populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
             syncResolvedStudentName();
         });
@@ -2111,6 +2268,11 @@
 
     function resolveSimulationSheetName(studentGrade, studentClass, studentTrail) {
         const studentSource = getStudentSource();
+        const explicitSheetName = resolveSelectedSheetName();
+        if (explicitSheetName) {
+            return explicitSheetName;
+        }
+
         if (studentTrail && !['Outra', 'Nenhuma (Turma de Fisica)'].includes(studentTrail) && studentSource.bySheet[studentTrail]) {
             return studentTrail;
         }
@@ -2368,6 +2530,7 @@
         const resolvedStudentName = getResolvedStudentName();
         const formData = {
             studentName: resolvedStudentName,
+            studentSheet: getFieldValue('studentSheet'),
             studentGrade: getFieldValue('studentGrade'),
             studentClass: getFieldValue('studentClass'),
             studentTrail: getFieldValue('studentTrail') || '',
@@ -2395,8 +2558,8 @@
                         alert('Para enviar como estudante, libere o acesso por senha.');
                         return;
                     }
-                    if (!formData.studentName || !formData.studentGrade || !formData.studentClass || !formData.schoolTerm || !formData.finalConclusion) {
-                        alert('Preencha nome, série, turma, bimestre e conclusão antes de enviar.');
+                    if (!formData.studentName || !formData.studentSheet || !formData.schoolTerm || !formData.finalConclusion) {
+                        alert('Preencha nome, turma, bimestre e conclusão antes de enviar.');
                         return;
                     }
                 }
