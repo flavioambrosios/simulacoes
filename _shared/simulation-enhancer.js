@@ -2297,6 +2297,8 @@
     }
 
     function buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore) {
+        const resolvedSheetName = formData.studentSheet || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
+
         return {
             timestamp: new Date().toISOString(),
             serie: formData.studentGrade,
@@ -2307,7 +2309,7 @@
             colunaBimestre: getTermGradeColumn(formData.schoolTerm),
             estudante: formData.studentName,
             estudanteDigitado: getManualStudentName(),
-            sheetName: resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail),
+            sheetName: resolvedSheetName,
             avaliacao: 'Simulacao - ' + simulationName,
             categoria: 'simulacao',
             atividade: simulationName,
@@ -2360,6 +2362,8 @@
     }
 
     function buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore) {
+        const resolvedSheetName = formData.studentSheet || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
+
         return {
             timestamp: new Date().toISOString(),
             serie: formData.studentGrade,
@@ -2373,7 +2377,7 @@
             valorLancamento: finalScore,
             estudante: formData.studentName,
             estudanteDigitado: getManualStudentName(),
-            sheetName: resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail),
+            sheetName: resolvedSheetName,
             avaliacao: 'Nota Bimestral - ' + simulationName,
             categoria: 'nota-bimestral',
             atividade: simulationName,
