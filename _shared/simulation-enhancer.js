@@ -579,6 +579,12 @@
             return Promise.resolve(loadedDatabase);
         }
 
+        // Se a API protegida está configurada, não depender de alunos.js local (evita 404 em produção).
+        const accessConfig = getStudentAccessConfig();
+        if (String(accessConfig.rosterApiUrl || '').trim()) {
+            return Promise.resolve(DEFAULT_DATABASE);
+        }
+
         if (studentDatabaseLoadPromise) {
             return studentDatabaseLoadPromise;
         }
@@ -951,9 +957,13 @@
         return getFieldValue('studentSheet');
     }
 
+            const emptyMessage = shouldUseProtectedRosterApi()
+                ? 'Nenhum nome encontrado para este recorte'
+                : 'Libere o modo estudante para carregar os nomes da turma';
+
             studentNameSelect.innerHTML = (names.length
                 ? '<option value="">Selecione o nome</option>'
-                : '<option value="">Nenhum nome encontrado para este recorte</option>')
+                : '<option value="">' + escapeHtml(emptyMessage) + '</option>')
                 + names.map(function (name) {
                     return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
                 }).join('')
