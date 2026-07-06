@@ -39,7 +39,7 @@
         passwordHash: 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1',
         hint: 'Solicite ao professor a senha de acesso do estudante.',
         rosterApiUrl: 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec',
-        apiTimeoutMs: 6000,
+        apiTimeoutMs: 20000,
         rosterCacheTtlMs: 15000
     };
     const STUDENT_ACCESS_SESSION_KEY = 'simulationEnhancer:student-access-auth';
@@ -731,7 +731,7 @@
         rosterSheetsCache = null;
 
         const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
-        const timeoutMs = Math.max(1500, Number(config.apiTimeoutMs || 6000));
+        const timeoutMs = Math.max(6000, Number(config.apiTimeoutMs || 20000));
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = controller
             ? window.setTimeout(function () { controller.abort(); }, timeoutMs)
@@ -746,6 +746,19 @@
             }),
             signal: controller ? controller.signal : undefined
         })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'getAvailableSheets',
+                            accessToken: token
+                        })
+                    });
+                }
+                throw error;
+            })
             .then(function (response) {
                 if (!response.ok) {
                     throw new Error('Resposta inválida da API protegida: HTTP ' + response.status);
@@ -833,7 +846,7 @@
 
         const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
 
-        const timeoutMs = Math.max(1500, Number(config.apiTimeoutMs || 6000));
+        const timeoutMs = Math.max(6000, Number(config.apiTimeoutMs || 20000));
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const timeoutId = controller
             ? window.setTimeout(function () { controller.abort(); }, timeoutMs)
@@ -852,6 +865,23 @@
             }),
             signal: controller ? controller.signal : undefined
         })
+            .catch(function (error) {
+                if (error && error.name === 'AbortError') {
+                    return fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({
+                            action: 'getStudentNames',
+                            sheetName: filters.sheetName || '',
+                            serie: filters.serie || '',
+                            turma: filters.turma || '',
+                            trilha: filters.trilha || '',
+                            accessToken: token
+                        })
+                    });
+                }
+                throw error;
+            })
             .then(function (response) {
                 if (!response.ok) {
                     throw new Error('Resposta inválida da API protegida: HTTP ' + response.status);
