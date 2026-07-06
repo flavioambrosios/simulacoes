@@ -739,7 +739,7 @@
 
         return fetch(apiUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
                 action: 'getAvailableSheets',
                 accessToken: token
@@ -841,7 +841,7 @@
 
         return fetch(apiUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
                 action: 'getStudentNames',
                 sheetName: filters.sheetName || '',
