@@ -9,6 +9,7 @@ Mapa mental do arquivo para iniciantes:
 """
 
 import base64
+import hashlib
 import json
 import logging
 import os
@@ -122,6 +123,19 @@ BIMESTER_OPTIONS = [
     {"label": "3o bimestre", "value": "3o bimestre"},
     {"label": "4o bimestre", "value": "4o bimestre"},
 ]
+STUDENT_ACCESS_SALT = "EDU-DIGITAL-2026"
+STUDENT_ACCESS_PASSWORD_HASH = "ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55"
+
+
+def hash_student_access_password(raw_password):
+    seed = f"{STUDENT_ACCESS_SALT}{raw_password or ''}"
+    return hashlib.sha256(seed.encode("utf-8")).hexdigest()
+
+
+def is_student_access_granted(access_state):
+    if not isinstance(access_state, dict):
+        return False
+    return bool(access_state.get("authenticated"))
 
 
 # Funções deste primeiro bloco fazem a tradução entre tabela da interface e vetores numéricos.
@@ -1031,14 +1045,14 @@ def build_final_session_payload(
         "simulacao": SIMULATION_NAME,
         "questoes_puladas": skipped,
         "acertos_erros": f"{correct}/{max(total - correct, 0)}",
-        "nota": f"{score_percent}%",
+        "nota": score_percent,
         "conclusao": (final_conclusion or "").strip(),
         "criticas": (criticism or "").strip(),
         "sugestoes": (suggestion or "").strip(),
         "email": (student_email or "").strip(),
         "to_email": PROFESSOR_EMAIL,
         "nome_aluno": (student_name or "").strip() or "Nao informado",
-        "acertos": f"{correct}/{total}",
+        "acertos": correct,
         "data_envio": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         "total_questoes": total,
         "tentativas_totais": total_attempts,
@@ -1055,7 +1069,12 @@ def send_final_session_results(payload, student_email):
     success = success and sheet_ok
     messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
 
-    class_ok, class_message = send_final_session_to_class_worksheet(payload)
+    is_visitor = normalize_text(payload.get("serie", "")) == "visitante"
+
+    if is_visitor:
+        class_ok, class_message = True, "modo visitante: sem atualizacao de aba da turma"
+    else:
+        class_ok, class_message = send_final_session_to_class_worksheet(payload)
     success = success and class_ok
     messages.append("aba da turma ok" if class_ok else f"aba turma: {class_message}")
 
@@ -1069,8 +1088,8 @@ def send_final_session_results(payload, student_email):
         student_copy["to_email"] = student_email
         student_copy["mensagem"] = (
             f"Confirmação de envio - {SIMULATION_NAME}\n"
-            f"Nota: {payload.get('nota', '0%')}\n"
-            f"Acertos: {payload.get('acertos', '0/0')}\n"
+            f"Nota: {payload.get('nota', 0)}\n"
+            f"Acertos: {payload.get('acertos', 0)}/{payload.get('total_questoes', 0)}\n"
             f"Questões puladas: {payload.get('questoes_puladas', 0)}"
         )
         copy_ok, copy_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, student_copy)
@@ -2836,7 +2855,58 @@ app.layout = html.Div(
                                         html.Div(
                                             [
                                                 html.H4("Resultados da sessão", style={"marginTop": "0"}),
+                                                dcc.Store(id="student-access-store", storage_type="session", data={"authenticated": False}),
                                                 html.Div(id="exercise-results-summary", children=build_session_results_summary(initial_exercise_session)),
+                                                html.Div(
+                                                    [
+                                                        html.Label("Modo de envio"),
+                                                        dcc.RadioItems(
+                                                            id="submission-mode",
+                                                            options=[
+                                                                {"label": "Visitante", "value": "visitor"},
+                                                                {"label": "Estudante", "value": "student"},
+                                                            ],
+                                                            value="visitor",
+                                                            persistence=True,
+                                                            persistence_type="session",
+                                                            inline=True,
+                                                            style={"marginTop": "8px"},
+                                                        ),
+                                                    ],
+                                                    style={"marginTop": "12px"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Label("Senha de estudante"),
+                                                        html.Div(
+                                                            [
+                                                                dcc.Input(
+                                                                    id="student-access-password",
+                                                                    type="password",
+                                                                    value="",
+                                                                    placeholder="Digite a senha para liberar o modo estudante",
+                                                                    style={
+                                                                        "flex": "1 1 280px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                                html.Button("Liberar acesso", id="student-unlock-btn", n_clicks=0),
+                                                            ],
+                                                            style={"display": "flex", "gap": "10px", "flexWrap": "wrap", "alignItems": "center", "marginTop": "8px"},
+                                                        ),
+                                                        html.Div(
+                                                            id="student-access-status",
+                                                            children="Modo visitante ativo. Para usar listas de estudantes, selecione Estudante e informe a senha.",
+                                                            style={"marginTop": "8px", "fontWeight": "bold", "color": "#b45309"},
+                                                        ),
+                                                    ],
+                                                    id="student-auth-section",
+                                                    style={"marginTop": "12px", "display": "none"},
+                                                ),
+                                                html.Div(
+                                                    [
                                                 html.Div(
                                                     [
                                                         html.Div(
@@ -2962,6 +3032,58 @@ app.layout = html.Div(
                                                         ),
                                                     ],
                                                     style={"marginTop": "18px"},
+                                                ),
+                                                    ],
+                                                    id="student-fields-section",
+                                                    style={"display": "none"},
+                                                ),
+                                                html.Div(
+                                                    [
+                                                        html.Div(
+                                                            [
+                                                                html.Label("Nome do visitante"),
+                                                                dcc.Input(
+                                                                    id="visitor-name",
+                                                                    type="text",
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="Digite seu nome",
+                                                                    style={
+                                                                        "width": "100%",
+                                                                        "marginTop": "8px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 280px"},
+                                                        ),
+                                                        html.Div(
+                                                            [
+                                                                html.Label("E-mail do visitante (opcional)"),
+                                                                dcc.Input(
+                                                                    id="visitor-email",
+                                                                    type="email",
+                                                                    value="",
+                                                                    persistence=True,
+                                                                    persistence_type="local",
+                                                                    placeholder="seu@email.com",
+                                                                    style={
+                                                                        "width": "100%",
+                                                                        "marginTop": "8px",
+                                                                        "padding": "10px 12px",
+                                                                        "borderRadius": "12px",
+                                                                        "border": "1px solid #cbd5e1",
+                                                                    },
+                                                                ),
+                                                            ],
+                                                            style={"flex": "1 1 280px"},
+                                                        ),
+                                                    ],
+                                                    id="visitor-fields-section",
+                                                    style={"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
                                                 ),
                                                 html.Div(
                                                     [
@@ -3677,16 +3799,93 @@ def sync_student_name_options(student_track, student_grade, student_class, curre
 
 
 @app.callback(
+    Output("student-access-store", "data"),
+    Output("student-access-status", "children"),
+    Output("student-access-status", "style"),
+    Input("student-unlock-btn", "n_clicks"),
+    State("student-access-password", "value"),
+    State("student-access-store", "data"),
+    prevent_initial_call=True,
+)
+def unlock_student_mode(unlock_clicks, raw_password, access_state):
+    _ = unlock_clicks
+    base_style = {"marginTop": "8px", "fontWeight": "bold"}
+    state = access_state if isinstance(access_state, dict) else {"authenticated": False}
+
+    if is_student_access_granted(state):
+        return state, "Acesso de estudante liberado para esta sessao.", dict(base_style, color="#15803d")
+
+    if hash_student_access_password(raw_password) == STUDENT_ACCESS_PASSWORD_HASH:
+        new_state = {
+            "authenticated": True,
+            "authenticated_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        }
+        return new_state, "Acesso de estudante liberado para esta sessao.", dict(base_style, color="#15803d")
+
+    return state, "Senha incorreta. Modo visitante continua ativo.", dict(base_style, color="#b91c1c")
+
+
+@app.callback(
+    Output("student-auth-section", "style"),
+    Output("student-fields-section", "style"),
+    Output("visitor-fields-section", "style"),
+    Output("submission-mode", "value"),
+    Output("student-access-status", "children", allow_duplicate=True),
+    Output("student-access-status", "style", allow_duplicate=True),
+    Input("submission-mode", "value"),
+    Input("student-access-store", "data"),
+    prevent_initial_call=False,
+)
+def sync_submission_mode_sections(submission_mode, access_state):
+    mode = (submission_mode or "visitor").strip().lower()
+    authenticated = is_student_access_granted(access_state)
+    base_status_style = {"marginTop": "8px", "fontWeight": "bold"}
+
+    if mode == "student":
+        if authenticated:
+            return (
+                {"marginTop": "12px", "display": "none"},
+                {"display": "block"},
+                {"display": "none"},
+                "student",
+                "Acesso de estudante liberado para esta sessao.",
+                dict(base_status_style, color="#15803d"),
+            )
+
+        return (
+            {"marginTop": "12px", "display": "block"},
+            {"display": "none"},
+            {"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
+            "visitor",
+            "Para proteger os dados da turma, o modo estudante exige senha. Modo visitante ativo.",
+            dict(base_status_style, color="#b45309"),
+        )
+
+    return (
+        {"marginTop": "12px", "display": "none"},
+        {"display": "none"},
+        {"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
+        "visitor",
+        "Modo visitante ativo. Para usar listas de estudantes, selecione Estudante e informe a senha.",
+        dict(base_status_style, color="#b45309"),
+    )
+
+
+@app.callback(
     Output("send-results-status", "children"),
     Output("send-results-status", "style"),
     Input("send-results-btn", "n_clicks"),
     State("exercise-store", "data"),
+    State("submission-mode", "value"),
+    State("student-access-store", "data"),
     State("student-name", "value"),
     State("student-track", "value"),
     State("student-grade", "value"),
     State("student-class", "value"),
     State("student-bimester", "value"),
     State("student-email", "value"),
+    State("visitor-name", "value"),
+    State("visitor-email", "value"),
     State("criticism-input", "value"),
     State("suggestion-input", "value"),
     State("final-conclusion-input", "value"),
@@ -3695,16 +3894,21 @@ def sync_student_name_options(student_track, student_grade, student_class, curre
 def handle_final_results_send(
     send_results_clicks,
     exercise_data,
+    submission_mode,
+    access_state,
     student_name,
     student_track,
     student_grade,
     student_class,
     student_bimester,
     student_email,
+    visitor_name,
+    visitor_email,
     criticism,
     suggestion,
     final_conclusion,
 ):
+    _ = send_results_clicks
     session_data = normalize_exercise_session(exercise_data)
     status_style = {"minHeight": "24px", "fontWeight": "bold"}
 
@@ -3712,29 +3916,44 @@ def handle_final_results_send(
     if session_data.get("stage") != "results":
         return "Finalize primeiro a sessão de exercícios para liberar o envio.", dict(status_style, color="#b91c1c")
 
-    if (
-        not (student_name or "").strip()
-        or not (student_grade or "").strip()
-        or not (student_class or "").strip()
-        or not (student_bimester or "").strip()
-        or not (final_conclusion or "").strip()
-    ):
-        return "Preencha nome, serie, turma, bimestre e conclusao final antes de enviar.", dict(status_style, color="#b91c1c")
+    mode = (submission_mode or "visitor").strip().lower()
+    is_student_mode = mode == "student" and is_student_access_granted(access_state)
+
+    if mode == "student" and not is_student_mode:
+        return "Modo estudante exige senha válida. Libere o acesso ou envie como visitante.", dict(status_style, color="#b91c1c")
+
+    final_name = (student_name or "").strip() if is_student_mode else (visitor_name or "").strip()
+    final_email = (student_email or "").strip() if is_student_mode else (visitor_email or "").strip()
+    final_track = (student_track or "").strip() if is_student_mode else "Visitante"
+    final_grade = (student_grade or "").strip() if is_student_mode else "Visitante"
+    final_class = (student_class or "").strip() if is_student_mode else "Visitante"
+    final_bimester = (student_bimester or "").strip() if is_student_mode else "Visitante"
+
+    if not (final_conclusion or "").strip():
+        return "Preencha a conclusao final antes de enviar.", dict(status_style, color="#b91c1c")
+
+    if not final_name:
+        if is_student_mode:
+            return "Preencha nome do estudante antes de enviar.", dict(status_style, color="#b91c1c")
+        return "Preencha nome do visitante antes de enviar.", dict(status_style, color="#b91c1c")
+
+    if is_student_mode and (not final_grade or not final_class or not final_bimester):
+        return "No modo estudante, preencha serie, turma e bimestre antes de enviar.", dict(status_style, color="#b91c1c")
 
     payload = build_final_session_payload(
         session_data,
-        student_name,
-        student_track,
-        student_grade,
-        student_class,
-        student_bimester,
-        student_email,
+        final_name,
+        final_track,
+        final_grade,
+        final_class,
+        final_bimester,
+        final_email,
         criticism,
         suggestion,
         final_conclusion,
     )
     # Este é o fechamento do fluxo pedagógico: consolida a sessão e dispara gravação + comunicações.
-    success, message = send_final_session_results(payload, student_email)
+    success, message = send_final_session_results(payload, final_email)
 
     if success:
         return "✅ Resultados enviados com sucesso para a planilha e para os e-mails.", dict(status_style, color="#15803d")
