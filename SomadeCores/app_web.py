@@ -288,6 +288,89 @@ def load_student_database():
     }
 
 
+def should_skip_student_worksheet(title):
+    normalized = normalize_text(title).strip()
+    return normalized in {
+        "app web",
+        "app web resultados",
+    }
+
+
+def normalize_student_name_list(names):
+    unique_names = sorted({name.strip() for name in names if (name or "").strip()}, key=normalize_text)
+    return unique_names
+
+
+def load_student_database_from_google_sheets():
+    # Quando possível, usa a planilha Google como fonte principal dos nomes de estudantes.
+    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
+
+    if not is_google_sheets_configured():
+        return empty_database
+
+    try:
+        spreadsheet = get_google_spreadsheet()
+        worksheets = spreadsheet.worksheets()
+    except Exception:
+        logging.exception("Nao foi possivel ler o banco de alunos da planilha Google.")
+        return empty_database
+
+    by_sheet = {}
+    by_serie_turma = {}
+    by_trilha = {}
+
+    for worksheet in worksheets:
+        title = (worksheet.title or "").strip()
+        if not title or should_skip_student_worksheet(title):
+            continue
+
+        try:
+            column_values = worksheet.col_values(2)
+        except Exception:
+            logging.exception("Falha ao ler coluna de estudantes da aba %s.", title)
+            continue
+
+        if len(column_values) <= 2:
+            continue
+
+        names = normalize_student_name_list(column_values[2:])
+        if not names:
+            continue
+
+        by_sheet[title] = names
+
+        regular_match = re.match(r"^([123]o ano)\s+([A-Z])$", title)
+        if regular_match:
+            by_serie_turma[f"{regular_match.group(1)}|{regular_match.group(2)}"] = names
+        else:
+            by_trilha[title] = names
+
+    return {
+        "bySheet": by_sheet,
+        "bySerieTurma": by_serie_turma,
+        "byTrilha": by_trilha,
+    }
+
+
+def merge_student_databases(local_database, google_database):
+    merged = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
+
+    for key in ("bySheet", "bySerieTurma", "byTrilha"):
+        combined = {}
+
+        for source in (local_database.get(key, {}), google_database.get(key, {})):
+            for group_name, names in source.items():
+                current = combined.setdefault(group_name, set())
+                current.update(name for name in names if (name or "").strip())
+
+        merged[key] = {
+            group_name: sorted({name.strip() for name in names}, key=normalize_text)
+            for group_name, names in combined.items()
+        }
+
+    return merged
+
+
 def build_track_options(student_database):
     options = [{"label": "Turma regular (sem trilha)", "value": ""}]
     track_names = set(student_database.get("byTrilha", {}).keys())
@@ -347,7 +430,8 @@ def build_student_name_options(track_name, student_grade, student_class):
     return [{"label": name, "value": name} for name in unique_names]
 
 
-STUDENT_DATABASE = load_student_database()
+STUDENT_DATABASE_LOCAL = load_student_database()
+STUDENT_DATABASE = STUDENT_DATABASE_LOCAL
 TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
 CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
 
@@ -487,6 +571,20 @@ def get_google_final_results_worksheet():
     return get_google_worksheet_with_headers(worksheet_name, FINAL_SESSION_HEADERS)
 
 
+def refresh_student_database_from_sources():
+    global STUDENT_DATABASE
+    global TRACK_OPTIONS
+    global CLASS_OPTIONS
+
+    google_database = load_student_database_from_google_sheets()
+    STUDENT_DATABASE = merge_student_databases(STUDENT_DATABASE_LOCAL, google_database)
+    TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
+    CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
+
+
+refresh_student_database_from_sources()
+
+
 def send_submission_to_google_sheets(submission):
     if not is_google_sheets_configured():
         return False, "Integracao com Google Sheets nao configurada neste deploy."
@@ -576,9 +674,9 @@ def format_grade_10(value):
         return ""
 
     if abs(numeric_value - round(numeric_value)) < 1e-9:
-        return str(int(round(numeric_value)))
+        return int(round(numeric_value))
 
-    return f"{numeric_value:.2f}".rstrip("0").rstrip(".").replace(".", ",")
+    return float(f"{numeric_value:.2f}".rstrip("0").rstrip("."))
 
 
 def is_bimester_label(value):
@@ -951,25 +1049,19 @@ def build_final_session_payload(
 def send_final_session_results(payload, student_email):
     # O envio completo é um encadeamento: salva a sessão, atualiza a turma e dispara as comunicações.
     messages = []
-    warnings = []
+    success = True
 
     sheet_ok, sheet_message = send_final_session_to_google_sheets(payload)
-    if not sheet_ok:
-        return False, f"planilha: {sheet_message}"
-
-    messages.append("planilha principal ok")
+    success = success and sheet_ok
+    messages.append("planilha ok" if sheet_ok else f"planilha: {sheet_message}")
 
     class_ok, class_message = send_final_session_to_class_worksheet(payload)
-    if class_ok:
-        messages.append("aba da turma ok")
-    else:
-        warnings.append(f"aba turma: {class_message}")
+    success = success and class_ok
+    messages.append("aba da turma ok" if class_ok else f"aba turma: {class_message}")
 
     email_ok, email_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, payload)
-    if email_ok:
-        messages.append("email do professor ok")
-    else:
-        warnings.append(f"email professor: {email_message}")
+    success = success and email_ok
+    messages.append("email do professor ok" if email_ok else f"email professor: {email_message}")
 
     student_email = (student_email or "").strip()
     if student_email:
@@ -982,15 +1074,10 @@ def send_final_session_results(payload, student_email):
             f"Questões puladas: {payload.get('questoes_puladas', 0)}"
         )
         copy_ok, copy_message = post_json_to_apps_script(EMAIL_SCRIPT_URL, student_copy)
-        if copy_ok:
-            messages.append("copia para estudante ok")
-        else:
-            warnings.append(f"copia estudante: {copy_message}")
+        success = success and copy_ok
+        messages.append("copia para estudante ok" if copy_ok else f"copia estudante: {copy_message}")
 
-    if warnings:
-        return True, " | ".join(messages + ["avisos: " + " ; ".join(warnings)])
-
-    return True, " | ".join(messages)
+    return success, " | ".join(messages)
 
 
 def append_feedback_detail(feedback, detail):
@@ -3650,8 +3737,7 @@ def handle_final_results_send(
     success, message = send_final_session_results(payload, student_email)
 
     if success:
-        status_color = "#b45309" if "avisos:" in message else "#15803d"
-        return f"✅ {message}", dict(status_style, color=status_color)
+        return "✅ Resultados enviados com sucesso para a planilha e para os e-mails.", dict(status_style, color="#15803d")
 
     return f"❌ O envio não foi concluído por completo: {message}", dict(status_style, color="#b91c1c")
 
