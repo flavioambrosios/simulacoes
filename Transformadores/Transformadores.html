@@ -1491,8 +1491,8 @@
         }
         if(type === 'relacao_correntes'){
             const invRatio = (np/ns).toFixed(2);
-            const answer = `Ip/Is = ${(1/ratio).toFixed(2)}`;
-            const opts = [`Ip/Is = ${(1/ratio).toFixed(2)}`, `Ip/Is = ${ratio.toFixed(2)}`, `Ip/Is = ${(ratio*1.2).toFixed(2)}`, `Ip/Is = ${(1/(ratio*1.2)).toFixed(2)}`, `Ip/Is = ${(ratio+0.5).toFixed(2)}`];
+            const answer = `Ip/Is = ${ratio.toFixed(2)}`;
+            const opts = [`Ip/Is = ${ratio.toFixed(2)}`, `Ip/Is = ${(ratio*1.2).toFixed(2)}`, `Ip/Is = ${(1/(ratio*1.2)).toFixed(2)}`, `Ip/Is = ${(ratio+0.5).toFixed(2)}`, `Ip/Is = ${invRatio}`];
             return {
                 type, question: `Para um transformador ideal com relação de espiras Np/Ns = ${invRatio}, qual a relação entre as correntes Ip/Is?`,
                 answer: answer, options: opts
