@@ -3834,7 +3834,7 @@ def unlock_student_mode(unlock_clicks, raw_password, access_state):
     Output("student-access-status", "style", allow_duplicate=True),
     Input("submission-mode", "value"),
     Input("student-access-store", "data"),
-    prevent_initial_call=False,
+    prevent_initial_call="initial_duplicate",
 )
 def sync_submission_mode_sections(submission_mode, access_state):
     mode = (submission_mode or "visitor").strip().lower()
