@@ -251,6 +251,9 @@
             studentNameSelect: getFieldValue('studentNameSelect'),
             studentNameManual: getFieldValue('studentNameManual') || getFieldValue('studentName'),
             studentEmail: getFieldValue('studentEmail'),
+            visitorName: getFieldValue('visitorName'),
+            visitorEmail: getFieldValue('visitorEmail'),
+            visitorMode: getCheckboxValue('visitorMode'),
             schoolTerm: getFieldValue('schoolTerm'),
             criticismInput: getFieldValue('criticismInput'),
             suggestionInput: getFieldValue('suggestionInput'),
@@ -304,6 +307,16 @@
                     '</select>',
                     '</div>',
                     '</div>',
+                    '<div id="visitorFieldsArea" class="enhancer-visitor-fields enhancer-hidden">',
+                    '<div class="form-row">',
+                    '<label for="visitorName" class="required">Nome do visitante:</label>',
+                    '<input type="text" id="visitorName" placeholder="Digite seu nome completo">',
+                    '</div>',
+                    '<div class="form-row">',
+                    '<label for="visitorEmail">E-mail do visitante (opcional):</label>',
+                    '<input type="email" id="visitorEmail" placeholder="seu@email.com">',
+                    '</div>',
+                    '</div>',
                     '<div class="form-row">',
                     '<label for="criticismInput">Críticas:</label>',
                     '<textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>',
@@ -334,8 +347,10 @@
 
     function setupVisitorModeToggle() {
             const visitorCheckbox = document.getElementById('visitorMode');
-            const fieldsArea = document.getElementById('studentFieldsArea');
-            if (!visitorCheckbox || !fieldsArea) {
+            const studentFieldsArea = document.getElementById('studentFieldsArea');
+            const visitorFieldsArea = document.getElementById('visitorFieldsArea');
+            const visitorName = document.getElementById('visitorName');
+            if (!visitorCheckbox || !studentFieldsArea || !visitorFieldsArea) {
                 return;
             }
 
@@ -345,20 +360,19 @@
                     updateStudentAccessStatus('Para usar o modo estudante, informe a senha.', 'error');
                 }
                 const isVisitor = visitorCheckbox.checked;
-                fieldsArea.classList.toggle('enhancer-hidden', isVisitor);
-                const requiredFields = fieldsArea.querySelectorAll('[required]');
+                studentFieldsArea.classList.toggle('enhancer-hidden', isVisitor);
+                visitorFieldsArea.classList.toggle('enhancer-hidden', !isVisitor);
+
+                const requiredFields = studentFieldsArea.querySelectorAll('[required]');
                 requiredFields.forEach(function (field) {
                     field.required = !isVisitor;
                     if (isVisitor) {
                         field.value = '';
                     }
                 });
-                // Quando visitante, mostrar campo de nome manual
-                const manualRow = document.getElementById('studentNameManualRow');
-                const manualInput = document.getElementById('studentNameManual');
-                if (isVisitor && manualRow) {
-                    manualRow.classList.remove('enhancer-hidden');
-                    if (manualInput) manualInput.required = true;
+
+                if (visitorName) {
+                    visitorName.required = isVisitor;
                 }
                 saveExerciseState();
             }
@@ -1935,6 +1949,7 @@
     function bindFormPersistence() {
         [
             'conclusionText', 'studentSheet', 'studentTrail', 'studentName', 'studentNameSelect', 'studentNameManual', 'studentGrade', 'studentClass', 'schoolTerm', 'studentEmail',
+            'visitorName', 'visitorEmail', 'visitorMode',
             'criticismInput', 'suggestionInput', 'finalConclusion'
         ].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
@@ -1984,10 +1999,12 @@
                             studentClass: getFieldValue('studentClass'),
                             schoolTerm: getFieldValue('schoolTerm'),
                             studentEmail: getFieldValue('studentEmail'),
+                            visitorName: getFieldValue('visitorName'),
+                            visitorEmail: getFieldValue('visitorEmail'),
                             criticismInput: getFieldValue('criticismInput'),
                             suggestionInput: getFieldValue('suggestionInput'),
                             finalConclusion: finalConclusion ? finalConclusion.value : '',
-                            visitorMode: document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false
+                            visitorMode: getCheckboxValue('visitorMode')
                         },
             aiAnalysis: lastAiAnalysis
         };
@@ -2159,9 +2176,17 @@
             if (!field) {
                 return;
             }
+            if (field.type === 'checkbox') {
+                field.checked = Boolean(formState[fieldId]);
+                return;
+            }
             field.value = formState[fieldId] || '';
         });
         syncSelectedSheetMetadata();
+        const visitorCheckbox = document.getElementById('visitorMode');
+        if (visitorCheckbox) {
+            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
         loadStudentDatabase().then(function () {
             populateSimulationSheetOptions(getFieldValue('studentSheet'));
             populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
@@ -2172,6 +2197,11 @@
     function getFieldValue(fieldId) {
         const field = document.getElementById(fieldId);
         return field ? field.value.trim() : '';
+    }
+
+    function getCheckboxValue(fieldId) {
+        const field = document.getElementById(fieldId);
+        return !!(field && field.checked);
     }
 
     function setupConclusionPreview() {
@@ -2513,7 +2543,9 @@
         });
     }
 
-    function buildSendJobs(unifiedPayload, legacyPayload, termPayload, professorEmailPayload, studentEmailPayload) {
+    function buildSendJobs(unifiedPayload, legacyPayload, termPayload, professorEmailPayload, studentEmailPayload, options) {
+        const normalizedOptions = options || {};
+        const isVisitor = !!normalizedOptions.isVisitor;
         const jobs = [];
 
         jobs.push({
@@ -2521,7 +2553,7 @@
             promise: postJsonWithResponse(PRIMARY_GRADEBOOK_URL, unifiedPayload)
         });
 
-        if (TERM_GRADEBOOK_URL && TERM_GRADEBOOK_URL !== PRIMARY_GRADEBOOK_URL) {
+        if (!isVisitor && TERM_GRADEBOOK_URL && TERM_GRADEBOOK_URL !== PRIMARY_GRADEBOOK_URL) {
             jobs.push({
                 key: 'term',
                 promise: postJsonWithResponse(TERM_GRADEBOOK_URL, termPayload)
@@ -2579,6 +2611,8 @@
             studentClass: getFieldValue('studentClass'),
             studentTrail: getFieldValue('studentTrail') || '',
             studentEmail: getFieldValue('studentEmail'),
+            visitorName: getFieldValue('visitorName'),
+            visitorEmail: getFieldValue('visitorEmail'),
             schoolTerm: getFieldValue('schoolTerm'),
             criticism: getFieldValue('criticismInput'),
             suggestion: getFieldValue('suggestionInput'),
@@ -2588,15 +2622,18 @@
         const isVisitor = document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false;
 
                 if (isVisitor) {
-                    if (!formData.studentName || !formData.finalConclusion) {
+                    if (!formData.visitorName || !formData.finalConclusion) {
                         alert('Preencha o nome e a conclusão antes de enviar.');
                         return;
                     }
                     // Para visitantes, usar valores padrão
+                    formData.studentName = formData.visitorName;
+                    formData.studentEmail = formData.visitorEmail;
                     formData.studentGrade = 'Visitante';
                     formData.studentClass = 'Visitante';
                     formData.schoolTerm = 'Visitante';
                     formData.studentTrail = 'Visitante';
+                    formData.studentSheet = '';
                 } else {
                     if (!isStudentAccessAuthenticated()) {
                         alert('Para enviar como estudante, libere o acesso por senha.');
@@ -2641,7 +2678,14 @@
             sendButton.textContent = 'Enviando...';
         }
 
-        const sendJobs = buildSendJobs(unifiedPayload, legacyPayload, termPayload, professorEmailPayload, studentEmailPayload);
+        const sendJobs = buildSendJobs(
+            unifiedPayload,
+            legacyPayload,
+            termPayload,
+            professorEmailPayload,
+            studentEmailPayload,
+            { isVisitor: isVisitor }
+        );
 
         Promise.allSettled(sendJobs.map(function (job) {
             return job.promise;
