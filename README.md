@@ -115,6 +115,7 @@ Todas as simulações compartilham um sistema unificado de apoio pedagógico.
 ### Coleta e Análise Pedagógica
 
 - Envio de resultados para Google Sheets via Apps Script.
+- Lista de turmas e estudantes priorizada via API protegida do Google (modo Google-only em produção, sem dependência de alunos.js no site publicado).
 - Análise automatizada de respostas discursivas.
 - Indicador composto de desempenho (itens objetivos e subjetivos).
 - Modo visitante para participação sem vínculo nominal.

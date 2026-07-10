@@ -31,7 +31,8 @@
     const DEFAULT_DATABASE = {
         bySheet: {},
         bySerieTurma: {},
-        byTrilha: {}
+        byTrilha: {},
+        accessControl: {}
     };
     const DEFAULT_STUDENT_ACCESS_CONFIG = {
         enabled: true,
@@ -654,6 +655,10 @@
     }
 
     function loadStudentDatabase() {
+        if (isGoogleOnlyRosterMode()) {
+            return Promise.resolve(DEFAULT_DATABASE);
+        }
+
         const loadedDatabase = readGlobalBinding('STUDENT_DATABASE');
         if (loadedDatabase) {
             return Promise.resolve(loadedDatabase);
@@ -706,6 +711,23 @@
 
     function getStudentSource() {
         return readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE;
+    }
+
+    function getRosterSourceMode() {
+        const externalMode = window.SIMULATION_ENHANCER_ROSTER_MODE
+            || readGlobalBinding('SIMULATION_ENHANCER_ROSTER_MODE')
+            || config.rosterSourceMode
+            || '';
+
+        const normalized = String(externalMode || '').trim().toLowerCase();
+        if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
+            return normalized;
+        }
+        return 'google-only';
+    }
+
+    function isGoogleOnlyRosterMode() {
+        return getRosterSourceMode() === 'google-only';
     }
 
     function getLocalAvailableSheets() {
@@ -876,6 +898,17 @@
 
     function getAvailableSheetsHybrid() {
         const localSheets = getLocalAvailableSheets();
+
+        if (isGoogleOnlyRosterMode()) {
+            if (!shouldUseProtectedRosterApi()) {
+                return Promise.resolve([]);
+            }
+            return fetchProtectedAvailableSheets().catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
+                return [];
+            });
+        }
+
         if (!shouldUseProtectedRosterApi()) {
             return Promise.resolve(localSheets);
         }
@@ -999,6 +1032,17 @@
 
     function getStudentNamesHybrid(filters) {
         const localNames = getLocalStudentNames(filters);
+
+        if (isGoogleOnlyRosterMode()) {
+            if (!shouldUseProtectedRosterApi()) {
+                return Promise.resolve([]);
+            }
+            return fetchProtectedStudentNames(filters).catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
+                return [];
+            });
+        }
+
         if (!shouldUseProtectedRosterApi()) {
             return Promise.resolve(localNames);
         }
@@ -1033,9 +1077,6 @@
             if (requestToken !== studentOptionsRequestToken) {
                 return;
             }
-    function resolveSelectedSheetName() {
-        return getFieldValue('studentSheet');
-    }
 
             const emptyMessage = shouldUseProtectedRosterApi()
                 ? 'Nenhum nome encontrado para este recorte'

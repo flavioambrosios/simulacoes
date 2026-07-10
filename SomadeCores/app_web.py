@@ -112,6 +112,9 @@ SESSION_EXERCISE_TYPES = [
     "real-world-correlation",
 ]
 STUDENT_DATABASE_PATH = Path(__file__).resolve().parents[1] / "AvaliacaoBimestralEducacaoDigital" / "alunos.js"
+STUDENT_DATABASE_MODE = (os.getenv("STUDENT_DATABASE_MODE") or "google-only").strip().lower()
+if STUDENT_DATABASE_MODE not in {"google-only", "merge", "local-only"}:
+    STUDENT_DATABASE_MODE = "google-only"
 GRADE_OPTIONS = [
     {"label": "1o ano", "value": "1o ano"},
     {"label": "2o ano", "value": "2o ano"},
@@ -124,7 +127,7 @@ BIMESTER_OPTIONS = [
     {"label": "4o bimestre", "value": "4o bimestre"},
 ]
 DEFAULT_STUDENT_ACCESS_SALT = "EDU-DIGITAL-2026"
-DEFAULT_STUDENT_ACCESS_PASSWORD_HASH = "ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55"
+DEFAULT_STUDENT_ACCESS_PASSWORD_HASH = "0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60"
 STUDENT_ACCESS_SALT = DEFAULT_STUDENT_ACCESS_SALT
 STUDENT_ACCESS_PASSWORD_HASH = DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
 
@@ -407,8 +410,11 @@ def refresh_student_access_config(student_database):
     configured_salt = str(access_control.get("salt") or "").strip()
     configured_hash = str(access_control.get("passwordHash") or "").strip().lower()
 
-    STUDENT_ACCESS_SALT = configured_salt or DEFAULT_STUDENT_ACCESS_SALT
-    STUDENT_ACCESS_PASSWORD_HASH = configured_hash or DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
+    env_salt = str(os.getenv("STUDENT_ACCESS_SALT") or "").strip()
+    env_hash = str(os.getenv("STUDENT_ACCESS_PASSWORD_HASH") or "").strip().lower()
+
+    STUDENT_ACCESS_SALT = env_salt or configured_salt or DEFAULT_STUDENT_ACCESS_SALT
+    STUDENT_ACCESS_PASSWORD_HASH = env_hash or configured_hash or DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
 
 
 def build_track_options(student_database):
@@ -470,7 +476,12 @@ def build_student_name_options(track_name, student_grade, student_class):
     return [{"label": name, "value": name} for name in unique_names]
 
 
-STUDENT_DATABASE_LOCAL = load_student_database()
+STUDENT_DATABASE_LOCAL = load_student_database() if STUDENT_DATABASE_MODE in {"merge", "local-only"} else {
+    "bySheet": {},
+    "bySerieTurma": {},
+    "byTrilha": {},
+    "accessControl": {},
+}
 STUDENT_DATABASE = STUDENT_DATABASE_LOCAL
 TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
 CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
@@ -617,7 +628,14 @@ def refresh_student_database_from_sources():
     global CLASS_OPTIONS
 
     google_database = load_student_database_from_google_sheets()
-    STUDENT_DATABASE = merge_student_databases(STUDENT_DATABASE_LOCAL, google_database)
+
+    if STUDENT_DATABASE_MODE == "local-only":
+        STUDENT_DATABASE = STUDENT_DATABASE_LOCAL
+    elif STUDENT_DATABASE_MODE == "merge":
+        STUDENT_DATABASE = merge_student_databases(STUDENT_DATABASE_LOCAL, google_database)
+    else:
+        STUDENT_DATABASE = google_database
+
     refresh_student_access_config(STUDENT_DATABASE)
     TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
     CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
