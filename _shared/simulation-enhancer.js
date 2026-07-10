@@ -2368,7 +2368,7 @@
 
     function buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
-            || (formData.visitorMode ? simulationName : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
+            || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
         return {
             timestamp: new Date().toISOString(),
@@ -2436,7 +2436,7 @@
 
     function buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
-            || (formData.visitorMode ? simulationName : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
+            || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
         return {
             timestamp: new Date().toISOString(),
@@ -2641,7 +2641,7 @@
                     formData.studentClass = 'Visitante';
                     formData.schoolTerm = 'Visitante';
                     formData.studentTrail = 'Visitante';
-                    formData.studentSheet = simulationName;
+                    formData.studentSheet = 'VISITANTE';
                 } else {
                     if (!isStudentAccessAuthenticated()) {
                         alert('Para enviar como estudante, libere o acesso por senha.');
