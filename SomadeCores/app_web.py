@@ -123,8 +123,10 @@ BIMESTER_OPTIONS = [
     {"label": "3o bimestre", "value": "3o bimestre"},
     {"label": "4o bimestre", "value": "4o bimestre"},
 ]
-STUDENT_ACCESS_SALT = "EDU-DIGITAL-2026"
-STUDENT_ACCESS_PASSWORD_HASH = "ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55"
+DEFAULT_STUDENT_ACCESS_SALT = "EDU-DIGITAL-2026"
+DEFAULT_STUDENT_ACCESS_PASSWORD_HASH = "ecb5bbc15dbfec02cd9e9d723a8ddfdd2010c266898074340752eeebb2ea4f55"
+STUDENT_ACCESS_SALT = DEFAULT_STUDENT_ACCESS_SALT
+STUDENT_ACCESS_PASSWORD_HASH = DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
 
 
 def hash_student_access_password(raw_password):
@@ -276,7 +278,7 @@ def infer_grade_class_from_track(track_name):
 
 def load_student_database():
     # O banco de alunos alimenta os seletores do formulário final da sessão.
-    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
+    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}, "accessControl": {}}
 
     try:
         file_text = STUDENT_DATABASE_PATH.read_text(encoding="utf-8")
@@ -299,6 +301,7 @@ def load_student_database():
         "bySheet": parsed.get("bySheet", {}),
         "bySerieTurma": parsed.get("bySerieTurma", {}),
         "byTrilha": parsed.get("byTrilha", {}),
+        "accessControl": parsed.get("accessControl", {}),
     }
 
 
@@ -317,7 +320,7 @@ def normalize_student_name_list(names):
 
 def load_student_database_from_google_sheets():
     # Quando possível, usa a planilha Google como fonte principal dos nomes de estudantes.
-    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
+    empty_database = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}, "accessControl": {}}
 
     if not is_google_sheets_configured():
         return empty_database
@@ -363,11 +366,12 @@ def load_student_database_from_google_sheets():
         "bySheet": by_sheet,
         "bySerieTurma": by_serie_turma,
         "byTrilha": by_trilha,
+        "accessControl": {},
     }
 
 
 def merge_student_databases(local_database, google_database):
-    merged = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}}
+    merged = {"bySheet": {}, "bySerieTurma": {}, "byTrilha": {}, "accessControl": {}}
 
     for key in ("bySheet", "bySerieTurma", "byTrilha"):
         combined = {}
@@ -382,7 +386,29 @@ def merge_student_databases(local_database, google_database):
             for group_name, names in combined.items()
         }
 
+    local_access = local_database.get("accessControl") if isinstance(local_database, dict) else {}
+    google_access = google_database.get("accessControl") if isinstance(google_database, dict) else {}
+    if isinstance(local_access, dict) and local_access:
+        merged["accessControl"] = dict(local_access)
+    elif isinstance(google_access, dict) and google_access:
+        merged["accessControl"] = dict(google_access)
+
     return merged
+
+
+def refresh_student_access_config(student_database):
+    global STUDENT_ACCESS_SALT
+    global STUDENT_ACCESS_PASSWORD_HASH
+
+    access_control = student_database.get("accessControl") if isinstance(student_database, dict) else {}
+    if not isinstance(access_control, dict):
+        access_control = {}
+
+    configured_salt = str(access_control.get("salt") or "").strip()
+    configured_hash = str(access_control.get("passwordHash") or "").strip().lower()
+
+    STUDENT_ACCESS_SALT = configured_salt or DEFAULT_STUDENT_ACCESS_SALT
+    STUDENT_ACCESS_PASSWORD_HASH = configured_hash or DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
 
 
 def build_track_options(student_database):
@@ -592,6 +618,7 @@ def refresh_student_database_from_sources():
 
     google_database = load_student_database_from_google_sheets()
     STUDENT_DATABASE = merge_student_databases(STUDENT_DATABASE_LOCAL, google_database)
+    refresh_student_access_config(STUDENT_DATABASE)
     TRACK_OPTIONS = build_track_options(STUDENT_DATABASE)
     CLASS_OPTIONS = build_class_options(STUDENT_DATABASE)
 
