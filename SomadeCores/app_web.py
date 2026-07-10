@@ -3839,6 +3839,11 @@ def unlock_student_mode(unlock_clicks, raw_password, access_state):
     base_style = {"marginTop": "8px", "fontWeight": "bold"}
     state = access_state if isinstance(access_state, dict) else {"authenticated": False}
 
+    try:
+        refresh_student_database_from_sources()
+    except Exception:
+        logging.exception("Falha ao recarregar configuracao de acesso de estudante.")
+
     if is_student_access_granted(state):
         return state, "Acesso de estudante liberado para esta sessao.", dict(base_style, color="#15803d")
 
