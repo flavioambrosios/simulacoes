@@ -723,7 +723,7 @@
         if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
             return normalized;
         }
-        return 'google-only';
+        return 'merge';
     }
 
     function isGoogleOnlyRosterMode() {

@@ -112,9 +112,9 @@ SESSION_EXERCISE_TYPES = [
     "real-world-correlation",
 ]
 STUDENT_DATABASE_PATH = Path(__file__).resolve().parents[1] / "AvaliacaoBimestralEducacaoDigital" / "alunos.js"
-STUDENT_DATABASE_MODE = (os.getenv("STUDENT_DATABASE_MODE") or "google-only").strip().lower()
+STUDENT_DATABASE_MODE = (os.getenv("STUDENT_DATABASE_MODE") or "merge").strip().lower()
 if STUDENT_DATABASE_MODE not in {"google-only", "merge", "local-only"}:
-    STUDENT_DATABASE_MODE = "google-only"
+    STUDENT_DATABASE_MODE = "merge"
 GRADE_OPTIONS = [
     {"label": "1o ano", "value": "1o ano"},
     {"label": "2o ano", "value": "2o ano"},
@@ -127,7 +127,7 @@ BIMESTER_OPTIONS = [
     {"label": "4o bimestre", "value": "4o bimestre"},
 ]
 DEFAULT_STUDENT_ACCESS_SALT = "EDU-DIGITAL-2026"
-DEFAULT_STUDENT_ACCESS_PASSWORD_HASH = "f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1"
+DEFAULT_STUDENT_ACCESS_PASSWORD_HASH = "0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60"
 STUDENT_ACCESS_SALT = DEFAULT_STUDENT_ACCESS_SALT
 STUDENT_ACCESS_PASSWORD_HASH = DEFAULT_STUDENT_ACCESS_PASSWORD_HASH
 
