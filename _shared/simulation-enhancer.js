@@ -2367,10 +2367,12 @@
     }
 
     function buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore) {
-        const resolvedSheetName = formData.studentSheet || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
+        const resolvedSheetName = formData.studentSheet
+            || (formData.visitorMode ? simulationName : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
         return {
             timestamp: new Date().toISOString(),
+            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             trilha: formData.studentTrail,
@@ -2407,6 +2409,7 @@
     function buildLegacyBackupPayload(formData, scoreData, aiAnalysis, finalScore) {
         return {
             timestamp: new Date().toLocaleString('pt-BR'),
+            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             coluna: getTermGradeColumn(formData.schoolTerm),
@@ -2432,10 +2435,12 @@
     }
 
     function buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore) {
-        const resolvedSheetName = formData.studentSheet || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
+        const resolvedSheetName = formData.studentSheet
+            || (formData.visitorMode ? simulationName : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
         return {
             timestamp: new Date().toISOString(),
+            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             trilha: formData.studentTrail,
@@ -2472,6 +2477,7 @@
     function buildProfessorEmailPayload(formData, scoreData, aiAnalysis, finalScore) {
         return {
             to_email: TEACHER_EMAIL,
+            visitorMode: !!formData.visitorMode,
             nome_aluno: formData.studentName,
             serie: formData.studentGrade,
             turma: formData.studentClass,
@@ -2492,6 +2498,7 @@
     function buildStudentCopyEmailPayload(formData, scoreData, aiAnalysis, finalScore) {
         return {
             to_email: formData.studentEmail,
+            visitorMode: !!formData.visitorMode,
             nome_aluno: formData.studentName,
             serie: formData.studentGrade,
             turma: formData.studentClass,
@@ -2613,6 +2620,7 @@
             studentEmail: getFieldValue('studentEmail'),
             visitorName: getFieldValue('visitorName'),
             visitorEmail: getFieldValue('visitorEmail'),
+            visitorMode: document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false,
             schoolTerm: getFieldValue('schoolTerm'),
             criticism: getFieldValue('criticismInput'),
             suggestion: getFieldValue('suggestionInput'),
@@ -2633,7 +2641,7 @@
                     formData.studentClass = 'Visitante';
                     formData.schoolTerm = 'Visitante';
                     formData.studentTrail = 'Visitante';
-                    formData.studentSheet = '';
+                    formData.studentSheet = simulationName;
                 } else {
                     if (!isStudentAccessAuthenticated()) {
                         alert('Para enviar como estudante, libere o acesso por senha.');
