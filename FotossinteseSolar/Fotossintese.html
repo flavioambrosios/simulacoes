@@ -2029,10 +2029,13 @@ function initSimulation() {
     }
 
     function setupEventListeners() {
-        function bindById(elementId, eventName, handler) {
+        function bindById(elementId, eventName, handler, options) {
             const element = document.getElementById(elementId);
+            const optional = options && options.optional;
             if (!element) {
-                console.warn('[Fotossintese] Elemento nao encontrado para evento:', elementId);
+                if (!optional) {
+                    console.warn('[Fotossintese] Elemento nao encontrado para evento:', elementId);
+                }
                 return;
             }
             element.addEventListener(eventName, handler);
@@ -2068,15 +2071,15 @@ function initSimulation() {
             if (!showPhotons) {
                 photons = [];
             }
-        });
+        }, { optional: true });
 
         bindById('startBtn', 'click', function() {
             isRunning = true;
-        });
+        }, { optional: true });
 
         bindById('pauseBtn', 'click', function() {
             isRunning = false;
-        });
+        }, { optional: true });
 
         bindById('resetBtn', 'click', function() {
             isRunning = false;
@@ -2101,7 +2104,7 @@ function initSimulation() {
             document.getElementById('pigmentSelect').value = pigmentType;
 
             refreshModel();
-        });
+        }, { optional: true });
 
         // [Grade] Event listener
         bindById('gridToggleFotos', 'click', function() {
