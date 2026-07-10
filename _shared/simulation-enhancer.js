@@ -89,6 +89,7 @@
     let speechRequestToken = 0;
     let lastAiAnalysis = null;
     let studentDatabaseLoadPromise = null;
+    let studentAccessConfigLoadPromise = null;
     let studentOptionsRequestToken = 0;
     let rosterApiCache = {};
     let rosterSheetsCache = null;
@@ -341,7 +342,9 @@
                 bindFormPersistence();
                 loadStudentDatabase().then(function () {
                     populateSimulationStudentOptions(currentValues.studentNameSelect || '');
-                    setupStudentAccessGate();
+                    loadStudentAccessConfigScript().finally(function () {
+                        setupStudentAccessGate();
+                    });
                 });
     }
 
@@ -393,9 +396,72 @@
         return Object.assign({}, DEFAULT_STUDENT_ACCESS_CONFIG, externalConfig || {});
     }
 
+    function loadStudentAccessConfigScript() {
+        const existingConfig = window.SIMULATION_ENHANCER_STUDENT_ACCESS || readGlobalBinding('SIMULATION_ENHANCER_STUDENT_ACCESS');
+        if (existingConfig) {
+            return Promise.resolve(existingConfig);
+        }
+
+        if (studentAccessConfigLoadPromise) {
+            return studentAccessConfigLoadPromise;
+        }
+
+        const cacheBust = 'v=' + Date.now();
+        const candidates = [
+            new URL('../_shared/student-access-config.js?' + cacheBust, document.baseURI).toString(),
+            new URL('../../_shared/student-access-config.js?' + cacheBust, document.baseURI).toString(),
+            new URL('./student-access-config.js?' + cacheBust, new URL('../_shared/', document.baseURI)).toString()
+        ];
+
+        studentAccessConfigLoadPromise = new Promise(function (resolve) {
+            let index = 0;
+
+            function tryNext() {
+                const loadedConfig = window.SIMULATION_ENHANCER_STUDENT_ACCESS || readGlobalBinding('SIMULATION_ENHANCER_STUDENT_ACCESS');
+                if (loadedConfig) {
+                    resolve(loadedConfig);
+                    return;
+                }
+
+                if (index >= candidates.length) {
+                    resolve(null);
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = candidates[index++];
+                script.async = true;
+                script.onload = function () {
+                    resolve(window.SIMULATION_ENHANCER_STUDENT_ACCESS || readGlobalBinding('SIMULATION_ENHANCER_STUDENT_ACCESS') || null);
+                };
+                script.onerror = tryNext;
+                document.head.appendChild(script);
+            }
+
+            tryNext();
+        });
+
+        return studentAccessConfigLoadPromise;
+    }
+
     function isStudentAccessAuthenticated() {
         try {
-            return window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) === '1';
+            if (window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) !== '1') {
+                return false;
+            }
+
+            const config = getStudentAccessConfig();
+            const expectedHash = String(config.passwordHash || '').trim().toLowerCase();
+            const currentToken = getStudentAccessToken().trim().toLowerCase();
+
+            if (expectedHash && currentToken !== expectedHash) {
+                window.sessionStorage.removeItem(STUDENT_ACCESS_SESSION_KEY);
+                window.sessionStorage.removeItem(STUDENT_ACCESS_TOKEN_SESSION_KEY);
+                clearRosterApiCache();
+                return false;
+            }
+
+            return true;
         } catch (error) {
             return false;
         }
