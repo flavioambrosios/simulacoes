@@ -690,12 +690,6 @@
             return Promise.resolve(loadedDatabase);
         }
 
-        // Se a API protegida está configurada, não depender de alunos.js local (evita 404 em produção).
-        const accessConfig = getStudentAccessConfig();
-        if (String(accessConfig.rosterApiUrl || '').trim()) {
-            return Promise.resolve(DEFAULT_DATABASE);
-        }
-
         if (studentDatabaseLoadPromise) {
             return studentDatabaseLoadPromise;
         }
