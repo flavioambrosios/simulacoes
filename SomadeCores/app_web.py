@@ -3855,9 +3855,9 @@ def sync_submission_mode_sections(submission_mode, access_state):
         return (
             {"marginTop": "12px", "display": "block"},
             {"display": "none"},
-            {"marginTop": "18px", "display": "flex", "gap": "12px", "flexWrap": "wrap"},
-            "visitor",
-            "Para proteger os dados da turma, o modo estudante exige senha. Modo visitante ativo.",
+            {"display": "none"},
+            "student",
+            "Para liberar turma e lista de alunos, digite a senha do modo estudante.",
             dict(base_status_style, color="#b45309"),
         )
 
