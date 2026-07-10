@@ -626,7 +626,7 @@ const STUDENT_DATABASE = {
     "accessControl": {
         "enabled": true,
         "salt": "EDU-DIGITAL-2026",
-        "passwordHash": "af7a06c519d4a253d3dae4af1ed891505f5e720a80708e2801352916767d3cd4",
+        "passwordHash": "0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60",
         "hint": "Solicite ao professor a senha de acesso do estudante."
     }
 };
