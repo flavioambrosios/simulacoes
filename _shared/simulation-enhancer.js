@@ -38,6 +38,10 @@
         enabled: true,
         salt: 'EDU-DIGITAL-2026',
         passwordHash: '0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60',
+        acceptedPasswordHashes: [
+            '0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60',
+            'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1'
+        ],
         hint: 'Solicite ao professor a senha de acesso do estudante.',
         rosterApiUrl: 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec',
         apiTimeoutMs: 20000,
@@ -445,6 +449,27 @@
         return studentAccessConfigLoadPromise;
     }
 
+    function getAcceptedStudentAccessHashes(config) {
+        const values = [];
+        const primaryHash = String((config && config.passwordHash) || '').trim().toLowerCase();
+        if (primaryHash) {
+            values.push(primaryHash);
+        }
+
+        const extraHashes = config && Array.isArray(config.acceptedPasswordHashes)
+            ? config.acceptedPasswordHashes
+            : [];
+
+        extraHashes.forEach(function (hashValue) {
+            const normalized = String(hashValue || '').trim().toLowerCase();
+            if (normalized) {
+                values.push(normalized);
+            }
+        });
+
+        return Array.from(new Set(values));
+    }
+
     function isStudentAccessAuthenticated() {
         try {
             if (window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) !== '1') {
@@ -452,10 +477,10 @@
             }
 
             const config = getStudentAccessConfig();
-            const expectedHash = String(config.passwordHash || '').trim().toLowerCase();
+            const acceptedHashes = getAcceptedStudentAccessHashes(config);
             const currentToken = getStudentAccessToken().trim().toLowerCase();
 
-            if (expectedHash && currentToken !== expectedHash) {
+            if (acceptedHashes.length && acceptedHashes.indexOf(currentToken) === -1) {
                 window.sessionStorage.removeItem(STUDENT_ACCESS_SESSION_KEY);
                 window.sessionStorage.removeItem(STUDENT_ACCESS_TOKEN_SESSION_KEY);
                 clearRosterApiCache();
@@ -584,7 +609,8 @@
 
                 const seed = String(config.salt || '') + plainPassword;
                 hashStudentAccessInput(seed).then(function (digest) {
-                    if (!digest || digest !== String(config.passwordHash || '').toLowerCase()) {
+                    const acceptedHashes = getAcceptedStudentAccessHashes(config);
+                    if (!digest || (acceptedHashes.length && acceptedHashes.indexOf(String(digest).toLowerCase()) === -1)) {
                         updateStudentAccessStatus('Senha inválida. Permanecendo no modo visitante.', 'error');
                         setStudentAccessAuthenticated(false);
                         setStudentAccessToken('');
