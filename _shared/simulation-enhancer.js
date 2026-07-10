@@ -685,7 +685,7 @@
             return Promise.resolve(DEFAULT_DATABASE);
         }
 
-        const loadedDatabase = readGlobalBinding('STUDENT_DATABASE');
+        const loadedDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
         if (loadedDatabase) {
             return Promise.resolve(loadedDatabase);
         }
@@ -703,7 +703,7 @@
             let index = 0;
 
             function tryNext() {
-                const studentDatabase = readGlobalBinding('STUDENT_DATABASE');
+                const studentDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
                 if (studentDatabase) {
                     resolve(studentDatabase);
                     return;
@@ -717,7 +717,7 @@
                 script.src = candidates[index++];
                 script.async = true;
                 script.onload = function () {
-                    resolve(readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE);
+                    resolve(readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE || DEFAULT_DATABASE);
                 };
                 script.onerror = tryNext;
                 document.head.appendChild(script);
@@ -730,7 +730,7 @@
     }
 
     function getStudentSource() {
-        return readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE;
+        return readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE || DEFAULT_DATABASE;
     }
 
     function getRosterSourceMode() {
