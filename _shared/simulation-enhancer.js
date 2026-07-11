@@ -894,6 +894,11 @@
                 return response.json();
             })
             .then(function (payload) {
+                const payloadStatus = String((payload && payload.status) || '').trim().toLowerCase();
+                if (payloadStatus === 'error') {
+                    throw new Error((payload && payload.message) || 'Falha na API protegida de turmas.');
+                }
+
                 const rawSheets = Array.isArray(payload)
                     ? payload
                     : (Array.isArray(payload.sheets) ? payload.sheets : []);
@@ -1028,6 +1033,11 @@
                 return response.json();
             })
             .then(function (payload) {
+                const payloadStatus = String((payload && payload.status) || '').trim().toLowerCase();
+                if (payloadStatus === 'error') {
+                    throw new Error((payload && payload.message) || 'Falha na API protegida de alunos.');
+                }
+
                 const rawNames = Array.isArray(payload)
                     ? payload
                     : (Array.isArray(payload.names) ? payload.names : []);
