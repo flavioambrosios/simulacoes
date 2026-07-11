@@ -341,16 +341,19 @@
 
         restoreFormState(currentValues);
         syncSelectedSheetMetadata();
-        populateSimulationSheetOptions(currentValues.studentSheet || '');
-                setupStudentFieldInteractions();
-                setupVisitorModeToggle();
-                bindFormPersistence();
-                loadStudentDatabase().then(function () {
-                    populateSimulationStudentOptions(currentValues.studentNameSelect || '');
-                    loadStudentAccessConfigScript().finally(function () {
-                        setupStudentAccessGate();
-                    });
-                });
+        setupStudentFieldInteractions();
+        setupVisitorModeToggle();
+        bindFormPersistence();
+
+        loadStudentDatabase()
+            .then(function () {
+                return loadStudentAccessConfigScript();
+            })
+            .finally(function () {
+                setupStudentAccessGate();
+                populateSimulationSheetOptions(currentValues.studentSheet || '');
+                populateSimulationStudentOptions(currentValues.studentNameSelect || '');
+            });
     }
 
     function setupVisitorModeToggle() {
