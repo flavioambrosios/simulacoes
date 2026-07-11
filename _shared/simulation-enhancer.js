@@ -470,6 +470,14 @@
         return Array.from(new Set(values));
     }
 
+    function resolveRosterApiToken(config, digest) {
+        const configuredToken = String((config && config.apiAccessToken) || '').trim().toLowerCase();
+        if (configuredToken) {
+            return configuredToken;
+        }
+        return String(digest || '').trim().toLowerCase();
+    }
+
     function isStudentAccessAuthenticated() {
         try {
             if (window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) !== '1') {
@@ -620,7 +628,7 @@
                     }
 
                     setStudentAccessAuthenticated(true);
-                    setStudentAccessToken(digest);
+                    setStudentAccessToken(resolveRosterApiToken(config, digest));
                     updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
                     visitorCheckbox.checked = false;
                     visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
