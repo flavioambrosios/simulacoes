@@ -2029,47 +2029,59 @@ function initSimulation() {
     }
 
     function setupEventListeners() {
-        document.getElementById('pigmentSelect').addEventListener('change', function() {
+        function bindById(elementId, eventName, handler, options) {
+            const element = document.getElementById(elementId);
+            const optional = options && options.optional;
+            if (!element) {
+                if (!optional) {
+                    console.warn('[Fotossintese] Elemento nao encontrado para evento:', elementId);
+                }
+                return;
+            }
+            element.addEventListener(eventName, handler);
+        }
+
+        bindById('pigmentSelect', 'change', function() {
             pigmentType = this.value;
             refreshModel();
         });
 
-        document.getElementById('wavelengthInput').addEventListener('input', function() {
+        bindById('wavelengthInput', 'input', function() {
             wavelength = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('intensityInput').addEventListener('input', function() {
+        bindById('intensityInput', 'input', function() {
             solarIntensity = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('co2Input').addEventListener('input', function() {
+        bindById('co2Input', 'input', function() {
             co2Level = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('waterInput').addEventListener('input', function() {
+        bindById('waterInput', 'input', function() {
             waterAvailability = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('photonToggle').addEventListener('change', function() {
+        bindById('photonToggle', 'change', function() {
             showPhotons = this.checked;
             if (!showPhotons) {
                 photons = [];
             }
-        });
+        }, { optional: true });
 
-        document.getElementById('startBtn').addEventListener('click', function() {
+        bindById('startBtn', 'click', function() {
             isRunning = true;
-        });
+        }, { optional: true });
 
-        document.getElementById('pauseBtn').addEventListener('click', function() {
+        bindById('pauseBtn', 'click', function() {
             isRunning = false;
-        });
+        }, { optional: true });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
+        bindById('resetBtn', 'click', function() {
             isRunning = false;
             wavelength = 680;
             solarIntensity = 800;
@@ -2092,16 +2104,16 @@ function initSimulation() {
             document.getElementById('pigmentSelect').value = pigmentType;
 
             refreshModel();
-        });
+        }, { optional: true });
 
         // [Grade] Event listener
-        document.getElementById('gridToggleFotos').addEventListener('click', function() {
+        bindById('gridToggleFotos', 'click', function() {
             showGridFotos = !showGridFotos;
             this.textContent = showGridFotos ? 'Esconder Grade' : 'Mostrar Grade';
             drawGridFotos();
         });
 
-        document.getElementById('helpBtn').addEventListener('click', function() {
+        bindById('helpBtn', 'click', function() {
             alert('Ajuste comprimento de onda, intensidade, CO2, agua e pigmento. Depois clique em Iniciar para observar o fluxo de fotons, a absorcao na folha e a formacao de glicose.');
         });
     }

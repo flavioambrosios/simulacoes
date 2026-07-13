@@ -37,7 +37,13 @@
     const DEFAULT_STUDENT_ACCESS_CONFIG = {
         enabled: true,
         salt: 'EDU-DIGITAL-2026',
-        passwordHash: 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1',
+        passwordHash: '0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60',
+        acceptedPasswordHashes: [
+            '0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60',
+            'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1'
+        ],
+        apiAccessToken: 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1',
+        rememberStudentAccess: false,
         hint: 'Solicite ao professor a senha de acesso do estudante.',
         rosterApiUrl: 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec',
         apiTimeoutMs: 20000,
@@ -337,16 +343,19 @@
 
         restoreFormState(currentValues);
         syncSelectedSheetMetadata();
-        populateSimulationSheetOptions(currentValues.studentSheet || '');
-                setupStudentFieldInteractions();
-                setupVisitorModeToggle();
-                bindFormPersistence();
-                loadStudentDatabase().then(function () {
-                    populateSimulationStudentOptions(currentValues.studentNameSelect || '');
-                    loadStudentAccessConfigScript().finally(function () {
-                        setupStudentAccessGate();
-                    });
-                });
+        setupStudentFieldInteractions();
+        setupVisitorModeToggle();
+        bindFormPersistence();
+
+        loadStudentDatabase()
+            .then(function () {
+                return loadStudentAccessConfigScript();
+            })
+            .finally(function () {
+                setupStudentAccessGate();
+                populateSimulationSheetOptions(currentValues.studentSheet || '');
+                populateSimulationStudentOptions(currentValues.studentNameSelect || '');
+            });
     }
 
     function setupVisitorModeToggle() {
@@ -445,6 +454,35 @@
         return studentAccessConfigLoadPromise;
     }
 
+    function getAcceptedStudentAccessHashes(config) {
+        const values = [];
+        const primaryHash = String((config && config.passwordHash) || '').trim().toLowerCase();
+        if (primaryHash) {
+            values.push(primaryHash);
+        }
+
+        const extraHashes = config && Array.isArray(config.acceptedPasswordHashes)
+            ? config.acceptedPasswordHashes
+            : [];
+
+        extraHashes.forEach(function (hashValue) {
+            const normalized = String(hashValue || '').trim().toLowerCase();
+            if (normalized) {
+                values.push(normalized);
+            }
+        });
+
+        return Array.from(new Set(values));
+    }
+
+    function resolveRosterApiToken(config, digest) {
+        const configuredToken = String((config && config.apiAccessToken) || '').trim().toLowerCase();
+        if (configuredToken) {
+            return configuredToken;
+        }
+        return String(digest || '').trim().toLowerCase();
+    }
+
     function isStudentAccessAuthenticated() {
         try {
             if (window.sessionStorage.getItem(STUDENT_ACCESS_SESSION_KEY) !== '1') {
@@ -452,10 +490,10 @@
             }
 
             const config = getStudentAccessConfig();
-            const expectedHash = String(config.passwordHash || '').trim().toLowerCase();
+            const acceptedHashes = getAcceptedStudentAccessHashes(config);
             const currentToken = getStudentAccessToken().trim().toLowerCase();
 
-            if (expectedHash && currentToken !== expectedHash) {
+            if (acceptedHashes.length && acceptedHashes.indexOf(currentToken) === -1) {
                 window.sessionStorage.removeItem(STUDENT_ACCESS_SESSION_KEY);
                 window.sessionStorage.removeItem(STUDENT_ACCESS_TOKEN_SESSION_KEY);
                 clearRosterApiCache();
@@ -548,6 +586,13 @@
             return;
         }
 
+        if (!config.rememberStudentAccess) {
+            setStudentAccessAuthenticated(false);
+            setStudentAccessToken('');
+            visitorCheckbox.checked = true;
+            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
         if (!config.enabled) {
             unlockButton.classList.add('enhancer-hidden');
             updateStudentAccessStatus('Modo estudante sem senha (controle desativado).', 'info');
@@ -584,7 +629,8 @@
 
                 const seed = String(config.salt || '') + plainPassword;
                 hashStudentAccessInput(seed).then(function (digest) {
-                    if (!digest || digest !== String(config.passwordHash || '').toLowerCase()) {
+                    const acceptedHashes = getAcceptedStudentAccessHashes(config);
+                    if (!digest || (acceptedHashes.length && acceptedHashes.indexOf(String(digest).toLowerCase()) === -1)) {
                         updateStudentAccessStatus('Senha inválida. Permanecendo no modo visitante.', 'error');
                         setStudentAccessAuthenticated(false);
                         setStudentAccessToken('');
@@ -594,7 +640,7 @@
                     }
 
                     setStudentAccessAuthenticated(true);
-                    setStudentAccessToken(digest);
+                    setStudentAccessToken(resolveRosterApiToken(config, digest));
                     updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
                     visitorCheckbox.checked = false;
                     visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
@@ -659,15 +705,9 @@
             return Promise.resolve(DEFAULT_DATABASE);
         }
 
-        const loadedDatabase = readGlobalBinding('STUDENT_DATABASE');
+        const loadedDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
         if (loadedDatabase) {
             return Promise.resolve(loadedDatabase);
-        }
-
-        // Se a API protegida está configurada, não depender de alunos.js local (evita 404 em produção).
-        const accessConfig = getStudentAccessConfig();
-        if (String(accessConfig.rosterApiUrl || '').trim()) {
-            return Promise.resolve(DEFAULT_DATABASE);
         }
 
         if (studentDatabaseLoadPromise) {
@@ -683,7 +723,7 @@
             let index = 0;
 
             function tryNext() {
-                const studentDatabase = readGlobalBinding('STUDENT_DATABASE');
+                const studentDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
                 if (studentDatabase) {
                     resolve(studentDatabase);
                     return;
@@ -697,7 +737,7 @@
                 script.src = candidates[index++];
                 script.async = true;
                 script.onload = function () {
-                    resolve(readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE);
+                    resolve(readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE || DEFAULT_DATABASE);
                 };
                 script.onerror = tryNext;
                 document.head.appendChild(script);
@@ -710,7 +750,7 @@
     }
 
     function getStudentSource() {
-        return readGlobalBinding('STUDENT_DATABASE') || DEFAULT_DATABASE;
+        return readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE || DEFAULT_DATABASE;
     }
 
     function getRosterSourceMode() {
@@ -723,7 +763,7 @@
         if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
             return normalized;
         }
-        return 'google-only';
+        return 'merge';
     }
 
     function isGoogleOnlyRosterMode() {
@@ -874,6 +914,11 @@
                 return response.json();
             })
             .then(function (payload) {
+                const payloadStatus = String((payload && payload.status) || '').trim().toLowerCase();
+                if (payloadStatus === 'error') {
+                    throw new Error((payload && payload.message) || 'Falha na API protegida de turmas.');
+                }
+
                 const rawSheets = Array.isArray(payload)
                     ? payload
                     : (Array.isArray(payload.sheets) ? payload.sheets : []);
@@ -923,6 +968,12 @@
     function populateSimulationSheetOptions(preservedValue) {
         const studentSheetSelect = document.getElementById('studentSheet');
         if (!studentSheetSelect) {
+            return;
+        }
+
+        if (!isStudentAccessAuthenticated()) {
+            studentSheetSelect.innerHTML = '<option value="">Libere o modo estudante para carregar turmas</option>';
+            studentSheetSelect.value = '';
             return;
         }
 
@@ -1008,6 +1059,11 @@
                 return response.json();
             })
             .then(function (payload) {
+                const payloadStatus = String((payload && payload.status) || '').trim().toLowerCase();
+                if (payloadStatus === 'error') {
+                    throw new Error((payload && payload.message) || 'Falha na API protegida de alunos.');
+                }
+
                 const rawNames = Array.isArray(payload)
                     ? payload
                     : (Array.isArray(payload.names) ? payload.names : []);

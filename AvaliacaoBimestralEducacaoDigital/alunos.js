@@ -19,7 +19,7 @@ const STUDENT_DATABASE = {
             ""
         ],
         "3o ano G": [
-            "ALUNO TESTE"
+            ""
         ],
         "PCA - Educação Digital 3o ano E": [
             ""

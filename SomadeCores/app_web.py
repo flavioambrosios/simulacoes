@@ -112,9 +112,9 @@ SESSION_EXERCISE_TYPES = [
     "real-world-correlation",
 ]
 STUDENT_DATABASE_PATH = Path(__file__).resolve().parents[1] / "AvaliacaoBimestralEducacaoDigital" / "alunos.js"
-STUDENT_DATABASE_MODE = (os.getenv("STUDENT_DATABASE_MODE") or "google-only").strip().lower()
+STUDENT_DATABASE_MODE = (os.getenv("STUDENT_DATABASE_MODE") or "merge").strip().lower()
 if STUDENT_DATABASE_MODE not in {"google-only", "merge", "local-only"}:
-    STUDENT_DATABASE_MODE = "google-only"
+    STUDENT_DATABASE_MODE = "merge"
 GRADE_OPTIONS = [
     {"label": "1o ano", "value": "1o ano"},
     {"label": "2o ano", "value": "2o ano"},
