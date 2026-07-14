@@ -68,7 +68,7 @@
 
         .simulation-container {
             width: 100%;
-            height: 1320px;
+            height: 720px;
             background: #02070d;
             border-radius: 8px;
             overflow: hidden;
@@ -470,7 +470,7 @@
                 padding: 14px;
             }
             .simulation-container {
-                height: 860px;
+                height: 460px;
             }
             h1 {
                 font-size: 1.4rem;
@@ -501,11 +501,6 @@
             <div class="control-group">
                 <label for="gridToggleBtn">Grade (20x20)</label>
                 <button id="gridToggleBtn" class="btn">Mostrar Grade</button>
-            </div>
-            <!-- [Microscopio] Alternar visao -->
-            <div class="control-group">
-                <label for="microToggleBtn">Visao do LED</label>
-                <button id="microToggleBtn" class="btn btn-micro">Visao Macroscopica</button>
             </div>
 <div class="visualization-toggle">
                     <button id="startBtn">Iniciar</button>
@@ -907,8 +902,6 @@
         const GRID_COLS = 20;
         const GRID_ROWS = 35;
         
-        // [Modificacao Microscopio] Variavel de visao
-        let showMicroscopic = false;
         let technology = 'led';
         let wavelength = 650;
         let currentmA = 18;
@@ -1013,7 +1006,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawBackground();
             if (technology === 'led') {
-                drawLedDevice();
+                drawMicroscopicLed();
             } else {
                 drawOledDevice();
             }
@@ -1022,9 +1015,6 @@
             drawLabels();
 
             drawGrid();
-            if (showMicroscopic && technology === 'led') {
-                drawMicroscopicLed();
-            }
         }
 
         
@@ -1353,8 +1343,6 @@ function drawBackground() {
 
 
         function drawLedDevice() {
-            if (showMicroscopic) return; // [Microscopio] Desenho substituido
-
             const cx = getDeviceCenterX();
             const cy = canvas.height * 0.30;
             const glow = getDeviceColor();
@@ -1444,12 +1432,12 @@ function drawBackground() {
             const spreadScale = technology === 'led' ? 0.55 : 0.18;
             const rise = technology === 'led' ? canvas.height * 0.28 : canvas.height * 0.16;
             
-            if (showMicroscopic && technology === 'led') {
-                // Na visao microscopica, ondas sao desenhadas em drawMicroscopicLed
+            if (technology === 'led') {
+                // No modo LED, a emissao ja e desenhada na visao microscopica.
                 return;
             }
             
-            // Visao macroscopica: apenas halo de brilho (sem bolinhas)
+            // Para OLED, mantemos um halo simples na emissao da luz.
             const origin = getEmissionOrigin(photons[0] || { xSeed: 0.5, spread: 0 });
             const cx = origin.x;
             const cy = origin.y - rise * 0.4;
@@ -1471,7 +1459,7 @@ function drawBackground() {
             const boxWidth = Math.min(420, Math.max(340, canvas.width * 0.72));
             const boxHeight = 240;
             const boxX = (canvas.width - boxWidth) / 2;
-            const boxY = canvas.height * 0.50;
+            const boxY = canvas.height * 0.56;
             const minEnergy = 1240 / 650;
             const maxEnergy = 1240 / 470;
             const normalizedGap = clamp((quantumJumpEV - minEnergy) / (maxEnergy - minEnergy), 0, 1);
@@ -1823,19 +1811,6 @@ function drawBackground() {
             
 
             
-            // [Microscopio] Event listener para toggle visao
-            document.getElementById('microToggleBtn').addEventListener('click', function() {
-                showMicroscopic = !showMicroscopic;
-                if (technology === 'led') {
-                    this.textContent = showMicroscopic ? 'Visao Microscopica' : 'Visao Macroscopica';
-                    this.classList.toggle('active');
-                    resetPhotons(true);
-                    drawSystem();
-                } else {
-                    showMicroscopic = false;
-                    alert('Visao microscopica disponivel apenas no modo LED.');
-                }
-            });
 canvas.addEventListener('click', handleCanvasClick);
             canvas.addEventListener('mousemove', handleCanvasPointer);
             canvas.addEventListener('mouseleave', function() {
