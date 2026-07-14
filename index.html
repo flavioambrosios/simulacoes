@@ -221,21 +221,27 @@
         .card {
             display: flex;
             flex-direction: column;
-            min-height: 320px;
+            min-height: 400px;
             border-radius: 24px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.84);
             border: 1px solid var(--line);
             box-shadow: var(--shadow);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 24px 52px rgba(16, 32, 47, 0.2);
         }
 
         .card-media {
             position: relative;
-            min-height: 122px;
-            padding: 14px;
+            min-height: 252px;
+            padding: 16px;
             display: flex;
-            align-items: end;
-            justify-content: space-between;
+            align-items: stretch;
+            justify-content: center;
             background:
                 radial-gradient(circle at top right, rgba(255, 255, 255, 0.34), transparent 28%),
                 linear-gradient(135deg, color-mix(in srgb, var(--accent, #d18a2f) 88%, #ffffff 12%), color-mix(in srgb, var(--accent, #d18a2f) 46%, #0f2230 54%));
@@ -254,24 +260,11 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        .media-kicker {
-            position: relative;
-            z-index: 1;
-            display: inline-flex;
-            margin-bottom: 8px;
-            padding: 5px 9px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.16);
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
         .media-mark {
             position: relative;
             z-index: 1;
-            margin-left: auto;
-            width: min(100%, 176px);
+            width: 100%;
+            max-width: 100%;
         }
 
         .thumb-shot {
@@ -280,52 +273,44 @@
             border-radius: 16px;
             border: 1px solid rgba(255, 255, 255, 0.28);
             background: rgba(10, 18, 28, 0.22);
-            box-shadow: 0 10px 18px rgba(10, 18, 28, 0.22);
+            box-shadow: 0 12px 20px rgba(10, 18, 28, 0.22);
         }
 
         .thumb-shot img {
             display: block;
             width: 100%;
-            height: 98px;
+            aspect-ratio: 16 / 10;
+            height: auto;
             object-fit: cover;
+            object-position: center top;
+            filter: saturate(1.04) contrast(1.03);
+            transition: transform 0.3s ease;
         }
 
-        .thumb-meta {
-            position: absolute;
-            inset: auto 8px 8px 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 8px;
-            border-radius: 10px;
-            background: rgba(10, 18, 28, 0.7);
-            backdrop-filter: blur(6px);
-        }
-
-        .thumb-type {
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: rgba(255, 255, 255, 0.82);
+        .card:hover .thumb-shot img {
+            transform: scale(1.02);
         }
 
         .thumb-badge-mini {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 4px 7px;
             border-radius: 999px;
             font-size: 0.68rem;
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(10, 18, 28, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.26);
         }
 
         .thumb-fallback {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 98px;
+            aspect-ratio: 16 / 10;
+            min-height: 206px;
             padding: 12px;
             text-align: center;
             font-family: "Palatino Linotype", Georgia, serif;
@@ -370,44 +355,12 @@
             font-weight: bold;
         }
 
-        .link-box {
-            padding: 10px 12px;
-            border-radius: 14px;
-            background: rgba(23, 50, 77, 0.05);
-            border: 1px solid rgba(23, 50, 77, 0.08);
-        }
-
-        .link-box strong {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            color: var(--ink);
-        }
-
-        .link-box a {
-            color: var(--ink);
-            text-decoration: none;
-            word-break: break-all;
-            font-size: 0.86rem;
-            line-height: 1.45;
-        }
-
-        .link-box a:hover {
-            text-decoration: underline;
-        }
-
         .card-actions {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             gap: 10px;
             margin-top: auto;
-        }
-
-        .card-actions small {
-            color: var(--muted);
         }
 
         .card-actions a {
@@ -503,6 +456,11 @@
                 grid-template-columns: 1fr;
             }
 
+            .card-media {
+                min-height: 220px;
+                padding: 12px;
+            }
+
             .section-header,
             .summary-bar,
             .card-actions {
@@ -576,7 +534,7 @@
 
         <footer class="footer">
             <p><strong>Arquivo de entrada:</strong> este index.html na raiz de simulacoes.</p>
-            <p><strong>Formato dos links online:</strong> o menu agora exibe o endereco completo no padrao do GitHub Pages, por exemplo https://flavioambrosios.github.io/simulacoes/EspectrometrodeMassa/EspectrometrodeMassa.html.</p>
+            <p><strong>Material do projeto:</strong> <a href="README.md" target="_blank" rel="noreferrer">Abrir README.md</a></p>
         </footer>
     </main>
 
@@ -632,16 +590,11 @@
             colecoes: { title: 'Colecoes e Apoio', note: 'Colecoes maiores, avaliacoes e versoes alternativas.' }
         };
 
-        const typeLabels = {
-            principal: 'Pagina principal',
-            colecao: 'Colecao',
-            apoio: 'Apoio'
-        };
-
         const thumbnailMap = {
             'CircuitosEletricosDC/CircuitosEletricosDC.html': '_shared/index-thumbs/circuitos-eletricos-dc.png',
             'LeiDeCoulomb/LeiDeCoulomb.html': '_shared/index-thumbs/lei-de-coulomb.png',
             'LEDeOLED/LEDeOLED.html': '_shared/index-thumbs/led-e-oled.png',
+            'FotossinteseSolar/Fotossintese.html': '_shared/index-thumbs/fotossintese.png',
             'https://ondasecores.onrender.com': '_shared/index-thumbs/simulacoes-python.png',
             'LeideOhm/LeideOhm.html': '_shared/index-thumbs/lei-de-ohm.png',
             'Resistencia/Resistencia.html': '_shared/index-thumbs/resistencia-eletrica.png',
@@ -662,6 +615,7 @@
             'AtomodeHidrogenio/AtomodeHidrogenio.html': '_shared/index-thumbs/atomo-de-hidrogenio.png',
             'EfeitoFotoEletrico/EfeitoFotoEletrico.html': '_shared/index-thumbs/efeito-fotoeletrico.png',
             'EspectrometrodeMassa/EspectrometrodeMassa.html': '_shared/index-thumbs/espectrometro-de-massa.png',
+            'TunelamentoQuantico/TunelamentoQuantico.html': '_shared/index-thumbs/tunelamento-quantico.png',
             'RelatividadeEspecial/RelatividadeEspecial.html': '_shared/index-thumbs/relatividade-especial.png',
             'ESTRELAS/index.html': '_shared/index-thumbs/estrelas.png',
             'AvaliacaoBimestralEducacaoDigital/index.html': '_shared/index-thumbs/avaliacao-educacao-digital.png',
@@ -713,10 +667,7 @@
             return `
                 <div class="thumb-shot">
                     ${thumbPath ? `<img src="${thumbPath}" alt="Miniatura da simulacao ${item.title}" loading="lazy">` : `<div class="thumb-fallback">${getInitials(item.title)}</div>`}
-                    <div class="thumb-meta">
-                        <span class="thumb-type">${typeLabels[item.type]}</span>
-                        <span class="thumb-badge-mini">${item.badge}</span>
-                    </div>
+                    <span class="thumb-badge-mini">${item.badge}</span>
                 </div>
             `;
         }
@@ -790,7 +741,6 @@
 
                 const cards = section.querySelector('.cards');
                 items.forEach(function(item) {
-                    const onlineUrl = buildOnlineUrl(item.href);
                     const openUrl = buildPrimaryUrl(item.href);
                     const externalLink = isAbsoluteUrl(item.href);
                     const card = document.createElement('article');
@@ -798,7 +748,6 @@
                     card.style.setProperty('--accent', item.accent);
                     card.innerHTML = `
                         <div class="card-media">
-                            <span class="media-kicker">${item.badge}</span>
                             <div class="media-mark">
                                 ${renderThumbnail(item)}
                             </div>
@@ -806,17 +755,11 @@
                         <div class="card-body">
                             <h3>${item.title}</h3>
                             <div class="meta-row">
-                                <span class="meta-chip">${typeLabels[item.type]}</span>
                                 <span class="meta-chip">${sectionLabels[item.section].title}</span>
                             </div>
                             <p>${item.description}</p>
-                            <div class="link-box">
-                                <strong>Link online</strong>
-                                <a href="${onlineUrl}" target="_blank" rel="noreferrer">${onlineUrl}</a>
-                            </div>
                             <div class="card-actions">
-                                <small>${externalLink ? 'Acesso em site externo' : (isLocalRuntime ? 'Abertura local disponivel' : 'Ambiente online detectado')}</small>
-                                <a href="${openUrl}" ${externalLink || !isLocalRuntime ? 'target="_blank" rel="noreferrer"' : ''}>${externalLink ? 'Abrir site' : (isLocalRuntime ? 'Abrir simulacao' : 'Abrir online')}</a>
+                                <a href="${openUrl}" target="_blank" rel="noreferrer">${externalLink ? 'Abrir site' : (isLocalRuntime ? 'Abrir simulacao' : 'Abrir online')}</a>
                             </div>
                         </div>
                     `;
