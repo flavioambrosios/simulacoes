@@ -115,7 +115,8 @@ Todas as simulações compartilham um sistema unificado de apoio pedagógico.
 ### Coleta e Análise Pedagógica
 
 - Envio de resultados para Google Sheets via Apps Script.
-- Lista de turmas e estudantes priorizada via API protegida do Google (modo Google-only em produção, sem dependência de alunos.js no site publicado).
+- Lista de turmas e estudantes priorizada via API protegida do Google (modo Google-only em produção, sem exposição pública da lista nominal).
+- O arquivo [AvaliacaoBimestralEducacaoDigital/alunos.js](AvaliacaoBimestralEducacaoDigital/alunos.js) permanece vazio apenas para manter compatibilidade com referências antigas e não quebrar integrações ainda necessárias.
 - Análise automatizada de respostas discursivas.
 - Indicador composto de desempenho (itens objetivos e subjetivos).
 - Modo visitante para participação sem vínculo nominal.
@@ -124,17 +125,26 @@ Todas as simulações compartilham um sistema unificado de apoio pedagógico.
 
 ```text
 simulacoes/
+|-- AvaliacaoBimestralEducacaoDigital/
+|   `-- alunos.js (mantido vazio para compatibilidade)
+|-- AvaliacaoBimestralSustentabilidade/
+|-- docs/
 |-- _shared/
 |   `-- simulation-enhancer.js
-|-- alunoscopio.js
 |-- index.html
 |-- LICENSE
 |-- README.md
+|-- app.js
+|-- GerenciadorAlunos.html
+|-- google-apps-script.gs
+|-- STUDENT_DATABASE.js
 |-- NomeDaSimulacao/
 |   |-- index.html (ou NomeDaSimulacao.html)
 |   `-- ...
 `-- ...
 ```
+
+Observação: a estrutura acima é resumida e destaca os componentes mais importantes do site público e dos fluxos locais de apoio. Os arquivos de manutenção, testes e backups de trabalho podem existir na raiz sem fazer parte da publicação principal.
 
 ### Como criar uma nova simulação
 
