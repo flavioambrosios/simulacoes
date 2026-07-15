@@ -126,6 +126,7 @@ Todas as simulações compartilham um sistema unificado de apoio pedagógico.
 ```text
 simulacoes/
 |-- AvaliacaoBimestralEducacaoDigital/
+|   |-- GerenciadorAlunos.html (uso offline, por segurança)
 |   `-- alunos.js (mantido vazio para compatibilidade)
 |-- AvaliacaoBimestralSustentabilidade/
 |-- docs/
@@ -135,7 +136,6 @@ simulacoes/
 |-- LICENSE
 |-- README.md
 |-- app.js
-|-- GerenciadorAlunos.html
 |-- google-apps-script.gs
 |-- STUDENT_DATABASE.js
 |-- NomeDaSimulacao/
