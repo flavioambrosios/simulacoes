@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <!-- Metadados de autoria -->
-    <meta name="citation_title" content="Simulacao: Fluxo de Calor e Lei de Fourier">
+    <meta name="citation_title" content="Simulação: Fluxo de Calor e Lei de Fourier">
     <meta name="citation_author" content="Flavio Ambrosio Campos">
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737877">
@@ -10,7 +10,7 @@
     <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/FluxoDeCalor/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulacao de Fluxo de Calor e Lei de Fourier</title>
+    <title>Simulação de Fluxo de Calor e Lei de Fourier</title>
     <style>
         * {
             box-sizing: border-box;
@@ -225,6 +225,17 @@
             font-size: 24px;
             font-weight: bold;
             cursor: pointer;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
         }
         .exercise {
             margin-bottom: 15px;
@@ -496,13 +507,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulacao de Fluxo de Calor e Lei de Fourier</h1>
+            <h1>Simulação de Fluxo de Calor e Lei de Fourier</h1>
             <p class="subtitle">Prof. Flavio Ambrosio</p>
         </header>
 
         <div class="content">
             <div class="simulation-panel">
-                <h2 class="panel-title">Conducao de Calor em uma Barra</h2>
+                <h2 class="panel-title">Condução de Calor em uma Barra</h2>
                 <div class="simulation-container">
                     <canvas id="heatCanvas"></canvas>
                 </div>
@@ -517,11 +528,11 @@
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color hot"></div>
-                        <span>Regiao quente</span>
+                        <span>Região quente</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color cold"></div>
-                        <span>Regiao fria</span>
+                        <span>Região fria</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color flow"></div>
@@ -537,15 +548,15 @@
                     <label for="materialSelect">Material:</label>
                     <select id="materialSelect">
                         <option value="400">Cobre (400 W/m.K)</option>
-                        <option value="205">Aluminio (205 W/m.K)</option>
-                        <option value="50">Aco (50 W/m.K)</option>
+                        <option value="205">Alumínio (205 W/m.K)</option>
+                        <option value="50">Aço (50 W/m.K)</option>
                         <option value="1.0">Vidro (1,0 W/m.K)</option>
                         <option value="0.12">Madeira (0,12 W/m.K)</option>
                     </select>
                 </div>
 
                 <div class="control-group">
-                    <label for="conductivityInput">Condutividade termica (k):</label>
+                    <label for="conductivityInput">Condutividade térmica (k):</label>
                     <input type="range" id="conductivityInput" min="0.1" max="450" value="400" step="0.1">
                     <div class="value-display"><span id="conductivityValue">400.0</span> W/m.K</div>
                 </div>
@@ -568,12 +579,12 @@
                     <div class="value-display"><span id="lengthValue">1.00</span> m</div>
                 </div>
 
-                            <!-- [Grade] Botao toggle grade -->
+                            <!-- [Grade] Botão toggle grade -->
             <div class="control-group">
                 <button id="gridToggleFluxo" class="btn" style="background:#4dd2ff; color:white; border:none; padding:8px 16px; border-radius:6px; font-weight:bold; cursor:pointer; width:100%;">Mostrar Grade</button>
             </div>
 <div class="control-group">
-                    <label for="areaInput">Area de secao (A):</label>
+                    <label for="areaInput">Área de seção (A):</label>
                     <input type="range" id="areaInput" min="0.001" max="0.020" value="0.010" step="0.001">
                     <div class="value-display"><span id="areaValue">0.010</span> m²</div>
                 </div>
@@ -581,21 +592,21 @@
                 <div class="formula-box">
                     <h3>Lei de Fourier</h3>
                     <p>Q/t = k.A.(ΔT/L)</p>
-                    <p>Para diferenca de temperatura (ΔT) uniforme:
+                    <p>Para diferença de temperatura (ΔT) uniforme:
                     <p>ΔT = T<sub>quente</sub> - T<sub>frio</sub> </p></p>
                     
                     
                 </div>
 
                 <div class="exercise-buttons">
-                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
-                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
                     <button class="exercise-btn" id="theoryBtn">Teoria</button>
                 </div>
             </div>
 
             <div class="measurement-panel">
-                <h2 class="panel-title">Medicoes e Resultados</h2>
+                <h2 class="panel-title">Medições e Resultados</h2>
                 <div class="measurement-grid">
                     <div class="measurement-item">
                         <div class="measurement-label">Material</div>
@@ -606,7 +617,7 @@
                         <div class="measurement-value" id="deltaTempDisplay">100 °C</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">Gradiente termico</div>
+                        <div class="measurement-label">Gradiente térmico</div>
                         <div class="measurement-value" id="gradientDisplay">-100.00 °C/m</div>
                     </div>
                     <div class="measurement-item">
@@ -627,7 +638,7 @@
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Regime</div>
-                        <div class="measurement-value" id="regimeDisplay">Conducao 1D estacionaria</div>
+                        <div class="measurement-value" id="regimeDisplay">Condução 1D estacionária</div>
                     </div>
                 </div>
             </div>
@@ -637,8 +648,11 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios sobre Fluxo de Calor e Lei de Fourier</h2>
-                <span class="close">&times;</span>
+                <h2>Exercícios sobre Fluxo de Calor e Lei de Fourier</h2>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
             </div>
 
             <div class="progress" id="progressBar">
@@ -653,14 +667,14 @@
             <div id="exerciseContainer"></div>
 
             <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusao de Estudo</h3>
-                <p>Escreva abaixo tudo o que voce aprendeu com os exercicios.</p>
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios.</p>
                 <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..." style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
 
             <div id="resultsContainer" style="display: none;">
-                <h3>Resultados dos Exercicios</h3>
+                <h3>Resultados dos Exercícios</h3>
                 <div id="resultsSummary"></div>
 
                 <h3>Enviar Resultados</h3>
@@ -673,12 +687,12 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="studentGrade" class="required">Serie:</label>
+                        <label for="studentGrade" class="required">Série:</label>
                         <select id="studentGrade" required>
-                            <option value="">Selecione sua serie</option>
-                            <option value="1o ano">1o ano</option>
-                            <option value="2o ano">2o ano</option>
-                            <option value="3o ano">3o ano</option>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
                         </select>
                     </div>
 
@@ -709,23 +723,23 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="studentEmail">E-mail para copia:</label>
+                        <label for="studentEmail">E-mail para cópia:</label>
                         <input type="email" id="studentEmail" placeholder="seu@email.com">
                     </div>
 
                     <div class="form-row">
-                        <label for="criticismInput">Criticas:</label>
+                        <label for="criticismInput">Críticas:</label>
                         <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
                     </div>
 
                     <div class="form-row">
-                        <label for="suggestionInput">Sugestoes:</label>
-                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
                     </div>
 
                     <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
                     </div>
 
                     <div id="emailStatus" class="email-status"></div>
@@ -739,33 +753,33 @@
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios Resolvidos - Fluxo de Calor e Lei de Fourier</h2>
+                <h2>Exercícios Resolvidos - Fluxo de Calor e Lei de Fourier</h2>
                 <span class="close">&times;</span>
             </div>
 
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
-                    <h4>Exemplo 1: Calculo do fluxo de calor</h4>
-                    <p><strong>Problema:</strong> Uma barra de cobre tem k = 400 W/m.K, area de 0,010 m², comprimento de 1,0 m e diferenca de temperatura de 80 °C. Qual e o fluxo de calor?</p>
-                    <div class="solution-step"><strong>Formula:</strong> Q/t = k.A.(ΔT/L)</div>
+                    <h4>Exemplo 1: Cálculo do fluxo de calor</h4>
+                    <p><strong>Problema:</strong> Uma barra de cobre tem k = 400 W/m.K, área de 0,010 m², comprimento de 1,0 m e diferença de temperatura de 80 °C. Qual é o fluxo de calor?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> Q/t = k.A.(ΔT/L)</div>
                     <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: Q/t = 400 . 0,010 . 80 / 1,0</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Calcular: Q/t = 320 W</div>
-                    <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor e 320 W.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor é 320 W.</div>
                 </div>
 
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Efeito do comprimento</h4>
                     <p><strong>Problema:</strong> Se o comprimento da barra dobrar, mantendo k, A e ΔT constantes, o que acontece com o fluxo de calor?</p>
                     <div class="solution-step"><strong>Ideia:</strong> Na Lei de Fourier, o comprimento aparece no denominador.</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Se L dobra, a razao ΔT/L fica pela metade.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> O fluxo de calor tambem cai pela metade.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Se L dobra, a razão ΔT/L fica pela metade.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> O fluxo de calor também cai pela metade.</div>
                     <div class="solution-step"><strong>Resposta:</strong> O fluxo de calor fica igual a metade do valor inicial.</div>
                 </div>
 
                 <div class="solved-exercise">
                     <h4>Exemplo 3: Sentido do fluxo</h4>
-                    <p><strong>Problema:</strong> Uma extremidade da barra esta a 150 °C e a outra a 30 °C. Para onde o calor flui?</p>
-                    <div class="solution-step"><strong>Passo 1:</strong> Identificar a regiao mais quente e a mais fria.</div>
+                    <p><strong>Problema:</strong> Uma extremidade da barra está a 150 °C e a outra a 30 °C. Para onde o calor flui?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Identificar a região mais quente e a mais fria.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> O calor sempre flui espontaneamente do maior para o menor valor de temperatura.</div>
                     <div class="solution-step"><strong>Resposta:</strong> O calor flui da extremidade a 150 °C para a extremidade a 30 °C.</div>
                 </div>
@@ -786,48 +800,48 @@
 
             <div class="theory-content">
                 <div class="theory-section">
-                    <h3>Conducao de calor</h3>
-                    <p>A conducao termica e o processo de transferencia de energia termica por interacao microscopica entre particulas de um material, sem transporte macroscopia do proprio material. Em uma barra metalica, por exemplo, a energia se propaga da extremidade mais quente para a mais fria.</p>
+                    <h3>Condução de calor</h3>
+                    <p>A condução térmica é o processo de transferência de energia térmica por interação microscópica entre partículas de um material, sem transporte macroscópico do próprio material. Em uma barra metálica, por exemplo, a energia se propaga da extremidade mais quente para a mais fria.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>Lei de Fourier</h3>
-                    <p>A Lei de Fourier descreve quantitativamente o fluxo de calor por conducao:</p>
+                    <p>A Lei de Fourier descreve quantitativamente o fluxo de calor por condução:</p>
                     <div class="theory-formula">Q/t = k.A.(ΔT/L)</div>
                     <p>Onde:</p>
                     <ul>
-                        <li><span class="highlight">Q/t</span> = taxa de transferencia de calor, em watts</li>
-                        <li><span class="highlight">k</span> = condutividade termica do material</li>
-                        <li><span class="highlight">A</span> = area da secao transversal</li>
-                        <li><span class="highlight">ΔT/Δx</span> = diferenca de temperatura ao longo da barra</li>
+                        <li><span class="highlight">Q/t</span> = taxa de transferência de calor, em watts</li>
+                        <li><span class="highlight">k</span> = condutividade térmica do material</li>
+                        <li><span class="highlight">A</span> = área da seção transversal</li>
+                        <li><span class="highlight">ΔT/Δx</span> = diferença de temperatura ao longo da barra</li>
                     </ul>
                     
                 </div>
 
                 <div class="theory-section">
-                    <h3>Barra com diferenca de temperatura (ΔT) uniforme</h3>
-                    <p>Quando a barra tem secao constante e as temperaturas das extremidades sao fixas, podemos usar a forma simplificada:</p>
+                    <h3>Barra com diferença de temperatura (ΔT) uniforme</h3>
+                    <p>Quando a barra tem seção constante e as temperaturas das extremidades são fixas, podemos usar a forma simplificada:</p>
                     <div class="theory-formula">Q/t = k.A.(ΔT/L)</div>
-                    <p>Nessa forma, o valor calculado representa a intensidade do fluxo de calor. O sentido fisico continua sendo do quente para o frio.</p>
+                    <p>Nessa forma, o valor calculado representa a intensidade do fluxo de calor. O sentido físico continua sendo do quente para o frio.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Como cada parametro afeta o fluxo</h3>
+                    <h3>Como cada parâmetro afeta o fluxo</h3>
                     <ul>
                         <li><span class="highlight">k maior:</span> materiais melhores condutores transferem calor mais rapidamente.</li>
-                        <li><span class="highlight">A maior:</span> uma barra mais grossa permite maior transferencia de energia por segundo.</li>
-                        <li><span class="highlight">ΔT maior:</span> quanto maior a diferenca de temperatura, maior o fluxo.</li>
-                        <li><span class="highlight">L maior:</span> barras mais longas dificultam a transferencia, reduzindo o fluxo.</li>
+                        <li><span class="highlight">A maior:</span> uma barra mais grossa permite maior transferência de energia por segundo.</li>
+                        <li><span class="highlight">ΔT maior:</span> quanto maior a diferença de temperatura, maior o fluxo.</li>
+                        <li><span class="highlight">L maior:</span> barras mais longas dificultam a transferência, reduzindo o fluxo.</li>
                     </ul>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Aplicacoes praticas</h3>
+                    <h3>Aplicações práticas</h3>
                     <ul>
-                        <li>isolamento termico em construcoes</li>
+                        <li>isolamento térmico em construções</li>
                         <li>projeto de panelas, dissipadores e trocadores de calor</li>
-                        <li>estudo de perdas termicas em tubos e paredes</li>
-                        <li>engenharia de refrigeracao e climatizacao</li>
+                        <li>estudo de perdas térmicas em tubos e paredes</li>
+                        <li>engenharia de refrigeração e climatização</li>
                     </ul>
                 </div>
             </div>
@@ -867,8 +881,8 @@
 
         const materialNames = {
             '400': 'Cobre',
-            '205': 'Aluminio',
-            '50': 'Aco',
+            '205': 'Alumínio',
+            '50': 'Aço',
             '1.0': 'Vidro',
             '0.12': 'Madeira'
         };
@@ -1279,7 +1293,7 @@
 
             ctx.font = '13px Arial';
             ctx.fillStyle = '#cfe8ff';
-            ctx.fillText(`Area visivel da secao: ${area.toFixed(3)} m²`, canvas.width / 2, rodY - 10);
+            ctx.fillText(`Área visível da seção: ${area.toFixed(3)} m²`, canvas.width / 2, rodY - 10);
 
             ctx.fillStyle = '#d9e2ec';
             ctx.fillText('x = 0', rodX, rodY + geometry.height + 44);
@@ -1315,7 +1329,7 @@
 
             ctx.fillStyle = '#ffe08a';
             ctx.textAlign = 'left';
-            ctx.fillText('Secao A', rodX + rodWidth + geometry.depth + 44, rodY + geometry.height * 0.1 - geometry.topLift + 4);
+            ctx.fillText('Seção A', rodX + rodWidth + geometry.depth + 44, rodY + geometry.height * 0.1 - geometry.topLift + 4);
 
             ctx.fillStyle = '#ffd166';
             ctx.font = 'bold 15px Arial';
@@ -1369,7 +1383,7 @@
             document.getElementById('heatFluxDensityDisplay').textContent = heatFluxDensity.toFixed(2) + ' W/m²';
             document.getElementById('directionDisplay').textContent = 'Quente → Frio';
             document.getElementById('energyTimeDisplay').textContent = timeForTenKilojoules.toFixed(2) + ' s';
-            document.getElementById('regimeDisplay').textContent = 'Conducao 1D estacionaria';
+            document.getElementById('regimeDisplay').textContent = 'Condução 1D estacionária';
         }
 
         function resetSimulation() {
@@ -1479,7 +1493,7 @@
             });
 
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert('Como usar:\n\n• Escolha o material ou ajuste manualmente a condutividade termica.\n• Defina as temperaturas das extremidades da barra.\n• Ajuste o comprimento e a area da secao transversal.\n• A barra agora muda visualmente de comprimento quando L varia.\n• A secao transversal aparece como quadrada, com lado ligado a area A.\n• O grafico mostra o perfil de temperatura T(x) ao longo da barra.\n• Quanto maior o fluxo de calor, maior a quantidade e a velocidade das particulas animadas.\n\nDica: compare uma barra curta e grossa com uma barra longa e fina.');
+                alert('Como usar:\n\n• Escolha o material ou ajuste manualmente a condutividade térmica.\n• Defina as temperaturas das extremidades da barra.\n• Ajuste o comprimento e a área da seção transversal.\n• A barra agora muda visualmente de comprimento quando L varia.\n• A seção transversal aparece como quadrada, com lado ligado à área A.\n• O gráfico mostra o perfil de temperatura T(x) ao longo da barra.\n• Quanto maior o fluxo de calor, maior a quantidade e a velocidade das partículas animadas.\n\nDica: compare uma barra curta e grossa com uma barra longa e fina.');
             });
         }
 
@@ -1493,6 +1507,7 @@
             document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
             document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
             document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
 
             window.addEventListener('click', function(event) {
                 if (event.target === document.getElementById('exercisesModal')) {
@@ -1505,12 +1520,16 @@
             });
         }
 
-        function closeExercisesModal() {
-            document.getElementById('exercisesModal').style.display = 'none';
+        function resetExerciseState() {
             currentExercise = 0;
             exerciseResults = [];
             skippedQuestions = 0;
             currentExerciseAttempts = 0;
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            resetExerciseState();
         }
 
         function closeSolvedExercisesModal() {
@@ -1529,37 +1548,227 @@
             document.getElementById('theoryModal').style.display = 'flex';
         }
 
-        function generateExercises(){exercises=[];var tipos=shuffleArray(['fluxo','k','area','L','int','comp']);for(var i=0;i<6;i++){var t=tipos[i];if(t==='fluxo'){var k=[0.12,1.0,50,205,400][Math.floor(Math.random()*5)];var a=((Math.floor(Math.random()*9)+2)/1000).toFixed(3);var d=(Math.floor(Math.random()*10)+3)*10;var l=((Math.floor(Math.random()*8)+4)/10).toFixed(1);var f=(k*parseFloat(a)*d/parseFloat(l)).toFixed(2);var q='Uma barra de '+k+' W/m.K, A='+a+String.fromCharCode(178)+', L='+l+' m E '+String.fromCharCode(916)+'T='+d+String.fromCharCode(176)+'C. Qual fluxo?';exercises.push({type:t,question:q,answer:f+' W',options:generateOptions(parseFloat(f),'W')})}else if(t==='k'){var fk=Math.floor(Math.random()*200)+100;var ak=((Math.floor(Math.random()*4)+5)/1000).toFixed(3);var dk=(Math.floor(Math.random()*8)+2)*10;var lk=((Math.floor(Math.random()*3)+3)/10).toFixed(1);var kv=(fk*parseFloat(lk)/(parseFloat(ak)*dk)).toFixed(1);var qk='Q/t='+fk+' W, A='+ak+String.fromCharCode(178)+', L='+lk+' m, '+String.fromCharCode(916)+'T='+dk+String.fromCharCode(176)+'C. Qual k?';exercises.push({type:t,question:qk,answer:kv+' W/m.K',options:generateOptions(parseFloat(kv),'W/m.K')})}else if(t==='area'){var fa=Math.floor(Math.random()*200)+100;var ka=[50,205,400][Math.floor(Math.random()*3)];var da=(Math.floor(Math.random()*8)+2)*10;var la=((Math.floor(Math.random()*3)+3)/10).toFixed(1);var av=(fa*parseFloat(la)/(ka*da)).toFixed(4);var qa='Q/t='+fa+' W, k='+ka+', L='+la+' m, '+String.fromCharCode(916)+'T='+da+String.fromCharCode(176)+'C. Qual area?';exercises.push({type:t,question:qa,answer:av+String.fromCharCode(178),options:generateOptions(parseFloat(av),String.fromCharCode(178))})}else if(t==='L'){var fl=Math.floor(Math.random()*200)+100;var kl=[50,205,400][Math.floor(Math.random()*3)];var al=((Math.floor(Math.random()*4)+5)/1000).toFixed(3);var dl=(Math.floor(Math.random()*8)+2)*10;var lv=(kl*parseFloat(al)*dl/fl).toFixed(2);var ql='Q/t='+fl+' W, k='+kl+', A='+al+String.fromCharCode(178)+', '+String.fromCharCode(916)+'T='+dl+String.fromCharCode(176)+'C. Qual L?';exercises.push({type:t,question:ql,answer:lv+' m',options:generateOptions(parseFloat(lv),'m')})}else if(t==='int'){var opts=[{q:'Se L triplicar (k, A, '+String.fromCharCode(916)+'T const), fluxo?',r:'cai para 1/3',o:['cai para 1/3','triplica','igual','cai a metade','9x']},{q:'Alta condutividade termica:',r:'transfere calor rapido',o:['transfere rapido','transfere devagar','isola calor','so a baixas T','armazena']},{q:'Cobre (k=400) e vidro (k=1,0) mesmo '+String.fromCharCode(916)+'T. Cobre:',r:'400x mais',o:['400x mais','400x menos','igual','40x','nao']},{q:'Area barra reduzida a metade? Fluxo:',r:'cai a metade',o:['cai a metade','dobra','quadruplica','constante','depende']}];var esc=opts[Math.floor(Math.random()*opts.length)];exercises.push({type:t,question:esc.q,answer:esc.r,options:shuffleArray(esc.o)})}else if(t==='comp'){var mats=['cobre','aluminio','aco','vidro','madeira'];var ks=[400,205,50,1.0,0.12];var i1=Math.floor(Math.random()*5);var i2=Math.floor(Math.random()*5);while(i2===i1)i2=Math.floor(Math.random()*5);var rc=(ks[i1]/ks[i2]).toFixed(1);var qc='Comparando '+mats[i1]+' (k='+ks[i1]+') e '+mats[i2]+' (k='+ks[i2]+'), '+mats[i1]+' transmite quantas x mais calor?';exercises.push({type:t,question:qc,answer:rc+'x',options:shuffleArray([rc+'x',(ks[i2]/ks[i1]).toFixed(1)+'x','1x','0x',Math.round(ks[i1]/ks[i2])*2+'x'])})}}exercises=shuffleArray(exercises)}function generateOptions(correctValue, unit) {
-            const options = [];
-            let attempts = 0;
-            const maxAttempts = 15;
-            const formattedCorrect = correctValue.toFixed(2) + ' ' + unit;
-            options.push(formattedCorrect);
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
 
-            for (let i = 0; i < 4; i++) {
-                let optionValue;
-                let formattedOption;
-                let unique = false;
-                attempts = 0;
-                do {
-                    const variationType = Math.random();
-                    if (variationType < 0.3) {
-                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
-                    } else if (variationType < 0.6) {
-                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
-                    } else {
-                        const percentChange = (Math.random() * 40 + 10) / 100;
-                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+        function formatRatioValue(value) {
+            const safeValue = Math.max(Math.abs(value), 0.0001);
+            if (safeValue >= 100) {
+                return safeValue.toFixed(1) + 'x';
+            }
+            if (safeValue >= 1) {
+                return safeValue.toFixed(2) + 'x';
+            }
+            if (safeValue >= 0.1) {
+                return safeValue.toFixed(3) + 'x';
+            }
+            if (safeValue >= 0.01) {
+                return safeValue.toFixed(4) + 'x';
+            }
+            return safeValue.toFixed(5) + 'x';
+        }
+
+        function buildComparisonOptions(correctRatio) {
+            const options = [];
+            const labels = new Set();
+            const baseRatio = Math.max(Math.abs(correctRatio), 0.0001);
+
+            function addOption(value) {
+                const label = formatRatioValue(value);
+                if (!labels.has(label)) {
+                    labels.add(label);
+                    options.push(label);
+                }
+            }
+
+            addOption(baseRatio);
+            addOption(1 / baseRatio);
+            addOption(baseRatio * 2);
+            addOption(baseRatio / 2);
+            addOption(1);
+
+            let attempts = 0;
+            while (options.length < 5 && attempts < 100) {
+                attempts++;
+                const factor = 0.35 + Math.random() * 2.1;
+                addOption(baseRatio * factor);
+            }
+
+            return shuffleArray(options.slice(0, 5));
+        }
+
+        function formatExerciseValue(value, unit) {
+            const absValue = Math.abs(value);
+            let formatted;
+
+            if (absValue > 0 && absValue < 0.001) {
+                formatted = value.toExponential(2);
+            } else if (unit === 'm²') {
+                formatted = value.toFixed(absValue < 0.01 ? 5 : 4);
+            } else if (unit === 'm') {
+                formatted = value.toFixed(absValue < 1 ? 3 : 2);
+            } else if (unit === 'W/m.K') {
+                formatted = value.toFixed(1);
+            } else {
+                formatted = value.toFixed(2);
+            }
+
+            return formatted + ' ' + unit;
+        }
+
+        function buildExerciseByType(type) {
+            if (type === 'fluxo') {
+                const k = [0.12, 1.0, 50, 205, 400][randomInt(0, 4)];
+                const areaValue = randomInt(2, 10) / 1000;
+                const deltaTempValue = randomInt(3, 12) * 10;
+                const lengthValue = randomInt(4, 12) / 10;
+                const flow = (k * areaValue * deltaTempValue) / lengthValue;
+                return {
+                    type: 'fluxo',
+                    question: `Uma barra possui k = ${k} W/m.K, área A = ${areaValue.toFixed(3)} m², comprimento L = ${lengthValue.toFixed(1)} m e diferença de temperatura ΔT = ${deltaTempValue} °C. Qual é o fluxo de calor Q/t?`,
+                    answer: formatExerciseValue(flow, 'W'),
+                    options: generateOptions(flow, 'W')
+                };
+            }
+
+            if (type === 'k') {
+                const flow = randomInt(100, 300);
+                const areaValue = randomInt(5, 8) / 1000;
+                const deltaTempValue = randomInt(2, 9) * 10;
+                const lengthValue = randomInt(3, 5) / 10;
+                const conductivityValue = (flow * lengthValue) / (areaValue * deltaTempValue);
+                return {
+                    type: 'k',
+                    question: `Em uma barra, Q/t = ${flow} W, A = ${areaValue.toFixed(3)} m², L = ${lengthValue.toFixed(1)} m e ΔT = ${deltaTempValue} °C. Qual é a condutividade térmica k?`,
+                    answer: formatExerciseValue(conductivityValue, 'W/m.K'),
+                    options: generateOptions(conductivityValue, 'W/m.K')
+                };
+            }
+
+            if (type === 'area') {
+                const flow = randomInt(120, 320);
+                const k = [50, 205, 400][randomInt(0, 2)];
+                const deltaTempValue = randomInt(2, 9) * 10;
+                const lengthValue = randomInt(3, 6) / 10;
+                const areaValue = (flow * lengthValue) / (k * deltaTempValue);
+                return {
+                    type: 'area',
+                    question: `Para uma barra com Q/t = ${flow} W, k = ${k} W/m.K, L = ${lengthValue.toFixed(1)} m e ΔT = ${deltaTempValue} °C, qual deve ser a área da seção transversal A?`,
+                    answer: formatExerciseValue(areaValue, 'm²'),
+                    options: generateOptions(areaValue, 'm²')
+                };
+            }
+
+            if (type === 'comprimento') {
+                const flow = randomInt(100, 260);
+                const k = [50, 205, 400][randomInt(0, 2)];
+                const areaValue = randomInt(5, 9) / 1000;
+                const deltaTempValue = randomInt(2, 9) * 10;
+                const lengthValue = (k * areaValue * deltaTempValue) / flow;
+                return {
+                    type: 'comprimento',
+                    question: `Sabendo que Q/t = ${flow} W, k = ${k} W/m.K, A = ${areaValue.toFixed(3)} m² e ΔT = ${deltaTempValue} °C, qual é o comprimento L da barra?`,
+                    answer: formatExerciseValue(lengthValue, 'm'),
+                    options: generateOptions(lengthValue, 'm')
+                };
+            }
+
+            if (type === 'interpretacao') {
+                const concepts = [
+                    {
+                        question: 'Se o comprimento da barra triplicar, mantendo k, A e ΔT constantes, o fluxo de calor:',
+                        answer: 'cai para 1/3 do valor inicial',
+                        options: ['cai para 1/3 do valor inicial', 'triplica', 'permanece igual', 'cai para a metade', 'aumenta 9 vezes']
+                    },
+                    {
+                        question: 'Se a área da seção transversal cair pela metade, mantendo k, L e ΔT constantes, o fluxo de calor:',
+                        answer: 'cai para a metade do valor inicial',
+                        options: ['cai para a metade do valor inicial', 'dobra', 'permanece igual', 'quadruplica', 'depende apenas da temperatura']
+                    },
+                    {
+                        question: 'Sobre o sentido espontâneo da condução térmica, é correto afirmar que:',
+                        answer: 'o calor flui da região mais quente para a mais fria',
+                        options: ['o calor flui da região mais quente para a mais fria', 'o calor flui da região mais fria para a mais quente', 'não há fluxo com ΔT diferente de zero', 'o fluxo alterna de sentido naturalmente', 'o sentido depende somente da área']
                     }
-                    formattedOption = optionValue.toFixed(2) + ' ' + unit;
-                    unique = !options.includes(formattedOption);
-                    attempts++;
-                    if (attempts > maxAttempts) {
-                        formattedOption = formattedOption + ' (opcao ' + (i + 1) + ')';
-                        unique = true;
-                    }
-                } while (!unique);
-                options.push(formattedOption);
+                ];
+                const selected = concepts[randomInt(0, concepts.length - 1)];
+                return {
+                    type: 'interpretacao',
+                    question: selected.question,
+                    answer: selected.answer,
+                    options: shuffleArray(selected.options.slice())
+                };
+            }
+
+            const materialNamesComp = ['cobre', 'aluminio', 'aco', 'vidro', 'madeira'];
+            const kValues = [400, 205, 50, 1.0, 0.12];
+            let first = randomInt(0, 4);
+            let second = randomInt(0, 4);
+            while (second === first) {
+                second = randomInt(0, 4);
+            }
+            const ratio = (kValues[first] / kValues[second]);
+            const answerRatio = formatRatioValue(ratio);
+
+            return {
+                type: 'comparacao',
+                question: `Comparando ${materialNamesComp[first]} (k = ${kValues[first]} W/m.K) e ${materialNamesComp[second]} (k = ${kValues[second]} W/m.K), qual é o fator de transmissão de calor do ${materialNamesComp[first]} em relação ao ${materialNamesComp[second]}, nas mesmas condições?`,
+                answer: answerRatio,
+                options: buildComparisonOptions(ratio)
+            };
+        }
+
+        function generateExercises() {
+            const questionTypes = shuffleArray(['fluxo', 'k', 'area', 'comprimento', 'interpretacao', 'comparacao']);
+            exercises = questionTypes.map(function(type) {
+                return buildExerciseByType(type);
+            });
+        }
+
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            const labels = new Set();
+            const base = Math.max(Math.abs(correctValue), 1e-6);
+            const formattedCorrect = formatExerciseValue(correctValue, unit);
+
+            options.push(formattedCorrect);
+            labels.add(formattedCorrect);
+
+            let attempts = 0;
+            const maxAttempts = 120;
+
+            while (options.length < 5 && attempts < maxAttempts) {
+                attempts++;
+                let factor = 0.45 + Math.random() * 1.4;
+                if (Math.random() > 0.5) {
+                    factor = 1 / factor;
+                }
+
+                let optionValue = Math.abs(correctValue * factor);
+                if (optionValue === 0) {
+                    optionValue = base * (0.5 + Math.random());
+                }
+                if (unit === 'W/m.K') {
+                    optionValue = Math.max(0.1, optionValue);
+                }
+
+                const formattedOption = formatExerciseValue(optionValue, unit);
+                if (!labels.has(formattedOption)) {
+                    labels.add(formattedOption);
+                    options.push(formattedOption);
+                }
+            }
+
+            while (options.length < 5) {
+                const optionValue = Math.abs(correctValue + base * 0.17 * options.length);
+                const formattedOption = formatExerciseValue(optionValue, unit);
+                if (!labels.has(formattedOption)) {
+                    labels.add(formattedOption);
+                    options.push(formattedOption);
+                } else {
+                    break;
+                }
             }
 
             return shuffleArray(options);
@@ -1622,7 +1831,7 @@
             const options = container.querySelectorAll('.option');
 
             if (!selectedOption) {
-                resultDiv.textContent = 'Por favor, selecione uma opcao.';
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
                 resultDiv.className = 'result error';
                 return;
             }
@@ -1635,7 +1844,7 @@
             const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
 
             if (isCorrect) {
-                resultDiv.textContent = 'Correto! Parabens!';
+                resultDiv.textContent = 'Correto! Parabéns!';
                 resultDiv.className = 'result success';
                 selectedOption.classList.add('correct');
                 exerciseResults.push({
@@ -1651,7 +1860,7 @@
                 resultDiv.innerHTML = `
                     <div class="error">Incorreto. Tente novamente.</div>
                     <div class="button-group">
-                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercicio</button>
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
                         <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
                     </div>
                 `;
@@ -1665,53 +1874,22 @@
 
         function generateNewExerciseOfSameType() {
             const currentType = exercises[currentExercise].type;
-            if (currentType === 'calcular_fluxo') {
-                const k = [0.12, 1.0, 50, 205, 400][Math.floor(Math.random() * 5)];
-                const a = ((Math.floor(Math.random() * 9) + 2) / 1000).toFixed(3);
-                const delta = (Math.floor(Math.random() * 10) + 3) * 10;
-                const length = ((Math.floor(Math.random() * 8) + 4) / 10).toFixed(1);
-                const flow = (k * parseFloat(a) * delta / parseFloat(length)).toFixed(2);
-                exercises[currentExercise] = {
-                    type: 'calcular_fluxo',
-                    question: `Uma barra tem k = ${k} W/m.K, area A = ${a} m², comprimento L = ${length} m e diferenca de temperatura ΔT = ${delta} °C. Qual e o fluxo de calor?`,
-                    answer: `${flow} W`,
-                    options: generateOptions(parseFloat(flow), 'W')
-                };
-                return;
-            }
+            exercises[currentExercise] = buildExerciseByType(currentType);
+        }
 
-            if (currentType === 'proporcionalidade') {
-                const ratioType = Math.random() < 0.5 ? 'comprimento' : 'area';
-                const ratioAnswer = ratioType === 'comprimento' ? 'metade do valor inicial' : 'dobro do valor inicial';
-                exercises[currentExercise] = {
-                    type: 'proporcionalidade',
-                    question: ratioType === 'comprimento'
-                        ? 'Se o comprimento da barra dobrar, mantendo k, A e ΔT constantes, o que acontece com o fluxo de calor?'
-                        : 'Se a area da secao transversal dobrar, mantendo k, L e ΔT constantes, o que acontece com o fluxo de calor?',
-                    answer: ratioAnswer,
-                    options: shuffleArray(['metade do valor inicial', 'dobro do valor inicial', 'permanece igual', 'cai para um quarto', 'quadruplica'])
-                };
-                return;
+        function resetAndRestartExercises() {
+            if (confirm('Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.')) {
+                resetExerciseState();
+                generateExercises();
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
             }
-
-            const hot = (Math.floor(Math.random() * 8) + 8) * 10;
-            const cold = (Math.floor(Math.random() * 4) + 1) * 10;
-            exercises[currentExercise] = {
-                type: 'sentido_fluxo',
-                question: `Uma extremidade da barra esta a ${hot} °C e a outra esta a ${cold} °C. Qual e o sentido do fluxo de calor?`,
-                answer: `de ${hot} °C para ${cold} °C`,
-                options: shuffleArray([
-                    `de ${hot} °C para ${cold} °C`,
-                    `de ${cold} °C para ${hot} °C`,
-                    'nao ha fluxo de calor',
-                    'o fluxo alterna de sentido',
-                    'depende apenas da area'
-                ])
-            };
         }
 
         function skipExercise() {
-            if (confirm('Deseja pular este exercicio? Um erro sera registrado em seu relatorio.')) {
+            if (confirm('Deseja pular este exercício? Um erro será registrado em seu relatório.')) {
                 exerciseResults.push({
                     exercise: currentExercise,
                     correct: false,
@@ -1757,7 +1935,7 @@
             document.getElementById('submitConclusion').addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
                 showResults(conclusionText);
@@ -1775,9 +1953,9 @@
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
 
             document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercicios respondidos: ${totalExercises}</p>
+                <p>Exercícios respondidos: ${totalExercises}</p>
                 <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercicios pulados: ${skippedQuestions}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${scorePercentage}%</p>
             `;
 
@@ -1796,7 +1974,7 @@
             const sendButton = document.getElementById('sendResults');
 
             if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatorios.');
+                alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
 
@@ -1857,16 +2035,16 @@
                 }
                 const emailDataAluno = {
                     to_email: studentEmail,
-                    nome_aluno: studentName || 'Nao informado',
-                    serie: studentGrade || 'Nao informado',
-                    turma: studentClass || 'Nao informado',
+                    nome_aluno: studentName || 'Não informado',
+                    serie: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
                     nota: scorePercentage + '%' || '0%',
                     acertos: `${correctAnswers}/${totalExercises}` || '0/0',
                     questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Nao informado',
+                    conclusao: finalConclusion || 'Não informado',
                     data_envio: new Date().toLocaleString('pt-BR'),
                     simulacao: 'Fluxo de Calor e Lei de Fourier',
-                    mensagem: `Confirmacao de Envio - Fluxo de Calor e Lei de Fourier\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulacoes Fisicas`
+                    mensagem: `Confirmação de Envio - Fluxo de Calor e Lei de Fourier\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questões\n- Questões puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
                 };
                 return fetch(emailScriptUrl, {
                     method: 'POST',
@@ -1894,6 +2072,7 @@
         }
 
         function openExercisesModal() {
+            resetExerciseState();
             generateExercises();
             document.getElementById('exercisesModal').style.display = 'flex';
             document.getElementById('exerciseContainer').style.display = 'block';
@@ -1911,7 +2090,7 @@
             if (!studentNameFluxoDeCalor) {
                 let promptedName = '';
                 try {
-                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                    promptedName = prompt('Qual é o seu nome? Vou usar isso nos áudios da simulação.');
                 } catch (error) {
                     promptedName = '';
                 }
@@ -1923,32 +2102,32 @@
         const tracks = [
             function() {
                 ensureStudentNameFluxoDeCalor();
-                return `Ola, ${studentNameFluxoDeCalor}. Esta simulacao mostra o fluxo de calor em uma barra e organiza a leitura da Lei de Fourier em um painel lateral. A barra colorida representa a variacao de temperatura, enquanto as setas animadas indicam o sentido da transferencia de energia.`;
+                return `Olá, ${studentNameFluxoDeCalor}. Esta simulação mostra o fluxo de calor em uma barra e organiza a leitura da Lei de Fourier em um painel lateral. A barra colorida representa a variação de temperatura, enquanto as setas animadas indicam o sentido da transferência de energia.`;
             },
             function() {
-                return 'O primeiro ponto importante e lembrar que calor nao e a mesma coisa que temperatura. Temperatura mede um estado termico, enquanto calor e energia em transito. Quando existe diferenca de temperatura entre duas regioes, surge transferencia de energia termica.';
+                return 'O primeiro ponto importante é lembrar que calor não é a mesma coisa que temperatura. Temperatura mede um estado térmico, enquanto calor é energia em trânsito. Quando existe diferença de temperatura entre duas regiões, surge transferência de energia térmica.';
             },
             function() {
-                return 'A Lei de Fourier afirma que a taxa de transferencia de calor depende da condutividade do material, da area da secao transversal e do diferenca de temperatura (ΔT). Em uma barra uniforme, essa relacao pode ser escrita como Q sobre t igual a k vezes A vezes Delta T sobre L.';
+                return 'A Lei de Fourier afirma que a taxa de transferência de calor depende da condutividade do material, da área da seção transversal e da diferença de temperatura (ΔT). Em uma barra uniforme, essa relação pode ser escrita como Q sobre t igual a k vezes A vezes Delta T sobre L.';
             },
             function() {
-                return 'Observe que o comprimento aparece no denominador. Isso significa que barras mais longas dificultam a passagem de calor. Ja barras mais curtas facilitam a transferencia de energia termica.';
+                return 'Observe que o comprimento aparece no denominador. Isso significa que barras mais longas dificultam a passagem de calor. Já barras mais curtas facilitam a transferência de energia térmica.';
             },
             function() {
-                return 'A area aparece multiplicando o fluxo. Por isso, uma barra mais grossa permite maior transferencia de calor por segundo. Esse efeito pode ser comparado diretamente nos controles da simulacao.';
+                return 'A área aparece multiplicando o fluxo. Por isso, uma barra mais grossa permite maior transferência de calor por segundo. Esse efeito pode ser comparado diretamente nos controles da simulação.';
             },
             function() {
-                return 'A condutividade termica diferencia bons condutores e bons isolantes. Materiais como cobre e aluminio transferem calor muito mais rapidamente do que madeira ou vidro.';
+                return 'A condutividade térmica diferencia bons condutores e bons isolantes. Materiais como cobre e alumínio transferem calor muito mais rapidamente do que madeira ou vidro.';
             },
             function() {
-                return 'Depois da exploracao, use os exercicios para consolidar tres ideias: como calcular o fluxo, como interpretar as proporcionalidades e como identificar o sentido fisico da transferencia de calor.';
+                return 'Depois da exploração, use os exercícios para consolidar três ideias: como calcular o fluxo, como interpretar as proporcionalidades e como identificar o sentido físico da transferência de calor.';
             }
         ];
 
         const exampleNarrations = {
-            '1': 'No primeiro exemplo, substituimos diretamente os valores na forma simplificada da Lei de Fourier. O objetivo e perceber como cada grandeza contribui para o resultado final do fluxo de calor.',
-            '2': 'No segundo exemplo, a ideia central e a proporcionalidade inversa com o comprimento. Nao e preciso recalcular tudo do zero quando apenas um parametro muda de maneira simples.',
-            '3': 'No terceiro exemplo, o foco e o sentido fisico do processo. O calor sempre flui espontaneamente da regiao de maior temperatura para a regiao de menor temperatura.'
+            '1': 'No primeiro exemplo, substituímos diretamente os valores na forma simplificada da Lei de Fourier. O objetivo é perceber como cada grandeza contribui para o resultado final do fluxo de calor.',
+            '2': 'No segundo exemplo, a ideia central é a proporcionalidade inversa com o comprimento. Não é preciso recalcular tudo do zero quando apenas um parâmetro muda de maneira simples.',
+            '3': 'No terceiro exemplo, o foco é o sentido físico do processo. O calor sempre flui espontaneamente da região de maior temperatura para a região de menor temperatura.'
         };
     </script>
     <script>
@@ -1960,10 +2139,10 @@
     <script src="../_shared/simulation-enhancer.js"></script>
 
 <!-- Nota sobre o desenvolvimento:
-     Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
-     Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+    Concepção e planejamento pedagógico: Flávio Ambrósio Campos.
+    Código assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
 
 <!-- Footer / Creditos -->
-<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licença MIT | Prof. Flávio Ambrósio - CEAN</p></footer>
 </body>
 </html>

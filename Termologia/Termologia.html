@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="citation_title" content="Simulação: Calor, Temperatura e Mudanças de Estado">
+    <meta name="citation_author" content="Flávio Ambrósio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737878">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/Termologia/">
+    <title>Simulação de Calor, Temperatura e Mudanças de Estado</title>
+    <style>
+        :root {
+            --bg-1: #1a1538;
+            --bg-2: #4a2b1f;
+            --panel: rgba(0, 0, 0, 0.6);
+            --panel-soft: rgba(255, 255, 255, 0.08);
+            --accent: #ffcc66;
+            --accent-2: #ff8c42;
+            --good: #35d07f;
+            --bad: #ff5d6c;
+            --text: #f7f7fb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+            background: linear-gradient(135deg, var(--bg-1), #2d274d 45%, var(--bg-2));
+        }
+        .container { max-width: 1280px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 14px;
+            padding: 16px 18px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .subtitle { color: #ffe39a; font-size: 1rem; letter-spacing: 0.3px; }
+        .content { display: flex; flex-wrap: wrap; gap: 20px; }
+        .simulation-panel, .controls-panel, .measurement-panel {
+            background: var(--panel);
+            border-radius: 14px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+        }
+        .simulation-panel {
+            flex: 2;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .controls-panel {
+            flex: 1;
+            padding: 18px;
+        }
+        .panel-title {
+            font-size: 1.25rem;
+            margin-bottom: 14px;
+            text-align: center;
+            color: var(--accent);
+        }
+        .simulation-container {
+            width: 100%;
+            height: 520px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: linear-gradient(180deg, #122033, #09121f);
+        }
+        #simulationCanvas { width: 100%; height: 100%; display: block; }
+        .visualization-toggle, .exercise-buttons, .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: transform 0.2s, background 0.2s, opacity 0.2s;
+        }
+        button:hover { transform: translateY(-1px); }
+        .primary-btn { background: linear-gradient(135deg, var(--accent), #ffd97e); color: #120f1f; }
+        .secondary-btn { background: #6c757d; color: #fff; }
+        .danger-btn { background: #b02a37; color: #fff; }
+        .exercise-btn { background: linear-gradient(135deg, var(--accent), #ffd24a); color: #101010; width: 100%; }
+        .exercise-btn.pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        .control-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 700; }
+        input[type="range"], select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .value-display { margin-top: 6px; text-align: center; color: #ffe39a; font-weight: 700; }
+        .formula-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            line-height: 1.55;
+            text-align: center;
+        }
+        .formula-line {
+            margin-top: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.05rem;
+            background: rgba(0, 0, 0, 0.28);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+        .teacher-tip {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-left: 4px solid var(--accent);
+            background: rgba(255, 204, 102, 0.12);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            text-align: left;
+        }
+        .legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 15px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+        .legend-color { width: 16px; height: 16px; border-radius: 4px; }
+        .ice { background: #8bd3ff; }
+        .liquid { background: #4aa3ff; }
+        .gas { background: #ffe082; }
+        .heating { background: #ff8c42; }
+        .measurement-panel {
+            width: 100%;
+            margin-top: 20px;
+            padding: 18px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+        .measurement-label { font-weight: 700; margin-bottom: 6px; }
+        .measurement-value { color: #ffe39a; font-weight: 800; font-size: 1.1rem; }
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 920px;
+            max-height: 88vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #22304a, #31476a, #4e3956);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+        }
+        .close { color: #fff; font-size: 26px; font-weight: 800; cursor: pointer; }
+        .restart-btn { background: #dc3545; color: #fff; }
+        .exercise { background: rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+        .exercise h3 { color: var(--accent); margin-bottom: 10px; text-align: center; }
+        .exercise p { margin-bottom: 10px; line-height: 1.55; }
+        .exercise-intro { color: #fff1bf; margin-bottom: 10px; font-size: 0.95rem; }
+        .options { display: grid; gap: 10px; margin: 12px 0; }
+        .option {
+            background: rgba(255, 255, 255, 0.09);
+            border-radius: 10px;
+            padding: 12px 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        .option:hover { background: rgba(255, 255, 255, 0.16); transform: translateX(2px); }
+        .selected { background: rgba(255, 204, 102, 0.22); border-color: #ffcc66; }
+        .correct { background: rgba(53, 208, 127, 0.2); border-color: #35d07f; }
+        .incorrect { background: rgba(255, 93, 108, 0.18); border-color: #ff5d6c; }
+        .disabled { pointer-events: none; opacity: 0.72; }
+        .check-btn, .skip-btn, .try-again-btn { width: 100%; margin-top: 10px; }
+        .check-btn { background: linear-gradient(135deg, var(--accent), #ffda84); color: #111; }
+        .skip-btn { background: #6c757d; color: #fff; }
+        .try-again-btn { background: #1f4b99; color: #fff; }
+        .result { margin-top: 10px; padding: 10px 12px; border-radius: 10px; text-align: center; font-weight: 800; }
+        .success { background: rgba(53, 208, 127, 0.18); color: #bbffd9; }
+        .error { background: rgba(255, 93, 108, 0.18); color: #ffd1d6; }
+        .progress { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .progress-item {
+            flex: 1;
+            min-width: 42px;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 800;
+        }
+        .progress-item.active { background: rgba(255, 204, 102, 0.28); border: 1px solid #ffcc66; }
+        .progress-item.completed { background: rgba(53, 208, 127, 0.22); }
+        .email-form { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+        .form-row { display: flex; flex-direction: column; gap: 8px; }
+        .form-row label { color: #ffe39a; }
+        .required::after { content: " *"; color: #ff5d6c; }
+        .form-row input, .form-row select, .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #d9d9d9;
+            font-size: 16px;
+        }
+        .form-row textarea { min-height: 90px; resize: vertical; }
+        .email-status { display: none; margin-top: 10px; padding: 10px 12px; border-radius: 10px; text-align: center; font-weight: 800; }
+        .sending { background: rgba(255, 204, 102, 0.18); color: #ffe39a; }
+        .sent { background: rgba(53, 208, 127, 0.16); color: #bbffd9; }
+        .error-status { background: rgba(255, 93, 108, 0.18); color: #ffd1d6; }
+        .solved-exercise {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .solved-exercise h4 { color: #ffdd88; margin-bottom: 10px; text-align: center; }
+        .solution-step { margin-top: 8px; padding-left: 12px; border-left: 3px solid var(--accent); }
+        .buttons-container { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+        .theory-section {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+        }
+        .theory-section h3 { color: #ffdd88; margin-bottom: 10px; text-align: center; }
+        .theory-section p { line-height: 1.6; text-align: justify; margin-bottom: 10px; }
+        .theory-section ul { padding-left: 22px; line-height: 1.55; }
+        .theory-section li { margin-bottom: 8px; }
+        .highlight { background: rgba(255, 204, 102, 0.18); padding: 2px 5px; border-radius: 5px; font-weight: 800; }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.08rem;
+            margin: 12px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.26);
+            border-radius: 10px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 14px;
+            color: #ccc;
+            font-size: 0.92rem;
+        }
+        .tiny-note { font-size: 0.9rem; color: #dfe7ff; margin-top: 8px; line-height: 1.4; }
+        @media (max-width: 768px) {
+            .content { flex-direction: column; }
+            .simulation-panel, .controls-panel { width: 100%; }
+            .simulation-container { height: 430px; }
+            h1 { font-size: 1.45rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Calor, Temperatura e Mudanças de Estado</h1>
+            <p class="subtitle">Introdução à Termologia com animação interativa, teoria, exercícios e gráficos</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Gráficos e amostra da substância</h2>
+                <div class="simulation-container">
+                    <canvas id="simulationCanvas"></canvas>
+                </div>
+                <div class="visualization-toggle">
+                    <button id="startBtn" class="primary-btn">Iniciar</button>
+                    <button id="pauseBtn" class="secondary-btn">Pausar</button>
+                    <button id="resetBtn" class="secondary-btn">Reiniciar</button>
+                    <button id="helpBtn" class="primary-btn">Ajuda</button>
+                    <button id="toggleVolumeZoomBtn" class="secondary-btn">V x T: zoom da água</button>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color ice"></div><span>Sólido / fusão</span></div>
+                    <div class="legend-item"><div class="legend-color liquid"></div><span>Líquido</span></div>
+                    <div class="legend-item"><div class="legend-color gas"></div><span>Vapor / ebulição</span></div>
+                    <div class="legend-item"><div class="legend-color heating"></div><span>Curvas e animação</span></div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+
+                <div class="control-group">
+                    <label for="substanceSelect">Substância:</label>
+                    <select id="substanceSelect">
+                        <option value="water">Água</option>
+                        <option value="ethanol">Etanol</option>
+                        <option value="paraffin">Parafina</option>
+                        <option value="mercury">Mercúrio</option>
+                        <option value="aluminum">Alumínio</option>
+                        <option value="iron">Ferro</option>
+                        <option value="oxygen">Oxigênio</option>
+                        <option value="nitrogen">Nitrogênio</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="massInput">Massa da amostra:</label>
+                    <input type="range" id="massInput" min="100" max="2000" value="500" step="50">
+                    <div class="value-display"><span id="massValue">500</span> g</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="initialTempInput">Temperatura inicial:</label>
+                    <input type="range" id="initialTempInput" min="-20" max="130" value="20" step="1">
+                    <div class="value-display"><span id="initialTempValue">20</span> °C</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="powerInput">Potência térmica:</label>
+                    <input type="range" id="powerInput" min="50" max="1500" value="300" step="25">
+                    <div class="value-display"><span id="powerValue">300</span> cal/s</div>
+                </div>
+
+                <div class="control-group">
+                    <label for="modeSelect">Modo:</label>
+                    <select id="modeSelect">
+                        <option value="heat">Aquecer</option>
+                        <option value="cool">Resfriar</option>
+                    </select>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Relações fundamentais</h3>
+                    <div class="formula-line">Calor sensível: Q = m·c·ΔT</div>
+                    <div class="formula-line">Capacidade térmica: C = m·c</div>
+                    <div class="formula-line">Calor latente: Q = m·L</div>
+                    <div class="tiny-note">Nesta simulação, a quantidade de calor é tratada em calorias (cal) e quilocalorias (kcal).</div>
+                    <div class="teacher-tip"><strong>Dica didática:</strong> calor é energia em trânsito; temperatura mede o estado térmico. Nem todo calor trocado muda a temperatura.</div>
+                </div>
+
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="measurement-panel">
+            <h2 class="panel-title">Medições e resultados</h2>
+            <div class="measurement-grid">
+                <div class="measurement-item"><div class="measurement-label">Substância</div><div class="measurement-value" id="substanceDisplay">Água</div></div>
+                <div class="measurement-item"><div class="measurement-label">Temperatura atual</div><div class="measurement-value" id="temperatureDisplay">20 °C</div></div>
+                <div class="measurement-item"><div class="measurement-label">Fase</div><div class="measurement-value" id="phaseDisplay">Líquido</div></div>
+                <div class="measurement-item"><div class="measurement-label">Calor trocado</div><div class="measurement-value" id="energyDisplay">0 cal</div></div>
+                <div class="measurement-item"><div class="measurement-label">Calor específico c</div><div class="measurement-value" id="specificHeatDisplay">1,00 cal/(g·°C)</div></div>
+                <div class="measurement-item"><div class="measurement-label">Capacidade térmica C</div><div class="measurement-value" id="capacityDisplay">500 cal/°C</div></div>
+                <div class="measurement-item"><div class="measurement-label">ΔT em relação ao início</div><div class="measurement-value" id="deltaTempDisplay">0 °C</div></div>
+                <div class="measurement-item"><div class="measurement-label">Calor até a próxima etapa</div><div class="measurement-value" id="nextStageDisplay">--</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Calor, Temperatura e Mudanças de Estado</h2>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+                <div class="progress-item" id="progress7">7</div>
+                <div class="progress-item" id="progress8">8</div>
+                <div class="progress-item" id="progress9">9</div>
+                <div class="progress-item" id="progress10">10</div>
+            </div>
+
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display:none;">
+                <h3>Conclusão de estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+
+            <div id="resultsContainer" style="display:none;">
+                <h3>Resultados dos exercícios</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                <div class="email-form">
+                    <div class="form-row"><label for="studentName" class="required">Nome completo:</label><input type="text" id="studentName" required></div>
+                    <div class="form-row"><label for="studentGrade" class="required">Série:</label><select id="studentGrade" required><option value="">Selecione sua série</option><option value="1º ano">1º ano</option><option value="2º ano">2º ano</option><option value="3º ano">3º ano</option></select></div>
+                    <div class="form-row"><label for="studentClass" class="required">Turma:</label><select id="studentClass" required><option value="">Selecione sua turma</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option></select></div>
+                    <div class="form-row"><label for="studentEmail">E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                    <div class="form-row"><label for="criticismInput">Críticas:</label><textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea></div>
+                    <div class="form-row"><label for="suggestionInput">Sugestões:</label><textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea></div>
+                    <div class="form-row"><label for="finalConclusion" class="required">Conclusão sobre o exercício:</label><textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea></div>
+                    <div id="emailStatus" class="email-status"></div>
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios resolvidos - Calor, Temperatura e Mudanças de Estado</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Calor sensível</h4>
+                    <p><strong>Problema:</strong> Uma massa de 500 g de água recebe calor e sua temperatura sobe de 20 °C para 30 °C. Considerando c = 1,0 cal/(g·°C), qual é o calor recebido?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> Q = m·c·ΔT</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> ΔT = 30 - 20 = 10 °C</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Q = 500 × 1,0 × 10 = 5000 cal</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O calor sensível recebido é 5000 cal.</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Capacidade térmica</h4>
+                    <p><strong>Problema:</strong> Qual é a capacidade térmica de uma amostra de água com massa 500 g?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> C = m·c</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> C = 500 × 1,0</div>
+                    <div class="solution-step"><strong>Resposta:</strong> C = 500 cal/°C.</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Calor latente de fusão</h4>
+                    <p><strong>Problema:</strong> Quanto calor é necessário para fundir 500 g de gelo? Considere Lf = 80 cal/g.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> Q = m·L</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Q = 500 × 80</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Q = 40 000 cal.</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 4: Temperatura constante na mudança de estado</h4>
+                    <p><strong>Problema:</strong> Por que a temperatura fica constante durante a fusão ou ebulição, mesmo recebendo calor?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> O calor é usado para romper/afrouxar interações entre partículas.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O calor recebido é latente e não aumenta a energia cinética média enquanto a mudança de estado ocorre.</div>
+                </div>
+                <div class="solved-exercise">
+                    <h4>Exemplo 5: Mudança de estado e cotidiano</h4>
+                    <p><strong>Problema:</strong> Por que o suor ajuda a resfriar o corpo?</p>
+                    <div class="solution-step"><strong>Ideia:</strong> A evaporação exige calor latente.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O suor absorve calor da pele para evaporar, retirando energia térmica do corpo.</div>
+                </div>
+            </div>
+            <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Teoria - Calor, Temperatura e Mudanças de Estado</h2><span class="close">&times;</span></div>
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Calor e temperatura</h3>
+                    <p>A <span class="highlight">temperatura</span> mede o estado térmico de um corpo, enquanto o <span class="highlight">calor</span> é energia em trânsito. Quando há diferença de temperatura, o calor flui espontaneamente do corpo mais quente para o mais frio.</p>
+                </div>
+                <div class="theory-section">
+                    <h3>Capacidade térmica e calor específico</h3>
+                    <p>Capacidade térmica é a quantidade de calor necessária para variar a temperatura de um corpo em 1 °C:</p>
+                    <div class="theory-formula">C = m·c</div>
+                    <p>O calor específico caracteriza a substância:</p>
+                    <div class="theory-formula">Q = m·c·ΔT</div>
+                    <p>Uma substância com maior calor específico precisa de mais energia para ter a mesma variação de temperatura.</p>
+                </div>
+                <div class="theory-section">
+                    <h3>Caloria</h3>
+                    <p>A <span class="highlight">caloria</span> é uma unidade de energia térmica muito usada em calorimetria escolar. Em termos clássicos, 1 cal é a quantidade de calor necessária para elevar a temperatura de 1 g de água em 1 °C.</p>
+                    <p>Quando os valores são maiores, também podemos usar a quilocaloria: <span class="highlight">1 kcal = 1000 cal</span>.</p>
+                </div>
+                <div class="theory-section">
+                    <h3>Calor latente e mudança de estado</h3>
+                    <p>Durante fusão, solidificação, vaporização ou condensação, a temperatura pode permanecer constante. Nesse caso, o calor recebido ou cedido é <span class="highlight">latente</span>:</p>
+                    <div class="theory-formula">Q = m·L</div>
+                    <p>O calor é usado para alterar a organização das partículas, e não para aumentar diretamente a temperatura.</p>
+                </div>
+                <div class="theory-section">
+                    <h3>Calor sensível e variação de temperatura</h3>
+                    <p>Quando a temperatura varia sem mudança de estado, o processo é chamado de <span class="highlight">calor sensível</span>. Nessa situação, a energia altera a agitação térmica média das partículas.</p>
+                </div>
+                <div class="theory-section">
+                    <h3>Aplicações no cotidiano</h3>
+                    <ul>
+                        <li>água usada em radiadores e chuveiros aquecidos.</li>
+                        <li>suor e resfriamento do corpo por evaporação.</li>
+                        <li>gelo em bebidas e conservação de alimentos.</li>
+                        <li>cozimento, derretimento de materiais e uso de panelas.</li>
+                        <li>isolamento térmico em casas, geladeiras e garrafas térmicas.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
+        </div>
+    </div>
+
+    <script>
+        const SUBSTANCES = {
+            water: {
+                name: 'Água', short: 'água', tFusion: 0, tBoil: 100,
+                cSolid: 0.50, cLiquid: 1.00, cGas: 0.48,
+                lFusion: 80, lVapor: 540,
+                vSolid: 1.05, vLiquid: 1.00, vGas: 5.40,
+                expandSolid: 0.0002, expandLiquid: 0.00035,
+                color: '#4aa3ff', iceColor: '#89d4ff', gasColor: '#ffe39a'
+            },
+            ethanol: {
+                name: 'Etanol', short: 'etanol', tFusion: -114, tBoil: 78,
+                cSolid: 0.42, cLiquid: 0.58, cGas: 0.39,
+                lFusion: 26, lVapor: 204,
+                vSolid: 1.08, vLiquid: 1.15, vGas: 4.80,
+                expandSolid: 0.00025, expandLiquid: 0.00045,
+                color: '#ffd166', iceColor: '#fff0b3', gasColor: '#ffe39a'
+            },
+            paraffin: {
+                name: 'Parafina', short: 'parafina', tFusion: 60, tBoil: 370,
+                cSolid: 0.50, cLiquid: 0.60, cGas: 0.45,
+                lFusion: 48, lVapor: 500,
+                vSolid: 0.95, vLiquid: 1.10, vGas: 4.30,
+                expandSolid: 0.0003, expandLiquid: 0.00055,
+                color: '#ff8c42', iceColor: '#ffd0a8', gasColor: '#ffcf70'
+            },
+            mercury: {
+                name: 'Mercúrio', short: 'mercúrio', tFusion: -39, tBoil: 357,
+                cSolid: 0.03, cLiquid: 0.033, cGas: 0.025,
+                lFusion: 2.8, lVapor: 70,
+                vSolid: 0.75, vLiquid: 0.80, vGas: 3.80,
+                expandSolid: 0.00015, expandLiquid: 0.00025,
+                color: '#b7c2d0', iceColor: '#e3e9ef', gasColor: '#f4f0d0'
+            },
+            aluminum: {
+                name: 'Alumínio', short: 'alumínio', tFusion: 660, tBoil: 2470,
+                cSolid: 0.215, cLiquid: 0.26, cGas: 0.22,
+                lFusion: 95, lVapor: 2500,
+                vSolid: 0.70, vLiquid: 0.82, vGas: 4.20,
+                expandSolid: 0.00018, expandLiquid: 0.00035,
+                color: '#c8d1dc', iceColor: '#eef3f8', gasColor: '#f4ebcf'
+            },
+            iron: {
+                name: 'Ferro', short: 'ferro', tFusion: 1538, tBoil: 2862,
+                cSolid: 0.11, cLiquid: 0.19, cGas: 0.12,
+                lFusion: 63, lVapor: 1510,
+                vSolid: 0.45, vLiquid: 0.55, vGas: 3.60,
+                expandSolid: 0.00012, expandLiquid: 0.00028,
+                color: '#8da2b8', iceColor: '#cad5df', gasColor: '#efe1c5'
+            },
+            oxygen: {
+                name: 'Oxigênio', short: 'oxigênio', tFusion: -219, tBoil: -183,
+                cSolid: 0.23, cLiquid: 0.40, cGas: 0.22,
+                lFusion: 3.3, lVapor: 51,
+                vSolid: 0.85, vLiquid: 1.00, vGas: 5.20,
+                expandSolid: 0.0002, expandLiquid: 0.00035,
+                color: '#8ae0ff', iceColor: '#c9f4ff', gasColor: '#ecfbff'
+            },
+            nitrogen: {
+                name: 'Nitrogênio', short: 'nitrogênio', tFusion: -210, tBoil: -196,
+                cSolid: 0.24, cLiquid: 0.49, cGas: 0.25,
+                lFusion: 6.1, lVapor: 48,
+                vSolid: 0.82, vLiquid: 0.96, vGas: 5.00,
+                expandSolid: 0.0002, expandLiquid: 0.00035,
+                color: '#80c9ff', iceColor: '#c7e5ff', gasColor: '#edf7ff'
+            }
+        };
+
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d');
+        const substanceSelect = document.getElementById('substanceSelect');
+        const massInput = document.getElementById('massInput');
+        const initialTempInput = document.getElementById('initialTempInput');
+        const powerInput = document.getElementById('powerInput');
+        const modeSelect = document.getElementById('modeSelect');
+        const massValue = document.getElementById('massValue');
+        const initialTempValue = document.getElementById('initialTempValue');
+        const powerValue = document.getElementById('powerValue');
+        const substanceDisplay = document.getElementById('substanceDisplay');
+        const temperatureDisplay = document.getElementById('temperatureDisplay');
+        const phaseDisplay = document.getElementById('phaseDisplay');
+        const energyDisplay = document.getElementById('energyDisplay');
+        const specificHeatDisplay = document.getElementById('specificHeatDisplay');
+        const capacityDisplay = document.getElementById('capacityDisplay');
+        const deltaTempDisplay = document.getElementById('deltaTempDisplay');
+        const nextStageDisplay = document.getElementById('nextStageDisplay');
+        const toggleVolumeZoomBtn = document.getElementById('toggleVolumeZoomBtn');
+
+        const state = {
+            substanceKey: 'water',
+            mass: 500,
+            initialTemp: 20,
+            currentHeat: 0,
+            initialHeat: 0,
+            heatRate: 300,
+            mode: 'heat',
+            volumeZoomEnabled: true,
+            running: false,
+            animationId: null,
+            lastTimestamp: 0,
+            particles: []
+        };
+
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let studentNameTermologia = localStorage.getItem('studentNameTermologia') || '';
+
+        function ensureStudentNameTermologia() {
+            if (!studentNameTermologia) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('Qual é o seu nome? Vou usar isso para personalizar a simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+                studentNameTermologia = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameTermologia', studentNameTermologia);
+            }
+            return studentNameTermologia;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameTermologia()}. Esta simulação relaciona calor, temperatura, capacidade térmica, calor específico e mudanças de estado por meio de gráficos e de uma amostra animada.`,
+            () => 'Temperatura mede o estado térmico. Calor é energia em trânsito. Quando existe diferença de temperatura, a energia flui espontaneamente do mais quente para o mais frio.',
+            () => 'Nos trechos inclinados da curva, a temperatura varia. Neles aparece o calor sensível. Nos patamares, a temperatura fica constante e aparece o calor latente.',
+            () => 'Capacidade térmica e calor específico mostram que substâncias diferentes respondem de modos diferentes à mesma quantidade de calor trocado.',
+            () => 'Nesta simulação, a quantidade de calor é expressa em calorias e quilocalorias, como é comum em problemas introdutórios de calorimetria.',
+            () => 'Observe também o gráfico de volume por temperatura. Ele ajuda a ligar a mudança de estado ao modo como a substância ocupa o espaço.',
+            () => 'Use os exercícios para consolidar ideias qualitativas, interpretação de gráficos e cálculos básicos de calorimetria.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1: usamos calor sensível, com Q igual a m vezes c vezes delta T. A temperatura varia e o estado físico não muda.',
+            '2': 'Exemplo 2: a capacidade térmica mostra quanto calor é necessário para variar a temperatura do corpo em um grau Celsius.',
+            '3': 'Exemplo 3: no calor latente, a temperatura pode permanecer constante enquanto ocorre mudança de estado.',
+            '4': 'Exemplo 4: o suor resfria o corpo porque sua evaporação absorve calor da pele.',
+            '5': 'Exemplo 5: um patamar na curva indica mudança de estado e troca de calor latente.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Calor, Temperatura e Mudanças de Estado',
+            storageKey: 'termologia'
+        };
+
+        function resizeCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function formatPtBr(value, decimals) {
+            return Number(value).toLocaleString('pt-BR', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatHeat(value) {
+            const absValue = Math.abs(value);
+            if (absValue >= 1000) {
+                return `${formatPtBr(value / 1000, 1)} kcal`;
+            }
+            return `${formatPtBr(value, 0)} cal`;
+        }
+
+        function formatSpecificHeat(value) {
+            return `${formatPtBr(value, 2)} cal/(g·°C)`;
+        }
+
+        function formatCapacity(value) {
+            return `${formatPtBr(value, 0)} cal/°C`;
+        }
+
+        function formatHeatAxisValue(value) {
+            return formatPtBr(value / 1000, 1);
+        }
+
+        function updateVolumeZoomButton() {
+            if (state.substanceKey === 'water') {
+                toggleVolumeZoomBtn.disabled = false;
+                toggleVolumeZoomBtn.textContent = state.volumeZoomEnabled ? 'V x T: zoom da água' : 'V x T: visão normal';
+                return;
+            }
+
+            toggleVolumeZoomBtn.disabled = true;
+            toggleVolumeZoomBtn.textContent = 'V x T: zoom da água';
+        }
+
+        function formatExerciseUnit(value, unit, digits) {
+            return `${formatPtBr(value, digits)} ${unit}`;
+        }
+
+        function getSubstance() {
+            return SUBSTANCES[state.substanceKey];
+        }
+
+        function getTempWindow(substance) {
+            const span = Math.max(80, substance.tBoil - substance.tFusion);
+            const lower = Math.max(35, span * 0.18);
+            const upper = Math.max(55, span * 0.18);
+            return {
+                minTemp: Math.floor(substance.tFusion - lower),
+                maxTemp: Math.ceil(substance.tBoil + upper)
+            };
+        }
+
+        function getStageModel(substance) {
+            const tempWindow = getTempWindow(substance);
+            const m = state.mass;
+            const heat1 = m * substance.cSolid * (substance.tFusion - tempWindow.minTemp);
+            const heat2 = heat1 + m * substance.lFusion;
+            const heat3 = heat2 + m * substance.cLiquid * (substance.tBoil - substance.tFusion);
+            const heat4 = heat3 + m * substance.lVapor;
+            const heat5 = heat4 + m * substance.cGas * (tempWindow.maxTemp - substance.tBoil);
+            return { tempWindow, heat1, heat2, heat3, heat4, heat5 };
+        }
+
+        function heatFromTemp(temp, substance) {
+            const model = getStageModel(substance);
+            if (temp <= substance.tFusion) {
+                return state.mass * substance.cSolid * (temp - model.tempWindow.minTemp);
+            }
+            if (temp <= substance.tBoil) {
+                return model.heat2 + state.mass * substance.cLiquid * (temp - substance.tFusion);
+            }
+            return model.heat4 + state.mass * substance.cGas * (temp - substance.tBoil);
+        }
+
+        function tempFromHeat(heat, substance) {
+            const model = getStageModel(substance);
+            if (heat <= model.heat1) {
+                return model.tempWindow.minTemp + heat / (state.mass * substance.cSolid);
+            }
+            if (heat <= model.heat2) {
+                return substance.tFusion;
+            }
+            if (heat <= model.heat3) {
+                return substance.tFusion + (heat - model.heat2) / (state.mass * substance.cLiquid);
+            }
+            if (heat <= model.heat4) {
+                return substance.tBoil;
+            }
+            return substance.tBoil + (heat - model.heat4) / (state.mass * substance.cGas);
+        }
+
+        function phaseInfoFromHeat(heat, substance) {
+            const model = getStageModel(substance);
+            if (heat < model.heat1) return { mode: 'solid', label: 'Sólido' };
+            if (heat <= model.heat2) {
+                return {
+                    mode: 'fusion',
+                    label: 'Fusão',
+                    fraction: (heat - model.heat1) / Math.max(model.heat2 - model.heat1, 1)
+                };
+            }
+            if (heat < model.heat3) return { mode: 'liquid', label: 'Líquido' };
+            if (heat <= model.heat4) {
+                return {
+                    mode: 'vaporization',
+                    label: 'Vaporização',
+                    fraction: (heat - model.heat3) / Math.max(model.heat4 - model.heat3, 1)
+                };
+            }
+            return { mode: 'gas', label: 'Vapor' };
+        }
+
+        function relativeSolidVolume(substance, temp) {
+            return substance.vSolid * (1 + substance.expandSolid * (temp - substance.tFusion));
+        }
+
+        function relativeLiquidVolume(substance, temp) {
+            if (state.substanceKey === 'water') {
+                if (temp >= 0 && temp <= 4) {
+                    const ratio = (4 - temp) / 4;
+                    return substance.vLiquid * (1 + 0.0012 * ratio * ratio);
+                }
+                if (temp > 4) {
+                    return substance.vLiquid * (1 + substance.expandLiquid * (temp - 4));
+                }
+            }
+            return substance.vLiquid * (1 + substance.expandLiquid * (temp - substance.tFusion));
+        }
+
+        function relativeGasVolume(substance, temp) {
+            const base = Math.max(0.2, (temp + 273.15) / (substance.tBoil + 273.15));
+            return substance.vGas * base;
+        }
+
+        function relativeVolumeFromHeat(heat, substance) {
+            const info = phaseInfoFromHeat(heat, substance);
+            const temp = tempFromHeat(heat, substance);
+            if (info.mode === 'solid') return relativeSolidVolume(substance, temp);
+            if (info.mode === 'fusion') {
+                const solidV = relativeSolidVolume(substance, substance.tFusion);
+                const liquidV = relativeLiquidVolume(substance, substance.tFusion);
+                return solidV + (liquidV - solidV) * info.fraction;
+            }
+            if (info.mode === 'liquid') return relativeLiquidVolume(substance, temp);
+            if (info.mode === 'vaporization') {
+                const liquidV = relativeLiquidVolume(substance, substance.tBoil);
+                const gasV = relativeGasVolume(substance, substance.tBoil);
+                return liquidV + (gasV - liquidV) * info.fraction;
+            }
+            return relativeGasVolume(substance, temp);
+        }
+
+        function currentSpecificHeat(substance, info) {
+            if (info.mode === 'solid' || info.mode === 'fusion') return substance.cSolid;
+            if (info.mode === 'liquid' || info.mode === 'vaporization') return substance.cLiquid;
+            return substance.cGas;
+        }
+
+        function updateControlRanges() {
+            const substance = getSubstance();
+            const tempWindow = getTempWindow(substance);
+            initialTempInput.min = tempWindow.minTemp;
+            initialTempInput.max = tempWindow.maxTemp;
+            initialTempInput.value = clamp(parseFloat(initialTempInput.value), tempWindow.minTemp, tempWindow.maxTemp);
+        }
+
+        function syncStateToInitialTemperature(stopMotion) {
+            updateControlRanges();
+            const substance = getSubstance();
+            state.initialTemp = parseFloat(initialTempInput.value);
+            state.initialHeat = heatFromTemp(state.initialTemp, substance);
+            state.currentHeat = state.initialHeat;
+            if (stopMotion) state.running = false;
+        }
+
+        function getNextStageHeatDelta(info, substance) {
+            const model = getStageModel(substance);
+            const boundaries = [0, model.heat1, model.heat2, model.heat3, model.heat4, model.heat5];
+            if (state.mode === 'heat') {
+                for (let index = 0; index < boundaries.length; index++) {
+                    if (boundaries[index] > state.currentHeat + 0.1) {
+                        return boundaries[index] - state.currentHeat;
+                    }
+                }
+                return 0;
+            }
+            for (let index = boundaries.length - 1; index >= 0; index--) {
+                if (boundaries[index] < state.currentHeat - 0.1) {
+                    return state.currentHeat - boundaries[index];
+                }
+            }
+            return 0;
+        }
+
+        function updateMeasurements() {
+            const substance = getSubstance();
+            const currentTemp = tempFromHeat(state.currentHeat, substance);
+            const info = phaseInfoFromHeat(state.currentHeat, substance);
+            const specificHeat = currentSpecificHeat(substance, info);
+            const capacity = state.mass * specificHeat;
+            const deltaT = currentTemp - state.initialTemp;
+            const heatTraded = state.currentHeat - state.initialHeat;
+            const nextStage = getNextStageHeatDelta(info, substance);
+
+            substanceDisplay.textContent = substance.name;
+            temperatureDisplay.textContent = `${formatPtBr(currentTemp, 1)} °C`;
+            phaseDisplay.textContent = info.label;
+            energyDisplay.textContent = formatHeat(heatTraded);
+            specificHeatDisplay.textContent = formatSpecificHeat(specificHeat);
+            capacityDisplay.textContent = formatCapacity(capacity);
+            deltaTempDisplay.textContent = `${formatPtBr(deltaT, 1)} °C`;
+            nextStageDisplay.textContent = nextStage === 0 ? 'Fim da faixa' : formatHeat(nextStage);
+            massValue.textContent = formatPtBr(state.mass, 0);
+            initialTempValue.textContent = formatPtBr(state.initialTemp, 0);
+            powerValue.textContent = formatPtBr(state.heatRate, 0);
+        }
+
+        function getTempColor(temp, substance) {
+            const window = getTempWindow(substance);
+            const t = clamp((temp - window.minTemp) / (window.maxTemp - window.minTemp), 0, 1);
+            const r = Math.round(70 + t * 165);
+            const g = Math.round(180 - t * 40);
+            const b = Math.round(255 - t * 145);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function createParticles() {
+            state.particles = [];
+            for (let index = 0; index < 72; index++) {
+                state.particles.push({
+                    x: 0,
+                    y: 0,
+                    vx: (Math.random() * 2 - 1) * 40,
+                    vy: (Math.random() * 2 - 1) * 40,
+                    seed: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function getLayout() {
+            const margin = 16;
+            const gap = 14;
+            const leftWidth = Math.round(canvas.width * 0.57);
+            const rightWidth = canvas.width - leftWidth - gap - margin * 2;
+            const totalHeight = canvas.height - margin * 2;
+            const rightHeight = Math.floor((totalHeight - gap) / 2);
+            return {
+                heat: { x: margin, y: margin, w: leftWidth, h: totalHeight },
+                volume: { x: margin + leftWidth + gap, y: margin, w: rightWidth, h: rightHeight },
+                sample: { x: margin + leftWidth + gap, y: margin + rightHeight + gap, w: rightWidth, h: rightHeight }
+            };
+        }
+
+        function drawPanel(rect, title) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(8, 18, 28, 0.68)';
+            ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+            ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+            ctx.fillStyle = '#dfe8ff';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(title, rect.x + 10, rect.y + 20);
+            ctx.restore();
+        }
+
+        function drawPanelGrid(rect, cols, rows) {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.lineWidth = 1;
+            const colStep = rect.w / cols;
+            const rowStep = rect.h / rows;
+            for (let col = 1; col < cols; col++) {
+                const x = rect.x + col * colStep;
+                ctx.beginPath();
+                ctx.moveTo(x, rect.y);
+                ctx.lineTo(x, rect.y + rect.h);
+                ctx.stroke();
+            }
+            for (let row = 1; row < rows; row++) {
+                const y = rect.y + row * rowStep;
+                ctx.beginPath();
+                ctx.moveTo(rect.x, y);
+                ctx.lineTo(rect.x + rect.w, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawHeatGraph(substance, rect) {
+            drawPanel(rect, 'Temperatura × quantidade de calor');
+            drawPanelGrid(rect, 8, 8);
+
+            const model = getStageModel(substance);
+            const padding = { left: 78, right: 20, top: 34, bottom: 48 };
+            const innerX = rect.x + padding.left;
+            const innerY = rect.y + padding.top;
+            const innerW = rect.w - padding.left - padding.right;
+            const innerH = rect.h - padding.top - padding.bottom;
+            const maxHeat = model.heat5;
+            const minTemp = model.tempWindow.minTemp;
+            const maxTemp = model.tempWindow.maxTemp;
+
+            function pxQ(heat) { return innerX + (heat / maxHeat) * innerW; }
+            function pyT(temp) { return innerY + innerH - ((temp - minTemp) / (maxTemp - minTemp)) * innerH; }
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(innerX, innerY + innerH);
+            ctx.lineTo(innerX, innerY);
+            ctx.moveTo(innerX, innerY + innerH);
+            ctx.lineTo(innerX + innerW, innerY + innerH);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#ffd166';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(pxQ(0), pyT(minTemp));
+            ctx.lineTo(pxQ(model.heat1), pyT(substance.tFusion));
+            ctx.lineTo(pxQ(model.heat2), pyT(substance.tFusion));
+            ctx.lineTo(pxQ(model.heat3), pyT(substance.tBoil));
+            ctx.lineTo(pxQ(model.heat4), pyT(substance.tBoil));
+            ctx.lineTo(pxQ(model.heat5), pyT(maxTemp));
+            ctx.stroke();
+
+            const ticksHeat = [];
+            const xDivisions = 6;
+            for (let index = 0; index <= xDivisions; index++) {
+                ticksHeat.push((maxHeat / xDivisions) * index);
+            }
+            ctx.fillStyle = '#ffde92';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            ticksHeat.forEach(function(heat) {
+                ctx.beginPath();
+                ctx.moveTo(pxQ(heat), innerY + innerH);
+                ctx.lineTo(pxQ(heat), innerY + innerH + 5);
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                ctx.stroke();
+                ctx.fillText(formatHeatAxisValue(heat), pxQ(heat), innerY + innerH + 20);
+            });
+
+            const ticksTemp = [
+                minTemp,
+                minTemp + (maxTemp - minTemp) * 0.3,
+                minTemp + (maxTemp - minTemp) * 0.6,
+                minTemp + (maxTemp - minTemp) * 0.85
+            ];
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#dfe8ff';
+            ticksTemp.forEach(function(temp) {
+                ctx.beginPath();
+                ctx.moveTo(innerX - 5, pyT(temp));
+                ctx.lineTo(innerX, pyT(temp));
+                ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+                ctx.stroke();
+                ctx.fillText(formatPtBr(temp, 0), innerX - 8, pyT(temp) + 4);
+            });
+
+            ctx.setLineDash([5, 4]);
+            ctx.strokeStyle = 'rgba(255, 209, 102, 0.45)';
+            ctx.beginPath();
+            ctx.moveTo(innerX, pyT(substance.tFusion));
+            ctx.lineTo(innerX + innerW, pyT(substance.tFusion));
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(154, 212, 255, 0.45)';
+            ctx.beginPath();
+            ctx.moveTo(innerX, pyT(substance.tBoil));
+            ctx.lineTo(innerX + innerW, pyT(substance.tBoil));
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#ffe39a';
+            ctx.fillText('T_fusão', innerX + 8, pyT(substance.tFusion) - 6);
+            ctx.fillStyle = '#cbe8ff';
+            ctx.fillText('T_ebulição', innerX + 8, pyT(substance.tBoil) - 6);
+
+            const currentTemp = tempFromHeat(state.currentHeat, substance);
+            ctx.fillStyle = getTempColor(currentTemp, substance);
+            ctx.beginPath();
+            ctx.arc(pxQ(state.currentHeat), pyT(currentTemp), 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            ctx.fillStyle = '#dfe8ff';
+            ctx.save();
+            ctx.translate(rect.x + 24, rect.y + rect.h / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('T (°C)', 0, 0);
+            ctx.restore();
+            ctx.textAlign = 'right';
+            ctx.fillText('Q (kcal)', rect.x + rect.w - 12, rect.y + rect.h - 10);
+            ctx.textAlign = 'left';
+            ctx.fillText(`Fase atual: ${phaseInfoFromHeat(state.currentHeat, substance).label}`, rect.x + 12, rect.y + rect.h - 16);
+            ctx.restore();
+        }
+
+        function getVolumeGraphTempRange(substance) {
+            const defaultWindow = getTempWindow(substance);
+            if (state.substanceKey === 'water' && state.volumeZoomEnabled) {
+                return { minTemp: -8, maxTemp: 20 };
+            }
+            return defaultWindow;
+        }
+
+        function relativeVolumeByTemperature(temp, substance) {
+            if (temp <= substance.tFusion) {
+                return relativeSolidVolume(substance, temp);
+            }
+            if (temp <= substance.tBoil) {
+                return relativeLiquidVolume(substance, temp);
+            }
+            return relativeGasVolume(substance, temp);
+        }
+
+        function drawVolumeGraph(substance, rect) {
+            drawPanel(rect, 'Volume × temperatura');
+            drawPanelGrid(rect, 6, 6);
+
+            const tempRange = getVolumeGraphTempRange(substance);
+            const padding = { left: 82, right: 18, top: 34, bottom: 42 };
+            const innerX = rect.x + padding.left;
+            const innerY = rect.y + padding.top;
+            const innerW = rect.w - padding.left - padding.right;
+            const innerH = rect.h - padding.top - padding.bottom;
+            const minTemp = tempRange.minTemp;
+            const maxTemp = tempRange.maxTemp;
+
+            const samples = [];
+            const sampleCount = 120;
+            for (let index = 0; index <= sampleCount; index++) {
+                const temp = minTemp + ((maxTemp - minTemp) * index) / sampleCount;
+                samples.push({ temp, volume: relativeVolumeByTemperature(temp, substance) });
+            }
+
+            if (substance.tFusion >= minTemp && substance.tFusion <= maxTemp) {
+                samples.push({ temp: substance.tFusion, volume: relativeSolidVolume(substance, substance.tFusion) });
+                samples.push({ temp: substance.tFusion, volume: relativeLiquidVolume(substance, substance.tFusion) });
+            }
+            if (substance.tBoil >= minTemp && substance.tBoil <= maxTemp) {
+                samples.push({ temp: substance.tBoil, volume: relativeLiquidVolume(substance, substance.tBoil) });
+                samples.push({ temp: substance.tBoil, volume: relativeGasVolume(substance, substance.tBoil) });
+            }
+
+            const volumes = samples.map(function(point) { return point.volume; });
+            const minVolume = Math.min.apply(null, volumes) * 0.995;
+            const maxVolume = Math.max.apply(null, volumes) * 1.01;
+
+            function pxT(temp) { return innerX + ((temp - minTemp) / (maxTemp - minTemp)) * innerW; }
+            function pyV(volume) { return innerY + innerH - ((volume - minVolume) / (maxVolume - minVolume)) * innerH; }
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.moveTo(innerX, innerY + innerH);
+            ctx.lineTo(innerX, innerY);
+            ctx.moveTo(innerX, innerY + innerH);
+            ctx.lineTo(innerX + innerW, innerY + innerH);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#9be7ff';
+            ctx.lineWidth = 2.8;
+            const orderedSamples = samples.sort(function(a, b) { return a.temp - b.temp || a.volume - b.volume; });
+            ctx.beginPath();
+            ctx.moveTo(pxT(orderedSamples[0].temp), pyV(orderedSamples[0].volume));
+            orderedSamples.slice(1).forEach(function(point) {
+                ctx.lineTo(pxT(point.temp), pyV(point.volume));
+            });
+            ctx.stroke();
+
+            const currentTemp = tempFromHeat(state.currentHeat, substance);
+            const markerTemp = clamp(currentTemp, minTemp, maxTemp);
+            const currentVolume = relativeVolumeByTemperature(markerTemp, substance);
+            ctx.fillStyle = '#ffde92';
+            ctx.beginPath();
+            ctx.arc(pxT(markerTemp), pyV(currentVolume), 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            ctx.fillStyle = '#dfe8ff';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+            const tempTicks = [minTemp, minTemp + (maxTemp - minTemp) * 0.25, minTemp + (maxTemp - minTemp) * 0.5, minTemp + (maxTemp - minTemp) * 0.75, maxTemp];
+            tempTicks.forEach(function(temp) {
+                ctx.fillText(formatPtBr(temp, 0), pxT(temp), innerY + innerH + 16);
+            });
+
+            ctx.textAlign = 'right';
+            [minVolume, minVolume + (maxVolume - minVolume) * 0.45, minVolume + (maxVolume - minVolume) * 0.8].forEach(function(volume) {
+                ctx.fillText(formatPtBr(volume, 2), innerX - 8, pyV(volume) + 4);
+            });
+
+            ctx.save();
+            ctx.translate(rect.x + 22, rect.y + rect.h / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.textAlign = 'center';
+            ctx.fillText('V (relativo)', 0, 0);
+            ctx.restore();
+            ctx.textAlign = 'right';
+            ctx.fillText('T (°C)', rect.x + rect.w - 12, rect.y + rect.h - 10);
+
+            if (state.substanceKey === 'water') {
+                ctx.textAlign = 'left';
+                ctx.fillStyle = '#9be7ff';
+                ctx.fillText('Anomalia: 0 °C a 4 °C', rect.x + 12, rect.y + rect.h - 12);
+            }
+            ctx.restore();
+        }
+
+        function updateParticleMotion(rect, substance, info, currentTemp, dt, time, fillTop, fillBottom) {
+            const container = {
+                x: rect.x + 24,
+                y: rect.y + 52,
+                w: rect.w - 78,
+                h: rect.h - 84
+            };
+            const fluidRect = {
+                x: container.x + 10,
+                y: fillTop,
+                w: container.w - 20,
+                h: Math.max(22, fillBottom - fillTop - 10)
+            };
+            const gasRect = {
+                x: container.x + 10,
+                y: container.y + 10,
+                w: container.w - 20,
+                h: container.h - 20
+            };
+
+            let solidFraction = 0;
+            let liquidFraction = 0;
+            let gasFraction = 0;
+            if (info.mode === 'solid') solidFraction = 1;
+            if (info.mode === 'fusion') { solidFraction = 1 - info.fraction; liquidFraction = info.fraction; }
+            if (info.mode === 'liquid') liquidFraction = 1;
+            if (info.mode === 'vaporization') { liquidFraction = 1 - info.fraction; gasFraction = info.fraction; }
+            if (info.mode === 'gas') gasFraction = 1;
+
+            const total = state.particles.length;
+            const solidCount = Math.round(total * solidFraction);
+            const liquidCount = Math.round(total * liquidFraction);
+            const gasCount = total - solidCount - liquidCount;
+
+            for (let index = 0; index < state.particles.length; index++) {
+                const particle = state.particles[index];
+                if (index < solidCount) {
+                    const cols = Math.max(1, Math.ceil(Math.sqrt(solidCount)));
+                    const rows = Math.max(1, Math.ceil(solidCount / cols));
+                    const cellX = fluidRect.w / cols;
+                    const cellY = fluidRect.h / rows;
+                    const col = index % cols;
+                    const row = Math.floor(index / cols);
+                    const horizontalOffset = row % 2 === 0 ? 0 : cellX * 0.35;
+                    const homeX = fluidRect.x + cellX * (col + 0.45) + horizontalOffset;
+                    const homeY = fluidRect.y + fluidRect.h - cellY * (row + 0.5);
+                    const amp = 0.45 + Math.abs(currentTemp) * 0.006;
+                    particle.x = homeX + Math.sin(time * 0.006 + particle.seed) * amp;
+                    particle.y = homeY + Math.cos(time * 0.007 + particle.seed) * amp;
+                    particle.vx = 0;
+                    particle.vy = 0;
+                    ctx.fillStyle = substance.iceColor;
+                } else if (index < solidCount + liquidCount) {
+                    if (!particle.vx) particle.vx = (Math.random() * 2 - 1) * 30;
+                    if (!particle.vy) particle.vy = (Math.random() * 2 - 1) * 30;
+                    particle.x = clamp((particle.x || fluidRect.x + fluidRect.w / 2) + particle.vx * dt, fluidRect.x + 4, fluidRect.x + fluidRect.w - 4);
+                    particle.y = clamp((particle.y || fluidRect.y + fluidRect.h / 2) + particle.vy * dt, fluidRect.y + 4, fluidRect.y + fluidRect.h - 4);
+                    if (particle.x <= fluidRect.x + 4 || particle.x >= fluidRect.x + fluidRect.w - 4) particle.vx *= -1;
+                    if (particle.y <= fluidRect.y + 4 || particle.y >= fluidRect.y + fluidRect.h - 4) particle.vy *= -1;
+                    particle.vx += (Math.random() * 2 - 1) * 10 * dt;
+                    particle.vy += (Math.random() * 2 - 1) * 10 * dt;
+                    particle.vx = clamp(particle.vx, -42, 42);
+                    particle.vy = clamp(particle.vy, -42, 42);
+                    ctx.fillStyle = substance.color;
+                } else {
+                    if (!particle.vx) particle.vx = (Math.random() * 2 - 1) * 65;
+                    if (!particle.vy) particle.vy = (Math.random() * 2 - 1) * 65;
+                    particle.x = clamp((particle.x || gasRect.x + gasRect.w / 2) + particle.vx * dt, gasRect.x + 4, gasRect.x + gasRect.w - 4);
+                    particle.y = clamp((particle.y || gasRect.y + gasRect.h / 2) + particle.vy * dt, gasRect.y + 4, gasRect.y + gasRect.h - 4);
+                    if (particle.x <= gasRect.x + 4 || particle.x >= gasRect.x + gasRect.w - 4) particle.vx *= -1;
+                    if (particle.y <= gasRect.y + 4 || particle.y >= gasRect.y + gasRect.h - 4) particle.vy *= -1;
+                    particle.vx += (Math.random() * 2 - 1) * 15 * dt;
+                    particle.vy += (Math.random() * 2 - 1) * 15 * dt;
+                    particle.vx = clamp(particle.vx, -78, 78);
+                    particle.vy = clamp(particle.vy, -78, 78);
+                    ctx.fillStyle = substance.gasColor;
+                }
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, index < solidCount ? 2.8 : 2.4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawSamplePanel(substance, rect, time, dt) {
+            drawPanel(rect, 'Amostra e estados físicos');
+            const currentTemp = tempFromHeat(state.currentHeat, substance);
+            const info = phaseInfoFromHeat(state.currentHeat, substance);
+            const currentVolume = relativeVolumeFromHeat(state.currentHeat, substance);
+            const liquidMax = Math.max(relativeLiquidVolume(substance, substance.tFusion), relativeLiquidVolume(substance, substance.tBoil));
+            const gasMax = relativeGasVolume(substance, getTempWindow(substance).maxTemp);
+            const maxVisual = Math.max(liquidMax * 1.2, gasMax * 0.95);
+            const container = {
+                x: rect.x + 24,
+                y: rect.y + 52,
+                w: rect.w - 78,
+                h: rect.h - 84
+            };
+
+            ctx.save();
+            ctx.strokeStyle = '#d9e8ff';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(container.x, container.y);
+            ctx.lineTo(container.x, container.y + container.h);
+            ctx.lineTo(container.x + container.w, container.y + container.h);
+            ctx.lineTo(container.x + container.w, container.y);
+            ctx.stroke();
+
+            const fillRatio = clamp(currentVolume / maxVisual, 0.08, 1);
+            const fillHeight = container.h * (info.mode === 'gas' ? 0.9 : fillRatio * 0.72);
+            const fillTop = container.y + container.h - fillHeight;
+            const fillBottom = container.y + container.h;
+
+            if (info.mode !== 'gas') {
+                ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(container.x + 3, fillTop);
+                ctx.lineTo(container.x + container.w - 3, fillTop);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            updateParticleMotion(rect, substance, info, currentTemp, dt, time, fillTop, fillBottom);
+
+            const thermometerX = rect.x + rect.w - 28;
+            const thermometerY = rect.y + 66;
+            const thermometerH = rect.h - 116;
+            const window = getTempWindow(substance);
+            const norm = clamp((currentTemp - window.minTemp) / (window.maxTemp - window.minTemp), 0, 1);
+            const mercuryH = norm * thermometerH;
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.fillRect(thermometerX - 12, thermometerY, 24, thermometerH);
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(thermometerX - 12, thermometerY, 24, thermometerH);
+            ctx.fillStyle = getTempColor(currentTemp, substance);
+            ctx.fillRect(thermometerX - 8, thermometerY + thermometerH - mercuryH, 16, mercuryH);
+            ctx.beginPath();
+            ctx.arc(thermometerX, thermometerY + thermometerH + 12, 14, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#dfe8ff';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${formatPtBr(currentTemp, 0)} °C`, thermometerX, thermometerY - 10);
+            ctx.fillText(info.label, rect.x + rect.w / 2, rect.y + rect.h - 12);
+            ctx.fillStyle = '#ffe39a';
+            ctx.fillText(state.mode === 'heat' ? 'Aquecimento' : 'Resfriamento', rect.x + rect.w / 2, rect.y + 36);
+            ctx.restore();
+        }
+
+        function drawSystem(time, dt) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bg.addColorStop(0, '#0b1625');
+            bg.addColorStop(1, '#132335');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const substance = getSubstance();
+            const layout = getLayout();
+            drawHeatGraph(substance, layout.heat);
+            drawVolumeGraph(substance, layout.volume);
+            drawSamplePanel(substance, layout.sample, time, dt);
+        }
+
+        function animate(timestamp) {
+            if (!state.lastTimestamp) state.lastTimestamp = timestamp;
+            const dt = Math.min((timestamp - state.lastTimestamp) / 1000, 0.05);
+            state.lastTimestamp = timestamp;
+
+            if (state.running) {
+                const substance = getSubstance();
+                const model = getStageModel(substance);
+                const sign = state.mode === 'heat' ? 1 : -1;
+                state.currentHeat += sign * state.heatRate * dt;
+                state.currentHeat = clamp(state.currentHeat, 0, model.heat5);
+                if (state.currentHeat <= 0 || state.currentHeat >= model.heat5) {
+                    state.running = false;
+                }
+            }
+
+            drawSystem(timestamp, dt);
+            updateMeasurements();
+            state.animationId = requestAnimationFrame(animate);
+        }
+
+        function resetSimulation() {
+            state.running = false;
+            state.substanceKey = 'water';
+            state.mass = 500;
+            state.initialTemp = 20;
+            state.heatRate = 300;
+            state.mode = 'heat';
+            state.volumeZoomEnabled = true;
+            state.lastTimestamp = 0;
+            substanceSelect.value = state.substanceKey;
+            massInput.value = state.mass;
+            powerInput.value = state.heatRate;
+            modeSelect.value = state.mode;
+            updateVolumeZoomButton();
+            updateControlRanges();
+            initialTempInput.value = state.initialTemp;
+            syncStateToInitialTemperature(true);
+            createParticles();
+            drawSystem(0, 0.016);
+            updateMeasurements();
+        }
+
+        function setupSimulationEvents() {
+            substanceSelect.addEventListener('change', function() {
+                state.substanceKey = this.value;
+                updateVolumeZoomButton();
+                updateControlRanges();
+                syncStateToInitialTemperature(true);
+                createParticles();
+                drawSystem(performance.now(), 0.016);
+                updateMeasurements();
+            });
+
+            massInput.addEventListener('input', function() {
+                state.mass = parseFloat(this.value);
+                syncStateToInitialTemperature(false);
+                drawSystem(performance.now(), 0.016);
+                updateMeasurements();
+            });
+
+            initialTempInput.addEventListener('input', function() {
+                state.initialTemp = parseFloat(this.value);
+                syncStateToInitialTemperature(false);
+                drawSystem(performance.now(), 0.016);
+                updateMeasurements();
+            });
+
+            powerInput.addEventListener('input', function() {
+                state.heatRate = parseFloat(this.value);
+                updateMeasurements();
+            });
+
+            modeSelect.addEventListener('change', function() {
+                state.mode = this.value;
+                updateMeasurements();
+            });
+
+            document.getElementById('startBtn').addEventListener('click', function() {
+                state.running = true;
+            });
+
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                state.running = false;
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+            toggleVolumeZoomBtn.addEventListener('click', function() {
+                if (state.substanceKey !== 'water') return;
+                state.volumeZoomEnabled = !state.volumeZoomEnabled;
+                updateVolumeZoomButton();
+                drawSystem(performance.now(), 0.016);
+                updateMeasurements();
+            });
+
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert('Como usar:\n\n• Escolha a substância e ajuste a massa em gramas.\n• Defina a temperatura inicial e a taxa de calor em cal/s.\n• O gráfico maior mostra temperatura por quantidade de calor.\n• O gráfico menor mostra volume por temperatura.\n• A amostra animada mostra o comportamento das partículas em cada fase.\n\nTrechos inclinados representam calor sensível. Patamares representam mudança de estado e calor latente.');
+            });
+        }
+
+        function openSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'flex'; }
+        function closeSolvedExercisesModal() { document.getElementById('solvedExercisesModal').style.display = 'none'; }
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+        function closeExercisesModal() { document.getElementById('exercisesModal').style.display = 'none'; }
+        function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+        function shuffleArray(array) {
+            for (let index = array.length - 1; index > 0; index--) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [array[index], array[swapIndex]] = [array[swapIndex], array[index]];
+            }
+            return array;
+        }
+
+        function buildNumericOptions(correctValue, formatter) {
+            const options = [];
+            const labels = new Set();
+            const factors = [0.5, 0.75, 0.85, 1.15, 1.25, 1.5, 2.0];
+            const correct = formatter(correctValue);
+            options.push(correct);
+            labels.add(correct);
+            while (options.length < 5) {
+                const value = Math.abs(correctValue * factors[randomInt(0, factors.length - 1)]);
+                const label = formatter(value);
+                if (!labels.has(label)) {
+                    labels.add(label);
+                    options.push(label);
+                }
+            }
+            return shuffleArray(options);
+        }
+
+        function buildExerciseByType(type) {
+            const substance = getSubstance();
+            const mass = state.mass;
+
+            if (type === 'conceito_calor') {
+                return {
+                    type,
+                    question: 'Qual alternativa diferencia corretamente calor e temperatura?',
+                    answer: 'Calor é energia em trânsito; temperatura mede o estado térmico.',
+                    options: shuffleArray([
+                        'Calor é energia em trânsito; temperatura mede o estado térmico.',
+                        'Calor e temperatura são sempre a mesma grandeza.',
+                        'Temperatura é a quantidade total de calor armazenado.',
+                        'Calor é uma propriedade exclusiva dos gases.',
+                        'Temperatura mede a massa da amostra.'
+                    ])
+                };
+            }
+
+            if (type === 'calor_sensivel') {
+                const deltaT = randomInt(8, 18);
+                const q = mass * substance.cLiquid * deltaT;
+                return {
+                    type,
+                    question: `Uma amostra de ${substance.name} com massa de ${formatPtBr(mass, 0)} g sofre uma variação de temperatura de ${deltaT} °C sem mudar de estado. Considerando c = ${formatPtBr(substance.cLiquid, 2)} cal/(g·°C), qual é o calor sensível recebido?`,
+                    answer: formatHeat(q),
+                    options: buildNumericOptions(q, formatHeat)
+                };
+            }
+
+            if (type === 'capacidade_termica') {
+                const capacity = mass * substance.cLiquid;
+                return {
+                    type,
+                    question: `Uma amostra de ${substance.name} tem massa de ${formatPtBr(mass, 0)} g e calor específico c = ${formatPtBr(substance.cLiquid, 2)} cal/(g·°C). Qual é a capacidade térmica C?`,
+                    answer: formatCapacity(capacity),
+                    options: buildNumericOptions(capacity, formatCapacity)
+                };
+            }
+
+            if (type === 'calor_especifico') {
+                const deltaT = randomInt(10, 20);
+                const q = mass * substance.cLiquid * deltaT;
+                return {
+                    type,
+                    question: `Se ${formatPtBr(mass, 0)} g de ${substance.name} recebem ${formatHeat(q)} e variam ${deltaT} °C sem mudar de estado, qual é o calor específico da substância?`,
+                    answer: formatSpecificHeat(substance.cLiquid),
+                    options: buildNumericOptions(substance.cLiquid, formatSpecificHeat)
+                };
+            }
+
+            if (type === 'calor_latente_fusao') {
+                const q = mass * substance.lFusion;
+                return {
+                    type,
+                    question: `Quanto calor é necessário para fundir ${formatPtBr(mass, 0)} g de ${substance.name} no ponto de fusão? Considere Lf = ${formatPtBr(substance.lFusion, 1)} cal/g.`,
+                    answer: formatHeat(q),
+                    options: buildNumericOptions(q, formatHeat)
+                };
+            }
+
+            if (type === 'calor_latente_vapor') {
+                const q = mass * substance.lVapor;
+                return {
+                    type,
+                    question: `Quanto calor é necessário para vaporizar ${formatPtBr(mass, 0)} g de ${substance.name} no ponto de ebulição? Considere Lv = ${formatPtBr(substance.lVapor, 1)} cal/g.`,
+                    answer: formatHeat(q),
+                    options: buildNumericOptions(q, formatHeat)
+                };
+            }
+
+            if (type === 'patamar') {
+                return {
+                    type,
+                    question: 'Na curva de aquecimento, o que significa um patamar horizontal, isto é, um trecho em que a temperatura permanece constante enquanto há calor trocado?',
+                    answer: 'Há mudança de estado com troca de calor latente.',
+                    options: shuffleArray([
+                        'Há mudança de estado com troca de calor latente.',
+                        'A substância perdeu massa de forma espontânea.',
+                        'O aquecimento continua sem mudança de estado.',
+                        'A pressão mudou e anulou o calor específico.',
+                        'A quantidade de calor trocado se tornou zero.'
+                    ])
+                };
+            }
+
+            if (type === 'variacao_temperatura') {
+                const initial = randomInt(10, 30);
+                const final = initial + randomInt(8, 20);
+                const deltaT = final - initial;
+                return {
+                    type,
+                    question: `Uma amostra passa de ${initial} °C para ${final} °C. Qual é a variação de temperatura ΔT?`,
+                    answer: formatExerciseUnit(deltaT, '°C', 0),
+                    options: buildNumericOptions(deltaT, value => formatExerciseUnit(value, '°C', 0))
+                };
+            }
+
+            if (type === 'cotidiano') {
+                return {
+                    type,
+                    question: 'Por que o suor ajuda a resfriar o corpo?',
+                    answer: 'Porque a evaporação do suor absorve calor da pele.',
+                    options: shuffleArray([
+                        'Porque a evaporação do suor absorve calor da pele.',
+                        'Porque o suor sempre aumenta a temperatura do corpo.',
+                        'Porque o suor impede qualquer troca térmica.',
+                        'Porque a evaporação devolve calor para a pele.',
+                        'Porque o suor transforma calor em massa.'
+                    ])
+                };
+            }
+
+            if (type === 'grafico_volume') {
+                return {
+                    type,
+                    question: 'No gráfico volume × temperatura, por que o volume cresce muito mais ao passar para a fase gasosa?',
+                    answer: 'Porque no estado gasoso as partículas ocupam muito mais espaço livre.',
+                    options: shuffleArray([
+                        'Porque no estado gasoso as partículas ocupam muito mais espaço livre.',
+                        'Porque a massa da substância aumenta ao evaporar.',
+                        'Porque o calor específico zera no estado gasoso.',
+                        'Porque a temperatura deixa de influenciar o volume.',
+                        'Porque a pressão interna elimina a agitação das partículas.'
+                    ])
+                };
+            }
+
+            return {
+                type: 'comparacao_massa',
+                question: 'Se a massa da amostra dobrar, mantendo a mesma substância e a mesma variação de temperatura, o calor sensível necessário:',
+                answer: 'dobra',
+                options: shuffleArray(['dobra', 'cai pela metade', 'permanece igual', 'zera', 'triplica'])
+            };
+        }
+
+        function generateExercises() {
+            const types = shuffleArray([
+                'conceito_calor',
+                'calor_sensivel',
+                'capacidade_termica',
+                'calor_especifico',
+                'calor_latente_fusao',
+                'calor_latente_vapor',
+                'patamar',
+                'variacao_temperatura',
+                'cotidiano',
+                'grafico_volume'
+            ]);
+            exercises = types.map(function(type) {
+                return buildExerciseByType(type);
+            });
+        }
+
+        function generateNewExerciseOfSameType() {
+            exercises[currentExercise] = buildExerciseByType(exercises[currentExercise].type);
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <div class="exercise-intro">Leia com atenção e marque a alternativa correta.</div>
+                    <p>${exercise.question}</p>
+                    <div class="options">${exercise.options.map(function(option) { return `<div class="option" data-value="${option}">${option}</div>`; }).join('')}</div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+
+            container.querySelectorAll('.option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(function(item) { item.classList.remove('selected'); });
+                    option.classList.add('selected');
+                });
+            });
+
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(function(option) { option.classList.add('disabled'); });
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1200);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar novamente</button>
+                    </div>
+                `;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function skipExercise() {
+            if (confirm('Deseja pular este exercício? Um erro será registrado em seu relatório.')) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion();
+        }
+
+        function updateProgressBar() {
+            for (let index = 0; index < 10; index++) {
+                const item = document.getElementById(`progress${index + 1}`);
+                item.classList.remove('active', 'completed');
+                if (index === currentExercise) item.classList.add('active');
+                else if (index < currentExercise) item.classList.add('completed');
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            const submitButton = document.getElementById('submitConclusion');
+            const newButton = submitButton.cloneNode(true);
+            submitButton.parentNode.replaceChild(newButton, submitButton);
+            newButton.addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value.trim();
+                if (!conclusionText) {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            });
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) { return result.correct; }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            document.getElementById('finalConclusion').value = conclusion;
+            const sendButton = document.getElementById('sendResults');
+            const newSendButton = sendButton.cloneNode(true);
+            sendButton.parentNode.replaceChild(newSendButton, sendButton);
+            newSendButton.addEventListener('click', sendResultsToSheet);
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(function(result) { return result.correct; }).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Calor, Temperatura e Mudanças de Estado',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: `${scorePercentage}%`,
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(function() {
+                emailStatus.textContent = 'Dados salvos! Enviando e-mail...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(function() {
+                if (!studentEmail) return null;
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Não informado',
+                    serie: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
+                    nota: `${scorePercentage}%`,
+                    acertos: `${correctAnswers}/${totalExercises}`,
+                    questoes_puladas: skippedQuestions,
+                    conclusao: finalConclusion,
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulacao: 'Calor, Temperatura e Mudanças de Estado',
+                    mensagem: `Confirmação de envio - Calor, Temperatura e Mudanças de Estado\n\nPrezado(a) ${studentName},\n\nRecebemos seus resultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questões\n- Questões puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
+                };
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailDataAluno)
+                });
+            })
+            .then(function() {
+                emailStatus.textContent = studentEmail ? 'Dados e e-mails enviados!' : 'Dados enviados ao professor!';
+                emailStatus.className = 'email-status sent';
+                setTimeout(function() {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 2500);
+            })
+            .catch(function(error) {
+                console.error('Erro:', error);
+                emailStatus.textContent = '❌ Houve falha no envio. Tente novamente mais tarde.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function resetExerciseState() {
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm('Deseja reiniciar todos os exercícios? Seu progresso será perdido.')) {
+                resetExerciseState();
+                generateExercises();
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openExercisesModal() {
+            resetExerciseState();
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        function setupModalEvents() {
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('exercisesModal')) closeExercisesModal();
+                if (event.target === document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+                if (event.target === document.getElementById('theoryModal')) closeTheoryModal();
+            });
+        }
+
+        function init() {
+            resizeCanvas();
+            updateControlRanges();
+            syncStateToInitialTemperature(true);
+            createParticles();
+            updateMeasurements();
+            drawSystem(0, 0.016);
+            setupSimulationEvents();
+            setupModalEvents();
+            ensureStudentNameTermologia();
+        }
+
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            drawSystem(performance.now(), 0.016);
+        });
+
+        window.addEventListener('load', function() {
+            init();
+            animate(0);
+        });
+    </script>
+
+    <script src="../_shared/simulation-enhancer.js"></script>
+
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flávio Ambrósio Campos.
+         Código assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+
+    <footer>
+        <p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737878" target="_blank" style="color:#ffcc66;">10.5281/zenodo.20737878</a> | Licença MIT | Prof. Flávio Ambrósio - CEAN</p>
+    </footer>
+</body>
+</html>
