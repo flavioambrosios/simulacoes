@@ -2877,23 +2877,34 @@
                     successfulResultsByKey[key] = result.value;
                 });
 
-                if (successfulTargets.indexOf('cean') === -1) {
+                const ceanSucceeded = successfulTargets.indexOf('cean') !== -1;
+                const backupSucceeded = successfulTargets.indexOf('backup') !== -1;
+
+                if (!ceanSucceeded && !backupSucceeded) {
                     const ceanReason = rejectedResultsByKey.cean;
+                    const backupReason = rejectedResultsByKey.backup;
                     const ceanMessage = ceanReason && ceanReason.message
                         ? ceanReason.message
                         : String(ceanReason || 'A planilha CEAN nao confirmou o recebimento deste envio.');
-                    throw new Error(ceanMessage);
+                    const backupMessage = backupReason && backupReason.message
+                        ? backupReason.message
+                        : String(backupReason || 'A planilha de seguranca nao confirmou o recebimento deste envio.');
+                    throw new Error('Falha no envio principal e no backup. CEAN: ' + ceanMessage + ' | Backup: ' + backupMessage);
                 }
 
                 if (emailStatus) {
-                    const sentToBackup = successfulTargets.indexOf('backup') !== -1;
+                    const sentToBackup = backupSucceeded;
                     const ceanResult = successfulResultsByKey.cean || {};
                     const ceanLocation = ceanResult.sheet && ceanResult.row
                         ? ' Aba ' + ceanResult.sheet + ', linha ' + ceanResult.row + '.'
                         : '';
-                    emailStatus.textContent = sentToBackup
-                        ? '✅ CEAN confirmou o recebimento.' + ceanLocation + ' Backup tambem enviado.'
-                        : '✅ CEAN confirmou o recebimento.' + ceanLocation;
+                    if (ceanSucceeded) {
+                        emailStatus.textContent = sentToBackup
+                            ? '✅ CEAN confirmou o recebimento.' + ceanLocation + ' Backup tambem enviado.'
+                            : '✅ CEAN confirmou o recebimento.' + ceanLocation;
+                    } else {
+                        emailStatus.textContent = '⚠ CEAN nao confirmou o envio nesta tentativa, mas a planilha de seguranca recebeu os dados.';
+                    }
                     emailStatus.className = 'email-status sent';
                 }
                 if (sendButton) {
