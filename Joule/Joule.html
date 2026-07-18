@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="citation_title" content="Simulação: Experiência de Joule - Equivalente Mecânico do Calor">
+    <meta name="citation_author" content="Flávio Ambrósio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737878">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/Joule/">
+    <title>Experiência de Joule: Equivalente Mecânico do Calor</title>
+    <style>
+        :root {
+            --bg1: #10243a;
+            --bg2: #1c3f5f;
+            --panel: rgba(255, 255, 255, 0.08);
+            --panel-strong: rgba(0, 0, 0, 0.36);
+            --text: #f6f9ff;
+            --accent: #ffd166;
+            --accent2: #ff9f43;
+            --ok: #3ad48d;
+            --bad: #ff6b6b;
+            --graph-bg-top: #9bc8d8;
+            --graph-bg-bottom: #eef7fb;
+            --chart-temp-top: #d5f1f4;
+            --chart-temp-bottom: #f7fcff;
+            --chart-energy-top: #ffe9cf;
+            --chart-energy-bottom: #fff9f1;
+            --theory-graph-bg-top: #dff1ff;
+            --theory-graph-bg-bottom: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 15%, rgba(255, 209, 102, 0.12), transparent 30%),
+                        radial-gradient(circle at 80% 85%, rgba(58, 212, 141, 0.10), transparent 35%),
+                        linear-gradient(135deg, var(--bg1), var(--bg2));
+            padding: 18px;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.34);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            text-align: center;
+            line-height: 1.5;
+            color: #e8f0ff;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.45fr 1fr;
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24);
+            overflow: hidden;
+        }
+
+        .panel h2 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .sim-wrap {
+            padding: 14px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 460px;
+            display: block;
+            border-radius: 12px;
+            background: linear-gradient(180deg, var(--graph-bg-top) 0%, var(--graph-bg-bottom) 100%);
+            border: 1px solid rgba(12, 33, 52, 0.15);
+        }
+
+        .sim-actions, .resource-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .primary { background: linear-gradient(135deg, var(--accent), #ffe08a); color: #16202e; }
+        .secondary { background: #4d6076; color: white; }
+        .danger { background: #a83232; color: white; }
+        .exercise-btn { background: linear-gradient(135deg, var(--accent2), #ffbb6a); color: #1c1f24; width: 100%; }
+        .toggle-btn { background: linear-gradient(135deg, #4cc9f0, #4895ef); color: #0a1d2f; }
+        .fit-btn { background: linear-gradient(135deg, #8be9a8, #57cc99); color: #0d2b1f; }
+        .origin-fit-btn { background: linear-gradient(135deg, #d5a6ff, #b784f6); color: #1f1236; }
+
+        .controls {
+            padding: 14px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .control-group input {
+            width: 100%;
+        }
+
+        .value {
+            margin-top: 5px;
+            color: #ffe8b6;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .formula {
+            background: var(--panel-strong);
+            border-radius: 10px;
+            padding: 10px;
+            line-height: 1.55;
+        }
+
+        .formula-line {
+            font-family: Consolas, "Courier New", monospace;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 6px 8px;
+            margin-top: 6px;
+        }
+
+
+        .results {
+            margin-top: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .results-grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+        }
+
+        .item {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .item .label {
+            font-size: 0.86rem;
+            color: #d7e5ff;
+            margin-bottom: 5px;
+        }
+
+        .item .num {
+            color: #ffe4a1;
+            font-weight: 800;
+            font-size: 1.04rem;
+        }
+
+        .data-panel {
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            padding: 12px;
+        }
+
+        .data-panel h3 {
+            color: #ffde95;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .table-wrap {
+            max-height: 190px;
+            overflow: auto;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            text-align: center;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 31, 47, 0.92);
+            color: #ffe3a5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0, 0, 0, 0.78);
+            padding: 16px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 950px;
+            max-height: 88vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: linear-gradient(140deg, #243a53, #2f5677);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .close {
+            font-size: 26px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .restart-btn {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .theory-block, .solved-block, .exercise-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .theory-block h3, .solved-block h3, .exercise-card h3 {
+            color: #ffde95;
+            margin-bottom: 8px;
+        }
+
+        .theory-graph-wrap {
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 8px;
+        }
+
+        #theoryGraph {
+            width: 100%;
+            height: 240px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, var(--theory-graph-bg-top) 0%, var(--theory-graph-bg-bottom) 100%);
+        }
+
+        .theory-block p, .solved-block p, .exercise-card p {
+            line-height: 1.6;
+        }
+
+        .progress {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 12px;
+        }
+
+        .progress span {
+            min-width: 34px;
+            text-align: center;
+            border-radius: 999px;
+            padding: 6px 0;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .progress .active { background: rgba(255, 209, 102, 0.28); }
+        .progress .ok { background: rgba(58, 212, 141, 0.24); }
+
+        .options {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .option {
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .option.selected { border-color: #ffd166; background: rgba(255, 209, 102, 0.2); }
+        .option.correct { border-color: var(--ok); background: rgba(58, 212, 141, 0.22); }
+        .option.incorrect { border-color: var(--bad); background: rgba(255, 107, 107, 0.2); }
+        .option.disabled { pointer-events: none; opacity: 0.74; }
+
+        .result-note {
+            margin-top: 10px;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .ok-note { background: rgba(58, 212, 141, 0.2); color: #c7ffe5; }
+        .bad-note { background: rgba(255, 107, 107, 0.2); color: #ffd6d6; }
+
+        .send-form {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .send-form input, .send-form select, .send-form textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.95);
+            color: #1b2430;
+            font-size: 1rem;
+        }
+
+        .email-status {
+            display: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .sending { display: block; background: rgba(255, 209, 102, 0.2); color: #ffe9bb; }
+        .sent { display: block; background: rgba(58, 212, 141, 0.2); color: #cdffe9; }
+        .error-status { display: block; background: rgba(255, 107, 107, 0.2); color: #ffd8d8; }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.45);
+            border-radius: 14px;
+            color: #ccc;
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            canvas { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Experiência de Joule: Equivalente Mecânico do Calor</h1>
+        <p class="subtitle">Energia mecânica da queda de um corpo convertida em energia térmica na água do calorímetro.</p>
+    </header>
+
+    <div class="layout">
+        <section class="panel sim-wrap">
+            <h2>Animação, gráficos e tabelas</h2>
+            <canvas id="scene"></canvas>
+            <div class="sim-actions">
+                <button id="startBtn" class="primary">Iniciar experimento</button>
+                <button id="pauseBtn" class="secondary">Pausar</button>
+                <button id="resetBtn" class="danger">Reiniciar</button>
+                <button id="toggleChartBtn" class="toggle-btn">Mostrar gráfico E x Q</button>
+                <button id="fitBtn" class="fit-btn">Mostrar reta de ajuste</button>
+                <button id="originFitBtn" class="origin-fit-btn">Forçar reta na origem: OFF</button>
+                <button id="speedBtn" class="secondary">Velocidade: 1x</button>
+                <button id="helpBtn" class="secondary">Ajuda</button>
+            </div>
+
+            <div class="results">
+                <h2>Resultados calculados</h2>
+                <div class="results-grid">
+                    <div class="item"><div class="label">Energia mecânica</div><div class="num" id="emec">0 J</div></div>
+                    <div class="item"><div class="label">Energia transferida</div><div class="num" id="etr">0 J</div></div>
+                    <div class="item"><div class="label">Calor transferido</div><div class="num" id="qcal">0 cal</div></div>
+                    <div class="item"><div class="label">ΔT da água</div><div class="num" id="dtemp">0,0000 °C</div></div>
+                    <div class="item"><div class="label">Temperatura final</div><div class="num" id="tfinal">20,000 °C</div></div>
+                    <div class="item"><div class="label">Equiv. mecânico (reta)</div><div class="num" id="ratio">--</div></div>
+                </div>
+            </div>
+
+            <div id="tableTempWrap" class="data-panel">
+                <h3>Tabela 1 - Altura x Temperatura</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Altura (m)</th><th>Temperatura (°C)</th></tr>
+                        </thead>
+                        <tbody id="tableTempBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tableEnergyWrap" class="data-panel hidden">
+                <h3>Tabela 2 - Energia mecânica x Calor transferido</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Altura (m)</th><th>Energia mecânica (J)</th><th>Calor transferido (cal)</th></tr>
+                        </thead>
+                        <tbody id="tableEnergyBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <aside class="panel controls">
+            <h2>Controles do experimento</h2>
+
+            <div class="control-group">
+                <label for="massBody">Massa do corpo (kg)</label>
+                <input type="range" id="massBody" min="0.5" max="10" value="3" step="0.1">
+                <div class="value" id="massBodyVal">3,0 kg</div>
+            </div>
+
+            <div class="control-group">
+                <label for="height">Altura inicial (m)</label>
+                <input type="range" id="height" min="0" max="12" value="12" step="1">
+                <div class="value" id="heightVal">12 m</div>
+            </div>
+
+            <div class="control-group">
+                <label for="waterMass">Massa de água (g)</label>
+                <input type="range" id="waterMass" min="100" max="2000" value="500" step="50">
+                <div class="value" id="waterMassVal">500 g</div>
+            </div>
+
+            <div class="control-group">
+                <label for="tempInit">Temperatura inicial da água (°C)</label>
+                <input type="range" id="tempInit" min="5" max="40" value="20" step="0.5">
+                <div class="value" id="tempInitVal">20,0 °C</div>
+            </div>
+
+            <div class="control-group">
+                <label for="efficiency">Eficiência de transferência (%)</label>
+                <input type="range" id="efficiency" min="50" max="100" value="85" step="1">
+                <div class="value" id="efficiencyVal">85 %</div>
+            </div>
+
+            <div class="formula">
+                <strong>Modelagem usada</strong>
+                <div class="formula-line">E<sub>mec</sub> (J) = m (kg) · g (m/s²) · h (m)</div>
+                <div class="formula-line">E<sub>transferida</sub> (J) = η · E<sub>mec</sub> (J)</div>
+                <div class="formula-line">ΔT (°C) = T<sub>final</sub> − T<sub>inicial</sub></div>
+                <div class="formula-line">Q<sub>recebido</sub> (cal) = m<sub>água</sub> (g) · c<sub>água</sub> (cal/(g·°C)) · ΔT (°C)</div>
+                <div class="formula-line">Equivalente mecânico (J/cal) = E<sub>transferida</sub> (J) / Q<sub>recebido</sub> (cal)</div>
+                <div style="margin-top:8px; line-height:1.5;">Considere c da água = 1 cal/(g·°C). Na experiência real, ΔT é obtido por medição.</div>
+            </div>
+
+            <div class="resource-actions">
+                <button id="theoryBtn" class="exercise-btn">Teoria</button>
+                <button id="solvedExercisesBtn" class="exercise-btn">Exercícios resolvidos</button>
+                <button id="mainExerciseBtn" class="exercise-btn">Exercícios propostos (15)</button>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="theoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Teoria - Equivalente mecânico do calor</h2>
+            <span class="close" data-close="theoryModal">&times;</span>
+        </div>
+
+        <div class="theory-block">
+            <h3>Ideia central</h3>
+            <p>Na experiência de Joule, um corpo de massa m cai a partir de uma altura h. Sua energia potencial gravitacional é convertida em trabalho mecânico no sistema de pás dentro do calorímetro.</p>
+        </div>
+
+        <div class="theory-block">
+            <h3>Conversão de energia</h3>
+            <p>A energia mecânica inicial é dada por <strong>E<sub>mec</sub> = m·g·h</strong>. Parte dessa energia é transferida para a água, elevando sua temperatura.</p>
+            <p>Na prática experimental, as medições têm incerteza. Nesta simulação, foi aplicada uma incerteza aleatória de ±5% nas medidas para reproduzir pontos fora da reta ideal.</p>
+        </div>
+
+        <div class="theory-block">
+            <h3>Cálculo do calor recebido</h3>
+            <p>No experimento, mede-se a variação de temperatura da água: <strong>ΔT = T<sub>final</sub> − T<sub>inicial</sub></strong>.</p>
+            <p>Com c<sub>água</sub> = 1 cal/(g·°C), o calor recebido é calculado por <strong>Q = m<sub>água</sub>·c<sub>água</sub>·ΔT</strong>.</p>
+            <p>Com os valores de energia mecânica transferida e calor recebido, calcula-se o fator que os relaciona, chamado de equivalente mecânico do calor: <strong>E<sub>transferida</sub>/Q</strong>, em J/cal.</p>
+        </div>
+
+        <div class="theory-block">
+            <h3>Discussão matemática do gráfico E × Q</h3>
+            <p>No gráfico de energia transferida (J) por calor transferido (cal), a inclinação da reta de melhor ajuste fornece o equivalente mecânico do calor em J/cal.</p>
+            <p>Essa inclinação pode ser estimada pela regressão linear, em que se ajusta uma reta do tipo y = a·x + b ao conjunto de pontos medidos. O coeficiente angular a indica quanto a energia transferida varia quando o calor medido aumenta de 1 cal.</p>
+            <p>No gráfico T × h, o mesmo raciocínio mostra quanto a temperatura final aumenta, em média, a cada metro adicional de altura. Assim, a inclinação representa uma taxa média de variação observada no experimento.</p>
+            <p>Nesta versão da simulação, a coleta experimental foi ampliada para <strong>49 medições</strong>, distribuídas ao longo da altura escolhida. Isso torna a reta de ajuste mais estável e aproxima melhor o valor experimental do comportamento esperado.</p>
+            <p>Como os pontos recebem uma incerteza simulada de ±5%, eles não ficam todos exatamente sobre a reta. Isso foi escolhido para aproximar a simulação do que ocorre em laboratório, onde há imprecisão de leitura, perdas e pequenas flutuações nas medidas. O valor encontrado pode ser melhorado com procedimentos mais precisos e com o aumento do número de medições.</p>
+            <div class="theory-graph-wrap">
+                <canvas id="theoryGraph" width="760" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="solvedExercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios resolvidos</h2>
+            <span class="close" data-close="solvedExercisesModal">&times;</span>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 1</h3>
+            <p>m = 2 kg, h = 5 m e g = 9,8 m/s². Calcule E<sub>mec</sub>.</p>
+            <p>E<sub>mec</sub> = m·g·h = 2·9,8·5 = <strong>98 J</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 2</h3>
+            <p>Eficiência η = 80%. Encontre E<sub>transferida</sub>.</p>
+            <p>E<sub>transferida</sub> = 0,80·98 = <strong>78,4 J</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 3</h3>
+            <p>Em uma medição, m<sub>água</sub> = 500 g, T<sub>inicial</sub> = 20,00 °C e T<sub>final</sub> = 20,0375 °C. Calcule o calor recebido.</p>
+            <p>Primeiro: ΔT = 20,0375 - 20,00 = 0,0375 °C. Depois, Q = m<sub>água</sub>·c·ΔT = 500·1·0,0375 = <strong>18,75 cal</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 4</h3>
+            <p>Para 500 g de água, determine ΔT.</p>
+            <p>ΔT = Q/(m<sub>água</sub>·c) = 18,76/(500·1) = <strong>0,0375 °C</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 5</h3>
+            <p>Se T<sub>inicial</sub> = 20 °C, calcule T<sub>final</sub>.</p>
+            <p>T<sub>final</sub> = 20 + 0,0375 = <strong>20,04 °C</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 6</h3>
+            <p>No gráfico T × h, considere os pontos aproximados (2 m, 20,03 °C) e (8 m, 20,12 °C). Determine a inclinação média da reta de ajuste.</p>
+            <p>A inclinação é dada por ΔT/Δh = (20,12 - 20,03)/(8 - 2) = 0,09/6 = <strong>0,015 °C/m</strong>.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 7</h3>
+            <p>No gráfico E × Q, suponha que a regressão linear forneça inclinação 4,21 J/cal e intercepto 0,35 J. Escreva a equação da reta ajustada.</p>
+            <p>Na forma y = a·x + b, fica: <strong>E = 4,21·Q + 0,35</strong>, com E em joules e Q em calorias.</p>
+        </div>
+
+        <div class="solved-block solved-exercise">
+            <h3>Resolvido 8</h3>
+            <p>Usando E<sub>transferida</sub> = 78,4 J e Q = 18,75 cal, calcule o equivalente mecânico do calor.</p>
+            <p>Equivalente = E/Q = 78,4/18,75 = <strong>4,18 J/cal</strong>. Esse é o fator experimental que relaciona energia mecânica e calor.</p>
+        </div>
+    </div>
+</div>
+
+<div id="exercisesModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Exercícios propostos</h2>
+            <div>
+                <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                <span class="close" data-close="exercisesModal">&times;</span>
+            </div>
+        </div>
+
+        <div class="progress" id="progress"></div>
+        <div id="exerciseContainer"></div>
+
+        <div id="conclusionContainer" style="display:none;">
+            <h3>Conclusão de estudo</h3>
+            <p>Escreva abaixo o que você aprendeu com os exercícios.</p>
+            <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+            <button id="submitConclusion" class="primary" style="margin-top:10px; width:100%;">Enviar conclusão</button>
+        </div>
+
+        <div id="resultsContainer" style="display:none;">
+            <h3>Resumo final</h3>
+            <div id="resultsSummary"></div>
+
+            <h3>Enviar resultados</h3>
+            <p>Preencha os dados abaixo para enviar seus resultados:</p>
+            <div class="send-form email-form">
+                <input id="studentName" type="text" placeholder="Nome completo *">
+                <select id="studentGrade">
+                    <option value="">Série *</option>
+                    <option>1º ano</option>
+                    <option>2º ano</option>
+                    <option>3º ano</option>
+                </select>
+                <select id="studentClass">
+                    <option value="">Turma *</option>
+                    <option>A</option><option>B</option><option>C</option><option>D</option>
+                    <option>E</option><option>F</option><option>G</option><option>H</option>
+                    <option>I</option><option>J</option><option>K</option><option>L</option>
+                </select>
+                <input id="studentEmail" type="email" placeholder="E-mail para cópia (opcional)">
+                <textarea id="criticismInput" rows="2" placeholder="Críticas"></textarea>
+                <textarea id="suggestionInput" rows="2" placeholder="Sugestões"></textarea>
+                <textarea id="finalConclusion" rows="4" placeholder="Conclusão sobre a atividade *"></textarea>
+                <div id="emailStatus" class="email-status"></div>
+                <button id="sendResults" class="primary">Enviar resultados</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.SIMULATION_ENHANCER_CONFIG = { simulationName: 'Experiência de Joule', storageKey: 'joule' };
+
+    const g = 9.8;
+    const joulePerCal = 4.18;
+
+    const scene = document.getElementById('scene');
+    const ctx = scene.getContext('2d');
+    const measurementPointCount = 49;
+
+    const controls = {
+        massBody: document.getElementById('massBody'),
+        height: document.getElementById('height'),
+        waterMass: document.getElementById('waterMass'),
+        tempInit: document.getElementById('tempInit'),
+        efficiency: document.getElementById('efficiency')
+    };
+
+    const values = {
+        massBodyVal: document.getElementById('massBodyVal'),
+        heightVal: document.getElementById('heightVal'),
+        waterMassVal: document.getElementById('waterMassVal'),
+        tempInitVal: document.getElementById('tempInitVal'),
+        efficiencyVal: document.getElementById('efficiencyVal'),
+        emec: document.getElementById('emec'),
+        etr: document.getElementById('etr'),
+        qcal: document.getElementById('qcal'),
+        dtemp: document.getElementById('dtemp'),
+        tfinal: document.getElementById('tfinal'),
+        ratio: document.getElementById('ratio')
+    };
+
+    const tableTempBody = document.getElementById('tableTempBody');
+    const tableEnergyBody = document.getElementById('tableEnergyBody');
+    const speedBtn = document.getElementById('speedBtn');
+    const fitBtn = document.getElementById('fitBtn');
+    const originFitBtn = document.getElementById('originFitBtn');
+
+    const state = {
+        running: false,
+        progress: 0,
+        lastTime: 0,
+        chartMode: 'temp-height',
+        speedFactor: 1,
+        showFit: false,
+        forceOriginFit: false,
+        measuredPoints: [],
+        plottedPointIndex: 0,
+        waterParticles: []
+    };
+
+    const speedLevels = [0.5, 1, 2, 4];
+
+    function fmt(value, dec) {
+        return Number(value).toLocaleString('pt-BR', {
+            minimumFractionDigits: dec,
+            maximumFractionDigits: dec
+        });
+    }
+
+    function signedFmt(value, dec) {
+        const absValue = Math.abs(value);
+        const formatted = fmt(absValue, dec);
+        return `${value < 0 ? '-' : '+'} ${formatted}`;
+    }
+
+    function formatFitEquation(symbolY, symbolX, slope, intercept, slopeDec, interceptDec) {
+        return `${symbolY} = ${fmt(slope, slopeDec)}·${symbolX} ${signedFmt(intercept, interceptDec)}`;
+    }
+
+    function cssVar(name, fallback) {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(name);
+        return value && value.trim() ? value.trim() : fallback;
+    }
+
+    function fillVerticalGradient(context, width, height, topColor, bottomColor) {
+        const gradient = context.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, topColor);
+        gradient.addColorStop(1, bottomColor);
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, width, height);
+    }
+
+    function initWaterParticles() {
+        state.waterParticles = [];
+        for (let i = 0; i < 42; i++) {
+            state.waterParticles.push({
+                u: Math.random(),
+                v: Math.random(),
+                phase: Math.random() * Math.PI * 2,
+                radius: 1.2 + Math.random() * 1.6,
+                tone: Math.random()
+            });
+        }
+    }
+
+    function drawWaterParticles(x, y, width, height, progress) {
+        if (!state.waterParticles.length) {
+            initWaterParticles();
+        }
+
+        const t = (state.lastTime || 0) / 1000;
+        const agitation = Math.min(1, progress * 1.25 + (state.running ? 0.25 : 0));
+
+        state.waterParticles.forEach(function(particle) {
+            const wobbleX = Math.sin(t * (2.6 + particle.tone) * state.speedFactor + particle.phase) * (2 + 7 * agitation);
+            const wobbleY = Math.cos(t * (2.1 + particle.tone * 0.7) * state.speedFactor + particle.phase * 1.3) * (1 + 4 * agitation);
+
+            const pxRaw = x + particle.u * width + wobbleX;
+            const pyRaw = y + particle.v * height + wobbleY;
+            const px = Math.max(x + 2, Math.min(x + width - 2, pxRaw));
+            const py = Math.max(y + 2, Math.min(y + height - 2, pyRaw));
+
+            const hue = particle.tone > 0.5 ? 'rgba(40, 110, 170, 0.7)' : 'rgba(70, 150, 200, 0.7)';
+            ctx.fillStyle = hue;
+            ctx.beginPath();
+            ctx.arc(px, py, particle.radius, 0, Math.PI * 2);
+            ctx.fill();
+        });
+    }
+
+    function computeForHeight(heightValue) {
+        const m = parseFloat(controls.massBody.value);
+        const mWater = parseFloat(controls.waterMass.value);
+        const t0 = parseFloat(controls.tempInit.value);
+        const eta = parseFloat(controls.efficiency.value) / 100;
+
+        const eMec = m * g * heightValue;
+        const eTransferred = eta * eMec;
+        const qCal = eTransferred / joulePerCal;
+        const deltaT = qCal / mWater;
+        const tFinal = t0 + deltaT;
+
+        return { m, mWater, t0, eta, height: heightValue, eMec, eTransferred, qCal, deltaT, tFinal };
+    }
+
+    function compute() {
+        return computeForHeight(parseFloat(controls.height.value));
+    }
+
+    function randomNoiseFactor() {
+        return 1 + (Math.random() * 0.1 - 0.05);
+    }
+
+    function measuredPointFromHeight(heightValue, forceIdeal) {
+        const ideal = computeForHeight(heightValue);
+        const eNoise = forceIdeal ? 1 : randomNoiseFactor();
+        const qNoise = forceIdeal ? 1 : randomNoiseFactor();
+        const eMeasured = ideal.eTransferred * eNoise;
+        const qMeasured = ideal.qCal * qNoise;
+        const tMeasured = ideal.t0 + qMeasured / ideal.mWater;
+
+        return {
+            height: heightValue,
+            eMec: ideal.eMec,
+            eTransferred: eMeasured,
+            qCal: qMeasured,
+            tFinal: tMeasured,
+            t0: ideal.t0,
+            deltaT: tMeasured - ideal.t0,
+            m: ideal.m,
+            mWater: ideal.mWater,
+            eta: ideal.eta
+        };
+    }
+
+    function resetMeasurementSeries() {
+        state.measuredPoints = [measuredPointFromHeight(0, true)];
+        state.plottedPointIndex = 0;
+        initWaterParticles();
+        tableTempBody.innerHTML = '';
+        tableEnergyBody.innerHTML = '';
+        state.showFit = false;
+        fitBtn.textContent = 'Mostrar reta de ajuste';
+    }
+
+    function appendPointToTables(point) {
+        const row1 = document.createElement('tr');
+        row1.innerHTML = `<td>${fmt(point.height, 2)}</td><td>${fmt(point.tFinal, 3)}</td>`;
+        tableTempBody.appendChild(row1);
+
+        const row2 = document.createElement('tr');
+        row2.innerHTML = `<td>${fmt(point.height, 2)}</td><td>${fmt(point.eMec, 2)}</td><td>${fmt(point.qCal, 2)}</td>`;
+        tableEnergyBody.appendChild(row2);
+    }
+
+    function ensurePointsByProgress() {
+        const maxHeight = Math.max(0, Math.min(12, parseFloat(controls.height.value) || 0));
+        const totalSegments = measurementPointCount - 1;
+        const targetIndex = Math.floor(state.progress * totalSegments);
+
+        while (state.plottedPointIndex < targetIndex) {
+            const nextIndex = state.plottedPointIndex + 1;
+            const nextH = totalSegments === 0 ? 0 : (nextIndex / totalSegments) * maxHeight;
+            const point = measuredPointFromHeight(nextH, false);
+            state.measuredPoints.push(point);
+            appendPointToTables(point);
+            state.plottedPointIndex = nextIndex;
+        }
+    }
+
+    function visiblePoints() {
+        return state.measuredPoints;
+    }
+
+    function linearFit(samples, getX, getY) {
+        if (!samples || samples.length < 2) return null;
+        let sumX = 0;
+        let sumY = 0;
+        let sumXY = 0;
+        let sumX2 = 0;
+        const n = samples.length;
+
+        samples.forEach(function(s) {
+            const x = getX(s);
+            const y = getY(s);
+            sumX += x;
+            sumY += y;
+            sumXY += x * y;
+            sumX2 += x * x;
+        });
+
+        const denom = n * sumX2 - sumX * sumX;
+        if (Math.abs(denom) < 1e-10) return null;
+        const slope = (n * sumXY - sumX * sumY) / denom;
+        const intercept = (sumY - slope * sumX) / n;
+        return { slope, intercept };
+    }
+
+    function slopeFromSamples(samples) {
+        const fit = linearFit(samples, function(s) { return s.qCal; }, function(s) { return s.eTransferred; });
+        return fit ? fit.slope : null;
+    }
+
+    function linearFitThroughOrigin(samples, getX, getY) {
+        if (!samples || samples.length < 2) return null;
+        let sumXY = 0;
+        let sumX2 = 0;
+
+        samples.forEach(function(s) {
+            const x = getX(s);
+            const y = getY(s);
+            sumXY += x * y;
+            sumX2 += x * x;
+        });
+
+        if (Math.abs(sumX2) < 1e-10) return null;
+        const slope = sumXY / sumX2;
+        return { slope: slope, intercept: 0 };
+    }
+
+    function updateLabelsAndTables() {
+        const current = compute();
+        const samples = visiblePoints();
+
+        values.massBodyVal.textContent = `${fmt(current.m, 1)} kg`;
+        values.heightVal.textContent = `${fmt(current.height, 0)} m`;
+        values.waterMassVal.textContent = `${fmt(current.mWater, 0)} g`;
+        values.tempInitVal.textContent = `${fmt(current.t0, 1)} °C`;
+        values.efficiencyVal.textContent = `${fmt(current.eta * 100, 0)} %`;
+
+        const lastPoint = samples[samples.length - 1];
+        if (samples.length <= 1) {
+            values.emec.textContent = '0 J';
+            values.etr.textContent = '0 J';
+            values.qcal.textContent = '0 cal';
+            values.dtemp.textContent = '0,0000 °C';
+            values.tfinal.textContent = `${fmt(current.t0, 3)} °C`;
+        } else {
+            values.emec.textContent = `${fmt(lastPoint.eMec, 2)} J`;
+            values.etr.textContent = `${fmt(lastPoint.eTransferred, 2)} J`;
+            values.qcal.textContent = `${fmt(lastPoint.qCal, 2)} cal`;
+            values.dtemp.textContent = `${fmt(lastPoint.deltaT, 4)} °C`;
+            values.tfinal.textContent = `${fmt(lastPoint.tFinal, 3)} °C`;
+        }
+
+        if (state.showFit) {
+            const slope = slopeFromSamples(samples);
+            if (slope === null) {
+                values.ratio.textContent = '--';
+            } else if (!state.forceOriginFit) {
+                values.ratio.textContent = `${fmt(slope, 2)} J/cal`;
+            } else {
+                const fitOrigin = linearFitThroughOrigin(samples, function(s) { return s.qCal; }, function(s) { return s.eTransferred; });
+                const originText = fitOrigin ? fmt(fitOrigin.slope, 2) : '--';
+                values.ratio.textContent = `Livre ${fmt(slope, 2)} | Origem ${originText}`;
+            }
+        } else {
+            values.ratio.textContent = '--';
+        }
+    }
+
+    function resizeCanvas() {
+        scene.width = scene.clientWidth;
+        scene.height = scene.clientHeight;
+        drawScene(state.progress);
+    }
+
+    function axisScale(minVal, maxVal) {
+        const span = maxVal - minVal;
+        if (Math.abs(span) < 1e-10) return { min: minVal - 1, max: maxVal + 1 };
+        return { min: minVal - span * 0.08, max: maxVal + span * 0.08 };
+    }
+
+    function drawAxes(rect, labels) {
+        ctx.strokeStyle = '#1e3b58';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(rect.x, rect.y + rect.h);
+        ctx.lineTo(rect.x + rect.w, rect.y + rect.h);
+        ctx.moveTo(rect.x, rect.y + rect.h);
+        ctx.lineTo(rect.x, rect.y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#12314e';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'right';
+        ctx.fillText(labels.y, rect.x - 8, rect.y + 12);
+        ctx.textAlign = 'center';
+        ctx.fillText(labels.x, rect.x + rect.w / 2, rect.y + rect.h + 20);
+    }
+
+    function drawGraphBackground(rect, topColor, bottomColor) {
+        const gradient = ctx.createLinearGradient(0, rect.y, 0, rect.y + rect.h);
+        gradient.addColorStop(0, topColor);
+        gradient.addColorStop(1, bottomColor);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+        ctx.strokeStyle = 'rgba(22, 40, 58, 0.28)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+    }
+
+    function drawTempByHeightGraph(rect) {
+        drawGraphBackground(
+            rect,
+            cssVar('--chart-temp-top', '#d5f1f4'),
+            cssVar('--chart-temp-bottom', '#f7fcff')
+        );
+
+        const samples = visiblePoints();
+        const xMin = 0;
+        const xMax = 12;
+        const yVals = samples.map(s => s.tFinal);
+        const yRange = axisScale(Math.min.apply(null, yVals), Math.max.apply(null, yVals));
+
+        function px(x) { return rect.x + ((x - xMin) / (xMax - xMin)) * rect.w; }
+        function py(y) { return rect.y + rect.h - ((y - yRange.min) / (yRange.max - yRange.min)) * rect.h; }
+
+        drawAxes(rect, {
+            x: 'Altura (m)',
+            y: 'Temperatura (°C)'
+        });
+
+        const fit = linearFit(samples, function(s) { return s.height; }, function(s) { return s.tFinal; });
+        if (state.showFit && fit !== null) {
+            const y1 = fit.slope * xMin + fit.intercept;
+            const y2 = fit.slope * xMax + fit.intercept;
+
+            ctx.strokeStyle = '#ff9f43';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(px(xMin), py(y1));
+            ctx.lineTo(px(xMax), py(y2));
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = '#12314e';
+        ctx.font = '11px Arial';
+        ctx.textAlign = 'center';
+        for (let h = 0; h <= 12; h++) {
+            const x = px(h);
+            ctx.fillText(String(h), x, rect.y + rect.h + 14);
+            ctx.beginPath();
+            ctx.moveTo(x, rect.y + rect.h);
+            ctx.lineTo(x, rect.y + rect.h + 4);
+            ctx.strokeStyle = 'rgba(18,49,78,0.35)';
+            ctx.stroke();
+        }
+
+        ctx.textAlign = 'right';
+        const ticks = 4;
+        for (let i = 0; i <= ticks; i++) {
+            const yVal = yRange.min + (yRange.max - yRange.min) * (i / ticks);
+            const y = py(yVal);
+            ctx.fillText(fmt(yVal, 3), rect.x - 7, y + 4);
+            ctx.beginPath();
+            ctx.moveTo(rect.x - 4, y);
+            ctx.lineTo(rect.x, y);
+            ctx.stroke();
+        }
+
+        ctx.fillStyle = '#ff8c42';
+        samples.forEach(function(s) {
+            ctx.beginPath();
+            ctx.arc(px(s.height), py(s.tFinal), 3.2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        const current = samples[samples.length - 1];
+        ctx.fillStyle = '#1f6feb';
+        ctx.beginPath();
+        ctx.arc(px(current.height), py(current.tFinal), 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (state.showFit && fit !== null) {
+            ctx.fillStyle = '#12314e';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Inclinação da reta: ${fmt(fit.slope, 4)} °C/m`, rect.x + 8, rect.y + 14);
+            ctx.fillText(formatFitEquation('T', 'h', fit.slope, fit.intercept, 4, 3), rect.x + 8, rect.y + 30);
+        }
+    }
+
+    function drawEnergyByHeatGraph(rect) {
+        drawGraphBackground(
+            rect,
+            cssVar('--chart-energy-top', '#ffe9cf'),
+            cssVar('--chart-energy-bottom', '#fff9f1')
+        );
+
+        const samples = visiblePoints();
+        const xVals = samples.map(s => s.qCal);
+        const yVals = samples.map(s => s.eTransferred);
+
+        const xRange = axisScale(Math.min.apply(null, xVals), Math.max.apply(null, xVals));
+        const yRange = axisScale(Math.min.apply(null, yVals), Math.max.apply(null, yVals));
+
+        function px(x) { return rect.x + ((x - xRange.min) / (xRange.max - xRange.min)) * rect.w; }
+        function py(y) { return rect.y + rect.h - ((y - yRange.min) / (yRange.max - yRange.min)) * rect.h; }
+
+        drawAxes(rect, {
+            x: 'Calor transferido (cal)',
+            y: 'Energia transferida (J)'
+        });
+
+        ctx.fillStyle = '#4cc9f0';
+        samples.forEach(function(s) {
+            ctx.beginPath();
+            ctx.arc(px(s.qCal), py(s.eTransferred), 3.2, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        const fit = linearFit(samples, function(s) { return s.qCal; }, function(s) { return s.eTransferred; });
+        const fitOrigin = linearFitThroughOrigin(samples, function(s) { return s.qCal; }, function(s) { return s.eTransferred; });
+        if (state.showFit && fit !== null) {
+            const x1 = xRange.min;
+            const x2 = xRange.max;
+            const y1 = fit.slope * x1 + fit.intercept;
+            const y2 = fit.slope * x2 + fit.intercept;
+
+            ctx.strokeStyle = '#ff9f43';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(px(x1), py(y1));
+            ctx.lineTo(px(x2), py(y2));
+            ctx.stroke();
+
+            const dxModel = (xRange.max - xRange.min) * 0.42;
+            const xA = xRange.min + (xRange.max - xRange.min) * 0.28;
+            const xB = xA + dxModel;
+            const yA = fit.slope * xA + fit.intercept;
+            const yB = fit.slope * xB + fit.intercept;
+            const pA = { x: px(xA), y: py(yA) };
+            const pProj = { x: px(xB), y: py(yA) };
+            const pB = { x: px(xB), y: py(yB) };
+
+            ctx.save();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = '#2d6a4f';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(pA.x, pA.y);
+            ctx.lineTo(pProj.x, pProj.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#bc6c25';
+            ctx.beginPath();
+            ctx.moveTo(pProj.x, pProj.y);
+            ctx.lineTo(pB.x, pB.y);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.fillStyle = '#2f3e46';
+            [pA, pProj, pB].forEach(function(p) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            const dxLabel = Math.abs(xB - xA);
+            const dyLabel = Math.abs(yB - yA);
+
+            ctx.fillStyle = '#1d3557';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Δx = ${fmt(dxLabel, 2)} cal`, (pA.x + pProj.x) / 2, pA.y - 8);
+            ctx.textAlign = 'left';
+            ctx.fillText(`Δy = ${fmt(dyLabel, 2)} J`, pB.x + 8, (pProj.y + pB.y) / 2);
+        }
+
+        if (state.showFit && state.forceOriginFit && fitOrigin !== null) {
+            const x1 = xRange.min;
+            const x2 = xRange.max;
+            const y1 = fitOrigin.slope * x1;
+            const y2 = fitOrigin.slope * x2;
+
+            ctx.strokeStyle = '#5d3fd3';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([7, 4]);
+            ctx.beginPath();
+            ctx.moveTo(px(x1), py(y1));
+            ctx.lineTo(px(x2), py(y2));
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        ctx.fillStyle = '#12314e';
+        ctx.font = '11px Arial';
+        ctx.textAlign = 'center';
+        const xticks = 4;
+        for (let i = 0; i <= xticks; i++) {
+            const xVal = xRange.min + (xRange.max - xRange.min) * (i / xticks);
+            const x = px(xVal);
+            ctx.fillText(fmt(xVal, 2), x, rect.y + rect.h + 14);
+            ctx.beginPath();
+            ctx.moveTo(x, rect.y + rect.h);
+            ctx.lineTo(x, rect.y + rect.h + 4);
+            ctx.strokeStyle = 'rgba(18,49,78,0.35)';
+            ctx.stroke();
+        }
+
+        ctx.textAlign = 'right';
+        const yticks = 4;
+        for (let i = 0; i <= yticks; i++) {
+            const yVal = yRange.min + (yRange.max - yRange.min) * (i / yticks);
+            const y = py(yVal);
+            ctx.fillText(fmt(yVal, 2), rect.x - 7, y + 4);
+            ctx.beginPath();
+            ctx.moveTo(rect.x - 4, y);
+            ctx.lineTo(rect.x, y);
+            ctx.stroke();
+        }
+
+        if (state.showFit && fit !== null) {
+            ctx.fillStyle = '#12314e';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Inclinação da reta: ${fmt(fit.slope, 2)} J/cal`, rect.x + 8, rect.y + 14);
+            ctx.fillText(formatFitEquation('E', 'Q', fit.slope, fit.intercept, 2, 2), rect.x + 8, rect.y + 30);
+            if (state.forceOriginFit && fitOrigin !== null) {
+                ctx.fillStyle = '#422b9c';
+                ctx.fillText(`Inclinação forçada na origem: ${fmt(fitOrigin.slope, 2)} J/cal`, rect.x + 8, rect.y + 46);
+                ctx.fillText(`E = ${fmt(fitOrigin.slope, 2)}·Q`, rect.x + 8, rect.y + 62);
+            }
+        }
+    }
+
+    function drawAnimation(progress) {
+        const current = compute();
+        const w = scene.width;
+        const h = scene.height;
+
+        fillVerticalGradient(
+            ctx,
+            w,
+            h,
+            cssVar('--graph-bg-top', '#dff1ff'),
+            cssVar('--graph-bg-bottom', '#ffffff')
+        );
+
+        const topY = 64;
+        const bottomY = h * 0.52;
+        const xWeight = w * 0.16;
+        const yWeight = topY + (bottomY - topY) * progress;
+
+        ctx.strokeStyle = '#2f4459';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(xWeight - 45, topY - 36);
+        ctx.lineTo(xWeight + 45, topY - 36);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#4d4d4d';
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.moveTo(xWeight, topY - 36);
+        ctx.lineTo(xWeight, yWeight - 24);
+        ctx.stroke();
+
+        ctx.fillStyle = '#4b5563';
+        ctx.fillRect(xWeight - 16, yWeight - 24, 32, 38);
+        ctx.fillStyle = '#13283b';
+        ctx.font = 'bold 12px Arial';
+        ctx.fillText('m', xWeight - 4, yWeight - 2);
+
+        const calX = w * 0.57;
+        const calY = h * 0.20;
+        const calW = w * 0.34;
+        const calH = h * 0.36;
+
+        ctx.strokeStyle = '#79889c';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(calX, calY, calW, calH);
+
+        const waterTop = calY + 42;
+        const warm = progress;
+        const r = Math.round(80 + warm * 85);
+        const gColor = Math.round(160 + warm * 38);
+        const b = Math.round(250 - warm * 90);
+        ctx.fillStyle = `rgb(${r}, ${gColor}, ${b})`;
+        ctx.fillRect(calX + 6, waterTop, calW - 12, calH - (waterTop - calY) - 6);
+
+        const shaftX = calX + calW / 2;
+        const shaftY1 = calY - 36;
+        const shaftY2 = calY + 88;
+
+        const pulleyRadius = 10;
+        const pulleyLeft = { x: xWeight, y: topY - 36 };
+        const pulleyRight = { x: shaftX, y: shaftY1 };
+
+        const waterX = calX + 6;
+        const waterY = waterTop;
+        const waterW = calW - 12;
+        const waterH = calH - (waterTop - calY) - 6;
+        drawWaterParticles(waterX, waterY, waterW, waterH, progress);
+
+        ctx.strokeStyle = '#243242';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(shaftX, shaftY1);
+        ctx.lineTo(shaftX, shaftY2);
+        ctx.stroke();
+
+        const angle = progress * Math.PI * 12;
+        const radius = 26;
+        for (let i = 0; i < 4; i++) {
+            const a = angle + i * Math.PI / 2;
+            ctx.strokeStyle = '#1f2937';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(shaftX, calY + 86);
+            ctx.lineTo(shaftX + Math.cos(a) * radius, calY + 86 + Math.sin(a) * radius);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#3a3a3a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(xWeight, yWeight - 24);
+        ctx.lineTo(pulleyLeft.x, pulleyLeft.y);
+        ctx.lineTo(pulleyRight.x, pulleyRight.y);
+        ctx.stroke();
+
+        [pulleyLeft, pulleyRight].forEach(function(pulley) {
+            ctx.fillStyle = '#d8dee9';
+            ctx.beginPath();
+            ctx.arc(pulley.x, pulley.y, pulleyRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#4b5667';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(pulley.x, pulley.y, pulleyRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = '#6b7788';
+            ctx.beginPath();
+            ctx.arc(pulley.x, pulley.y, 2.3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.fillStyle = '#0f2134';
+        ctx.font = '12px Arial';
+        ctx.fillText(`h = ${fmt(current.height, 0)} m`, xWeight - 28, topY - 46);
+        ctx.fillText(`m = ${fmt(current.m, 1)} kg`, xWeight - 35, yWeight + 28);
+        ctx.fillText(`Água: ${fmt(current.mWater, 0)} g`, calX + 8, calY - 10);
+
+        const tNow = current.t0 + current.deltaT * progress;
+        ctx.fillText(`T = ${fmt(tNow, 3)} °C`, calX + calW - 102, calY - 10);
+    }
+
+    function drawScene(progress) {
+        const w = scene.width;
+        const h = scene.height;
+        ctx.clearRect(0, 0, w, h);
+
+        drawAnimation(progress);
+
+        const graphRect = {
+            x: w * 0.04,
+            y: h * 0.60,
+            w: w * 0.53,
+            h: h * 0.34
+        };
+
+        if (state.chartMode === 'temp-height') {
+            drawTempByHeightGraph(graphRect);
+        } else {
+            drawEnergyByHeatGraph(graphRect);
+        }
+    }
+
+    function animate(ts) {
+        if (!state.lastTime) state.lastTime = ts;
+        const dt = (ts - state.lastTime) / 1000;
+        state.lastTime = ts;
+
+        if (state.running) {
+            state.progress += (dt * state.speedFactor) / 8.0;
+            if (state.progress >= 1) {
+                state.progress = 1;
+                state.running = false;
+            }
+            ensurePointsByProgress();
+            updateLabelsAndTables();
+        }
+
+        drawScene(state.progress);
+        requestAnimationFrame(animate);
+    }
+
+    function updateChartToggleView() {
+        const tempWrap = document.getElementById('tableTempWrap');
+        const energyWrap = document.getElementById('tableEnergyWrap');
+        const toggleBtn = document.getElementById('toggleChartBtn');
+
+        if (state.chartMode === 'temp-height') {
+            tempWrap.classList.remove('hidden');
+            energyWrap.classList.add('hidden');
+            toggleBtn.textContent = 'Mostrar gráfico E x Q';
+        } else {
+            tempWrap.classList.add('hidden');
+            energyWrap.classList.remove('hidden');
+            toggleBtn.textContent = 'Mostrar gráfico T x h';
+        }
+    }
+
+    function resetSimulation() {
+        state.running = false;
+        state.progress = 0;
+        state.lastTime = 0;
+        resetMeasurementSeries();
+        updateLabelsAndTables();
+        drawScene(0);
+    }
+
+    Object.values(controls).forEach(function(input) {
+        input.addEventListener('input', function() {
+            state.running = false;
+            state.progress = 0;
+            resetMeasurementSeries();
+            updateLabelsAndTables();
+            if (!state.running) drawScene(state.progress);
+        });
+    });
+
+    document.getElementById('startBtn').addEventListener('click', function() {
+        if (state.measuredPoints.length === 1 && tableTempBody.children.length === 0) {
+            appendPointToTables(state.measuredPoints[0]);
+        }
+        state.running = true;
+    });
+
+    document.getElementById('pauseBtn').addEventListener('click', function() {
+        state.running = false;
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetSimulation);
+
+    document.getElementById('toggleChartBtn').addEventListener('click', function() {
+        state.chartMode = state.chartMode === 'temp-height' ? 'energy-heat' : 'temp-height';
+        updateChartToggleView();
+        drawScene(state.progress);
+    });
+
+    fitBtn.addEventListener('click', function() {
+        state.showFit = !state.showFit;
+        fitBtn.textContent = state.showFit ? 'Ocultar reta de ajuste' : 'Mostrar reta de ajuste';
+        updateLabelsAndTables();
+        drawScene(state.progress);
+    });
+
+    originFitBtn.addEventListener('click', function() {
+        state.forceOriginFit = !state.forceOriginFit;
+        originFitBtn.textContent = state.forceOriginFit ? 'Forçar reta na origem: ON' : 'Forçar reta na origem: OFF';
+        updateLabelsAndTables();
+        drawScene(state.progress);
+    });
+
+    speedBtn.addEventListener('click', function() {
+        const currentIndex = speedLevels.indexOf(state.speedFactor);
+        const nextIndex = (currentIndex + 1) % speedLevels.length;
+        state.speedFactor = speedLevels[nextIndex];
+        speedBtn.textContent = `Velocidade: ${fmt(state.speedFactor, 1)}x`;
+    });
+
+    document.getElementById('helpBtn').addEventListener('click', function() {
+        alert('Como usar:\n\n1) Ajuste massa, altura máxima, massa de água, temperatura inicial e eficiência.\n2) Clique em Iniciar experimento para iniciar a coleta ponto a ponto.\n3) Use Velocidade para acelerar ou desacelerar a descida.\n4) Use Mostrar gráfico E x Q / Mostrar gráfico T x h para alternar os painéis.\n5) Use Mostrar reta de ajuste para exibir a melhor reta e calcular a inclinação.\n6) Use Forçar reta na origem para comparar o ajuste livre com o ajuste didático E = a·Q.\n\nEsta versão utiliza 49 medições experimentais ao longo da altura selecionada, melhorando a precisão da reta de ajuste. A simulação também aplica incerteza de ±5% para reproduzir medidas experimentais reais.');
+    });
+
+    const theoryModal = document.getElementById('theoryModal');
+    const solvedModal = document.getElementById('solvedExercisesModal');
+    const exerciseModal = document.getElementById('exercisesModal');
+
+    function drawTheoryGraph() {
+        const canvas = document.getElementById('theoryGraph');
+        if (!canvas) return;
+
+        const tctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+
+        tctx.clearRect(0, 0, w, h);
+        fillVerticalGradient(
+            tctx,
+            w,
+            h,
+            cssVar('--theory-graph-bg-top', '#dff1ff'),
+            cssVar('--theory-graph-bg-bottom', '#ffffff')
+        );
+
+        const rect = { x: 58, y: 20, w: w - 82, h: h - 52 };
+        tctx.strokeStyle = '#1e3b58';
+        tctx.lineWidth = 1.3;
+        tctx.beginPath();
+        tctx.moveTo(rect.x, rect.y + rect.h);
+        tctx.lineTo(rect.x + rect.w, rect.y + rect.h);
+        tctx.moveTo(rect.x, rect.y + rect.h);
+        tctx.lineTo(rect.x, rect.y);
+        tctx.stroke();
+
+        const points = [];
+        for (let hh = 0; hh <= 12; hh++) {
+            const ideal = computeForHeight(hh);
+            const n1 = 1 + ((Math.sin(hh * 1.37) + 0.2) * 0.05);
+            const n2 = 1 + ((Math.cos(hh * 1.11) - 0.15) * 0.05);
+            points.push({ x: ideal.qCal * n1, y: ideal.eTransferred * n2 });
+        }
+
+        const xVals = points.map(p => p.x);
+        const yVals = points.map(p => p.y);
+        const xRange = axisScale(Math.min.apply(null, xVals), Math.max.apply(null, xVals));
+        const yRange = axisScale(Math.min.apply(null, yVals), Math.max.apply(null, yVals));
+
+        function px(x) { return rect.x + ((x - xRange.min) / (xRange.max - xRange.min)) * rect.w; }
+        function py(y) { return rect.y + rect.h - ((y - yRange.min) / (yRange.max - yRange.min)) * rect.h; }
+
+        tctx.fillStyle = '#12314e';
+        tctx.font = '12px Arial';
+        tctx.textAlign = 'center';
+        tctx.fillText('Calor transferido (cal)', rect.x + rect.w / 2, rect.y + rect.h + 24);
+        tctx.save();
+        tctx.translate(18, rect.y + rect.h / 2);
+        tctx.rotate(-Math.PI / 2);
+        tctx.fillText('Energia transferida (J)', 0, 0);
+        tctx.restore();
+
+        tctx.fillStyle = '#3998d6';
+        points.forEach(function(p) {
+            tctx.beginPath();
+            tctx.arc(px(p.x), py(p.y), 3.1, 0, Math.PI * 2);
+            tctx.fill();
+        });
+
+        const fit = linearFit(points, function(p) { return p.x; }, function(p) { return p.y; });
+
+        if (fit !== null) {
+            const x1 = xRange.min;
+            const x2 = xRange.max;
+            const y1 = fit.slope * x1 + fit.intercept;
+            const y2 = fit.slope * x2 + fit.intercept;
+
+            tctx.strokeStyle = '#ff8c42';
+            tctx.lineWidth = 2;
+            tctx.beginPath();
+            tctx.moveTo(px(x1), py(y1));
+            tctx.lineTo(px(x2), py(y2));
+            tctx.stroke();
+
+            tctx.fillStyle = '#12314e';
+            tctx.textAlign = 'left';
+            tctx.fillText(`Inclinação ≈ ${fmt(fit.slope, 2)} J/cal`, rect.x + 6, rect.y + 14);
+            tctx.fillText(formatFitEquation('E', 'Q', fit.slope, fit.intercept, 2, 2), rect.x + 6, rect.y + 30);
+        }
+    }
+
+    function openTheoryModal() {
+        theoryModal.style.display = 'flex';
+        drawTheoryGraph();
+    }
+
+    function closeTheoryModal() {
+        theoryModal.style.display = 'none';
+    }
+
+    function openSolvedExercisesModal() {
+        solvedModal.style.display = 'flex';
+    }
+
+    function closeSolvedExercisesModal() {
+        solvedModal.style.display = 'none';
+    }
+
+    function closeExercisesModal() {
+        exerciseModal.style.display = 'none';
+    }
+
+    document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+    document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+    document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+
+    document.querySelectorAll('.close').forEach(function(el) {
+        el.addEventListener('click', function() {
+            const target = document.getElementById(this.dataset.close);
+            if (target) target.style.display = 'none';
+        });
+    });
+
+    window.addEventListener('click', function(event) {
+        [theoryModal, solvedModal, exerciseModal].forEach(function(modal) {
+            if (event.target === modal) modal.style.display = 'none';
+        });
+    });
+
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function buildNumericOptions(correct, unit, dec) {
+        const options = [];
+        const labels = new Set();
+        const factors = [0.5, 0.75, 0.85, 1.15, 1.25, 1.5, 2.0];
+        const correctLabel = `${fmt(correct, dec)} ${unit}`;
+        options.push(correctLabel);
+        labels.add(correctLabel);
+
+        while (options.length < 5) {
+            const candidate = Math.abs(correct * factors[randomInt(0, factors.length - 1)]);
+            const label = `${fmt(candidate, dec)} ${unit}`;
+            if (!labels.has(label)) {
+                labels.add(label);
+                options.push(label);
+            }
+        }
+
+        return shuffle(options);
+    }
+
+    const exerciseStorageKey = 'jouleExerciseProgressV2';
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+
+    function buildExerciseByType(type) {
+        const mass = randomInt(1, 8);
+        const height = randomInt(2, 12);
+        const etaPercent = randomInt(70, 95);
+        const eta = etaPercent / 100;
+        const mWater = randomInt(200, 1200);
+
+        const emec = mass * g * height;
+        const etr = emec * eta;
+        const q = etr / joulePerCal;
+        const dt = q / mWater;
+
+        if (type === 'conceito_1') {
+            return {
+                type,
+                questionHtml: 'O principal resultado da experiência de Joule foi mostrar que:',
+                answer: 'energia mecânica pode ser convertida em energia térmica.',
+                options: shuffle([
+                    'energia mecânica pode ser convertida em energia térmica.',
+                    'calor não se relaciona com trabalho mecânico.',
+                    'a temperatura independe da energia fornecida.',
+                    'apenas a massa da água determina o aquecimento.',
+                    'o valor de g varia conforme o calorímetro.'
+                ])
+            };
+        }
+
+        if (type === 'conceito_2') {
+            return {
+                type,
+                questionHtml: 'Durante o experimento, a energia que efetivamente aquece a água é melhor representada por:',
+                answer: 'E<sub>transferida</sub> = η · E<sub>mec</sub>.',
+                options: shuffle([
+                    'E<sub>transferida</sub> = η · E<sub>mec</sub>.',
+                    'E<sub>transferida</sub> = E<sub>mec</sub> / η.',
+                    'E<sub>transferida</sub> = m<sub>água</sub> · g · h.',
+                    'E<sub>transferida</sub> = Q · c.',
+                    'E<sub>transferida</sub> = ΔT / m<sub>água</sub>.'
+                ])
+            };
+        }
+
+        if (type === 'conceito_incerteza') {
+            return {
+                type,
+                questionHtml: 'Por que os pontos experimentais da simulação não ficam todos exatamente sobre a reta de ajuste?',
+                answer: 'Porque foi inserida uma incerteza para reproduzir imprecisões reais de laboratório.',
+                options: shuffle([
+                    'Porque foi inserida uma incerteza para reproduzir imprecisões reais de laboratório.',
+                    'Porque a gravidade deixa de atuar em algumas medidas.',
+                    'Porque a temperatura da água não depende da energia transferida.',
+                    'Porque a reta de ajuste só pode ser usada com um único ponto.',
+                    'Porque o calorímetro impede qualquer relação linear.'
+                ])
+            };
+        }
+
+        if (type === 'conceito_precisao') {
+            return {
+                type,
+                questionHtml: 'Qual procedimento tende a melhorar a estimativa experimental do equivalente mecânico do calor?',
+                answer: 'Aumentar o número de medições e usar procedimentos mais precisos.',
+                options: shuffle([
+                    'Aumentar o número de medições e usar procedimentos mais precisos.',
+                    'Diminuir o número de medições para evitar dispersão.',
+                    'Ignorar os pontos fora da tendência sem justificativa.',
+                    'Trocar a unidade de joule para metro.',
+                    'Manter apenas a primeira medida e descartar as demais.'
+                ])
+            };
+        }
+
+        if (type === 'conceito_inclinacao') {
+            return {
+                type,
+                questionHtml: 'No gráfico T × h, o que representa a inclinação da reta de ajuste?',
+                answer: 'O aumento médio da temperatura para cada metro adicional de altura.',
+                options: shuffle([
+                    'O aumento médio da temperatura para cada metro adicional de altura.',
+                    'A massa total de água dentro do calorímetro.',
+                    'A eficiência do sistema medida em °C.',
+                    'O valor da gravidade em caloria.',
+                    'A quantidade total de água convertida em calor.'
+                ])
+            };
+        }
+
+        if (type === 'emec') {
+            return {
+                type,
+                questionHtml: `Para m = ${mass} kg e h = ${height} m (g = 9,8 m/s²), qual é E<sub>mec</sub>?`,
+                answer: `${fmt(emec, 1)} J`,
+                options: buildNumericOptions(emec, 'J', 1)
+            };
+        }
+
+        if (type === 'etr') {
+            return {
+                type,
+                questionHtml: `Se E<sub>mec</sub> = ${fmt(emec, 1)} J e η = ${fmt(etaPercent, 0)}%, qual é E<sub>transferida</sub>?`,
+                answer: `${fmt(etr, 1)} J`,
+                options: buildNumericOptions(etr, 'J', 1)
+            };
+        }
+
+        if (type === 'q_from_dt') {
+            const dtMeasured = dt;
+            return {
+                type,
+                questionHtml: `Em uma medição, m<sub>água</sub> = ${mWater} g e ΔT = ${fmt(dtMeasured, 4)} °C. Com c = 1 cal/(g·°C), qual é o calor recebido Q?`,
+                answer: `${fmt(mWater * dtMeasured, 2)} cal`,
+                options: buildNumericOptions(mWater * dtMeasured, 'cal', 2)
+            };
+        }
+
+        if (type === 'dt') {
+            return {
+                type,
+                questionHtml: `Uma massa de água de ${mWater} g recebe Q = ${fmt(q, 2)} cal. Com c = 1 cal/(g·°C), qual é ΔT?`,
+                answer: `${fmt(dt, 4)} °C`,
+                options: buildNumericOptions(dt, '°C', 4)
+            };
+        }
+
+        if (type === 'slope_th') {
+            const tA = 20 + randomInt(0, 20) / 10;
+            const deltaH = randomInt(4, 10);
+            const slopeTH = randomInt(2, 12) / 100;
+            const tB = tA + slopeTH * deltaH;
+            return {
+                type,
+                questionHtml: `Uma reta de ajuste no gráfico T × h passa pelos pontos (${fmt(0, 0)} m, ${fmt(tA, 1)} °C) e (${fmt(deltaH, 0)} m, ${fmt(tB, 2)} °C). Qual é sua inclinação?`,
+                answer: `${fmt(slopeTH, 3)} °C/m`,
+                options: buildNumericOptions(slopeTH, '°C/m', 3)
+            };
+        }
+
+        if (type === 'equivalente') {
+            const qMeasured = q;
+            const equivalent = etr / qMeasured;
+            return {
+                type,
+                questionHtml: `Uma rodada experimental forneceu E<sub>transferida</sub> = ${fmt(etr, 1)} J e Q = ${fmt(qMeasured, 2)} cal. Qual é o equivalente mecânico do calor (E/Q)?`,
+                answer: `${fmt(equivalent, 2)} J/cal`,
+                options: buildNumericOptions(equivalent, 'J/cal', 2)
+            };
+        }
+
+        return {
+            type: 'tfinal',
+            questionHtml: `Se T<sub>inicial</sub> = ${fmt(parseFloat(controls.tempInit.value), 1)} °C e ΔT = ${fmt(dt, 4)} °C, qual é T<sub>final</sub>?`,
+            answer: `${fmt(parseFloat(controls.tempInit.value) + dt, 3)} °C`,
+            options: buildNumericOptions(parseFloat(controls.tempInit.value) + dt, '°C', 3)
+        };
+    }
+
+    function generateExercises() {
+        const sequence = [
+            'conceito_1',
+            'emec',
+            'etr',
+            'conceito_inclinacao',
+            'q_from_dt',
+            'dt',
+            'conceito_2',
+            'conceito_incerteza',
+            'equivalente',
+            'emec',
+            'slope_th',
+            'q_from_dt',
+            'conceito_precisao',
+            'tfinal',
+            'dt'
+        ];
+        exercises = sequence.map(function(type) {
+            return buildExerciseByType(type);
+        });
+    }
+
+    function saveExerciseProgress() {
+        const payload = {
+            exercises,
+            currentExercise,
+            exerciseResults,
+            skippedQuestions,
+            currentExerciseAttempts
+        };
+        localStorage.setItem(exerciseStorageKey, JSON.stringify(payload));
+    }
+
+    function clearExerciseProgress() {
+        localStorage.removeItem(exerciseStorageKey);
+    }
+
+    function loadExerciseProgress() {
+        try {
+            const raw = localStorage.getItem(exerciseStorageKey);
+            if (!raw) return false;
+            const data = JSON.parse(raw);
+            if (!data || !Array.isArray(data.exercises) || !data.exercises.length) return false;
+            if (!Array.isArray(data.exerciseResults)) return false;
+
+            const validIndex = Number.isInteger(Number(data.currentExercise)) ? Number(data.currentExercise) : 0;
+            if (validIndex < 0 || validIndex > data.exercises.length) return false;
+
+            exercises = data.exercises;
+            currentExercise = validIndex;
+            exerciseResults = data.exerciseResults;
+            skippedQuestions = Number(data.skippedQuestions) || 0;
+            currentExerciseAttempts = Number(data.currentExerciseAttempts) || 0;
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function generateNewExerciseOfSameType() {
+        const current = exercises[currentExercise];
+        if (!current || !current.type) return;
+        exercises[currentExercise] = buildExerciseByType(current.type);
+        saveExerciseProgress();
+    }
+
+    function resetExerciseState() {
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+    }
+
+    function resetAndRestartExercises() {
+        if (confirm('Deseja reiniciar todos os exercícios? Seu progresso será perdido.')) {
+            clearExerciseProgress();
+            resetExerciseState();
+            generateExercises();
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+    }
+
+    function openExercisesModal() {
+        const loaded = loadExerciseProgress();
+        if (!loaded) {
+            resetExerciseState();
+            generateExercises();
+            saveExerciseProgress();
+        }
+        exerciseModal.style.display = 'flex';
+        document.getElementById('exerciseContainer').style.display = 'block';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+        showCurrentExercise();
+    }
+
+    document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+
+    function renderProgress() {
+        const progress = document.getElementById('progress');
+        progress.innerHTML = '';
+        for (let i = 0; i < exercises.length; i++) {
+            const marker = document.createElement('span');
+            marker.textContent = i + 1;
+            if (i < currentExercise) marker.classList.add('ok');
+            if (i === currentExercise) marker.classList.add('active');
+            progress.appendChild(marker);
+        }
+    }
+
+    function showCurrentExercise() {
+        renderProgress();
+        const area = document.getElementById('exerciseContainer');
+
+        if (currentExercise >= exercises.length) {
+            showConclusion();
+            saveExerciseProgress();
+            return;
+        }
+
+        document.getElementById('exerciseContainer').style.display = 'block';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'none';
+
+        const ex = exercises[currentExercise];
+        area.innerHTML = `
+            <div class="exercise-card">
+                <h3>Questão ${currentExercise + 1} de ${exercises.length}</h3>
+                <p>${ex.questionHtml}</p>
+                <div class="options" id="options"></div>
+                <button id="checkBtn" class="primary" style="margin-top:10px; width:100%;">Verificar resposta</button>
+                <button id="skipBtn" class="secondary" style="margin-top:8px; width:100%;">Pular questão</button>
+                <div id="note"></div>
+            </div>
+        `;
+
+        const optionsEl = document.getElementById('options');
+        let selected = null;
+
+        ex.options.forEach(function(opt) {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerHTML = opt;
+            div.addEventListener('click', function() {
+                optionsEl.querySelectorAll('.option').forEach(function(o) {
+                    o.classList.remove('selected');
+                });
+                div.classList.add('selected');
+                selected = opt;
+            });
+            optionsEl.appendChild(div);
+        });
+
+        document.getElementById('checkBtn').addEventListener('click', function() {
+            if (!selected) return;
+
+            const note = document.getElementById('note');
+            const all = optionsEl.querySelectorAll('.option');
+            all.forEach(function(o) {
+                o.classList.add('disabled');
+                if (o.innerHTML === ex.answer) o.classList.add('correct');
+                if (o.innerHTML === selected && selected !== ex.answer) o.classList.add('incorrect');
+            });
+
+            if (selected === ex.answer) {
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                note.className = 'result-note ok-note';
+                note.textContent = 'Resposta correta.';
+                setTimeout(function() {
+                    currentExercise++;
+                    saveExerciseProgress();
+                    showCurrentExercise();
+                }, 1000);
+            } else {
+                currentExerciseAttempts++;
+                note.className = 'result-note bad-note';
+                note.innerHTML = `
+                    Resposta incorreta. Correta: ${ex.answer}
+                    <button id="tryAgainBtn" class="secondary" style="margin-top:8px; width:100%;">Tentar novamente</button>
+                `;
+                saveExerciseProgress();
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        });
+
+        document.getElementById('skipBtn').addEventListener('click', function() {
+            skippedQuestions++;
+            exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+            currentExerciseAttempts = 0;
+            currentExercise++;
+            saveExerciseProgress();
+            showCurrentExercise();
+        });
+    }
+
+    function renderExercise() {
+        showCurrentExercise();
+    }
+
+    function showConclusion() {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'block';
+        document.getElementById('resultsContainer').style.display = 'none';
+
+        const submitButton = document.getElementById('submitConclusion');
+        const newSubmitButton = submitButton.cloneNode(true);
+        submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+
+        newSubmitButton.addEventListener('click', function() {
+            const conclusionText = document.getElementById('conclusionText').value.trim();
+            if (!conclusionText) {
+                alert('Por favor, escreva uma conclusão antes de enviar.');
+                return;
+            }
+            showResults(conclusionText);
+            saveExerciseProgress();
+        });
+    }
+
+    function showResults(conclusionText) {
+        document.getElementById('exerciseContainer').style.display = 'none';
+        document.getElementById('conclusionContainer').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+
+        const totalExercises = exercises.length;
+        const correctAnswers = exerciseResults.filter(function(r) { return r.correct; }).length;
+        const scorePercentage = totalExercises ? Math.round((correctAnswers / totalExercises) * 100) : 0;
+
+        document.getElementById('resultsSummary').innerHTML = `
+            <p>Exercícios respondidos: ${totalExercises}</p>
+            <p>Respostas corretas: ${correctAnswers}</p>
+            <p>Exercícios pulados: ${skippedQuestions}</p>
+            <p>Nota: ${scorePercentage}%</p>
+        `;
+        document.getElementById('finalConclusion').value = conclusionText;
+        saveExerciseProgress();
+    }
+
+    function ensureStudentNameJoule() {
+        let name = localStorage.getItem('studentNameJoule');
+        if (!name) {
+            let promptedName = '';
+            try {
+                promptedName = prompt('Qual é o seu nome? Vou usar isso para personalizar a simulação.');
+            } catch (error) {
+                promptedName = '';
+            }
+            name = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+            localStorage.setItem('studentNameJoule', name);
+        }
+        return name;
+    }
+
+    function syncStudentNameField() {
+        const studentNameInput = document.getElementById('studentName');
+        if (!studentNameInput) return;
+        if (!studentNameInput.value.trim()) {
+            studentNameInput.value = ensureStudentNameJoule();
+        }
+    }
+
+    window.tracks = [
+        function() {
+            return 'Bem-vindo a experiencia de Joule. Nesta simulacao, voce ajusta massa, altura, massa de agua, temperatura inicial e eficiencia para observar como energia mecanica se transforma em aquecimento da agua. Primeiro, explore os controles e compare como cada ajuste altera os resultados.';
+        },
+        function() {
+            return 'Foco conceitual: a energia mecanica do bloco e dada por m vezes g vezes h. Uma parte dessa energia e transferida para a agua, e o aumento de temperatura depende do calor recebido dividido pela massa de agua. Observe como os resultados mudam com mais altura e com diferentes massas de agua.';
+        },
+        function() {
+            return 'Nos graficos, a inclinacao da reta no plano energia por calor aproxima o equivalente mecanico do calor, em joule por caloria. Voce pode comparar o ajuste livre com a reta forcada na origem para discutir o efeito da incerteza experimental e do termo constante.';
+        },
+        function() {
+            return 'No fim, responda aos exercicios e escreva uma conclusao explicando o que voce aprendeu. Tente justificar com as formulas, com a tendencia dos graficos e com o papel das incertezas nas medicoes.';
+        }
+    ];
+
+    window.exampleNarrations = {
+        1: 'Exemplo um. Comece calculando a energia mecanica com m vezes g vezes h. Depois interprete o resultado em joules como a energia disponivel para ser transferida ao sistema.',
+        2: 'Exemplo dois. A eficiencia indica que apenas uma fracao da energia mecanica aquece a agua. Multiplique a energia mecanica por eta para encontrar a energia transferida.',
+        3: 'Exemplo tres. Calcule a variacao de temperatura pela diferenca entre temperatura final e inicial. Em seguida use Q igual a m vezes c vezes delta T para obter o calor em calorias.',
+        4: 'Exemplo quatro. Aqui voce isola delta T na expressao do calor sensivel. O valor encontrado mostra que aquecimentos pequenos podem ser medidos quando a massa de agua e grande.',
+        5: 'Exemplo cinco. A temperatura final e a soma da temperatura inicial com delta T. Esse passo conecta a parte energetica com a leitura termica do experimento.',
+        6: 'Exemplo seis. A inclinacao no grafico T por h e uma taxa media de aquecimento por metro. Ela ajuda a interpretar o comportamento global mesmo com pontos espalhados por incerteza.',
+        7: 'Exemplo sete. A equacao da reta tem coeficiente angular e termo constante. O coeficiente angular representa a variacao de energia por unidade de calor, e o termo constante reflete imperfeicoes do ajuste real.',
+        8: 'Exemplo oito. O equivalente mecanico do calor e a razao entre energia transferida e calor recebido. Compare esse valor com o esperado teorico para discutir precisao experimental.'
+    };
+
+    function sendResultsToSheet() {
+        if (typeof window.__simulationEnhancerSendResults === 'function') {
+            window.__simulationEnhancerSendResults();
+            return;
+        }
+        alert('Módulo de envio padrão não carregado. Recarregue a página e tente novamente.');
+    }
+
+    const studentNameInput = document.getElementById('studentName');
+    if (studentNameInput) {
+        studentNameInput.addEventListener('input', function() {
+            const value = this.value.trim();
+            if (value) localStorage.setItem('studentNameJoule', value);
+        });
+    }
+
+    const sendResultsButton = document.getElementById('sendResults');
+    if (sendResultsButton) {
+        sendResultsButton.addEventListener('click', sendResultsToSheet);
+    }
+
+    resetMeasurementSeries();
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    updateChartToggleView();
+    updateLabelsAndTables();
+    drawScene(0);
+    requestAnimationFrame(animate);
+    ensureStudentNameJoule();
+</script>
+<script src="../_shared/simulation-enhancer.js"></script>
+
+<!-- Nota sobre o desenvolvimento:
+     Concepção e planejamento pedagógico: Flávio Ambrósio Campos.
+     Código assistido por ferramentas de IA sob supervisão humana. -->
+
+<footer>
+    <p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737878" target="_blank" style="color:#ffcc66;">10.5281/zenodo.20737878</a> | Licença MIT | Prof. Flávio Ambrósio - CEAN</p>
+</footer>
+</body>
+</html>
