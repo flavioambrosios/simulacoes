@@ -61,7 +61,7 @@
         }
         .simulation-container {
             width: 100%;
-            height: 500px;
+            height: 680px;
             background: #000;
             border-radius: 8px;
             overflow: hidden;
@@ -73,6 +73,83 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+        .simulation-stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background:
+                radial-gradient(circle at top, rgba(255, 200, 0, 0.12), transparent 30%),
+                linear-gradient(180deg, rgba(6, 16, 44, 0.95), rgba(0, 0, 0, 0.98));
+            padding: 14px;
+            gap: 10px;
+        }
+        .simulation-stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .cycle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-weight: bold;
+        }
+        .cycle-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+        }
+        .cycle-badge small {
+            color: #d7e3ff;
+            font-weight: 600;
+        }
+        .energy-flow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .energy-chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f3f6ff;
+            font-size: 0.92rem;
+        }
+        .energy-chip strong {
+            color: #ffcc00;
+        }
+        #carnotCanvas {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            display: block;
+            border-radius: 10px;
+            background: rgba(3, 9, 26, 0.85);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        @media (max-width: 768px) {
+            .simulation-stage {
+                padding: 10px;
+            }
+            .simulation-stage-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .energy-flow {
+                justify-content: flex-start;
+            }
         }
         .controls-panel {
             flex: 1;
@@ -508,19 +585,36 @@
         </header>
         <div class="content">
             <div class="simulation-panel">
-                <h2 class="panel-title">Ciclo de Carnot</h2>
+                <h2 class="panel-title" id="simulationPanelTitle">Ciclo de Carnot</h2>
                 <div class="simulation-container">
-                    <img src="simulacoes/ciclo_carnot_mobile.gif" alt="Animação do Ciclo de Carnot">
+                    <div class="simulation-stage" aria-label="Animação didática do ciclo de Carnot">
+                        <div class="simulation-stage-header">
+                            <div class="cycle-badge" id="cycleStageBadge">
+                                <span class="cycle-dot" id="cycleStageDot"></span>
+                                <div>
+                                    <div id="cycleStageTitle">Expansão isotérmica</div>
+                                    <small id="cycleStageSubtitle">Fonte quente fornece calor ao gás.</small>
+                                </div>
+                            </div>
+                            <div class="energy-flow">
+                                <div class="energy-chip">Q₁: <strong id="visualHeatIn">500 J</strong></div>
+                                <div class="energy-chip">Q₂: <strong id="visualHeatOut">250 J</strong></div>
+                                <div class="energy-chip">W: <strong id="visualWork">250 J</strong></div>
+                            </div>
+                        </div>
+                        <canvas id="carnotCanvas" role="img" aria-label="Representação animada do cilindro, reservatórios térmicos e diagrama pressão-volume do ciclo de Carnot"></canvas>
+                    </div>
                 </div>
                 <div class="visualization-toggle">
                     <button id="helpBtn">Ajuda</button>
                     <button id="debugBtn">Debug</button>
+                    <button id="animationToggleBtn">Pausar Animação</button>
                 </div>
                 <div class="legend">
-                    <div class="legend-item"><div class="legend-color red"></div><span>Expansão Isotérmica (T₁)</span></div>
-                    <div class="legend-item"><div class="legend-color blue"></div><span>Expansão Adiabática</span></div>
-                    <div class="legend-item"><div class="legend-color green"></div><span>Compressão Isotérmica (T₂)</span></div>
-                    <div class="legend-item"><div class="legend-color orange"></div><span>Compressão Adiabática</span></div>
+                    <div class="legend-item"><div class="legend-color red"></div><span id="legendStage1">Expansão Isotérmica (T₁)</span></div>
+                    <div class="legend-item"><div class="legend-color blue"></div><span id="legendStage2">Expansão Adiabática</span></div>
+                    <div class="legend-item"><div class="legend-color green"></div><span id="legendStage3">Compressão Isotérmica (T₂)</span></div>
+                    <div class="legend-item"><div class="legend-color orange"></div><span id="legendStage4">Compressão Adiabática</span></div>
                 </div>
                 <div class="debug-panel" id="debugPanel">
                     <h3>Informações de Debug</h3>
@@ -529,6 +623,14 @@
             </div>
             <div class="controls-panel">
                 <h2 class="panel-title">Controles</h2>
+                <div class="control-group">
+                    <label for="cycleTypeSelect">Tipo de ciclo:</label>
+                    <select id="cycleTypeSelect" style="width:100%;padding:10px;border-radius:6px;border:none;background:#f6f8ff;color:#101320;font-weight:600;">
+                        <option value="carnot" selected>Ciclo de Carnot (máquina ideal)</option>
+                        <option value="otto">Ciclo Otto (motor a gasolina)</option>
+                        <option value="diesel">Ciclo Diesel (motor a diesel)</option>
+                    </select>
+                </div>
                 <div class="control-group">
                     <label for="hotTempInput">Temperatura da Fonte Quente (T₁):</label>
                     <input type="range" id="hotTempInput" min="300" max="1000" value="600" step="10">
@@ -549,15 +651,17 @@
                     <div class="value-display"><span id="efficiencyValue">50.0</span> %</div>
                 </div>
                 <div class="formula-box">
-                    <h3>Fórmulas do Ciclo de Carnot</h3>
-                    <p>η = 1 - (T₂/T₁) = 1 - (Q₂/Q₁)</p>
-                    <p>Onde:</p>
-                    <p>η = Rendimento</p>
-                    <p>T₁ = Temperatura da fonte quente (K)</p>
-                    <p>T₂ = Temperatura da fonte fria (K)</p>
-                    <p>Q₁ = Calor absorvido da fonte quente</p>
-                    <p>Q₂ = Calor rejeitado para a fonte fria</p>
-                    <p>W = Q₁ - Q₂ = Trabalho realizado</p>
+                    <h3 id="formulaTitle">Fórmulas do Ciclo de Carnot</h3>
+                    <div id="formulaContent">
+                        <p>η = 1 - (T₂/T₁) = 1 - (Q₂/Q₁)</p>
+                        <p>Onde:</p>
+                        <p>η = Rendimento</p>
+                        <p>T₁ = Temperatura da fonte quente (K)</p>
+                        <p>T₂ = Temperatura da fonte fria (K)</p>
+                        <p>Q₁ = Calor absorvido da fonte quente</p>
+                        <p>Q₂ = Calor rejeitado para a fonte fria</p>
+                        <p>W = Q₁ - Q₂ = Trabalho realizado</p>
+                    </div>
                 </div>
                 <div class="exercise-buttons">
                     <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
@@ -620,11 +724,13 @@
     <!-- Modal de Exercícios Resolvidos (mesmo conteúdo original) -->
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2>Exercícios Resolvidos - Ciclo de Carnot</h2><span class="close">&times;</span></div>
+            <div class="modal-header"><h2>Exercícios Resolvidos - Carnot, Otto e Diesel</h2><span class="close">&times;</span></div>
             <div id="solvedExercivesContainer">
                 <div class="solved-exercise"><h4>Exemplo 1: Cálculo do Rendimento</h4><p><strong>Problema:</strong> Uma máquina de Carnot opera entre as temperaturas de 500 K e 300 K. Qual é o seu rendimento máximo?</p><div class="solution-step"><strong>Fórmula:</strong> η = 1 - (T₂/T₁)</div><div class="solution-step"><strong>Passo 1:</strong> Identificar as temperaturas: T₁ = 500 K, T₂ = 300 K</div><div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: η = 1 - (300/500)</div><div class="solution-step"><strong>Passo 3:</strong> Calcular: η = 1 - 0.6 = 0.4</div><div class="solution-step"><strong>Resposta:</strong> O rendimento é de 40%</div></div>
                 <div class="solved-exercise"><h4>Exemplo 2: Cálculo do Trabalho Realizado</h4><p><strong>Problema:</strong> Uma máquina de Carnot recebe 800 J de calor da fonte quente a 600 K e rejeita calor para a fonte fria a 300 K. Qual é o trabalho realizado pela máquina?</p><div class="solution-step"><strong>Fórmula:</strong> η = 1 - (T₂/T₁) = W/Q₁</div><div class="solution-step"><strong>Passo 1:</strong> Calcular o rendimento: η = 1 - (300/600) = 1 - 0.5 = 0.5</div><div class="solution-step"><strong>Passo 2:</strong> Calcular o trabalho: W = η × Q₁ = 0.5 × 800</div><div class="solution-step"><strong>Resposta:</strong> W = 400 J</div></div>
                 <div class="solved-exercise"><h4>Exemplo 3: Cálculo do Calor Rejeitado</h4><p><strong>Problema:</strong> Uma máquina de Carnot com rendimento de 25% recebe 1000 J de calor da fonte quente. Quanto calor é rejeitado para a fonte fria?</p><div class="solution-step"><strong>Fórmula:</strong> W = Q₁ - Q₂ e η = W/Q₁</div><div class="solution-step"><strong>Passo 1:</strong> Calcular o trabalho: W = η × Q₁ = 0.25 × 1000 = 250 J</div><div class="solution-step"><strong>Passo 2:</strong> Calcular o calor rejeitado: Q₂ = Q₁ - W = 1000 - 250</div><div class="solution-step"><strong>Resposta:</strong> Q₂ = 750 J</div></div>
+                <div class="solved-exercise"><h4>Exemplo 4: Rendimento Ideal do Ciclo Otto</h4><p><strong>Problema:</strong> Para um ciclo Otto ideal com razão de compressão r = 8 e γ = 1,4, qual é o rendimento térmico aproximado?</p><div class="solution-step"><strong>Fórmula:</strong> η = 1 - 1/r<sup>(γ-1)</sup></div><div class="solution-step"><strong>Passo 1:</strong> Calcular r<sup>(γ-1)</sup> = 8<sup>0,4</sup> ≈ 2,30</div><div class="solution-step"><strong>Passo 2:</strong> Calcular 1/r<sup>(γ-1)</sup> ≈ 1/2,30 ≈ 0,435</div><div class="solution-step"><strong>Passo 3:</strong> η ≈ 1 - 0,435 = 0,565</div><div class="solution-step"><strong>Resposta:</strong> O rendimento ideal é aproximadamente 56,5%.</div></div>
+                <div class="solved-exercise"><h4>Exemplo 5: Comparação Otto x Diesel (Conceitual)</h4><p><strong>Problema:</strong> Em motores ideais, qual a principal diferença no processo de adição de calor entre os ciclos Otto e Diesel?</p><div class="solution-step"><strong>Passo 1:</strong> No ciclo Otto ideal, a adição de calor ocorre a <strong>volume constante</strong> (processo isocórico).</div><div class="solution-step"><strong>Passo 2:</strong> No ciclo Diesel ideal, a adição de calor ocorre a <strong>pressão constante</strong> (processo isobárico).</div><div class="solution-step"><strong>Passo 3:</strong> Relacionar com a simulação: no Otto, a ignição é por centelha; no Diesel, por compressão com injeção.</div><div class="solution-step"><strong>Resposta:</strong> Otto aquece a volume constante; Diesel aquece a pressão constante.</div></div>
             </div>
             <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
         </div>
@@ -633,12 +739,15 @@
     <!-- Modal de Teoria -->
     <div id="theoryModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h2>Teoria - Máquina de Carnot e Ciclo de Carnot</h2><span class="close">&times;</span></div>
+            <div class="modal-header"><h2>Teoria - Ciclos de Carnot, Otto e Diesel</h2><span class="close">&times;</span></div>
             <div class="theory-content">
                 <div class="theory-section"><h3>O que é a Máquina de Carnot?</h3><p>A máquina de Carnot é uma máquina térmica teórica que opera no ciclo de Carnot, estabelecendo o limite máximo de eficiência que qualquer máquina térmica real pode atingir. Foi proposta em 1824 pelo físico francês Nicolas Léonard Sadi Carnot.</p><p>O ciclo de Carnot consiste em quatro processos reversíveis:</p><ul><li><span class="highlight">Expansão isotérmica:</span> O sistema se expande em contato com a fonte quente (T₁), absorvendo calor Q₁.</li><li><span class="highlight">Expansão adiabática:</span> O sistema continua a se expandir sem trocar calor com o exterior.</li><li><span class="highlight">Compressão isotérmica:</span> O sistema é comprimido em contato com a fonte fria (T₂), rejeitando calor Q₂.</li><li><span class="highlight">Compressão adiabática:</span> O sistema continua a ser comprimido sem trocar calor, retornando ao estado inicial.</li></ul></div>
                 <div class="theory-section"><h3>Primeira Lei da Termodinâmica no Ciclo de Carnot</h3><p>A primeira lei da termodinâmica, que é o princípio da conservação de energia, aplicada ao ciclo de Carnot estabelece que:</p><div class="theory-formula">ΔU = Q - W</div><p>Onde:</p><ul><li><span class="highlight">ΔU</span> = Variação da energia interna</li><li><span class="highlight">Q</span> = Calor líquido trocado (Q₁ - Q₂)</li><li><span class="highlight">W</span> = Trabalho realizado pelo sistema</li></ul><p>Como o ciclo é fechado (o sistema retorna ao estado inicial), a variação da energia interna é zero (ΔU = 0). Portanto:</p><div class="theory-formula">W = Q₁ - Q₂</div><p>O trabalho líquido realizado pelo ciclo é igual ao calor líquido trocado.</p></div>
                 <div class="theory-section"><h3>Segunda Lei da Termodinâmica e o Ciclo de Carnot</h3><p>A segunda lei da termodinâmica estabelece que é impossível converter completamente calor em trabalho sem que haja outras mudanças no sistema. O ciclo de Carnot ilustra este princípio, mostrando que mesmo na máquina mais eficiente possível, parte do calor deve ser rejeitado para uma fonte fria.</p><p>O teorema de Carnot afirma que:</p><ul><li>Nenhuma máquina térmica operando entre duas fontes de calor pode ser mais eficiente que uma máquina de Carnot operando entre as mesmas fontes.</li><li>Todas as máquinas de Carnot operando entre as mesmas temperaturas têm a mesma eficiência.</li></ul></div>
                 <div class="theory-section"><h3>Rendimento da Máquina de Carnot</h3><p>O rendimento (η) de qualquer máquina térmica é definido como a razão entre o trabalho realizado (W) e o calor absorvido da fonte quente (Q₁):</p><div class="theory-formula">η = W / Q₁ = (Q₁ - Q₂) / Q₁ = 1 - (Q₂ / Q₁)</div><p>Para a máquina de Carnot, pode-se demonstrar que a razão Q₂/Q₁ é igual à razão T₂/T₁, onde T₁ e T₂ são as temperaturas absolutas (em Kelvin) das fontes quente e fria, respectivamente. Portanto:</p><div class="theory-formula">η = 1 - (T₂ / T₁)</div><p>Esta é a famosa fórmula do rendimento de Carnot, que mostra que o rendimento máximo depende apenas das temperaturas das fontes quente e fria, sendo independente da substância de trabalho.</p></div>
+                <div class="theory-section"><h3>Ciclo Otto (Motor a Gasolina)</h3><p>O ciclo Otto ideal modela o funcionamento básico de motores com ignição por centelha (vela). Na simulação, ele aparece associado aos quatro tempos do motor: admissão, compressão, combustão/expansão e escapamento.</p><ul><li><span class="highlight">Adição de calor no Otto:</span> ocorre idealmente em <strong>volume constante</strong> (processo isocórico).</li><li><span class="highlight">Ignição:</span> ocorre por centelha da vela no início da expansão.</li><li><span class="highlight">Rendimento ideal:</span> depende principalmente da razão de compressão r e de γ.</li></ul><div class="theory-formula">η_Otto = 1 - \frac{1}{r^{\gamma-1}}</div></div>
+                <div class="theory-section"><h3>Ciclo Diesel (Motor a Diesel)</h3><p>O ciclo Diesel ideal representa motores com ignição por compressão. Nesses motores, o ar é fortemente comprimido, elevando sua temperatura, e a combustão começa com a injeção do combustível.</p><ul><li><span class="highlight">Adição de calor no Diesel:</span> ocorre idealmente em <strong>pressão constante</strong> (processo isobárico).</li><li><span class="highlight">Ignição:</span> não usa vela; ocorre por compressão com injeção.</li><li><span class="highlight">Processos no ciclo:</span> duas adiabáticas, uma isobárica e uma isocórica.</li></ul></div>
+                <div class="theory-section"><h3>Comparação Didática Entre os Três Ciclos</h3><ul><li><span class="highlight">Carnot:</span> ciclo ideal de referência para limite máximo de eficiência entre duas temperaturas.</li><li><span class="highlight">Otto:</span> modelo ideal para motor a gasolina, com aquecimento isocórico.</li><li><span class="highlight">Diesel:</span> modelo ideal para motor a diesel, com aquecimento isobárico.</li></ul><p>Na prática, os motores reais têm perdas mecânicas e térmicas. Mesmo assim, esses modelos ideais são essenciais para compreender os limites e tendências de desempenho.</p></div>
                 <div class="theory-section"><h3>Importância e Aplicações do Ciclo de Carnot</h3><p>O ciclo de Carnot é importante porque:</p><ul><li>Estabelece o limite máximo teórico de eficiência para qualquer máquina térmica</li><li>Fornece insights fundamentais sobre a segunda lei da termodinâmica</li><li>Serve como referência para comparar o desempenho de máquinas térmicas reais</li><li>É utilizado no estudo de refrigeração e bombas de calor (ciclo reverso de Carnot)</li></ul><p>Embora seja uma idealização e não possa ser realizado na prática com perfeição, o ciclo de Carnot é fundamental para a compreensão dos limites termodinâmicos dos processos de conversão de energia.</p></div>
             </div>
             <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
@@ -649,8 +758,70 @@
         // ========== SIMULAÇÃO (original) ==========
         let hotTempInput = 600, coldTempInput = 300, heatInput = 500, efficiencyValue = 50.0, workValue = 250, heatOutputValue = 250;
         let debugMode = false;
+        let carnotCanvas, carnotContext, animationStartTime = 0;
+        let animationPaused = false;
+        let pauseTimestamp = 0;
+        let carnotModel = null;
+        let currentCycleType = 'carnot';
+        const GAS_CONSTANT = 8.314;
+        const MOLES = 1.0;
+        const GAMMA = 5 / 3;
+        const CV = (3 / 2) * GAS_CONSTANT;
+        const CP = CV + GAS_CONSTANT;
+        const BASE_VOLUME = 0.02;
+        const stageColors = ['#ff5f45', '#3e8bff', '#1bd47b', '#ff9a3d'];
+        const cycleDefinitions = {
+            carnot: {
+                displayName: 'Ciclo de Carnot',
+                formulaTitle: 'Fórmulas do Ciclo de Carnot',
+                formulaHtml: '<p>η = 1 - (T₂/T₁) = 1 - (Q₂/Q₁)</p><p>W = Q₁ - Q₂</p><p>Duas isotérmicas + duas adiabáticas (ideal).</p>',
+                stages: [
+                    { name: 'Expansão isotérmica', subtitle: 'Fonte quente fornece calor ao gás.' },
+                    { name: 'Expansão adiabática', subtitle: 'O gás se expande sem trocar calor.' },
+                    { name: 'Compressão isotérmica', subtitle: 'O gás rejeita calor para a fonte fria.' },
+                    { name: 'Compressão adiabática', subtitle: 'O gás retorna ao estado inicial sem trocar calor.' }
+                ],
+                legend: ['Expansão isotérmica (T₁)', 'Expansão adiabática', 'Compressão isotérmica (T₂)', 'Compressão adiabática']
+            },
+            otto: {
+                displayName: 'Ciclo Otto',
+                formulaTitle: 'Fórmulas do Ciclo Otto',
+                formulaHtml: '<p>η = 1 - 1/r<sup>(γ-1)</sup></p><p>Q₁ ocorre em volume constante (B→C).</p><p>Duas adiabáticas + duas isocóricas.</p>',
+                stages: [
+                    { name: 'Admissão', subtitle: 'Válvula de admissão aberta: entrada de mistura ar-combustível.' },
+                    { name: 'Compressão', subtitle: 'Válvulas fechadas: mistura é comprimida antes da centelha.' },
+                    { name: 'Explosão e expansão', subtitle: 'Vela de ignição inicia a combustão e o pistão desce.' },
+                    { name: 'Escapamento', subtitle: 'Válvula de escape aberta: saída dos gases queimados.' }
+                ],
+                legend: ['Admissão', 'Compressão', 'Explosão/expansão', 'Escapamento']
+            },
+            diesel: {
+                displayName: 'Ciclo Diesel',
+                formulaTitle: 'Fórmulas do Ciclo Diesel',
+                formulaHtml: '<p>η depende de r (compressão), ρ (corte) e γ.</p><p>Q₁ ocorre em pressão constante (B→C).</p><p>Duas adiabáticas + uma isobárica + uma isocórica.</p>',
+                stages: [
+                    { name: 'Admissão', subtitle: 'Válvula de admissão aberta: entrada de ar no cilindro.' },
+                    { name: 'Compressão', subtitle: 'Válvulas fechadas: ar comprimido atinge alta temperatura.' },
+                    { name: 'Combustão e expansão', subtitle: 'Injeção do diesel e autoignição por compressão.' },
+                    { name: 'Escapamento', subtitle: 'Válvula de escape aberta: saída dos gases queimados.' }
+                ],
+                legend: ['Admissão', 'Compressão', 'Combustão/expansão', 'Escapamento']
+            }
+        };
 
-        function init() { updateMeasurements(); setupEventListeners(); addDebugInfo("Simulação inicializada"); }
+        function getCurrentCycleDefinition() {
+            return cycleDefinitions[currentCycleType] || cycleDefinitions.carnot;
+        }
+
+        function init() {
+            initCarnotCanvas();
+            updateCycleUI();
+            updateMeasurements();
+            setupEventListeners();
+            animationStartTime = performance.now();
+            requestAnimationFrame(animateCarnotScene);
+            addDebugInfo("Simulação inicializada");
+        }
         function addDebugInfo(msg) { if (!debugMode) return; const info = document.getElementById('debugInfo'); info.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ${msg}</p>`; info.scrollTop = info.scrollHeight; }
         function setupEventListeners() {
             document.getElementById('hotTempInput').addEventListener('input', function() { hotTempInput = parseFloat(this.value); document.getElementById('hotTempValue').textContent = hotTempInput; updateMeasurements(); addDebugInfo(`Temperatura quente: ${hotTempInput} K`); });
@@ -658,6 +829,24 @@
             document.getElementById('heatInputInput').addEventListener('input', function() { heatInput = parseFloat(this.value); document.getElementById('heatInputValue').textContent = heatInput; updateMeasurements(); addDebugInfo(`Calor absorvido: ${heatInput} J`); });
             document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar:\n\n• Ajuste a temperatura da fonte quente, temperatura da fonte fria e calor absorvido com os controles deslizantes\n• Observe como o rendimento, trabalho realizado e calor rejeitado se alteram automaticamente\n• Use as fórmulas do Ciclo de Carnot para verificar os cálculos\n• Clique em 'Iniciar Exercícios' para testar seu conhecimento"));
             document.getElementById('debugBtn').addEventListener('click', function() { debugMode = !debugMode; document.getElementById('debugPanel').style.display = debugMode ? 'block' : 'none'; addDebugInfo(`Modo debug ${debugMode ? 'ativado' : 'desativado'}`); });
+            document.getElementById('animationToggleBtn').addEventListener('click', function() {
+                animationPaused = !animationPaused;
+                if (animationPaused) {
+                    pauseTimestamp = performance.now();
+                    this.textContent = 'Iniciar Animação';
+                } else {
+                    const now = performance.now();
+                    const pausedDuration = now - pauseTimestamp;
+                    animationStartTime += pausedDuration;
+                    this.textContent = 'Pausar Animação';
+                }
+            });
+            document.getElementById('cycleTypeSelect').addEventListener('change', function() {
+                currentCycleType = this.value;
+                updateCycleUI();
+                updateMeasurements();
+                addDebugInfo(`Ciclo selecionado: ${getCurrentCycleDefinition().displayName}`);
+            });
             document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
             document.getElementById('solvedExercisesBtn').addEventListener('click', () => { document.getElementById('solvedExercisesModal').style.display = 'flex'; addDebugInfo("Modal exercícios resolvidos aberto"); });
             document.getElementById('theoryBtn').addEventListener('click', () => { document.getElementById('theoryModal').style.display = 'flex'; addDebugInfo("Modal teoria aberto"); });
@@ -667,11 +856,24 @@
             document.getElementById('closeSolvedExercises').addEventListener('click', () => { document.getElementById('solvedExercisesModal').style.display = 'none'; });
             document.getElementById('closeTheory').addEventListener('click', () => { document.getElementById('theoryModal').style.display = 'none'; });
             window.addEventListener('click', function(e) { if (e.target == document.getElementById('exercisesModal')) closeExercisesModal(); if (e.target == document.getElementById('solvedExercisesModal')) document.getElementById('solvedExercisesModal').style.display = 'none'; if (e.target == document.getElementById('theoryModal')) document.getElementById('theoryModal').style.display = 'none'; });
+            window.addEventListener('resize', resizeCarnotCanvas);
+        }
+
+        function updateCycleUI() {
+            const def = getCurrentCycleDefinition();
+            document.getElementById('simulationPanelTitle').textContent = def.displayName;
+            document.getElementById('formulaTitle').textContent = def.formulaTitle;
+            document.getElementById('formulaContent').innerHTML = def.formulaHtml;
+            document.getElementById('legendStage1').textContent = def.legend[0];
+            document.getElementById('legendStage2').textContent = def.legend[1];
+            document.getElementById('legendStage3').textContent = def.legend[2];
+            document.getElementById('legendStage4').textContent = def.legend[3];
         }
         function updateMeasurements() {
-            efficiencyValue = (1 - (coldTempInput / hotTempInput)) * 100;
-            workValue = (efficiencyValue / 100) * heatInput;
-            heatOutputValue = heatInput - workValue;
+            carnotModel = computeCycleModel();
+            efficiencyValue = carnotModel.rendimento * 100;
+            workValue = carnotModel.W_total;
+            heatOutputValue = Math.abs(carnotModel.Q_fria);
             document.getElementById('hotTempDisplay').textContent = hotTempInput.toFixed(0) + ' K';
             document.getElementById('coldTempDisplay').textContent = coldTempInput.toFixed(0) + ' K';
             document.getElementById('heatInputDisplay').textContent = heatInput.toFixed(0) + ' J';
@@ -679,6 +881,948 @@
             document.getElementById('efficiencyValue').textContent = efficiencyValue.toFixed(1);
             document.getElementById('workDisplay').textContent = workValue.toFixed(0) + ' J';
             document.getElementById('heatOutputDisplay').textContent = heatOutputValue.toFixed(0) + ' J';
+            document.getElementById('visualHeatIn').textContent = carnotModel.Q_quente.toFixed(0) + ' J';
+            document.getElementById('visualHeatOut').textContent = heatOutputValue.toFixed(0) + ' J';
+            document.getElementById('visualWork').textContent = workValue.toFixed(0) + ' J';
+            renderCarnotScene(performance.now());
+        }
+
+        function initCarnotCanvas() {
+            carnotCanvas = document.getElementById('carnotCanvas');
+            if (!carnotCanvas) return;
+            carnotContext = carnotCanvas.getContext('2d');
+            resizeCarnotCanvas();
+        }
+
+        function resizeCarnotCanvas() {
+            if (!carnotCanvas || !carnotContext) return;
+            const ratio = window.devicePixelRatio || 1;
+            const width = Math.max(320, carnotCanvas.clientWidth);
+            const height = Math.max(260, carnotCanvas.clientHeight);
+            carnotCanvas.width = Math.round(width * ratio);
+            carnotCanvas.height = Math.round(height * ratio);
+            carnotContext.setTransform(1, 0, 0, 1, 0, 0);
+            carnotContext.scale(ratio, ratio);
+            renderCarnotScene(performance.now());
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function lerp(start, end, amount) {
+            return start + (end - start) * amount;
+        }
+
+        function computeCarnotModel() {
+            const deltaT = Math.max(0, hotTempInput - coldTempInput);
+            const thermalDrive = clamp(deltaT / 500, 0, 1);
+            const tempRatio = Math.pow(Math.max(1, hotTempInput / Math.max(1, coldTempInput)), 1 / (GAMMA - 1));
+            const effectiveHeatInput = heatInput * thermalDrive;
+            const expansionRatio = Math.exp(effectiveHeatInput / (MOLES * GAS_CONSTANT * Math.max(1, hotTempInput)));
+            const V_A = BASE_VOLUME;
+            const V_B = V_A * expansionRatio;
+            const V_C = V_B * tempRatio;
+            const V_D = V_A * tempRatio;
+            const P_A = MOLES * GAS_CONSTANT * hotTempInput / V_A;
+            const P_B = MOLES * GAS_CONSTANT * hotTempInput / V_B;
+            const P_C = MOLES * GAS_CONSTANT * coldTempInput / V_C;
+            const P_D = MOLES * GAS_CONSTANT * coldTempInput / V_D;
+            const Q_quente = effectiveHeatInput;
+            const Q_fria = MOLES * GAS_CONSTANT * coldTempInput * Math.log(V_D / V_C);
+            const W_AB = Q_quente;
+            const W_BC = MOLES * CV * (hotTempInput - coldTempInput);
+            const W_CD = Q_fria;
+            const W_DA = MOLES * CV * (coldTempInput - hotTempInput);
+            const W_total = W_AB + W_BC + W_CD + W_DA;
+            const rendimento = Q_quente > 1e-9 ? W_total / Q_quente : 0;
+            const VminPlot = Math.min(V_A, V_B, V_C, V_D) * 0.9;
+            const VmaxPlot = Math.max(V_A, V_B, V_C, V_D) * 1.08;
+            const PminPlot = Math.min(P_A, P_B, P_C, P_D) * 0.9;
+            const PmaxPlot = Math.max(P_A, P_B, P_C, P_D) * 1.08;
+            return {
+                cycleKey: 'carnot',
+                V_A,
+                V_B,
+                V_C,
+                V_D,
+                P_A,
+                P_B,
+                P_C,
+                P_D,
+                Q_quente,
+                Q_fria,
+                W_AB,
+                W_BC,
+                W_CD,
+                W_DA,
+                W_total,
+                rendimento,
+                VminPlot,
+                VmaxPlot,
+                PminPlot,
+                PmaxPlot,
+                segments: [
+                    { type: 'isothermal', v1: V_A, v2: V_B, t1: hotTempInput, p1: P_A, p2: P_B },
+                    { type: 'adiabatic', v1: V_B, v2: V_C, t1: hotTempInput, p1: P_B, p2: P_C },
+                    { type: 'isothermal', v1: V_C, v2: V_D, t1: coldTempInput, p1: P_C, p2: P_D },
+                    { type: 'adiabatic', v1: V_D, v2: V_A, t1: coldTempInput, p1: P_D, p2: P_A }
+                ]
+            };
+        }
+
+        function computeOttoModel() {
+            const heatRatio = clamp((heatInput - 100) / 900, 0, 1);
+            const deltaT = Math.max(0, hotTempInput - coldTempInput);
+            const thermalDrive = clamp(deltaT / 500, 0, 1);
+            const V_A = BASE_VOLUME * (1.9 + heatRatio * 0.8);
+            const compressionRatio = 1 + thermalDrive * (clamp(Math.pow((hotTempInput / Math.max(1, coldTempInput)) * 0.82, 1 / (GAMMA - 1)), 1.6, 12) - 1);
+            const V_B = V_A / compressionRatio;
+            const T_A = coldTempInput;
+            const T_B = T_A * Math.pow(compressionRatio, GAMMA - 1);
+            const effectiveHeatInput = heatInput * thermalDrive;
+            const T_C = T_B + effectiveHeatInput / (MOLES * CV);
+            const V_C = V_B;
+            const V_D = V_A;
+            const T_D = T_C / Math.pow(compressionRatio, GAMMA - 1);
+            const P_A = MOLES * GAS_CONSTANT * T_A / V_A;
+            const P_B = MOLES * GAS_CONSTANT * T_B / V_B;
+            const P_C = MOLES * GAS_CONSTANT * T_C / V_C;
+            const P_D = MOLES * GAS_CONSTANT * T_D / V_D;
+            const Q_quente = effectiveHeatInput;
+            const Q_fria = -(MOLES * CV * Math.max(0, T_D - T_A));
+            const W_AB = MOLES * CV * (T_A - T_B);
+            const W_BC = 0;
+            const W_CD = MOLES * CV * (T_C - T_D);
+            const W_DA = 0;
+            const W_total = W_AB + W_BC + W_CD + W_DA;
+            const rendimento = Q_quente > 1e-9 ? W_total / Q_quente : 0;
+            const VminPlot = Math.min(V_A, V_B, V_C, V_D) * 0.9;
+            const VmaxPlot = Math.max(V_A, V_B, V_C, V_D) * 1.08;
+            const PminPlot = Math.min(P_A, P_B, P_C, P_D) * 0.9;
+            const PmaxPlot = Math.max(P_A, P_B, P_C, P_D) * 1.08;
+            return {
+                cycleKey: 'otto',
+                V_A,
+                V_B,
+                V_C,
+                V_D,
+                P_A,
+                P_B,
+                P_C,
+                P_D,
+                Q_quente,
+                Q_fria,
+                W_AB,
+                W_BC,
+                W_CD,
+                W_DA,
+                W_total,
+                rendimento,
+                VminPlot,
+                VmaxPlot,
+                PminPlot,
+                PmaxPlot,
+                segments: [
+                    { type: 'adiabatic', v1: V_A, v2: V_B, t1: T_A, p1: P_A, p2: P_B },
+                    { type: 'isochoric', v1: V_B, v2: V_C, t1: T_B, t2: T_C, p1: P_B, p2: P_C },
+                    { type: 'adiabatic', v1: V_C, v2: V_D, t1: T_C, p1: P_C, p2: P_D },
+                    { type: 'isochoric', v1: V_D, v2: V_A, t1: T_D, t2: T_A, p1: P_D, p2: P_A }
+                ]
+            };
+        }
+
+        function computeDieselModel() {
+            const heatRatio = clamp((heatInput - 100) / 900, 0, 1);
+            const deltaT = Math.max(0, hotTempInput - coldTempInput);
+            const thermalDrive = clamp(deltaT / 500, 0, 1);
+            const V_A = BASE_VOLUME * (2.0 + heatRatio * 0.9);
+            const compressionRatio = 1 + thermalDrive * (clamp(Math.pow(hotTempInput / Math.max(1, coldTempInput), 1 / (GAMMA - 1)), 2.0, 18) - 1);
+            const V_B = V_A / compressionRatio;
+            const T_A = coldTempInput;
+            const T_B = T_A * Math.pow(compressionRatio, GAMMA - 1);
+            const Q_quente = heatInput * thermalDrive;
+            const T_C = T_B + Q_quente / (MOLES * CP);
+            const P_B = MOLES * GAS_CONSTANT * T_B / V_B;
+            const P_C = P_B;
+            const V_C = MOLES * GAS_CONSTANT * T_C / P_C;
+            const V_D = V_A;
+            const T_D = T_C * Math.pow(V_C / V_D, GAMMA - 1);
+            const P_A = MOLES * GAS_CONSTANT * T_A / V_A;
+            const P_D = MOLES * GAS_CONSTANT * T_D / V_D;
+            const Q_fria = -(MOLES * CV * Math.max(0, T_D - T_A));
+            const W_AB = MOLES * CV * (T_A - T_B);
+            const W_BC = MOLES * GAS_CONSTANT * (T_C - T_B);
+            const W_CD = MOLES * CV * (T_C - T_D);
+            const W_DA = 0;
+            const W_total = W_AB + W_BC + W_CD + W_DA;
+            const rendimento = Q_quente > 1e-9 ? W_total / Q_quente : 0;
+            const VminPlot = Math.min(V_A, V_B, V_C, V_D) * 0.9;
+            const VmaxPlot = Math.max(V_A, V_B, V_C, V_D) * 1.08;
+            const PminPlot = Math.min(P_A, P_B, P_C, P_D) * 0.9;
+            const PmaxPlot = Math.max(P_A, P_B, P_C, P_D) * 1.08;
+            return {
+                cycleKey: 'diesel',
+                V_A,
+                V_B,
+                V_C,
+                V_D,
+                P_A,
+                P_B,
+                P_C,
+                P_D,
+                Q_quente,
+                Q_fria,
+                W_AB,
+                W_BC,
+                W_CD,
+                W_DA,
+                W_total,
+                rendimento,
+                VminPlot,
+                VmaxPlot,
+                PminPlot,
+                PmaxPlot,
+                segments: [
+                    { type: 'adiabatic', v1: V_A, v2: V_B, t1: T_A, p1: P_A, p2: P_B },
+                    { type: 'isobaric', v1: V_B, v2: V_C, t1: T_B, t2: T_C, p1: P_B, p2: P_C },
+                    { type: 'adiabatic', v1: V_C, v2: V_D, t1: T_C, p1: P_C, p2: P_D },
+                    { type: 'isochoric', v1: V_D, v2: V_A, t1: T_D, t2: T_A, p1: P_D, p2: P_A }
+                ]
+            };
+        }
+
+        function computeCycleModel() {
+            if (currentCycleType === 'otto') return computeOttoModel();
+            if (currentCycleType === 'diesel') return computeDieselModel();
+            return computeCarnotModel();
+        }
+
+        function evaluateSegmentState(segment, t) {
+            if (segment.type === 'isothermal') {
+                const volume = lerp(segment.v1, segment.v2, t);
+                const pressure = MOLES * GAS_CONSTANT * segment.t1 / volume;
+                return { volume, pressure, temperature: segment.t1 };
+            }
+            if (segment.type === 'adiabatic') {
+                const volume = lerp(segment.v1, segment.v2, t);
+                const pressure = segment.p1 * Math.pow(segment.v1 / volume, GAMMA);
+                const temperature = segment.t1 * Math.pow(segment.v1 / volume, GAMMA - 1);
+                return { volume, pressure, temperature };
+            }
+            if (segment.type === 'isobaric') {
+                const volume = lerp(segment.v1, segment.v2, t);
+                const pressure = segment.p1;
+                const temperature = lerp(segment.t1, segment.t2, t);
+                return { volume, pressure, temperature };
+            }
+            const volume = segment.v1;
+            const pressure = lerp(segment.p1, segment.p2, t);
+            const temperature = lerp(segment.t1, segment.t2, t);
+            return { volume, pressure, temperature };
+        }
+
+        function evaluateLinearSegment(start, end, t) {
+            const volume = lerp(start.volume, end.volume, t);
+            const pressure = lerp(start.pressure, end.pressure, t);
+            const temperature = (pressure * volume) / (MOLES * GAS_CONSTANT);
+            return { volume, pressure, temperature };
+        }
+
+        function getDisplayCyclePoints(model, cycleType) {
+            const points = {
+                A: { volume: model.V_A, pressure: model.P_A },
+                B: { volume: model.V_B, pressure: model.P_B },
+                C: { volume: model.V_C, pressure: model.P_C },
+                D: { volume: model.V_D, pressure: model.P_D }
+            };
+            if (cycleType === 'otto' || cycleType === 'diesel') {
+                points.O = { volume: model.V_B, pressure: model.P_A };
+            }
+            return points;
+        }
+
+        function getStateForStage(cycleType, model, stageIndex, localT) {
+            if (cycleType === 'carnot') {
+                const segment = model.segments[stageIndex];
+                return evaluateSegmentState(segment, localT);
+            }
+
+            const points = getDisplayCyclePoints(model, cycleType);
+            if (stageIndex === 0) {
+                return evaluateLinearSegment(points.O, points.A, localT);
+            }
+            if (stageIndex === 1) {
+                return evaluateSegmentState(model.segments[0], localT);
+            }
+            if (stageIndex === 2) {
+                if (localT < 0.45) {
+                    return evaluateSegmentState(model.segments[1], localT / 0.45);
+                }
+                return evaluateSegmentState(model.segments[2], (localT - 0.45) / 0.55);
+            }
+            if (localT < 0.72) {
+                return evaluateSegmentState(model.segments[3], localT / 0.72);
+            }
+            return evaluateLinearSegment(points.A, points.O, (localT - 0.72) / 0.28);
+        }
+
+        function getCycleState(timestamp) {
+            const safeTimestamp = Number.isFinite(timestamp) ? timestamp : performance.now();
+            if (!animationStartTime) animationStartTime = safeTimestamp;
+            if (!carnotModel) carnotModel = computeCycleModel();
+            const stages = getCurrentCycleDefinition().stages;
+            const cycleDuration = stages.length * 2;
+            const elapsed = (((safeTimestamp - animationStartTime) / 1000) % cycleDuration + cycleDuration) % cycleDuration;
+            const stageIndex = Math.min(stages.length - 1, Math.floor(elapsed / 2));
+            const localT = (elapsed - stageIndex * 2) / 2;
+            const segmentState = getStateForStage(currentCycleType, carnotModel, stageIndex, localT);
+            const volume = segmentState.volume;
+            const pressure = segmentState.pressure;
+            const temperature = segmentState.temperature;
+            const hotRatio = clamp((hotTempInput - 300) / 700, 0, 1);
+            const coldRatio = clamp((coldTempInput - 200) / 300, 0, 1);
+            const heatRatio = clamp((heatInput - 100) / 900, 0, 1);
+            const efficiencyRatio = clamp(efficiencyValue / 100, 0, 1);
+            return {
+                stageIndex,
+                phase: { ...stages[stageIndex], color: stageColors[stageIndex] },
+                localT,
+                hotRatio,
+                coldRatio,
+                heatRatio,
+                efficiencyRatio,
+                volume,
+                pressure,
+                temperature,
+                volumeNorm: clamp((volume - carnotModel.VminPlot) / (carnotModel.VmaxPlot - carnotModel.VminPlot), 0, 1),
+                pressureNorm: clamp((pressure - carnotModel.PminPlot) / (carnotModel.PmaxPlot - carnotModel.PminPlot), 0, 1),
+                pressureKPa: pressure / 1000
+            };
+        }
+
+        function drawArrow(ctx, x1, y1, x2, y2, color, width) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const head = 10;
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - head * Math.cos(angle - Math.PI / 6), y2 - head * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            const r = Math.min(radius, width / 2, height / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + width - r, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+            ctx.lineTo(x + width, y + height - r);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+            ctx.lineTo(x + r, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawCurveDirectionArrow(ctx, points, color) {
+            if (!points || points.length < 4) return;
+            const mid = Math.floor(points.length * 0.55);
+            const p1 = points[Math.max(0, mid - 1)];
+            const p2 = points[Math.min(points.length - 1, mid + 1)];
+            drawArrow(ctx, p1.x, p1.y, p2.x, p2.y, color, 2.6);
+        }
+
+        function sliderCrankState(phase, crankRadius, rodLength) {
+            // Motor 4 tempos: 2 voltas do virabrequim por ciclo completo (720 graus).
+            const angle = -Math.PI / 2 + phase * Math.PI * 4;
+            const cosA = Math.cos(angle);
+            const sinA = Math.sin(angle);
+            const inside = Math.max(0, rodLength * rodLength - (crankRadius * cosA) * (crankRadius * cosA));
+            const sliderYRelative = crankRadius * sinA - Math.sqrt(inside);
+            const sliderMin = -crankRadius - rodLength;
+            const sliderMax = crankRadius - rodLength;
+            const norm = clamp((sliderYRelative - sliderMin) / (sliderMax - sliderMin), 0, 1);
+            return {
+                angle,
+                norm,
+                sliderYRelative,
+                sliderMin,
+                sliderMax
+            };
+        }
+
+        function getFourStrokeVisualState(cycleType, stageIndex, localT) {
+            if (cycleType === 'carnot') {
+                return {
+                    showEngine: false,
+                    intakeOpen: false,
+                    exhaustOpen: false,
+                    sparkActive: false,
+                    injectionActive: false,
+                    timingLabel: ''
+                };
+            }
+
+            const intakeOpen = stageIndex === 0;
+            const exhaustOpen = stageIndex === 3;
+            const sparkActive = cycleType === 'otto' && stageIndex === 2 && localT < 0.2;
+            const injectionActive = cycleType === 'diesel' && stageIndex === 2 && localT < 0.45;
+
+            return {
+                showEngine: true,
+                intakeOpen,
+                exhaustOpen,
+                sparkActive,
+                injectionActive,
+                timingLabel: ['Admissão', 'Compressão', 'Combustão/Expansão', 'Escapamento'][stageIndex] || ''
+            };
+        }
+
+        function renderCarnotScene(timestamp) {
+            if (!carnotCanvas || !carnotContext) return;
+            const ctx = carnotContext;
+            const width = carnotCanvas.clientWidth;
+            const height = carnotCanvas.clientHeight;
+            const state = getCycleState(timestamp);
+
+            document.getElementById('cycleStageTitle').textContent = state.phase.name;
+            document.getElementById('cycleStageSubtitle').textContent = state.phase.subtitle;
+            document.getElementById('cycleStageDot').style.background = state.phase.color;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const background = ctx.createLinearGradient(0, 0, 0, height);
+            background.addColorStop(0, '#07152f');
+            background.addColorStop(1, '#02060f');
+            ctx.fillStyle = background;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+            ctx.lineWidth = 1;
+            for (let gx = 18; gx < width; gx += 28) {
+                ctx.beginPath();
+                ctx.moveTo(gx, 0);
+                ctx.lineTo(gx, height);
+                ctx.stroke();
+            }
+
+            const chamber = {
+                x: width * 0.07,
+                y: height * 0.11,
+                w: width * 0.25,
+                h: height * 0.62
+            };
+            const pvBox = {
+                x: width * 0.54,
+                y: height * 0.1,
+                w: width * 0.41,
+                h: height * 0.56
+            };
+            const infoBox = {
+                x: width * 0.34,
+                y: height * 0.14,
+                w: width * 0.18,
+                h: height * 0.49
+            };
+            const showThermalReservoirs = currentCycleType === 'carnot';
+
+            const hotColor = `rgba(255, ${Math.round(110 + 90 * state.hotRatio)}, 60, 0.95)`;
+            const coldColor = `rgba(${Math.round(70 - 30 * state.coldRatio)}, ${Math.round(170 + 40 * (1 - state.coldRatio))}, 255, 0.95)`;
+            const gasGlow = ctx.createRadialGradient(chamber.x + chamber.w * 0.5, chamber.y + chamber.h * 0.7, 10, chamber.x + chamber.w * 0.5, chamber.y + chamber.h * 0.7, chamber.h * 0.8);
+            gasGlow.addColorStop(0, 'rgba(255,255,255,0.16)');
+            gasGlow.addColorStop(1, 'rgba(255,255,255,0)');
+
+            const hotReservoir = {
+                x: chamber.x - chamber.w * 0.08,
+                y: chamber.y - 44,
+                w: chamber.w * 1.16,
+                h: 24
+            };
+            const coldReservoir = {
+                x: chamber.x - chamber.w * 0.08,
+                y: chamber.y + chamber.h + 8,
+                w: chamber.w * 1.16,
+                h: 24
+            };
+
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            drawRoundedRect(ctx, chamber.x - 16, chamber.y - 18, chamber.w + 32, chamber.h + 36, 18);
+            ctx.fill();
+
+            drawRoundedRect(ctx, chamber.x, chamber.y, chamber.w, chamber.h, 18);
+            ctx.fillStyle = 'rgba(180, 205, 255, 0.08)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(220,230,255,0.25)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            const crankCenter = {
+                x: chamber.x + chamber.w * 0.5,
+                y: chamber.y + chamber.h + 78
+            };
+            const phase = (state.stageIndex + state.localT) / getCurrentCycleDefinition().stages.length;
+            const crankRadius = 52;
+            const rodLength = 190;
+            // Cinematica de biela-manivela com comprimento fixo.
+            const crankState = sliderCrankState(phase, crankRadius, rodLength);
+            const crankAngle = crankState.angle;
+            const fourStrokeState = getFourStrokeVisualState(currentCycleType, state.stageIndex, state.localT);
+
+            const pistonHeight = 16;
+            const pistonTopLimit = chamber.y + chamber.h * 0.18;
+            const pistonBottomLimit = chamber.y + chamber.h * 0.88;
+            const centerYForTopSync = pistonTopLimit + pistonHeight + crankRadius + rodLength;
+            crankCenter.y = centerYForTopSync;
+            const rawPistonPinY = crankCenter.y + crankState.sliderYRelative;
+            const pistonPinY = clamp(rawPistonPinY, pistonTopLimit + pistonHeight, pistonBottomLimit + pistonHeight);
+            const pistonY = pistonPinY - pistonHeight;
+            ctx.fillStyle = '#ced9ea';
+            drawRoundedRect(ctx, chamber.x + 4, pistonY, chamber.w - 8, pistonHeight, 8);
+            ctx.fill();
+            ctx.fillStyle = '#90a4bf';
+            drawRoundedRect(ctx, chamber.x + chamber.w * 0.42, chamber.y - 34, chamber.w * 0.16, pistonY - chamber.y + 34, 8);
+            ctx.fill();
+
+            const gasHeight = Math.max(24, Math.min(chamber.h - 8, pistonY - chamber.y));
+            const gasGradient = ctx.createLinearGradient(chamber.x, chamber.y, chamber.x, chamber.y + chamber.h);
+            gasGradient.addColorStop(0, hotColor);
+            gasGradient.addColorStop(1, coldColor);
+            ctx.fillStyle = gasGradient;
+            drawRoundedRect(ctx, chamber.x + 3, chamber.y + 3, chamber.w - 6, Math.max(20, gasHeight - 6), 14);
+            ctx.fill();
+            ctx.fillStyle = gasGlow;
+            drawRoundedRect(ctx, chamber.x + 3, chamber.y + 3, chamber.w - 6, Math.max(20, gasHeight - 6), 14);
+            ctx.fill();
+
+            const particleCount = 26;
+            for (let i = 0; i < particleCount; i++) {
+                const px = chamber.x + 16 + ((i * 37 + timestamp * (0.02 + state.heatRatio * 0.05)) % Math.max(24, chamber.w - 32));
+                const py = chamber.y + 16 + ((i * 29 + timestamp * (0.03 + state.hotRatio * 0.04)) % Math.max(30, gasHeight - 24));
+                const radius = 2 + (i % 3);
+                ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.75)' : 'rgba(255,230,150,0.65)';
+                ctx.beginPath();
+                ctx.arc(px, py, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Conjunto biela-virabrequim com geometria de manivela-deslizante.
+            const crankPin = {
+                x: crankCenter.x + Math.cos(crankAngle) * crankRadius,
+                y: crankCenter.y + Math.sin(crankAngle) * crankRadius
+            };
+            const pistonPin = {
+                x: chamber.x + chamber.w * 0.5,
+                y: pistonPinY
+            };
+
+            ctx.strokeStyle = 'rgba(210,220,236,0.95)';
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.moveTo(pistonPin.x, pistonPin.y);
+            ctx.lineTo(crankPin.x, crankPin.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(crankCenter.x, crankCenter.y, crankRadius + 14, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Marcacao angular didatica do virabrequim.
+            const angleMarks = [
+                { label: '0°', angle: -Math.PI / 2 },
+                { label: '180°', angle: Math.PI / 2 },
+                { label: '360°', angle: (3 * Math.PI) / 2 }
+            ];
+            angleMarks.forEach(mark => {
+                const outerR = crankRadius + 20;
+                const innerR = crankRadius + 10;
+                const txR = crankRadius + 32;
+                const x1 = crankCenter.x + Math.cos(mark.angle) * innerR;
+                const y1 = crankCenter.y + Math.sin(mark.angle) * innerR;
+                const x2 = crankCenter.x + Math.cos(mark.angle) * outerR;
+                const y2 = crankCenter.y + Math.sin(mark.angle) * outerR;
+                ctx.strokeStyle = 'rgba(215,228,245,0.85)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                const tx = crankCenter.x + Math.cos(mark.angle) * txR;
+                const ty = crankCenter.y + Math.sin(mark.angle) * txR;
+                ctx.fillStyle = 'rgba(225,238,255,0.9)';
+                ctx.font = '11px Segoe UI';
+                ctx.fillText(mark.label, tx - 12, ty + 4);
+            });
+
+            ctx.strokeStyle = 'rgba(170,188,210,0.9)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(crankCenter.x, crankCenter.y);
+            ctx.lineTo(crankPin.x, crankPin.y);
+            ctx.stroke();
+
+            ctx.fillStyle = '#d7e5f7';
+            ctx.beginPath();
+            ctx.arc(crankCenter.x, crankCenter.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(crankPin.x, crankPin.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (showThermalReservoirs) {
+                ctx.fillStyle = hotColor;
+                drawRoundedRect(ctx, hotReservoir.x, hotReservoir.y, hotReservoir.w, hotReservoir.h, 10);
+                ctx.fill();
+                ctx.fillStyle = coldColor;
+                drawRoundedRect(ctx, coldReservoir.x, coldReservoir.y, coldReservoir.w, coldReservoir.h, 10);
+                ctx.fill();
+                ctx.fillStyle = '#fff5c4';
+                ctx.font = 'bold 15px Segoe UI';
+                ctx.fillText(`Fonte quente: ${hotTempInput.toFixed(0)} K`, hotReservoir.x, hotReservoir.y - 10);
+                ctx.fillStyle = '#d6efff';
+                ctx.fillText(`Fonte fria: ${coldTempInput.toFixed(0)} K`, coldReservoir.x, coldReservoir.y + 44);
+            }
+
+            if (fourStrokeState.showEngine) {
+                const headY = chamber.y - 10;
+                const intakeX = chamber.x + chamber.w * 0.28;
+                const exhaustX = chamber.x + chamber.w * 0.72;
+
+                ctx.strokeStyle = 'rgba(225,235,255,0.8)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(intakeX, headY - 22);
+                ctx.lineTo(intakeX, headY + 8);
+                ctx.moveTo(exhaustX, headY - 22);
+                ctx.lineTo(exhaustX, headY + 8);
+                ctx.stroke();
+
+                const drawValve = (x, open, color) => {
+                    const lift = open ? 9 : 2;
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(x, headY + 8 + lift, 11, 4.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                };
+
+                drawValve(intakeX, fourStrokeState.intakeOpen, 'rgba(120,220,255,0.95)');
+                drawValve(exhaustX, fourStrokeState.exhaustOpen, 'rgba(255,170,110,0.95)');
+
+                if (fourStrokeState.intakeOpen) {
+                    ctx.strokeStyle = 'rgba(120,220,255,0.92)';
+                    ctx.lineWidth = 2.4;
+                    for (let i = 0; i < 4; i++) {
+                        const ox = intakeX - 14 + i * 8;
+                        drawArrow(ctx, ox, headY - 34, ox + 2, headY - 4 + i * 2, 'rgba(120,220,255,0.9)', 2.1);
+                    }
+                    for (let i = 0; i < 16; i++) {
+                        const mixX = chamber.x + 10 + ((i * 17 + timestamp * 0.06) % (chamber.w - 20));
+                        const mixY = chamber.y + 10 + ((i * 23 + timestamp * 0.05) % Math.max(20, gasHeight - 12));
+                        ctx.fillStyle = i % 2 === 0 ? 'rgba(130,210,255,0.75)' : 'rgba(170,255,200,0.72)';
+                        ctx.beginPath();
+                        ctx.arc(mixX, mixY, 1.8, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                if (fourStrokeState.exhaustOpen) {
+                    for (let i = 0; i < 4; i++) {
+                        const ox = exhaustX - 8 + i * 7;
+                        drawArrow(ctx, ox, headY + 2, ox + 2, headY - 30 - i * 2, 'rgba(190,190,190,0.85)', 2.1);
+                    }
+                    for (let i = 0; i < 12; i++) {
+                        const smokeX = exhaustX - 10 + ((i * 13 + timestamp * 0.04) % 22);
+                        const smokeY = headY - 16 - ((i * 19 + timestamp * 0.03) % 24);
+                        ctx.fillStyle = `rgba(170,170,170,${0.18 + (i % 4) * 0.12})`;
+                        ctx.beginPath();
+                        ctx.arc(smokeX, smokeY, 2 + (i % 3), 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                if (fourStrokeState.sparkActive) {
+                    const flameX = chamber.x + chamber.w * 0.5;
+                    const flameY = chamber.y + 28;
+                    ctx.fillStyle = 'rgba(255,210,120,0.95)';
+                    ctx.beginPath();
+                    ctx.moveTo(flameX, flameY - 14);
+                    ctx.lineTo(flameX + 8, flameY + 4);
+                    ctx.lineTo(flameX, flameY + 16);
+                    ctx.lineTo(flameX - 8, flameY + 4);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                if (fourStrokeState.injectionActive) {
+                    const nozzleX = chamber.x + chamber.w * 0.5;
+                    const nozzleY = chamber.y + 6;
+                    ctx.strokeStyle = 'rgba(245,255,210,0.95)';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(nozzleX - 10, nozzleY);
+                    ctx.lineTo(nozzleX, nozzleY + 18);
+                    ctx.lineTo(nozzleX + 10, nozzleY);
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = 'rgba(220,235,255,0.92)';
+                ctx.font = '11px Segoe UI';
+                ctx.fillText('Adm', intakeX - 12, headY - 28);
+                ctx.fillText('Esc', exhaustX - 10, headY - 28);
+                ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            }
+
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            drawRoundedRect(ctx, infoBox.x, infoBox.y, infoBox.w, infoBox.h, 14);
+            ctx.fill();
+            ctx.fillStyle = '#f8fbff';
+            ctx.font = 'bold 13px Segoe UI';
+            ctx.fillText(`Modelo: ${getCurrentCycleDefinition().displayName}`, infoBox.x + 14, infoBox.y + 22);
+            ctx.font = '12px Segoe UI';
+            ctx.fillText(`Q₁ = ${carnotModel.Q_quente.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 52);
+            ctx.fillText(`Q₂ = ${Math.abs(carnotModel.Q_fria).toFixed(0)} J`, infoBox.x + 14, infoBox.y + 74);
+            ctx.fillText(`W = ${carnotModel.W_total.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 96);
+            ctx.fillText(`T = ${state.temperature.toFixed(0)} K`, infoBox.x + 14, infoBox.y + 118);
+            ctx.fillText(`A→B: ${carnotModel.W_AB.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 154);
+            ctx.fillText(`B→C: ${carnotModel.W_BC.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 176);
+            ctx.fillText(`C→D: ${carnotModel.W_CD.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 198);
+            ctx.fillText(`D→A: ${carnotModel.W_DA.toFixed(0)} J`, infoBox.x + 14, infoBox.y + 220);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            drawRoundedRect(ctx, pvBox.x, pvBox.y, pvBox.w, pvBox.h, 14);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+            ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath();
+            ctx.moveTo(pvBox.x + 28, pvBox.y + 12);
+            ctx.lineTo(pvBox.x + 28, pvBox.y + pvBox.h - 24);
+            ctx.lineTo(pvBox.x + pvBox.w - 12, pvBox.y + pvBox.h - 24);
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '13px Segoe UI';
+            ctx.fillText('P', pvBox.x + 10, pvBox.y + 20);
+            ctx.fillText('V', pvBox.x + pvBox.w - 16, pvBox.y + pvBox.h - 6);
+
+            const toPlotX = value => pvBox.x + 28 + ((value - carnotModel.VminPlot) / (carnotModel.VmaxPlot - carnotModel.VminPlot)) * (pvBox.w - 52);
+            const toPlotY = value => {
+                const pNorm = clamp((value - carnotModel.PminPlot) / (carnotModel.PmaxPlot - carnotModel.PminPlot), 0, 1);
+                const targetHot = 900;
+                const targetCold = 450;
+                const hotSigma = 180;
+                const coldSigma = 120;
+                const targetBoost = Math.exp(-((hotTempInput - targetHot) * (hotTempInput - targetHot)) / (2 * hotSigma * hotSigma) - ((coldTempInput - targetCold) * (coldTempInput - targetCold)) / (2 * coldSigma * coldSigma));
+                const visualPower = 0.86 - 0.14 * targetBoost;
+                const visualNorm = Math.pow(pNorm, visualPower);
+                return pvBox.y + 18 + (1 - visualNorm) * (pvBox.h - 54);
+            };
+            const drawCurve = (curveIndex, segment, samples, color) => {
+                const points = [];
+                const isActive = curveIndex === state.stageIndex;
+                ctx.strokeStyle = color;
+                ctx.globalAlpha = isActive ? 1 : 0.72;
+                ctx.lineWidth = isActive ? 5.2 : 3.2;
+                ctx.beginPath();
+                for (let i = 0; i <= samples; i++) {
+                    const stageState = evaluateSegmentState(segment, i / samples);
+                    const volume = stageState.volume;
+                    const pressure = stageState.pressure;
+                    const x = toPlotX(volume);
+                    const y = toPlotY(pressure);
+                    points.push({ x, y });
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                drawCurveDirectionArrow(ctx, points, color);
+                return points;
+            };
+
+            const drawLinearPath = (curveIndex, start, end, samples, color) => {
+                const points = [];
+                const isActive = curveIndex === state.stageIndex;
+                ctx.strokeStyle = color;
+                ctx.globalAlpha = isActive ? 1 : 0.72;
+                ctx.lineWidth = isActive ? 5.2 : 3.2;
+                ctx.beginPath();
+                for (let i = 0; i <= samples; i++) {
+                    const s = evaluateLinearSegment(start, end, i / samples);
+                    const x = toPlotX(s.volume);
+                    const y = toPlotY(s.pressure);
+                    points.push({ x, y });
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                drawCurveDirectionArrow(ctx, points, color);
+                return points;
+            };
+
+            const segmentPoints = [];
+            const displayPoints = getDisplayCyclePoints(carnotModel, currentCycleType);
+            if (currentCycleType === 'carnot') {
+                carnotModel.segments.forEach((segment, index) => {
+                    segmentPoints.push(drawCurve(index, segment, 48, stageColors[index]));
+                });
+            } else {
+                segmentPoints.push(drawLinearPath(0, displayPoints.O, displayPoints.A, 20, stageColors[0]));
+                segmentPoints.push(drawCurve(1, carnotModel.segments[0], 48, stageColors[1]));
+                segmentPoints.push(drawCurve(2, carnotModel.segments[1], 24, stageColors[2]));
+                segmentPoints.push(drawCurve(2, carnotModel.segments[2], 28, stageColors[2]));
+                segmentPoints.push(drawCurve(3, carnotModel.segments[3], 24, stageColors[3]));
+                segmentPoints.push(drawLinearPath(3, displayPoints.A, displayPoints.O, 16, stageColors[3]));
+            }
+
+            // Area interna do ciclo (trabalho liquido por ciclo)
+            ctx.fillStyle = 'rgba(255, 220, 110, 0.24)';
+            ctx.beginPath();
+            let started = false;
+            const traceFillCurve = (segment, samples) => {
+                for (let i = 0; i <= samples; i++) {
+                    const stageState = evaluateSegmentState(segment, i / samples);
+                    const volume = stageState.volume;
+                    const pressure = stageState.pressure;
+                    const x = toPlotX(volume);
+                    const y = toPlotY(pressure);
+                    if (!started) {
+                        ctx.moveTo(x, y);
+                        started = true;
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            };
+            if (currentCycleType === 'carnot') {
+                carnotModel.segments.forEach(segment => {
+                    traceFillCurve(segment, 36);
+                });
+            } else {
+                const traceLinear = (start, end, samples) => {
+                    for (let i = 0; i <= samples; i++) {
+                        const s = evaluateLinearSegment(start, end, i / samples);
+                        const x = toPlotX(s.volume);
+                        const y = toPlotY(s.pressure);
+                        if (!started) {
+                            ctx.moveTo(x, y);
+                            started = true;
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                    }
+                };
+                traceLinear(displayPoints.O, displayPoints.A, 16);
+                traceFillCurve(carnotModel.segments[0], 24);
+                traceFillCurve(carnotModel.segments[1], 16);
+                traceFillCurve(carnotModel.segments[2], 22);
+                traceFillCurve(carnotModel.segments[3], 16);
+                traceLinear(displayPoints.A, displayPoints.O, 14);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            const points = [
+                { label: 'A', x: toPlotX(carnotModel.V_A), y: toPlotY(carnotModel.P_A) },
+                { label: 'B', x: toPlotX(carnotModel.V_B), y: toPlotY(carnotModel.P_B) },
+                { label: 'C', x: toPlotX(carnotModel.V_C), y: toPlotY(carnotModel.P_C) },
+                { label: 'D', x: toPlotX(carnotModel.V_D), y: toPlotY(carnotModel.P_D) }
+            ];
+            if (currentCycleType === 'otto' || currentCycleType === 'diesel') {
+                points.push({ label: '0', x: toPlotX(displayPoints.O.volume), y: toPlotY(displayPoints.O.pressure) });
+            }
+
+            const stageLabel = currentCycleType === 'carnot'
+                ? ['A→B', 'B→C', 'C→D', 'D→A'][state.stageIndex]
+                : ['0→A', 'A→B', 'B→C→D', 'D→A→0'][state.stageIndex];
+
+            ctx.fillStyle = 'rgba(255,255,255,0.84)';
+            ctx.font = '12px Segoe UI';
+            points.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillText(point.label, point.x + 8, point.y - 8);
+            });
+
+            const currentPoint = {
+                x: toPlotX(state.volume),
+                y: toPlotY(state.pressure)
+            };
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(currentPoint.x, currentPoint.y, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = state.phase.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(currentPoint.x, currentPoint.y, 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const arrowPulse = 8 * Math.sin(timestamp / 260);
+            if (showThermalReservoirs && state.stageIndex === 0) {
+                drawArrow(ctx, hotReservoir.x + hotReservoir.w * 0.5, hotReservoir.y + hotReservoir.h + 2, hotReservoir.x + hotReservoir.w * 0.5, chamber.y + 18 + arrowPulse, hotColor, 4);
+            } else if (showThermalReservoirs && state.stageIndex === 2) {
+                drawArrow(ctx, chamber.x + chamber.w * 0.5, chamber.y + chamber.h - 12, chamber.x + chamber.w * 0.5, coldReservoir.y - 4 - arrowPulse, coldColor, 4);
+            }
+
+            if (state.stageIndex === 1 || state.stageIndex === 3) {
+                ctx.fillStyle = '#ffe66d';
+                ctx.font = 'bold 14px Segoe UI';
+                ctx.fillText('Q = 0', chamber.x + chamber.w + 24, chamber.y + chamber.h * 0.72 + 72);
+            }
+
+            const infoStartY = Math.min(pvBox.y + pvBox.h + 18, height - (fourStrokeState.showEngine ? 186 : 150));
+            const infoStep = 18;
+
+            ctx.fillStyle = '#dfe8ff';
+            ctx.font = '14px Segoe UI';
+            const safeQRatio = heatInput > 1e-9 ? (heatOutputValue / heatInput) : 0;
+            ctx.fillText(`Rendimento: ${efficiencyValue.toFixed(1)}%`, pvBox.x, infoStartY);
+            ctx.fillText(`Q₂/Q₁ = ${safeQRatio.toFixed(2)}`, pvBox.x, infoStartY + infoStep);
+            ctx.fillStyle = state.phase.color;
+            ctx.fillText(`Etapa ativa: ${state.stageIndex + 1}`, pvBox.x, infoStartY + infoStep * 2);
+            ctx.fillStyle = 'rgba(255, 228, 148, 0.95)';
+            ctx.fillText(`Area do ciclo = trabalho liquido`, pvBox.x, infoStartY + infoStep * 3);
+            ctx.fillStyle = '#d3e4ff';
+            ctx.fillText(`Sentido: ${stageLabel}`, pvBox.x, infoStartY + infoStep * 4);
+            ctx.fillStyle = 'rgba(255,255,255,0.85)';
+            ctx.fillText(`V = ${state.volume.toFixed(4)} m³`, pvBox.x, infoStartY + infoStep * 5);
+            ctx.fillText(`P = ${state.pressureKPa.toFixed(1)} kPa`, pvBox.x, infoStartY + infoStep * 6);
+            ctx.fillStyle = 'rgba(205,230,255,0.9)';
+            ctx.font = '12px Segoe UI';
+            ctx.fillText(`Curso do pistao = 2R = ${(2 * crankRadius).toFixed(0)} px`, pvBox.x, infoStartY + infoStep * 7);
+            if (fourStrokeState.showEngine) {
+                ctx.fillStyle = '#a8d0ff';
+                if (currentCycleType === 'otto') {
+                    ctx.fillText('Otto: ignicao por vela no inicio da expansao.', pvBox.x, infoStartY + infoStep * 8);
+                } else {
+                    ctx.fillText('Diesel: ignicao por compressao com injecao.', pvBox.x, infoStartY + infoStep * 8);
+                }
+                ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                ctx.fillText(`4 tempos: ${fourStrokeState.timingLabel}`, pvBox.x, infoStartY + infoStep * 9);
+            }
+        }
+
+        function animateCarnotScene(timestamp) {
+            if (animationPaused) {
+                renderCarnotScene(pauseTimestamp || timestamp);
+            } else {
+                renderCarnotScene(timestamp);
+            }
+            requestAnimationFrame(animateCarnotScene);
         }
 
         // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
@@ -717,6 +1861,9 @@
             exercises.push({ type: 'teorica_primeira_lei', question: `De acordo com a Primeira Lei da Termodinâmica aplicada a uma máquina térmica:`, answer: 'O trabalho realizado é igual à diferença entre o calor absorvido e o calor rejeitado', options: ['Todo calor absorvido é convertido em trabalho', 'O trabalho realizado é igual à diferença entre o calor absorvido e o calor rejeitado', 'O calor rejeitado é sempre maior que o calor absorvido', 'A energia interna do sistema aumenta a cada ciclo'] });
             exercises.push({ type: 'teorica_segunda_lei', question: `A Segunda Lei da Termodinâmica estabelece que:`, answer: 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', options: ['A energia total do universo está diminuindo', 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', 'Todas as máquinas térmicas têm rendimento de 100%', 'O calor flui naturalmente de objetos frios para objetos quentes'] });
             exercises.push({ type: 'teorica_carnot', question: `O rendimento de uma máquina de Carnot depende:`, answer: 'Apenas das temperaturas das fontes quente e fria', options: ['Do tipo de substância de trabalho utilizada', 'Apenas das temperaturas das fontes quente e fria', 'Do volume do sistema', 'Da pressão máxima atingida durante o ciclo'] });
+            exercises.push({ type: 'teorica_t1_t2_iguais', question: `Na simulação ideal, quando T₁ = T₂, qual é o comportamento esperado do ciclo?`, answer: 'Rendimento e trabalho líquidos iguais a zero', options: ['Rendimento máximo e trabalho máximo', 'Rendimento e trabalho líquidos iguais a zero', 'A pressão zera em todos os pontos', 'O calor rejeitado fica maior que o absorvido'] });
+            exercises.push({ type: 'teorica_4_tempos', question: `Qual alternativa apresenta a sequência correta dos 4 tempos do motor na simulação Otto/Diesel?`, answer: 'Admissão, compressão, combustão/expansão e escapamento', options: ['Compressão, admissão, escapamento e combustão', 'Admissão, compressão, combustão/expansão e escapamento', 'Admissão, combustão, compressão e escapamento', 'Escapamento, admissão, compressão e combustão'] });
+            exercises.push({ type: 'teorica_ignicao_ciclos', question: `Sobre a ignição na simulação, qual afirmação está correta?`, answer: 'No Otto há centelha da vela; no Diesel a ignição ocorre por compressão com injeção', options: ['No Otto e no Diesel a ignição ocorre por vela', 'No Otto e no Diesel a ignição ocorre apenas por compressão', 'No Otto há centelha da vela; no Diesel a ignição ocorre por compressão com injeção', 'No Otto a ignição ocorre por compressão e no Diesel por vela'] });
             exercises = shuffleArray(exercises);
             renderProgressBar();
         }
@@ -943,7 +2090,9 @@
         const exampleNarrations = {
             '1': 'Exemplo 1. A pergunta pede o rendimento máximo de uma máquina de Carnot, então a expressão mais importante é eta igual a 1 menos T dois sobre T um. Com T um igual a 500 kelvin e T dois igual a 300 kelvin, a razão entre as temperaturas é 0,6. Subtraindo esse valor de 1, obtemos 0,4, ou 40 por cento. A interpretação física é que, mesmo no melhor cenário possível, apenas parte do calor absorvido pode virar trabalho.',
             '2': 'Exemplo 2. Agora queremos o trabalho realizado. Primeiro calculamos o rendimento usando as temperaturas das fontes: 1 menos 300 sobre 600, que resulta em 0,5. Isso significa que metade do calor recebido pode ser convertida em trabalho. Como a máquina absorve 800 joules, o trabalho é 0,5 vezes 800, ou 400 joules. O raciocínio liga diretamente eficiência e energia transformada.',
-            '3': 'Exemplo 3. Neste caso já sabemos o rendimento e o calor absorvido, e a pergunta é sobre o calor rejeitado. Um rendimento de 25 por cento significa que a máquina transforma 250 joules em trabalho quando recebe 1000 joules. O restante não desaparece: ele precisa ser rejeitado para a fonte fria. Então Q dois é 1000 menos 250, resultando em 750 joules. Esse exemplo deixa claro que nenhuma máquina térmica converte todo o calor em trabalho.'
+            '3': 'Exemplo 3. Neste caso já sabemos o rendimento e o calor absorvido, e a pergunta é sobre o calor rejeitado. Um rendimento de 25 por cento significa que a máquina transforma 250 joules em trabalho quando recebe 1000 joules. O restante não desaparece: ele precisa ser rejeitado para a fonte fria. Então Q dois é 1000 menos 250, resultando em 750 joules. Esse exemplo deixa claro que nenhuma máquina térmica converte todo o calor em trabalho.',
+            '4': 'Exemplo 4. Para o ciclo Otto ideal, usamos eta igual a 1 menos 1 sobre r elevado a gama menos 1. Com r igual a 8 e gama igual a 1,4, calculamos 8 elevado a 0,4, que dá aproximadamente 2,30. Depois fazemos 1 dividido por 2,30, obtendo cerca de 0,435. Subtraindo de 1, encontramos 0,565, ou 56,5 por cento. Esse resultado mostra como a razão de compressão influencia fortemente o rendimento no modelo ideal.',
+            '5': 'Exemplo 5. Aqui a ideia é comparar Otto e Diesel conceitualmente. No Otto, o calor entra em volume constante, processo isocórico. No Diesel, o calor entra em pressão constante, processo isobárico. Na simulação, isso também aparece ligado ao tipo de ignição: centelha no Otto e compressão com injeção no Diesel. Essa comparação ajuda a entender por que os diagramas e os processos de cada ciclo não são iguais.'
         };
 
         window.SIMULATION_ENHANCER_CONFIG = {
