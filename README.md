@@ -62,6 +62,7 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Átomo de Hidrogênio | Modelo atômico, espectros | Canvas | [Abrir](AtomodeHidrogenio/) |
 | Calorimetria | Troca de calor, equilíbrio térmico | Canvas | [Abrir](Calorimetria/) |
 | Circuitos Elétricos DC | Circuitos, resistores, leis de Kirchhoff | Canvas | [Abrir](CircuitosEletricosDC/) |
+| Comportamento dos Gases | Leis dos gases, teoria cinética | PhET + Canvas | [Abrir](ComportamentoDosGases/ComportamentoDosGases.html) |
 | Cores | Síntese aditiva/subtrativa, RGB | Canvas | [Abrir](Cores/) |
 | Corpo Negro | Radiação térmica, Lei de Wien | PhET + Canvas | [Abrir](CorpoNegro/) |
 | Dilatação Térmica | Dilatação linear, superficial, volumétrica | Canvas | [Abrir](DilatacaoTermica/) |
@@ -73,6 +74,7 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Força Elétrica | Lei de Coulomb | Canvas | [Abrir](ForcaEletrica/) |
 | Força Magnética | Carga em campo magnético | Three.js | [Abrir](ForcaMagnetica/) |
 | Fotossíntese | Física da fotossíntese, absorção de luz | Canvas | [Abrir](FotossinteseSolar/) |
+| Joule | Equivalente mecânico do calor, energia térmica | Canvas | [Abrir](Joule/Joule.html) |
 | LED e OLED | Semicondutores, emissão de luz | Canvas | [Abrir](LEDeOLED/) |
 | Lei de Ampère | Campo magnético em condutores | Three.js | [Abrir](LeideAmpere/) |
 | Lei de Coulomb | Força entre cargas, campo elétrico | Canvas | [Abrir](LeiDeCoulomb/) |
@@ -80,7 +82,7 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Lei de Ohm | Resistência, tensão, corrente | Canvas | [Abrir](LeideOhm/) |
 | Máquina de Carnot | Ciclo termodinâmico, rendimento | Canvas | [Abrir](MaquinadeCarnot/) |
 | Momento Magnético | Espira em campo magnético | Three.js | [Abrir](MomentoMagnetico/) |
-| Ondas 1D | Ondas mecânicas, superposição | Canvas | [Abrir](Ondas/Ondas1D/) |
+| Ondas 2D | Ondas mecânicas, frentes de onda | Canvas | [Abrir](Ondas/Ondas2D/Ondas2D.html) |
 | Óptica Geométrica | Reflexão, refração, lentes | Canvas | [Abrir](OpticaGeometrica/) |
 | Radiação de Corpo Negro | Espectro, Planck, Stefan-Boltzmann | PhET + Canvas | [Abrir](RadiacaodeCorpoNegro/) |
 | Relatividade Especial | Dilatação do tempo, contração | Canvas | [Abrir](RelatividadeEspecial/) |
@@ -88,6 +90,7 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Solenoide | Campo magnético em solenoide | Three.js | [Abrir](Solenoide/) |
 | Soma de Cores | Síntese de Fourier, análise espectral | Python + Canvas | [Abrir](SomadeCores/) |
 | Spin do Elétron | Experimento de Stern-Gerlach | Three.js | [Abrir](SPINOR/) |
+| Termologia | Calor sensível/latente, mudanças de estado | Canvas | [Abrir](Termologia/Termologia.html) |
 | Transformadores | Indução mútua, relação de espiras | Canvas | [Abrir](Transformadores/) |
 | Tunelamento Quântico | Mecânica quântica, barreira de potencial | Canvas | [Abrir](TunelamentoQuantico/) |
 
