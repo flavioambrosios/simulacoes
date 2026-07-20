@@ -2550,7 +2550,7 @@
             categoria: 'simulacao',
             atividade: simulationName,
             simulacao: simulationName,
-            scoreHeader: 'simulções',
+            scoreHeader: simulationName,
             nota: finalScore,
             notaExercicios: Number((scoreData.scorePercentage / 10).toFixed(1)),
             notaConclusaoIa: aiAnalysis.finalScore,

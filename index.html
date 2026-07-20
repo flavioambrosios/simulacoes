@@ -724,12 +724,19 @@
             emptyState.style.display = filtered.length ? 'none' : 'block';
             updateModePill();
 
+            const hasSearchContext = !!searchInput.value.trim() || categorySelect.value !== 'all';
+
             const visibleCount = filtered.length;
             const totalCount = simulations.length;
             summaryText.textContent = `${visibleCount} de ${totalCount} paginas exibidas. Os cartoes usam miniaturas reais das telas e mantem apenas o acesso direto a cada simulacao.`;
 
             Object.keys(sectionLabels).forEach(function(sectionKey) {
-                const items = grouped[sectionKey] || [];
+                if (sectionKey === 'novidades' && !hasSearchContext) {
+                    return;
+                }
+
+                const sectionItems = grouped[sectionKey] || [];
+                const items = sectionKey === 'novidades' ? sectionItems.slice(0, 5) : sectionItems;
                 if (!items.length) {
                     return;
                 }

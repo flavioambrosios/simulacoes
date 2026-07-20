@@ -1248,8 +1248,12 @@
         function showConclusion() {
             document.getElementById('exerciseContainer').style.display = 'none';
             document.getElementById('conclusionContainer').style.display = 'block';
-            
-            document.getElementById('submitConclusion').addEventListener('click', function() {
+
+            const submitConclusionBtn = document.getElementById('submitConclusion');
+            const submitConclusionBtnClone = submitConclusionBtn.cloneNode(true);
+            submitConclusionBtn.parentNode.replaceChild(submitConclusionBtnClone, submitConclusionBtn);
+
+            submitConclusionBtnClone.addEventListener('click', function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
                     alert('Por favor, escreva uma conclusão antes de enviar.');
@@ -1277,8 +1281,11 @@
             `;
             
             document.getElementById('finalConclusion').value = conclusion;
-            
-            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+
+            const sendResultsBtn = document.getElementById('sendResults');
+            const sendResultsBtnClone = sendResultsBtn.cloneNode(true);
+            sendResultsBtn.parentNode.replaceChild(sendResultsBtnClone, sendResultsBtn);
+            sendResultsBtnClone.addEventListener('click', sendResultsToSheet);
         }
         
         // Função otimizada para enviar dados e email
