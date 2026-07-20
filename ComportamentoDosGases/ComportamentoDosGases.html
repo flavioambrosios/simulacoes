@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Comportamento dos Gases com Exercícios</title>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Comportamento dos Gases">
+    <meta name="citation_author" content="Flávio Ambrósio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/ComportamentoDosGases/">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flávio Ambrósio Campos.
+         Código assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .simulation-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Comportamento dos Gases com Exercícios</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação de Comportamento dos Gases - PhET</h2>
+                <div class="simulation-container">
+                    <iframe src="https://phet.colorado.edu/sims/html/gas-properties/latest/gas-properties_pt_BR.html"
+                            width="800"
+                            height="600"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                    <!-- CRÉDITO OBRIGATÓRIO DO PHET -->
+                    <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                        <strong>Simulação interativa:</strong> 
+                        <a href="https://phet.colorado.edu" target="_blank" style="color: #ffcc00;">
+                            PhET Interactive Simulations
+                        </a>, University of Colorado Boulder – Licenciado sob 
+                        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #ffcc00;">
+                            CC BY 4.0
+                        </a>.
+                    </p>
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Como Usar a Simulação</button>
+                </div>
+                
+                
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Conceitos Fundamentais</h2>
+                
+                <div class="control-group">
+                        <label for="temperatureSelect">Situação de estudo:</label>
+                    <select id="temperatureSelect">
+                        <option value="boyle">Compressão isoterma - Lei de Boyle</option>
+                        <option value="charles">Aquecimento a pressão constante - Lei de Charles</option>
+                        <option value="gay-lussac">Aquecimento a volume constante - Lei de Gay-Lussac</option>
+                        <option value="cinetico">Leitura cinético-molecular</option>
+                    </select>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Boyle</h3>
+                    <p>P₁·V₁ = P₂·V₂</p>
+                    <p>Temperatura constante: pressão e volume são inversamente proporcionais.</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Charles</h3>
+                    <p>V₁ / T₁ = V₂ / T₂</p>
+                    <p>Pressão constante: o volume cresce quando a temperatura aumenta.</p>
+                </div>
+                
+                <div class="formula-box">
+                    <h3>Lei de Gay-Lussac</h3>
+                    <p>P₁ / T₁ = P₂ / T₂</p>
+                    <p>Volume constante: a pressão cresce com a temperatura.</p>
+                </div>
+
+                <div class="formula-box">
+                    <h3>Modelo cinético-molecular</h3>
+                    <p>Temperatura maior → partículas com maior energia cinética e colisões mais intensas.</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Pressão (P)</div>
+                        <div class="measurement-value" id="temperatureDisplay">1,0 atm</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Volume (V)</div>
+                        <div class="measurement-value" id="wavelengthDisplay">2,0 L</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Temperatura (T)</div>
+                        <div class="measurement-value" id="intensityDisplay">300 K</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Número de partículas</div>
+                        <div class="measurement-value" id="colorDisplay">100</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Energia cinética média</div>
+                        <div class="measurement-value" id="spectrumDisplay">Proporcional a T</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Relação em destaque</div>
+                        <div class="measurement-value" id="wienConstantDisplay">P·V, V/T, P/T</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Comportamento dos Gases</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+                <div class="progress-item" id="progress7">7</div>
+                <div class="progress-item" id="progress8">8</div>
+                <div class="progress-item" id="progress9">9</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Comportamento dos Gases</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Lei de Boyle</h4>
+                    <p><strong>Problema:</strong> Um gás está a 2,0 atm e ocupa 4,0 L. Se o volume cai para 2,0 L, qual será a nova pressão, mantendo a temperatura constante?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> P₁·V₁ = P₂·V₂</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar P₂: P₂ = (P₁·V₁) / V₂</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: P₂ = (2,0 × 4,0) / 2,0</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: P₂ = 4,0 atm</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A pressão dobra para 4,0 atm</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Lei de Charles</h4>
+                    <p><strong>Problema:</strong> Um gás ocupa 3,0 L a 300 K. Se ele for aquecido até 450 K, mantendo a pressão constante, qual será o novo volume?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> V₁ / T₁ = V₂ / T₂</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar V₂: V₂ = (V₁·T₂) / T₁</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: V₂ = (3,0 × 450) / 300</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: V₂ = 4,5 L</div>
+                    <div class="solution-step"><strong>Resposta:</strong> O volume aumenta para 4,5 L</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Lei de Gay-Lussac</h4>
+                    <p><strong>Problema:</strong> Um gás está a 1,0 atm e 300 K em um recipiente rígido. Se a temperatura sobe para 450 K, qual será a nova pressão?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> P₁ / T₁ = P₂ / T₂</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Isolar P₂: P₂ = (P₁·T₂) / T₁</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: P₂ = (1,0 × 450) / 300</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: P₂ = 1,5 atm</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A pressão aumenta para 1,5 atm</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Comportamento dos Gases</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Visão geral</h3>
+                    <p>O comportamento de um gás ideal pode ser descrito pela relação entre <span class="highlight">pressão</span>, <span class="highlight">volume</span> e <span class="highlight">temperatura</span>. Quando uma dessas variáveis muda, as outras se ajustam de forma previsível, desde que a quantidade de gás permaneça constante.</p>
+                    <p>A simulação do PhET ajuda a observar essas transformações de modo visual, conectando o que acontece com o recipiente e com as partículas ao que as leis dos gases preveem matematicamente.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Lei de Boyle</h3>
+                    <p>Em temperatura constante, a pressão é inversamente proporcional ao volume:</p>
+                    <div class="theory-formula">P₁·V₁ = P₂·V₂</div>
+                    <p>Se o volume diminui, as colisões com as paredes aumentam e a pressão sobe. Se o volume aumenta, as colisões se tornam menos frequentes e a pressão diminui.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Lei de Charles</h3>
+                    <p>Em pressão constante, o volume é diretamente proporcional à temperatura absoluta:</p>
+                    <div class="theory-formula">V₁ / T₁ = V₂ / T₂</div>
+                    <p>Quando um gás é aquecido, suas partículas se movem mais rapidamente. Se o recipiente puder se expandir, o volume aumenta para manter a pressão praticamente constante.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Lei de Gay-Lussac</h3>
+                    <p>Em volume constante, a pressão é diretamente proporcional à temperatura absoluta:</p>
+                    <div class="theory-formula">P₁ / T₁ = P₂ / T₂</div>
+                    <p>Se o gás é aquecido sem poder expandir, as colisões com as paredes ficam mais intensas e frequentes, aumentando a pressão.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Modelo cinético-molecular</h3>
+                    <ul>
+                        <li>As partículas de um gás estão em movimento contínuo e aleatório.</li>
+                        <li>A temperatura mede a energia cinética média das partículas.</li>
+                        <li>Quanto maior a temperatura, maior a agitação das partículas e mais intensas as colisões.</li>
+                        <li>A pressão surge das colisões das partículas com as paredes do recipiente.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Como interpretar gráficos</h3>
+                    <ul>
+                        <li>No gráfico <span class="highlight">P x V</span>, Boyle aparece como uma curva decrescente.</li>
+                        <li>No gráfico <span class="highlight">V x T</span>, Charles aparece como uma reta crescente.</li>
+                        <li>No gráfico <span class="highlight">P x T</span>, Gay-Lussac aparece como uma reta crescente.</li>
+                        <li>Em todos os casos, a variável absoluta de temperatura deve ser expressa em kelvin.</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Referências sugeridas</h3>
+                    <ol style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
+                        <li>HALLIDAY, D.; RESNICK, R.; WALKER, J. <strong>Fundamentos de Física.</strong> Termodinâmica.</li>
+                        <li>HEWITT, P. G. <strong>Física Conceitual.</strong> Gases e temperatura.</li>
+                        <li>PHET INTERACTIVE SIMULATIONS. <strong>Gas Properties.</strong> University of Colorado Boulder.</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        
+        // Parâmetro de referência do tema de gases
+        const gasReference = 1;
+        
+        // Configurar eventos
+        function setupEventListeners() {
+            // Botão de ajuda
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar a simulação:\n\n• Explore o PhET Gas Properties e observe pressão, volume e temperatura\n• Comprima e expanda o gás para investigar a Lei de Boyle\n• Aqueça o sistema e compare as mudanças em volume e pressão\n• Relacione o movimento das partículas com o modelo cinético-molecular\n• Use os exercícios para interpretar situações quantitativas e qualitativas\n\nDica: compare sempre a mesma quantidade de gás e observe qual variável está sendo mantida constante.");
+            });
+            
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre comportamento dos gases
+        function generateExercises() {
+            const templates = [
+                createBoyleQuantitativeExercise,
+                createBoyleQualitativeExercise,
+                createCharlesQuantitativeExercise,
+                createCharlesQualitativeExercise,
+                createGayLussacQuantitativeExercise,
+                createGayLussacQualitativeExercise,
+                createKineticExercise,
+                createGraphExercise,
+                createMixedLawExercise
+            ];
+
+            exercises = shuffleArray(templates.map(function (template) {
+                return template();
+            }));
+        }
+        
+        function formatGasValue(value, decimals) {
+            return Number(value).toFixed(typeof decimals === 'number' ? decimals : 1).replace('.', ',');
+        }
+
+        function buildTextOptions(correctAnswer, wrongAnswers) {
+            const options = [correctAnswer].concat(wrongAnswers);
+            return shuffleArray(options);
+        }
+
+        function buildNumericOptions(correctText, wrongTexts) {
+            return buildTextOptions(correctText, wrongTexts);
+        }
+
+        function createBoyleQuantitativeExercise() {
+            const variants = [
+                { p1: 2, v1: 4, v2: 2, unit: 'atm' },
+                { p1: 3, v1: 6, v2: 3, unit: 'atm' },
+                { p1: 1.5, v1: 8, v2: 4, unit: 'atm' }
+            ];
+            const chosen = variants[Math.floor(Math.random() * variants.length)];
+            const p2 = (chosen.p1 * chosen.v1) / chosen.v2;
+            const correct = formatGasValue(p2, 1) + ' ' + chosen.unit;
+            return {
+                type: 'boyle-quantitative',
+                question: `Um gás está a ${formatGasValue(chosen.p1, 1)} ${chosen.unit} e ocupa ${formatGasValue(chosen.v1, 1)} L. Se o volume diminui para ${formatGasValue(chosen.v2, 1)} L, qual é a nova pressão, mantendo a temperatura constante?`,
+                answer: correct,
+                options: buildNumericOptions(correct, [
+                    formatGasValue(p2 / 2, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 * 1.5, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 + 1, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 - 1, 1) + ' ' + chosen.unit
+                ])
+            };
+        }
+
+        function createBoyleQualitativeExercise() {
+            return {
+                type: 'boyle-qualitative',
+                question: 'Em uma transformação isotérmica, o que acontece com a pressão de um gás quando o volume aumenta?',
+                answer: 'A pressão diminui.',
+                options: buildTextOptions('A pressão diminui.', [
+                    'A pressão aumenta.',
+                    'A pressão permanece exatamente zero.',
+                    'A pressão e o volume aumentam juntos.'
+                ])
+            };
+        }
+
+        function createCharlesQuantitativeExercise() {
+            const variants = [
+                { v1: 2, t1: 300, t2: 450, unit: 'L' },
+                { v1: 4, t1: 250, t2: 500, unit: 'L' },
+                { v1: 1.5, t1: 273, t2: 546, unit: 'L' }
+            ];
+            const chosen = variants[Math.floor(Math.random() * variants.length)];
+            const v2 = (chosen.v1 * chosen.t2) / chosen.t1;
+            const correct = formatGasValue(v2, 1) + ' ' + chosen.unit;
+            return {
+                type: 'charles-quantitative',
+                question: `Um gás ocupa ${formatGasValue(chosen.v1, 1)} L a ${chosen.t1} K. Se a pressão se mantém constante e a temperatura vai para ${chosen.t2} K, qual será o novo volume?`,
+                answer: correct,
+                options: buildNumericOptions(correct, [
+                    formatGasValue(v2 / 2, 1) + ' ' + chosen.unit,
+                    formatGasValue(v2 * 1.5, 1) + ' ' + chosen.unit,
+                    formatGasValue(v2 + 1, 1) + ' ' + chosen.unit,
+                    formatGasValue(v2 - 0.5, 1) + ' ' + chosen.unit
+                ])
+            };
+        }
+
+        function createCharlesQualitativeExercise() {
+            return {
+                type: 'charles-qualitative',
+                question: 'Em uma transformação isobárica, o que acontece com o volume de um gás quando a temperatura aumenta?',
+                answer: 'O volume aumenta.',
+                options: buildTextOptions('O volume aumenta.', [
+                    'O volume diminui.',
+                    'O volume se torna nulo.',
+                    'O volume não depende da temperatura.'
+                ])
+            };
+        }
+
+        function createGayLussacQuantitativeExercise() {
+            const variants = [
+                { p1: 1, t1: 300, t2: 450, unit: 'atm' },
+                { p1: 2, t1: 200, t2: 300, unit: 'atm' },
+                { p1: 1.2, t1: 250, t2: 500, unit: 'atm' }
+            ];
+            const chosen = variants[Math.floor(Math.random() * variants.length)];
+            const p2 = (chosen.p1 * chosen.t2) / chosen.t1;
+            const correct = formatGasValue(p2, 1) + ' ' + chosen.unit;
+            return {
+                type: 'gay-lussac-quantitative',
+                question: `Um gás está a ${formatGasValue(chosen.p1, 1)} ${chosen.unit} e ${chosen.t1} K, com volume constante. Se a temperatura sobe para ${chosen.t2} K, qual será a nova pressão?`,
+                answer: correct,
+                options: buildNumericOptions(correct, [
+                    formatGasValue(p2 / 2, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 * 1.5, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 + 1, 1) + ' ' + chosen.unit,
+                    formatGasValue(p2 - 0.5, 1) + ' ' + chosen.unit
+                ])
+            };
+        }
+
+        function createGayLussacQualitativeExercise() {
+            return {
+                type: 'gay-lussac-qualitative',
+                question: 'Em um recipiente rígido, o que acontece com a pressão quando a temperatura do gás aumenta?',
+                answer: 'A pressão aumenta.',
+                options: buildTextOptions('A pressão aumenta.', [
+                    'A pressão diminui.',
+                    'A pressão fica sempre igual a zero.',
+                    'A pressão depende apenas do formato do recipiente.'
+                ])
+            };
+        }
+
+        function createKineticExercise() {
+            return {
+                type: 'kinetic',
+                question: 'Segundo o modelo cinético-molecular, o que ocorre com as partículas de um gás quando sua temperatura aumenta?',
+                answer: 'Elas se movem mais rápido e colidem com mais intensidade.',
+                options: buildTextOptions('Elas se movem mais rápido e colidem com mais intensidade.', [
+                    'Elas param de se mover.',
+                    'Elas sempre se transformam em líquido.',
+                    'Elas perdem massa ao aquecer.'
+                ])
+            };
+        }
+
+        function createGraphExercise() {
+            return {
+                type: 'graph',
+                question: 'Um gráfico de pressão em função do volume mostra uma curva decrescente. Qual lei gasosa ele representa?',
+                answer: 'Lei de Boyle.',
+                options: buildTextOptions('Lei de Boyle.', [
+                    'Lei de Charles.',
+                    'Lei de Gay-Lussac.',
+                    'Lei da conservação da massa.'
+                ])
+            };
+        }
+
+        function createMixedLawExercise() {
+            return {
+                type: 'mixed',
+                question: 'Quando um gás é aquecido em um recipiente flexível, mantendo a pressão praticamente constante, qual lei descreve melhor essa transformação?',
+                answer: 'Lei de Charles.',
+                options: buildTextOptions('Lei de Charles.', [
+                    'Lei de Boyle.',
+                    'Lei de Gay-Lussac.',
+                    'Princípio de Arquimedes.'
+                ])
+            };
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            if (currentType === 'boyle-quantitative') {
+                exercises[currentExercise] = createBoyleQuantitativeExercise();
+            } else if (currentType === 'boyle-qualitative') {
+                exercises[currentExercise] = createBoyleQualitativeExercise();
+            } else if (currentType === 'charles-quantitative') {
+                exercises[currentExercise] = createCharlesQuantitativeExercise();
+            } else if (currentType === 'charles-qualitative') {
+                exercises[currentExercise] = createCharlesQualitativeExercise();
+            } else if (currentType === 'gay-lussac-quantitative') {
+                exercises[currentExercise] = createGayLussacQuantitativeExercise();
+            } else if (currentType === 'gay-lussac-qualitative') {
+                exercises[currentExercise] = createGayLussacQualitativeExercise();
+            } else if (currentType === 'kinetic') {
+                exercises[currentExercise] = createKineticExercise();
+            } else if (currentType === 'graph') {
+                exercises[currentExercise] = createGraphExercise();
+            } else if (currentType === 'mixed') {
+                exercises[currentExercise] = createMixedLawExercise();
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 9; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Comportamento dos Gases',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Comportamento dos Gases',
+                        mensagem: `Confirmação de Envio - Simulação de Comportamento dos Gases
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+        
+        // Inicializar quando a página carregar
+        window.addEventListener('load', function() {
+            setupEventListeners();
+        });
+    </script>
+    <script>
+        let studentNameGases = localStorage.getItem('studentNameGases') || '';
+
+        function ensureStudentNameGases() {
+            if (!studentNameGases) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameGases = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameGases', studentNameGases);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameGases();
+                return `Olá, ${studentNameGases}. Esta página de comportamento dos gases usa a simulação do PhET como centro da exploração e organiza, ao lado, as ideias teóricas essenciais. Na área principal aparece o simulador incorporado. No painel lateral estão as leis de Boyle, Charles e Gay-Lussac, além de um seletor de situação de estudo. A proposta é relacionar pressão, volume, temperatura e o movimento das partículas.`;
+            },
+            function () {
+                return 'O primeiro ponto importante é entender que um gás ideal é uma aproximação útil para explicar o comportamento de muitas situações reais. Nessas condições, o que nos interessa é observar como pressão, volume e temperatura se relacionam quando a quantidade de gás permanece a mesma.';
+            },
+            function () {
+                return 'A Lei de Boyle descreve uma transformação isotérmica. Mantendo a temperatura constante, o volume diminui e a pressão aumenta, porque as partículas colidem com mais frequência nas paredes do recipiente. Essa relação é inversa.';
+            },
+            function () {
+                return 'A Lei de Charles mostra que, em pressão constante, o volume de um gás aumenta quando a temperatura sobe. O aumento da agitação das partículas faz o gás ocupar mais espaço, se houver possibilidade de expansão.';
+            },
+            function () {
+                return 'A Lei de Gay-Lussac relaciona pressão e temperatura quando o volume é mantido constante. Se o gás é aquecido sem poder se expandir, a pressão aumenta porque as partículas ficam mais rápidas e as colisões ficam mais intensas.';
+            },
+            function () {
+                return 'Na área de medições, acompanhe a pressão, o volume, a temperatura, o número de partículas e a relação física em destaque. Esses valores ajudam a traduzir o que acontece no simulador em linguagem física. O ideal é sempre perguntar qual variável está sendo mantida constante e qual está mudando.';
+            },
+            function () {
+                return 'Depois dessa exploração inicial, use os exercícios resolvidos e os exercícios finais para consolidar o raciocínio. Nos exemplos, identifique primeiro se a transformação é isotérmica, isobárica ou isocórica. Essa ordem ajuda a organizar a teoria antes da conta.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a pergunta usa a Lei de Boyle. Quando o volume diminui pela metade e a temperatura permanece constante, a pressão dobra. O ponto principal é perceber a relação inversa entre pressão e volume.',
+            '2': 'No segundo exemplo, a pressão é mantida constante e o gás é aquecido. Pela Lei de Charles, o volume aumenta proporcionalmente à temperatura absoluta. O importante é comparar as duas temperaturas em kelvin.',
+            '3': 'No terceiro exemplo, o volume é mantido fixo e a temperatura sobe. Pela Lei de Gay-Lussac, a pressão aumenta. Esse tipo de questão ajuda a perceber como a agitação das partículas se traduz em mais colisões com as paredes.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Comportamento dos Gases',
+            storageKey: 'comportamento-dos-gases'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+<footer style="text-align: center; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; color: #ccc; font-size: 0.9rem;">
+    <p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color: #ffcc00;">10.5281/zenodo.20737876</a> | Licença MIT | Prof. Flávio Ambrósio - CEAN</p>
+</footer>
+</body>
+</html>

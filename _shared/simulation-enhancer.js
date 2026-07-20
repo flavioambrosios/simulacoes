@@ -197,6 +197,7 @@
             '.enhancer-student-auth-panel { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }',
             '.enhancer-student-auth-panel input { margin: 0; }',
             '.enhancer-student-auth-status { margin-top: 6px; }',
+            '.email-status.warning-status { background: rgba(255, 193, 7, 0.15); border-left: 4px solid #ffc107; color: #fff3cd; }',
                         '.enhancer-visitor-checkbox input { width: auto; margin: 0; cursor: pointer; }',
                         '.enhancer-visitor-checkbox label { margin: 0; cursor: pointer; font-size: 0.95rem; color: #ffdd88; }',
                         '.enhancer-visitor-fields { display: block; }',
@@ -2713,6 +2714,94 @@
         });
     }
 
+    function waitMs(durationMs) {
+        return new Promise(function (resolve) {
+            window.setTimeout(resolve, Math.max(0, Number(durationMs) || 0));
+        });
+    }
+
+    function randomInt(minValue, maxValue) {
+        const min = Math.floor(Number(minValue) || 0);
+        const max = Math.floor(Number(maxValue) || 0);
+        if (max <= min) {
+            return min;
+        }
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getErrorMessage(error) {
+        if (!error) {
+            return '';
+        }
+        if (error && error.message) {
+            return String(error.message);
+        }
+        return String(error);
+    }
+
+    function isLikelyCorsOrOpaqueRestriction(error) {
+        const message = getErrorMessage(error).toLowerCase();
+        return message.includes('failed to fetch')
+            || message.includes('networkerror')
+            || message.includes('load failed')
+            || message.includes('cors')
+            || message.includes('typeerror');
+    }
+
+    function isRetryableEmailError(error) {
+        const message = getErrorMessage(error).toLowerCase();
+        return message.includes('429')
+            || message.includes('quota')
+            || message.includes('limit')
+            || message.includes('exceeded')
+            || message.includes('temporar')
+            || message.includes('timeout')
+            || message.includes('failed to fetch')
+            || message.includes('networkerror')
+            || message.includes('load failed')
+            || message.includes('503')
+            || message.includes('502');
+    }
+
+    function postEmailWithFallback(url, data) {
+        return postJsonWithResponse(url, data).catch(function (error) {
+            if (!isLikelyCorsOrOpaqueRestriction(error)) {
+                throw error;
+            }
+            return postJsonNoCors(url, data).then(function () {
+                return { status: 'accepted-opaque' };
+            });
+        });
+    }
+
+    function postEmailWithRetry(url, data, options) {
+        const normalizedOptions = options || {};
+        const maxAttempts = Math.max(1, Number(normalizedOptions.maxAttempts || 3));
+        const baseDelayMs = Math.max(200, Number(normalizedOptions.baseDelayMs || 900));
+        const jitterMs = Math.max(0, Number(normalizedOptions.jitterMs || 600));
+        const initialJitterMs = Math.max(0, Number(normalizedOptions.initialJitterMs || 0));
+        let attempt = 0;
+
+        function tryOnce() {
+            attempt += 1;
+
+            return postEmailWithFallback(url, data).catch(function (error) {
+                if (attempt >= maxAttempts || !isRetryableEmailError(error)) {
+                    throw error;
+                }
+
+                const retryDelay = (baseDelayMs * attempt) + randomInt(0, jitterMs);
+                return waitMs(retryDelay).then(tryOnce);
+            });
+        }
+
+        if (initialJitterMs > 0) {
+            return waitMs(randomInt(0, initialJitterMs)).then(tryOnce);
+        }
+
+        return tryOnce();
+    }
+
     function buildSendJobs(unifiedPayload, legacyPayload, termPayload, professorEmailPayload, studentEmailPayload, options) {
         const normalizedOptions = options || {};
         const isVisitor = !!normalizedOptions.isVisitor;
@@ -2735,15 +2824,38 @@
             promise: postJsonNoCors(LEGACY_BACKUP_URL, legacyPayload)
         });
 
+        const professorEmailPromise = postEmailWithRetry(EMAIL_SCRIPT_URL, professorEmailPayload, {
+            maxAttempts: 3,
+            baseDelayMs: 1200,
+            jitterMs: 800,
+            initialJitterMs: 900
+        });
+
         jobs.push({
             key: 'professor-email',
-            promise: postJsonNoCors(EMAIL_SCRIPT_URL, professorEmailPayload)
+            promise: professorEmailPromise
         });
 
         if (studentEmailPayload) {
+            const studentEmailPromise = professorEmailPromise
+                .catch(function () {
+                    return null;
+                })
+                .then(function () {
+                    return waitMs(randomInt(350, 1200));
+                })
+                .then(function () {
+                    return postEmailWithRetry(EMAIL_SCRIPT_URL, studentEmailPayload, {
+                        maxAttempts: 3,
+                        baseDelayMs: 1200,
+                        jitterMs: 800,
+                        initialJitterMs: 600
+                    });
+                });
+
             jobs.push({
                 key: 'student-email',
-                promise: postJsonNoCors(EMAIL_SCRIPT_URL, studentEmailPayload)
+                promise: studentEmailPromise
             });
         }
 
@@ -2865,6 +2977,19 @@
                 const successfulTargets = [];
                 const successfulResultsByKey = {};
                 const rejectedResultsByKey = {};
+                const warningMessages = [];
+
+                function getFailureMessage(reason, fallbackMessage) {
+                    if (reason && reason.message) {
+                        return reason.message;
+                    }
+
+                    if (typeof reason === 'string' && reason.trim()) {
+                        return reason;
+                    }
+
+                    return fallbackMessage;
+                }
 
                 results.forEach(function (result, index) {
                     const key = sendJobs[index].key;
@@ -2879,6 +3004,10 @@
 
                 const ceanSucceeded = successfulTargets.indexOf('cean') !== -1;
                 const backupSucceeded = successfulTargets.indexOf('backup') !== -1;
+                const termSucceeded = successfulTargets.indexOf('term') !== -1;
+                const professorEmailSucceeded = successfulTargets.indexOf('professor-email') !== -1;
+                const studentEmailRequested = !!studentEmailPayload;
+                const studentEmailSucceeded = successfulTargets.indexOf('student-email') !== -1;
 
                 if (!ceanSucceeded && !backupSucceeded) {
                     const ceanReason = rejectedResultsByKey.cean;
@@ -2890,6 +3019,18 @@
                         ? backupReason.message
                         : String(backupReason || 'A planilha de seguranca nao confirmou o recebimento deste envio.');
                     throw new Error('Falha no envio principal e no backup. CEAN: ' + ceanMessage + ' | Backup: ' + backupMessage);
+                }
+
+                if (!termSucceeded && rejectedResultsByKey.term) {
+                    warningMessages.push('Lancamento no diario trimestral nao foi confirmado nesta tentativa.');
+                }
+
+                if (!professorEmailSucceeded && rejectedResultsByKey['professor-email']) {
+                    warningMessages.push('E-mail ao professor nao foi confirmado: ' + getFailureMessage(rejectedResultsByKey['professor-email'], 'tente novamente em instantes.'));
+                }
+
+                if (studentEmailRequested && !studentEmailSucceeded) {
+                    warningMessages.push('Copia para o e-mail do aluno nao foi confirmada: ' + getFailureMessage(rejectedResultsByKey['student-email'], 'o servico pode estar temporariamente com limite de envios.'));
                 }
 
                 if (emailStatus) {
@@ -2905,7 +3046,15 @@
                     } else {
                         emailStatus.textContent = '⚠ CEAN nao confirmou o envio nesta tentativa, mas a planilha de seguranca recebeu os dados.';
                     }
-                    emailStatus.className = 'email-status sent';
+
+                    if (warningMessages.length) {
+                        emailStatus.textContent += ' ⚠ ' + warningMessages.join(' ');
+                        emailStatus.className = 'email-status warning-status';
+                    } else if (ceanSucceeded) {
+                        emailStatus.className = 'email-status sent';
+                    } else {
+                        emailStatus.className = 'email-status warning-status';
+                    }
                 }
                 if (sendButton) {
                     sendButton.disabled = false;
