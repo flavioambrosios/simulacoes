@@ -74,11 +74,7 @@ const STUDENT_DATABASE = {
     "accessControl": {
         "enabled": true,
         "salt": "EDU-DIGITAL-2026",
-        "passwordHash": "0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60",
+        "passwordHash": "631c745c1549ba2e7bbb6648a4e5aa0e60ca05fb88a4adb251eb2836d144f347",
         "hint": "Solicite ao professor a senha de acesso do estudante."
     }
 };
-
-if (typeof window !== 'undefined') {
-    window.STUDENT_DATABASE = STUDENT_DATABASE;
-}
