@@ -8,7 +8,7 @@
     <meta name="citation_doi" content="10.5281/zenodo.20737876">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
     <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/MaquinadeCarnot/">
-    <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <meta name="description" content="Simulação didática sobre o ciclo de Carnot, com animação em Canvas 2D, controles interativos, teoria, exercícios e comparação com os ciclos Otto e Diesel.">
     <!-- Nota sobre o desenvolvimento:
          Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
          Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
@@ -597,9 +597,9 @@
                                 </div>
                             </div>
                             <div class="energy-flow">
-                                <div class="energy-chip">Q₁: <strong id="visualHeatIn">500 J</strong></div>
-                                <div class="energy-chip">Q₂: <strong id="visualHeatOut">250 J</strong></div>
-                                <div class="energy-chip">W: <strong id="visualWork">250 J</strong></div>
+                                <div class="energy-chip">Q₁: <strong id="visualHeatIn">1800 J</strong></div>
+                                <div class="energy-chip">Q₂: <strong id="visualHeatOut">900 J</strong></div>
+                                <div class="energy-chip">W: <strong id="visualWork">900 J</strong></div>
                             </div>
                         </div>
                         <canvas id="carnotCanvas" role="img" aria-label="Representação animada do cilindro, reservatórios térmicos e diagrama pressão-volume do ciclo de Carnot"></canvas>
@@ -643,8 +643,8 @@
                 </div>
                 <div class="control-group">
                     <label for="heatInputInput">Calor da Fonte Quente (Q₁):</label>
-                    <input type="range" id="heatInputInput" min="100" max="1000" value="500" step="50">
-                    <div class="value-display"><span id="heatInputValue">500</span> J</div>
+                    <input type="range" id="heatInputInput" min="100" max="5000" value="3000" step="100">
+                    <div class="value-display"><span id="heatInputValue">3000</span> J</div>
                 </div>
                 <div class="control-group">
                     <label for="efficiencyDisplay">Rendimento (η):</label>
@@ -674,10 +674,10 @@
                 <div class="measurement-grid">
                     <div class="measurement-item"><div class="measurement-label">Temperatura Quente (T₁)</div><div class="measurement-value" id="hotTempDisplay">600 K</div></div>
                     <div class="measurement-item"><div class="measurement-label">Temperatura Fria (T₂)</div><div class="measurement-value" id="coldTempDisplay">300 K</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Calor Absorvido (Q₁)</div><div class="measurement-value" id="heatInputDisplay">500 J</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Calor Absorvido (Q₁)</div><div class="measurement-value" id="heatInputDisplay">3000 J</div></div>
                     <div class="measurement-item"><div class="measurement-label">Rendimento (η)</div><div class="measurement-value" id="efficiencyDisplay">50.0 %</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Trabalho Realizado (W)</div><div class="measurement-value" id="workDisplay">250 J</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Calor Rejeitado (Q₂)</div><div class="measurement-value" id="heatOutputDisplay">250 J</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Trabalho Realizado (W)</div><div class="measurement-value" id="workDisplay">900 J</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Calor Rejeitado (Q₂)</div><div class="measurement-value" id="heatOutputDisplay">900 J</div></div>
                 </div>
             </div>
         </div>
@@ -756,7 +756,7 @@
 
     <script>
         // ========== SIMULAÇÃO (original) ==========
-        let hotTempInput = 600, coldTempInput = 300, heatInput = 500, efficiencyValue = 50.0, workValue = 250, heatOutputValue = 250;
+        let hotTempInput = 600, coldTempInput = 300, heatInput = 3000, efficiencyValue = 50.0, workValue = 900, heatOutputValue = 900;
         let debugMode = false;
         let carnotCanvas, carnotContext, animationStartTime = 0;
         let animationPaused = false;
@@ -814,6 +814,7 @@
         }
 
         function init() {
+            syncControlStateFromDom();
             initCarnotCanvas();
             updateCycleUI();
             updateMeasurements();
@@ -821,6 +822,20 @@
             animationStartTime = performance.now();
             requestAnimationFrame(animateCarnotScene);
             addDebugInfo("Simulação inicializada");
+        }
+        function syncControlStateFromDom() {
+            const hotTempControl = document.getElementById('hotTempInput');
+            const coldTempControl = document.getElementById('coldTempInput');
+            const heatInputControl = document.getElementById('heatInputInput');
+            if (hotTempControl) hotTempInput = parseFloat(hotTempControl.value);
+            if (coldTempControl) coldTempInput = parseFloat(coldTempControl.value);
+            if (heatInputControl) heatInput = parseFloat(heatInputControl.value);
+            const hotTempValue = document.getElementById('hotTempValue');
+            const coldTempValue = document.getElementById('coldTempValue');
+            const heatInputValue = document.getElementById('heatInputValue');
+            if (hotTempValue) hotTempValue.textContent = hotTempInput.toFixed(0);
+            if (coldTempValue) coldTempValue.textContent = coldTempInput.toFixed(0);
+            if (heatInputValue) heatInputValue.textContent = heatInput.toFixed(0);
         }
         function addDebugInfo(msg) { if (!debugMode) return; const info = document.getElementById('debugInfo'); info.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ${msg}</p>`; info.scrollTop = info.scrollHeight; }
         function setupEventListeners() {
@@ -2025,6 +2040,7 @@
         function resetAndRestartExercises() {
             if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
                 resetExerciseState();
+                syncControlStateFromDom();
                 generateExercises();
                 currentExercise = 0;
                 document.getElementById('exerciseContainer').style.display = 'block';
@@ -2100,7 +2116,17 @@
             storageKey: 'ciclo-de-carnot'
         };
     </script>
-    <script src="../_shared/simulation-enhancer.js"></script>
-    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+    <script>
+        (function () {
+            const enhancerScript = document.createElement('script');
+            enhancerScript.src = '../_shared/simulation-enhancer.js';
+            enhancerScript.defer = true;
+            enhancerScript.onerror = function () {
+                console.warn('simulation-enhancer.js nao encontrado. A simulacao principal continua funcionando.');
+            };
+            document.body.appendChild(enhancerScript);
+        })();
+    </script>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
