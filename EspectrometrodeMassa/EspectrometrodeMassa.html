@@ -749,13 +749,13 @@
                 <div class="control-group">
                     <label for="voltageInput">Voltagem Aceleradora (V):</label>
                     <input type="range" id="voltageInput" min="100" max="10000" value="5000" step="100">
-                    <div class="value-display"><span id="voltageValue">5.00×10³</span> V</div>
+                    <div class="value-display"><span id="voltageValue">5.00×10<sup>3</sup></span> V</div>
                 </div>
                 
                 <div class="control-group">
                     <label for="fieldInput">Intensidade do Campo Magnético (B):</label>
                     <input type="range" id="fieldInput" min="0.01" max="2" value="0.5" step="0.01">
-                    <div class="value-display"><span id="fieldValue">5.00×10⁻¹</span> T</div>
+                    <div class="value-display"><span id="fieldValue">5.00×10<sup>-1</sup></span> T</div>
                 </div>
                 
                 <div class="control-group">
@@ -771,13 +771,13 @@
                 <div class="control-group" id="customChargeGroup" style="display: none;">
                     <label for="customCharge">Carga (q):</label>
                     <input type="range" id="customCharge" min="-100" max="100" value="-10" step="1">
-                    <div class="value-display"><span id="customChargeValue">-1.00×10⁻¹⁸</span> C</div>
+                    <div class="value-display"><span id="customChargeValue">-1.00×10<sup>-18</sup></span> C</div>
                 </div>
                 
                 <div class="control-group" id="customMassGroup" style="display: none;">
                     <label for="customMass">Massa (m):</label>
                     <input type="range" id="customMass" min="1" max="100" value="10" step="1">
-                    <div class="value-display"><span id="customMassValue">1.00×10⁻²⁶</span> kg</div>
+                    <div class="value-display"><span id="customMassValue">1.00×10<sup>-26</sup></span> kg</div>
                 </div>
                 
                 <div class="control-group">
@@ -792,7 +792,7 @@
                 
                 <div class="formula-box">
                     <h3>Equação Principal</h3>
-                    <p>|q|/m = 2V/(R²B²)</p>
+                    <p>|q|/m = 2V/(R<sup>2</sup>B<sup>2</sup>)</p>
                     <p>Onde:</p>
                     <p>q = carga da partícula</p>
                     <p>m = massa da partícula</p>
@@ -815,11 +815,11 @@
                 <div class="measurement-grid">
                     <div class="measurement-item">
                         <div class="measurement-label">Voltagem (V)</div>
-                        <div class="measurement-value" id="voltageDisplay">5.00×10³ V</div>
+                        <div class="measurement-value" id="voltageDisplay">5.00×10<sup>3</sup> V</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Campo Magnético (B)</div>
-                        <div class="measurement-value" id="fieldDisplay">5.00×10⁻¹ T</div>
+                        <div class="measurement-value" id="fieldDisplay">5.00×10<sup>-1</sup> T</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Velocidade (v)</div>
@@ -1040,9 +1040,9 @@
                     <p>Quando as partículas entram na região com campo magnético, a força magnética atua como força centrípeta:</p>
                     
                     <div class="theory-formula">F<sub>magnética</sub> = F<sub>centrípeta</sub></div>
-                    <div class="theory-formula">|q|vB = mv²/R</div>
+                    <div class="theory-formula">|q|vB = mv<sup>2</sup>/R</div>
                     <p>Nessa etapa, o campo magnético não aumenta nem diminui a energia cinética da partícula. Ele apenas muda a direção da velocidade. Por isso a trajetória se encurva e se torna circular. A força magnética faz o papel de força centrípeta.</p>
-                    <p>A equação |q|vB = mv²/R mostra um equilíbrio entre duas ideias: de um lado, o campo magnético tenta curvar a trajetória; do outro, a inércia da partícula resiste a essa curvatura. Se a partícula for muito rápida ou muito massiva, o raio tende a crescer. Se a carga ou o campo magnético forem maiores, a curva tende a ficar mais fechada.</p>
+                    <p>A equação |q|vB = mv<sup>2</sup>/R mostra um equilíbrio entre duas ideias: de um lado, o campo magnético tenta curvar a trajetória; do outro, a inércia da partícula resiste a essa curvatura. Se a partícula for muito rápida ou muito massiva, o raio tende a crescer. Se a carga ou o campo magnético forem maiores, a curva tende a ficar mais fechada.</p>
                     
                     <p>Isolando o raio R:</p>
                     <div class="theory-formula">R = mv/(|q|B)</div>
@@ -1056,15 +1056,15 @@
                     <p>Em outras palavras, trajetória de raio grande indica desvio mais fraco; trajetória de raio pequeno indica desvio mais intenso.</p>
                     
                     <p>A energia cinética adquirida pelas partículas é resultado do trabalho realizado pela voltagem aplicada entre as placas paralelas:</p>
-                    <div class="theory-formula">|q|V = mv²/2</div>
+                    <div class="theory-formula">|q|V = mv<sup>2</sup>/2</div>
                     <p>Aqui aparece a ligação entre eletricidade e movimento. A voltagem aceleradora prepara a partícula antes de ela entrar na região magnética. Esse é um ponto central do espectrômetro: primeiro a partícula é acelerada, depois ela é desviada.</p>
                     
                     <p>Utilizando a velocidade v em função da voltagem:</p>
-                    <div class="theory-formula">R = m/(|q|B) × √(2|q|V/m) = √(2mV/(|q|B²))</div>
+                    <div class="theory-formula">R = m/(|q|B) × √(2|q|V/m) = √(2mV/(|q|B<sup>2</sup>))</div>
                     <p>Esse passo mostra a junção das duas etapas anteriores. Primeiro encontramos a velocidade com a energia elétrica; depois substituímos essa velocidade na expressão do raio. Assim, o raio observado no detector passa a depender apenas de grandezas controladas ou medidas no aparelho.</p>
                     
                     <p>Rearranjando para isolar a relação carga/massa em módulo:</p>
-                    <div class="theory-formula">|q|/m = 2V/(R²B²)</div>
+                    <div class="theory-formula">|q|/m = 2V/(R<sup>2</sup>B<sup>2</sup>)</div>
                     
                     <p>Esta é a equação fundamental do espectrômetro de massa. Ela mostra que, medindo o raio da trajetória e conhecendo a voltagem aceleradora e o campo magnético, é possível obter a razão carga/massa da partícula.</p>
                     <p>Há ainda um detalhe conceitual importante: essa equação fornece o valor em módulo. Para descobrir se a carga é positiva ou negativa, é preciso observar para qual lado a trajetória se curva no campo magnético.</p>
@@ -1106,33 +1106,33 @@
                         <tbody>
                             <tr>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Elétron</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,602 × 10⁻¹⁹ C</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10⁻³¹ kg</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,76 × 10¹¹</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,602 × 10<sup>-19</sup> C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10<sup>-31</sup> kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">-1,76 × 10<sup>11</sup></td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Próton</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10⁻¹⁹ C</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,673 × 10⁻²⁷ kg</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+9,58 × 10⁷</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10<sup>-19</sup> C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,673 × 10<sup>-27</sup> kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+9,58 × 10<sup>7</sup></td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Partícula Alfa</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+3,204 × 10⁻¹⁹ C</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">6,645 × 10⁻²⁷ kg</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+4,82 × 10⁷</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+3,204 × 10<sup>-19</sup> C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">6,645 × 10<sup>-27</sup> kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+4,82 × 10<sup>7</sup></td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Nêutron</td>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">0 C</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,675 × 10⁻²⁷ kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">1,675 × 10<sup>-27</sup> kg</td>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">0</td>
                             </tr>
                             <tr>
                                 <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">Pósitron</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10⁻¹⁹ C</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10⁻³¹ kg</td>
-                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,76 × 10¹¹</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,602 × 10<sup>-19</sup> C</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">9,109 × 10<sup>-31</sup> kg</td>
+                                <td style="padding: 10px; border: 1px solid #ffcc00; text-align: center;">+1,76 × 10<sup>11</sup></td>
                             </tr>
                         </tbody>
                     </table>
@@ -2870,7 +2870,7 @@
 
                 exercises.push({
                     type: 'identificar_particula',
-                    question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
+                    question: `No espectrômetro (V=5.00×10<sup>3</sup> V, B=5.00×10<sup>-1</sup> T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
                     answer: correctParticle,
                     options: shuffleArray([...options])
                 });
@@ -3122,7 +3122,7 @@
 
                     exercises[currentExercise] = {
                         type: 'identificar_particula',
-                        question: `No espectrômetro (V=5.00×10³ V, B=5.00×10⁻¹ T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
+                        question: `No espectrômetro (V=5.00×10<sup>3</sup> V, B=5.00×10<sup>-1</sup> T), uma partícula tem R=${realisticR} m. Qual partícula é mais provável?`,
                         answer: correctParticle,
                         options: shuffleArray([...options])
                     };
@@ -3447,20 +3447,20 @@
             container.innerHTML = `
                 <div class="solved-exercise">
                     <h4>Exercício 1: Cálculo de q/m</h4>
-                    <p><strong>Problema:</strong> Espectrômetro com V=5.00×10³ V, B=5.00×10⁻¹ T, partícula detectada em R=1.00×10⁻¹ m. Calcule q/m.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> q/m = 2V/(R²B²)</div>
-                    <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×5.00×10³/((1.00×10⁻¹)²×(5.00×10⁻¹)²) = 1.00×10⁴/(1.00×10⁻²×2.50×10⁻¹) = 1.00×10⁴/(2.50×10⁻³) = 4.00×10⁶ C/kg</div>
-                    <div class="solution-step"><strong>Resposta:</strong> q/m = 4.00×10⁶ C/kg</div>
+                    <p><strong>Problema:</strong> Espectrômetro com V=5.00×10<sup>3</sup> V, B=5.00×10<sup>-1</sup> T, partícula detectada em R=1.00×10<sup>-1</sup> m. Calcule q/m.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> q/m = 2V/(R<sup>2</sup>B<sup>2</sup>)</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> q/m = 2×5.00×10<sup>3</sup>/((1.00×10<sup>-1</sup>)<sup>2</sup>×(5.00×10<sup>-1</sup>)<sup>2</sup>) = 1.00×10<sup>4</sup>/(1.00×10<sup>-2</sup>×2.50×10<sup>-1</sup>) = 1.00×10<sup>4</sup>/(2.50×10<sup>-3</sup>) = 4.00×10<sup>6</sup> C/kg</div>
+                    <div class="solution-step"><strong>Resposta:</strong> q/m = 4.00×10<sup>6</sup> C/kg</div>
                     <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                 </div>
                 
                 <div class="solved-exercise">
                     <h4>Exercício 2: Raio do próton</h4>
-                    <p><strong>Problema:</strong> Próton (q=1.60×10⁻¹⁹ C, m=1.67×10⁻²⁷ kg) com V=5.00×10³ V, B=5.00×10⁻¹ T. Calcule R.</p>
+                    <p><strong>Problema:</strong> Próton (q=1.60×10<sup>-19</sup> C, m=1.67×10<sup>-27</sup> kg) com V=5.00×10<sup>3</sup> V, B=5.00×10<sup>-1</sup> T. Calcule R.</p>
                     <div class="solution-step"><strong>Fórmulas:</strong> v = √(2|q|V/m) e R = mv/(|q|B)</div>
-                    <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×1.60×10⁻¹⁹×5.00×10³/1.67×10⁻²⁷) = √(9.58×10¹⁰) ≈ 3.09×10⁵ m/s</div>
-                    <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (1.67×10⁻²⁷×3.09×10⁵)/(1.60×10⁻¹⁹×5.00×10⁻¹) = (5.16×10⁻²²)/(8.00×10⁻²⁰) ≈ 6.45×10⁻³ m</div>
-                    <div class="solution-step"><strong>Resposta:</strong> R ≈ 6.45×10⁻³ m</div>
+                    <div class="solution-step"><strong>Passo 1 (velocidade):</strong> v = √(2×1.60×10<sup>-19</sup>×5.00×10<sup>3</sup>/1.67×10<sup>-27</sup>) = √(9.58×10<sup>10</sup>) ≈ 3.09×10<sup>5</sup> m/s</div>
+                    <div class="solution-step"><strong>Passo 2 (raio):</strong> R = (1.67×10<sup>-27</sup>×3.09×10<sup>5</sup>)/(1.60×10<sup>-19</sup>×5.00×10<sup>-1</sup>) = (5.16×10<sup>-22</sup>)/(8.00×10<sup>-20</sup>) ≈ 6.45×10<sup>-3</sup> m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R ≈ 6.45×10<sup>-3</sup> m</div>
                     <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
                 </div>
                 

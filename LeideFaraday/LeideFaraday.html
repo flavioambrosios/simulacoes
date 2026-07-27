@@ -760,9 +760,9 @@
             <div id="solvedExercivesContainer">
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Cálculo da Força Eletromotriz (FEM)</h4>
-                    <p><strong>Problema:</strong> Um gerador com 80 espiras, campo magnético de 40 T, área de 10 cm² e velocidade angular de 30 rad/s. Qual é a força eletromotriz máxima induzida?</p>
+                    <p><strong>Problema:</strong> Um gerador com 80 espiras, campo magnético de 40 T, área de 10 cm<sup>2</sup> e velocidade angular de 30 rad/s. Qual é a força eletromotriz máxima induzida?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> ε = N × B × A × ω</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 10 cm² = 0.001 m²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m<sup>2</sup>: A = 10 cm<sup>2</sup> = 0.001 m<sup>2</sup></div>
                     <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: ε = 80 × 40 × 0.001 × 30</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular: ε = 80 × 40 = 3200; 3200 × 0.001 = 3.2; 3.2 × 30 = 96</div>
                     <div class="solution-step"><strong>Resposta:</strong> ε = 96 V</div>
@@ -770,9 +770,9 @@
                 
                 <div class="solved-exercise">
                     <h4>Exemplo 2: Cálculo do Número de Espiras</h4>
-                    <p><strong>Problema:</strong> Para gerar uma força eletromotriz de 60 V com campo magnético de 50 T, área de 10 cm² e velocidade angular de 40 rad/s, quantas espiras são necessárias?</p>
+                    <p><strong>Problema:</strong> Para gerar uma força eletromotriz de 60 V com campo magnético de 50 T, área de 10 cm<sup>2</sup> e velocidade angular de 40 rad/s, quantas espiras são necessárias?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> N = ε / (B × A × ω)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 10 cm² = 0.001 m²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m<sup>2</sup>: A = 10 cm<sup>2</sup> = 0.001 m<sup>2</sup></div>
                     <div class="solution-step"><strong>Passo 2:</strong> Calcular o denominador: B × A × ω = 50 × 0.001 × 40 = 2</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular N: N = 60 / 2</div>
                     <div class="solution-step"><strong>Resposta:</strong> N = 30 espiras</div>
@@ -780,9 +780,9 @@
                 
                 <div class="solved-exercise">
                     <h4>Exemplo 3: Cálculo do Campo Magnético</h4>
-                    <p><strong>Problema:</strong> Um gerador com 120 espiras, área de 10 cm² e velocidade angular de 50 rad/s produz uma força eletromotriz de 90 V. Qual a intensidade do campo magnético?</p>
+                    <p><strong>Problema:</strong> Um gerador com 120 espiras, área de 10 cm<sup>2</sup> e velocidade angular de 50 rad/s produz uma força eletromotriz de 90 V. Qual a intensidade do campo magnético?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> B = ε / (N × A × ω)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 10 cm² = 0.001 m²</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m<sup>2</sup>: A = 10 cm<sup>2</sup> = 0.001 m<sup>2</sup></div>
                     <div class="solution-step"><strong>Passo 2:</strong> Calcular o denominador: N × A × ω = 120 × 0.001 × 50 = 6</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular B: B = 90 / 6</div>
                     <div class="solution-step"><strong>Resposta:</strong> B = 15 T</div>
@@ -829,7 +829,7 @@
                     <ul>
                         <li><span class="highlight">Φ</span> = Fluxo magnético (Webers)</li>
                         <li><span class="highlight">B</span> = Intensidade do campo magnético (Tesla)</li>
-                        <li><span class="highlight">A</span> = Área da superfície (m²)</li>
+                        <li><span class="highlight">A</span> = Área da superfície (m<sup>2</sup>)</li>
                         <li><span class="highlight">θ</span> = Ângulo entre o campo magnético e a normal à superfície</li>
                     </ul>
                 </div>
@@ -855,9 +855,9 @@
                         <li><span class="highlight">sen(ωt)</span> = Variação senoidal que produz corrente alternada</li>
                     </ul>
                     
-                    <p>O valor máximo da FEM (ε₀) ocorre quando sen(ωt) = 1:</p>
-                    
-                    <div class="theory-formula">ε₀ = N × B × A × ω</div>
+                    <p>O valor máximo da FEM (ε<sub>0</sub>) ocorre quando sen(ωt) = 1:</p>
+
+                    <div class="theory-formula">ε<sub>0</sub> = N × B × A × ω</div>
                 </div>
                 
                 <div class="theory-section">
@@ -1085,7 +1085,7 @@
                 let ε = (n * b * ω * a).toFixed(2);
                 exercises.push({
                     type: 'calcular_fem',
-                    question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
+                    question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm<sup>2</sup> e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
                     answer: parseFloat(ε),
                     options: generateOptions(parseFloat(ε), 'V')
                 });
@@ -1098,7 +1098,7 @@
                 let n2 = Math.round(ε2 / (b2 * ω2 * a2));
                 exercises.push({
                     type: 'calcular_espiras',
-                    question: `Para gerar uma força eletromotriz de ${ε2} V com campo magnético de ${b2} T, área de ${a2*10000} cm² e velocidade angular de ${ω2} rad/s, quantas espiras são necessárias?`,
+                    question: `Para gerar uma força eletromotriz de ${ε2} V com campo magnético de ${b2} T, área de ${a2*10000} cm<sup>2</sup> e velocidade angular de ${ω2} rad/s, quantas espiras são necessárias?`,
                     answer: n2,
                     options: generateOptions(n2, 'espiras')
                 });
@@ -1111,7 +1111,7 @@
                 let b3 = (ε3 / (n3 * ω3 * a3)).toFixed(1);
                 exercises.push({
                     type: 'calcular_campo',
-                    question: `Um gerador com ${n3} espiras, área de ${a3*10000} cm² e velocidade angular de ${ω3} rad/s produz uma força eletromotriz de ${ε3} V. Qual a intensidade do campo magnético?`,
+                    question: `Um gerador com ${n3} espiras, área de ${a3*10000} cm<sup>2</sup> e velocidade angular de ${ω3} rad/s produz uma força eletromotriz de ${ε3} V. Qual a intensidade do campo magnético?`,
                     answer: parseFloat(b3),
                     options: generateOptions(parseFloat(b3), 'T')
                 });
@@ -1253,7 +1253,7 @@
                 let ε = (n * b * ω * a).toFixed(2);
                 exercises[currentExercise] = {
                     type: 'calcular_fem',
-                    question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm² e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
+                    question: `Se um gerador tem ${n} espiras, campo magnético de ${b} T, área de ${a*10000} cm<sup>2</sup> e gira a ${ω} rad/s, qual é a força eletromotriz máxima induzida?`,
                     answer: parseFloat(ε),
                     options: generateOptions(parseFloat(ε), 'V')
                 };
@@ -1265,7 +1265,7 @@
                 let n = Math.round(ε / (b * ω * a));
                 exercises[currentExercise] = {
                     type: 'calcular_espiras',
-                    question: `Para gerar uma força eletromotriz de ${ε} V com campo magnético de ${b} T, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s, quantas espiras são necessárias?`,
+                    question: `Para gerar uma força eletromotriz de ${ε} V com campo magnético de ${b} T, área de ${a*10000} cm<sup>2</sup> e velocidade angular de ${ω} rad/s, quantas espiras são necessárias?`,
                     answer: n,
                     options: generateOptions(n, 'espiras')
                 };
@@ -1277,7 +1277,7 @@
                 let b = (ε / (n * ω * a)).toFixed(1);
                 exercises[currentExercise] = {
                     type: 'calcular_campo',
-                    question: `Um gerador com ${n} espiras, área de ${a*10000} cm² e velocidade angular de ${ω} rad/s produz uma força eletromotriz de ${ε} V. Qual a intensidade do campo magnético?`,
+                    question: `Um gerador com ${n} espiras, área de ${a*10000} cm<sup>2</sup> e velocidade angular de ${ω} rad/s produz uma força eletromotriz de ${ε} V. Qual a intensidade do campo magnético?`,
                     answer: parseFloat(b),
                     options: generateOptions(parseFloat(b), 'T')
                 };
