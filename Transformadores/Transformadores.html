@@ -663,19 +663,19 @@
                 <h4>Exemplo 1: Cálculo da Tensão de Saída</h4>
                 <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                 <p><strong>Problema:</strong> Um transformador tem 200 espiras no primário e 100 espiras no secundário. Se a tensão de entrada é 12 V, qual é a tensão de saída?</p>
-                <div class="solution-step"><strong>Fórmula:</strong> Vs / Vp = Ns / Np</div>
-                <div class="solution-step"><strong>Substituição:</strong> Vs / 12 = 100 / 200 = 0,5</div>
-                <div class="solution-step"><strong>Cálculo:</strong> Vs = 12 × 0,5 = 6 V</div>
+                <div class="solution-step"><strong>Fórmula:</strong> V<sub>s</sub> / V<sub>p</sub> = N<sub>s</sub> / N<sub>p</sub></div>
+                <div class="solution-step"><strong>Substituição:</strong> V<sub>s</sub> / 12 = 100 / 200 = 0,5</div>
+                <div class="solution-step"><strong>Cálculo:</strong> V<sub>s</sub> = 12 × 0,5 = 6 V</div>
                 <div class="solution-step"><strong>Resposta:</strong> A tensão de saída é 6 V.</div>
             </div>
             <div class="solved-exercise" id="solvedExample2">
                 <h4>Exemplo 2: Relação entre Correntes</h4>
                 <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
-                <p><strong>Problema:</strong> Em um transformador ideal, o primário tem 100 espiras e o secundário tem 300 espiras. Qual é a relação entre as correntes Ip e Is?</p>
+                <p><strong>Problema:</strong> Em um transformador ideal, o primário tem 100 espiras e o secundário tem 300 espiras. Qual é a relação entre as correntes I<sub>p</sub> e I<sub>s</sub>?</p>
                 <div class="solution-step"><strong>Princípio:</strong> Em um transformador ideal, a corrente é inversamente proporcional ao número de espiras.</div>
-                <div class="solution-step"><strong>Relação:</strong> Ip / Is = Ns / Np = 300 / 100 = 3</div>
+                <div class="solution-step"><strong>Relação:</strong> I<sub>p</sub> / I<sub>s</sub> = N<sub>s</sub> / N<sub>p</sub> = 300 / 100 = 3</div>
                 <div class="solution-step"><strong>Interpretação:</strong> A corrente no primário é 3 vezes maior que a corrente no secundário.</div>
-                <div class="solution-step"><strong>Resposta:</strong> Ip / Is = 3.</div>
+                <div class="solution-step"><strong>Resposta:</strong> I<sub>p</sub> / I<sub>s</sub> = 3.</div>
             </div>
             <div class="solved-exercise" id="solvedExample3">
                 <h4>Exemplo 3: Potência e Eficiência</h4>
@@ -703,24 +703,24 @@
             <div class="theory-section">
                 <h3>Princípio de Funcionamento</h3>
                 <p>O transformador é um dispositivo que transfere energia elétrica de um circuito para outro por meio da <span class="highlight">indução eletromagnética</span>. A corrente alternada no enrolamento primário cria um campo magnético variável no núcleo, e esse campo induz uma tensão no enrolamento secundário.</p>
-                <div class="theory-formula">Vs / Vp = Ns / Np</div>
-                <p>Nessa relação, <span class="highlight">Vp</span> é a tensão de entrada, <span class="highlight">Vs</span> é a tensão de saída, <span class="highlight">Np</span> é o número de espiras do primário e <span class="highlight">Ns</span> é o número de espiras do secundário.</p>
+                <div class="theory-formula">V<sub>s</sub> / V<sub>p</sub> = N<sub>s</sub> / N<sub>p</sub></div>
+                <p>Nessa relação, <span class="highlight">V<sub>p</sub></span> é a tensão de entrada, <span class="highlight">V<sub>s</sub></span> é a tensão de saída, <span class="highlight">N<sub>p</sub></span> é o número de espiras do primário e <span class="highlight">N<sub>s</sub></span> é o número de espiras do secundário.</p>
             </div>
 
             <div class="theory-section">
                 <h3>Transformador Elevador e Abaixador</h3>
                 <p>Quando o secundário tem mais espiras do que o primário, o transformador é <span class="highlight">elevador de tensão</span>. Quando o secundário tem menos espiras, ele é <span class="highlight">abaixador de tensão</span>.</p>
                 <ul>
-                    <li>Se Ns > Np, então Vs > Vp.</li>
-                    <li>Se Ns < Np, então Vs < Vp.</li>
-                    <li>Se Ns = Np, então a tensão permanece praticamente a mesma.</li>
+                    <li>Se N<sub>s</sub> > N<sub>p</sub>, então V<sub>s</sub> > V<sub>p</sub>.</li>
+                    <li>Se N<sub>s</sub> < N<sub>p</sub>, então V<sub>s</sub> < V<sub>p</sub>.</li>
+                    <li>Se N<sub>s</sub> = N<sub>p</sub>, então a tensão permanece praticamente a mesma.</li>
                 </ul>
             </div>
 
             <div class="theory-section">
                 <h3>Relação com a Corrente</h3>
                 <p>Em um transformador ideal, a potência de entrada é aproximadamente igual à potência de saída. Por isso, quando a tensão aumenta, a corrente tende a diminuir, e quando a tensão diminui, a corrente tende a aumentar.</p>
-                <div class="theory-formula">Vp × Ip ≈ Vs × Is</div>
+                <div class="theory-formula">V<sub>p</sub> × I<sub>p</sub> ≈ V<sub>s</sub> × I<sub>s</sub></div>
                 <p>Isso explica por que a relação entre correntes é inversa em comparação com a relação entre espiras.</p>
             </div>
 
@@ -1457,7 +1457,7 @@
         
         if(type === 'calcular_tensao_saida'){
             return {
-                type, question: `Um transformador tem ${np} espiras no primário e ${ns} espiras no secundário. Se a tensão de entrada é ${vp} V, qual a tensão de saída?`,
+                type, question: `Um transformador tem ${np} espiras no primário e ${ns} espiras no secundário. Se a tensão de entrada é ${vp} V, qual a tensão de saída V<sub>s</sub>?`,
                 answer: formatScientific(vs, 'V'), options: generateOptions(vs, 'V')
             };
         }
@@ -1477,7 +1477,7 @@
             const answer = ratio.toFixed(2);
             const opts = [answer, (1/ratio).toFixed(2), (ratio*1.5).toFixed(2), (ratio/1.5).toFixed(2), (ratio+0.5).toFixed(2)].slice(0,5);
             return {
-                type, question: `Qual a relação de transformação (Ns/Np) de um transformador com ${np} espiras no primário e ${ns} no secundário?`,
+                type, question: `Qual a relação de transformação (N<sub>s</sub>/N<sub>p</sub>) de um transformador com ${np} espiras no primário e ${ns} no secundário?`,
                 answer: answer, options: opts
             };
         }
@@ -1491,10 +1491,10 @@
         }
         if(type === 'relacao_correntes'){
             const invRatio = (np/ns).toFixed(2);
-            const answer = `Ip/Is = ${ratio.toFixed(2)}`;
-            const opts = [`Ip/Is = ${ratio.toFixed(2)}`, `Ip/Is = ${(ratio*1.2).toFixed(2)}`, `Ip/Is = ${(1/(ratio*1.2)).toFixed(2)}`, `Ip/Is = ${(ratio+0.5).toFixed(2)}`, `Ip/Is = ${invRatio}`];
+            const answer = `I<sub>p</sub>/I<sub>s</sub> = ${ratio.toFixed(2)}`;
+            const opts = [`I<sub>p</sub>/I<sub>s</sub> = ${ratio.toFixed(2)}`, `I<sub>p</sub>/I<sub>s</sub> = ${(ratio*1.2).toFixed(2)}`, `I<sub>p</sub>/I<sub>s</sub> = ${(1/(ratio*1.2)).toFixed(2)}`, `I<sub>p</sub>/I<sub>s</sub> = ${(ratio+0.5).toFixed(2)}`, `I<sub>p</sub>/I<sub>s</sub> = ${invRatio}`];
             return {
-                type, question: `Para um transformador ideal com relação de espiras Np/Ns = ${invRatio}, qual a relação entre as correntes Ip/Is?`,
+                type, question: `Para um transformador ideal com relação de espiras N<sub>p</sub>/N<sub>s</sub> = ${invRatio}, qual a relação entre as correntes I<sub>p</sub>/I<sub>s</sub>?`,
                 answer: answer, options: opts
             };
         }
