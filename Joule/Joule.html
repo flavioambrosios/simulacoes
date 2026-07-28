@@ -382,20 +382,43 @@
         .ok-note { background: rgba(58, 212, 141, 0.2); color: #c7ffe5; }
         .bad-note { background: rgba(255, 107, 107, 0.2); color: #ffd6d6; }
 
-        .send-form {
-            margin-top: 12px;
-            display: grid;
-            gap: 10px;
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .send-form input, .send-form select, .send-form textarea {
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+
+        .form-row input, .form-row select, .form-row textarea {
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
             color: #1b2430;
-            font-size: 1rem;
+        }
+
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
         }
 
         .email-status {
@@ -659,24 +682,24 @@
 
             <h3>Enviar resultados</h3>
             <p>Preencha os dados abaixo para enviar seus resultados:</p>
-            <div class="send-form email-form">
-                <input id="studentName" type="text" placeholder="Nome completo *">
-                <select id="studentGrade">
-                    <option value="">Série *</option>
+            <div class="email-form">
+                <div class="form-row"><label class="required">Nome Completo:</label><input id="studentName" type="text" required></div>
+                <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required>
+                    <option value="">Selecione sua série</option>
                     <option>1º ano</option>
                     <option>2º ano</option>
                     <option>3º ano</option>
-                </select>
-                <select id="studentClass">
-                    <option value="">Turma *</option>
+                </select></div>
+                <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required>
+                    <option value="">Selecione sua turma</option>
                     <option>A</option><option>B</option><option>C</option><option>D</option>
                     <option>E</option><option>F</option><option>G</option><option>H</option>
                     <option>I</option><option>J</option><option>K</option><option>L</option>
-                </select>
-                <input id="studentEmail" type="email" placeholder="E-mail para cópia (opcional)">
-                <textarea id="criticismInput" rows="2" placeholder="Críticas"></textarea>
-                <textarea id="suggestionInput" rows="2" placeholder="Sugestões"></textarea>
-                <textarea id="finalConclusion" rows="4" placeholder="Conclusão sobre a atividade *"></textarea>
+                </select></div>
+                <div class="form-row"><label>E-mail para cópia:</label><input id="studentEmail" type="email" placeholder="seu@email.com"></div>
+                <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea></div>
+                <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea></div>
+                <div class="form-row"><label class="required">Conclusão sobre a atividade:</label><textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea></div>
                 <div id="emailStatus" class="email-status"></div>
                 <button id="sendResults" class="primary">Enviar resultados</button>
             </div>
