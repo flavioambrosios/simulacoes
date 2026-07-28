@@ -2638,6 +2638,27 @@
         };
     }
 
+    function buildProfessorEmailPayload(formData, scoreData, aiAnalysis, finalScore) {
+        return {
+            to_email: TEACHER_EMAIL,
+            visitorMode: !!formData.visitorMode,
+            nome_aluno: formData.studentName,
+            serie: formData.studentGrade,
+            turma: formData.studentClass,
+            simulacao: simulationName,
+            nota: scoreData.scorePercentage + '%',
+            nota_final: finalScore,
+            nota_conclusao_ia: aiAnalysis.finalScore,
+            acertos: scoreData.correctAnswers + '/' + scoreData.totalExercises,
+            conclusao: formData.finalConclusion,
+            analise_ia: aiAnalysis.feedback,
+            criticas: formData.criticism,
+            sugestoes: formData.suggestion,
+            email: formData.studentEmail || '',
+            data_envio: new Date().toLocaleString('pt-BR')
+        };
+    }
+
     function buildStudentCopyEmailPayload(formData, scoreData, aiAnalysis, finalScore) {
         return {
             to_email: formData.studentEmail,
@@ -2781,7 +2802,7 @@
         return tryOnce();
     }
 
-    function buildSendJobs(unifiedPayload, legacyPayload, termPayload, studentEmailPayload, options) {
+    function buildSendJobs(unifiedPayload, legacyPayload, termPayload, professorEmailPayload, studentEmailPayload, options) {
         const normalizedOptions = options || {};
         const isVisitor = !!normalizedOptions.isVisitor;
         const jobs = [];
@@ -2803,8 +2824,26 @@
             promise: postJsonNoCors(LEGACY_BACKUP_URL, legacyPayload)
         });
 
+        const professorEmailPromise = postEmailWithRetry(EMAIL_SCRIPT_URL, professorEmailPayload, {
+            maxAttempts: 3,
+            baseDelayMs: 1200,
+            jitterMs: 800,
+            initialJitterMs: 900
+        });
+
+        jobs.push({
+            key: 'professor-email',
+            promise: professorEmailPromise
+        });
+
         if (studentEmailPayload) {
-            const studentEmailPromise = waitMs(randomInt(350, 1200))
+            const studentEmailPromise = professorEmailPromise
+                .catch(function () {
+                    return null;
+                })
+                .then(function () {
+                    return waitMs(randomInt(350, 1200));
+                })
                 .then(function () {
                     return postEmailWithRetry(EMAIL_SCRIPT_URL, studentEmailPayload, {
                         maxAttempts: 3,
@@ -2907,6 +2946,7 @@
         const unifiedPayload = buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore);
         const legacyPayload = buildLegacyBackupPayload(formData, scoreData, aiAnalysis, finalScore);
         const termPayload = buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore);
+        const professorEmailPayload = buildProfessorEmailPayload(formData, scoreData, aiAnalysis, finalScore);
         const studentEmailPayload = formData.studentEmail ? buildStudentCopyEmailPayload(formData, scoreData, aiAnalysis, finalScore) : null;
 
         const emailStatus = document.getElementById('emailStatus');
@@ -2925,6 +2965,7 @@
             unifiedPayload,
             legacyPayload,
             termPayload,
+            professorEmailPayload,
             studentEmailPayload,
             { isVisitor: isVisitor }
         );
@@ -2964,6 +3005,7 @@
                 const ceanSucceeded = successfulTargets.indexOf('cean') !== -1;
                 const backupSucceeded = successfulTargets.indexOf('backup') !== -1;
                 const termSucceeded = successfulTargets.indexOf('term') !== -1;
+                const professorEmailSucceeded = successfulTargets.indexOf('professor-email') !== -1;
                 const studentEmailRequested = !!studentEmailPayload;
                 const studentEmailSucceeded = successfulTargets.indexOf('student-email') !== -1;
 
@@ -2981,6 +3023,10 @@
 
                 if (!termSucceeded && rejectedResultsByKey.term) {
                     warningMessages.push('Lancamento no diario trimestral nao foi confirmado nesta tentativa.');
+                }
+
+                if (!professorEmailSucceeded && rejectedResultsByKey['professor-email']) {
+                    warningMessages.push('E-mail ao professor nao foi confirmado: ' + getFailureMessage(rejectedResultsByKey['professor-email'], 'tente novamente em instantes.'));
                 }
 
                 if (studentEmailRequested && !studentEmailSucceeded) {
