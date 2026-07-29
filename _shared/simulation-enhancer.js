@@ -84,6 +84,7 @@
     const EXERCISE_STORAGE_KEY = 'simulationEnhancer:' + normalizedSimulationKey + ':exercise-state';
     const AUDIO_STORAGE_KEY = 'simulationEnhancer:' + normalizedSimulationKey + ':voice';
     const AI_STORAGE_KEY = 'simulationEnhancer:' + normalizedSimulationKey + ':ai-analysis';
+    const STUDY_NOTES_MAX_LENGTH = 6000;
 
     let narrationTracks = [];
     let narrationIndex = 0;
@@ -107,6 +108,7 @@
     ensureSaveIndicator();
     ensureEnhancedFormFields();
     ensureExerciseHeaderTools();
+    setupStudyNotes();
     setupAudioControls();
     setupSolvedExerciseAudio();
     setupAudioLifecycleGuards();
@@ -191,6 +193,17 @@
             '.enhancer-save-indicator { position: fixed; right: 18px; bottom: 18px; z-index: 3000; max-width: 260px; padding: 10px 14px; border-radius: 12px; background: rgba(12, 22, 32, 0.92); border: 1px solid rgba(120, 255, 190, 0.5); color: #d9ffee; font-size: 0.92rem; font-weight: 700; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; }',
             '.enhancer-save-indicator.is-visible { opacity: 1; transform: translateY(0); }',
             '.enhancer-save-indicator strong { color: #7fffc0; }',
+            '.enhancer-study-notes-card { margin: 12px 0 14px; padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 221, 136, 0.28); }',
+            '.enhancer-study-notes-card h3 { margin: 0 0 8px; color: #ffdd88; text-align: center; font-size: 1.06rem; }',
+            '.enhancer-study-notes-hint { margin: 0 0 10px; color: #f5f5f5; font-size: 0.92rem; text-align: center; }',
+            '.enhancer-study-notes-card textarea { width: 100%; min-height: 120px; resize: vertical; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.18); background: rgba(9, 19, 30, 0.55); color: #f4fbff; padding: 10px 12px; font-size: 0.96rem; line-height: 1.4; }',
+            '.enhancer-study-notes-meta { margin-top: 8px; font-size: 0.86rem; color: #ffe9ad; text-align: right; }',
+            '.enhancer-study-notes-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; justify-content: flex-end; }',
+            '.enhancer-study-notes-actions button { margin: 0; width: auto; }',
+            '.enhancer-study-notes-clear { background: #6b2f35; color: #fff; }',
+            '#resultsContainer .email-form { width: 100% !important; max-width: none !important; }',
+            '#resultsContainer .form-row { width: 100%; }',
+            '#resultsContainer #criticismInput, #resultsContainer #suggestionInput, #resultsContainer #finalConclusion { width: 100% !important; max-width: none !important; min-width: 100% !important; box-sizing: border-box; }',
             '.enhancer-visitor-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 204, 0, 0.15); cursor: pointer; }',
             '.enhancer-student-auth { margin-bottom: 10px; padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(100, 181, 246, 0.25); }',
             '.enhancer-student-auth-btn { width: auto; margin: 0 0 8px; background: #1976d2; color: #fff; }',
@@ -207,6 +220,75 @@
             '@media (max-width: 768px) { .enhancer-audio-controls { flex-direction: column; align-items: stretch; } .enhancer-audio-controls button, .enhancer-audio-controls select { width: 100%; } .enhancer-voice-group { width: 100%; flex-direction: column; align-items: stretch; } .enhancer-save-indicator { left: 12px; right: 12px; bottom: 12px; max-width: none; } }'
         ].join('');
         document.head.appendChild(style);
+    }
+
+    function setupStudyNotes() {
+        ensureStudyNotesPanel();
+        bindStudyNotesEvents();
+        updateStudyNotesCounter();
+    }
+
+    function ensureStudyNotesPanel() {
+        const modalContent = document.querySelector('#exercisesModal .modal-content');
+        const exerciseContainer = document.getElementById('exerciseContainer');
+        if (!modalContent || !exerciseContainer || document.getElementById('enhancerStudyNotesCard')) {
+            return;
+        }
+
+        const panel = document.createElement('div');
+        panel.id = 'enhancerStudyNotesCard';
+        panel.className = 'enhancer-study-notes-card';
+        panel.innerHTML = [
+            '<h3>Anotações de estudo</h3>',
+            '<p class="enhancer-study-notes-hint">Use este bloco durante os exercícios. As anotações ficam salvas e podem ser usadas na conclusão final.</p>',
+            '<textarea id="enhancerNotesInput" placeholder="Escreva aqui ideias, contas, dificuldades e conclusões parciais..."></textarea>',
+            '<div id="enhancerStudyNotesMeta" class="enhancer-study-notes-meta">0/' + STUDY_NOTES_MAX_LENGTH + ' caracteres</div>',
+            '<div class="enhancer-study-notes-actions">',
+            '<button type="button" id="enhancerClearNotesBtn" class="enhancer-study-notes-clear">Limpar anotações</button>',
+            '</div>'
+        ].join('');
+
+        exerciseContainer.insertAdjacentElement('afterend', panel);
+    }
+
+    function bindStudyNotesEvents() {
+        const notesInput = document.getElementById('enhancerNotesInput');
+        const clearBtn = document.getElementById('enhancerClearNotesBtn');
+
+        if (notesInput && notesInput.dataset.enhancerBound !== 'true') {
+            notesInput.addEventListener('input', function () {
+                if (notesInput.value.length > STUDY_NOTES_MAX_LENGTH) {
+                    notesInput.value = notesInput.value.slice(0, STUDY_NOTES_MAX_LENGTH);
+                }
+                updateStudyNotesCounter();
+                saveExerciseState();
+            });
+            notesInput.dataset.enhancerBound = 'true';
+        }
+
+        if (clearBtn && clearBtn.dataset.enhancerBound !== 'true') {
+            clearBtn.addEventListener('click', function () {
+                if (!window.confirm('Deseja apagar todas as anotações deste bloco?')) {
+                    return;
+                }
+                if (notesInput) {
+                    notesInput.value = '';
+                }
+                updateStudyNotesCounter();
+                saveExerciseState();
+            });
+            clearBtn.dataset.enhancerBound = 'true';
+        }
+    }
+
+    function updateStudyNotesCounter() {
+        const notesInput = document.getElementById('enhancerNotesInput');
+        const meta = document.getElementById('enhancerStudyNotesMeta');
+        if (!notesInput || !meta) {
+            return;
+        }
+        const length = notesInput.value.length;
+        meta.textContent = length + '/' + STUDY_NOTES_MAX_LENGTH + ' caracteres';
     }
 
     function ensureSaveIndicator() {
@@ -1186,6 +1268,10 @@
     }
 
     function ensureExerciseHeaderTools() {
+        ensureStudyNotesPanel();
+        bindStudyNotesEvents();
+        updateStudyNotesCounter();
+
         const modalHeader = document.querySelector('#exercisesModal .modal-header');
         if (!modalHeader || modalHeader.querySelector('.enhancer-modal-actions')) {
             updateExerciseLauncherState();
@@ -1269,6 +1355,7 @@
         const studentName = document.getElementById('studentName');
         const studentNameSelect = document.getElementById('studentNameSelect');
         const studentNameManual = document.getElementById('studentNameManual');
+        const studyNotes = document.getElementById('enhancerNotesInput');
 
         if (conclusionText) {
             conclusionText.value = '';
@@ -1293,6 +1380,10 @@
         if (studentNameManual) {
             studentNameManual.value = '';
         }
+        if (studyNotes) {
+            studyNotes.value = '';
+        }
+        updateStudyNotesCounter();
 
         const aiPreview = document.getElementById('enhancerAiPreview');
         if (aiPreview) {
@@ -1889,6 +1980,9 @@
         }
 
         wrapFunction('openExercisesModal', function () {
+            ensureStudyNotesPanel();
+            bindStudyNotesEvents();
+            updateStudyNotesCounter();
             restoreExerciseState();
             bindFormPersistence();
             updateExerciseLauncherState();
@@ -2114,7 +2208,7 @@
         [
             'conclusionText', 'studentSheet', 'studentTrail', 'studentName', 'studentNameSelect', 'studentNameManual', 'studentGrade', 'studentClass', 'schoolTerm', 'studentEmail',
             'visitorName', 'visitorEmail', 'visitorMode',
-            'criticismInput', 'suggestionInput', 'finalConclusion'
+            'criticismInput', 'suggestionInput', 'finalConclusion', 'enhancerNotesInput'
         ].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
             if (!field || field.dataset.enhancerBound === 'true') {
@@ -2168,6 +2262,7 @@
                             criticismInput: getFieldValue('criticismInput'),
                             suggestionInput: getFieldValue('suggestionInput'),
                             finalConclusion: finalConclusion ? finalConclusion.value : '',
+                            studyNotes: getFieldValue('enhancerNotesInput'),
                             visitorMode: getCheckboxValue('visitorMode')
                         },
             aiAnalysis: lastAiAnalysis
@@ -2250,9 +2345,10 @@
         const hasAttempts = Number(state.currentExerciseAttempts || 0) > 0;
         const hasSelection = Boolean(state.selectedOption);
         const hasConclusion = Boolean(String(state.conclusionTextSaved || '').trim());
+        const hasStudyNotes = Boolean(String((state.formState && state.formState.studyNotes) || '').trim());
         const hasCompletedView = state.view === 'conclusion' || state.view === 'results';
 
-        return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasCompletedView;
+        return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasStudyNotes || hasCompletedView;
     }
 
     function hasResumableExerciseState(state) {
@@ -2268,9 +2364,10 @@
         const hasConclusion = Boolean(String(
             state.conclusionTextSaved || (state.formState && state.formState.finalConclusion) || ''
         ).trim());
+        const hasStudyNotes = Boolean(String((state.formState && state.formState.studyNotes) || '').trim());
         const hasCompletedView = state.view === 'conclusion' || state.view === 'results';
 
-        return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasCompletedView;
+        return hasCurrentExercise || hasResults || hasSkipped || hasAttempts || hasSelection || hasConclusion || hasStudyNotes || hasCompletedView;
     }
 
     function clearExerciseState() {
@@ -2320,6 +2417,7 @@
         }
 
         restoreFormState(savedState.formState || {});
+        updateStudyNotesCounter();
         renderAiPreview(getFieldValue('finalConclusion') || savedState.conclusionTextSaved || '');
         updateExerciseLauncherState();
         updateResumeBadge(true);
@@ -2335,6 +2433,9 @@
     }
 
     function restoreFormState(formState) {
+        ensureStudyNotesPanel();
+        bindStudyNotesEvents();
+
         Object.keys(formState || {}).forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
             if (!field) {
@@ -2346,6 +2447,7 @@
             }
             field.value = formState[fieldId] || '';
         });
+        updateStudyNotesCounter();
         syncSelectedSheetMetadata();
         const visitorCheckbox = document.getElementById('visitorMode');
         if (visitorCheckbox) {
@@ -2559,6 +2661,7 @@
             totalQuestoes: scoreData.totalExercises,
             questoes_puladas: scoreData.skippedQuestions,
             conclusao: formData.finalConclusion,
+            anotacoesEstudo: formData.studyNotes || '',
             analiseIa: aiAnalysis.feedback,
             palavrasConclusao: aiAnalysis.wordCount,
             extensaoTexto: aiAnalysis.lengthScore,
@@ -2587,6 +2690,7 @@
             nota_final: finalScore,
             nota_conclusao_ia: aiAnalysis.finalScore,
             conclusao: formData.finalConclusion,
+            anotacoes_estudo: formData.studyNotes || '',
             analise_ia: aiAnalysis.feedback,
             criticas: formData.criticism,
             sugestoes: formData.suggestion,
@@ -2629,6 +2733,7 @@
             acertos: scoreData.correctAnswers,
             totalQuestoes: scoreData.totalExercises,
             conclusao: formData.finalConclusion,
+            anotacoesEstudo: formData.studyNotes || '',
             palavrasConclusao: aiAnalysis.wordCount,
             extensaoTexto: aiAnalysis.lengthScore,
             coerenciaSemantica: aiAnalysis.semanticsScore,
@@ -2856,6 +2961,7 @@
             studentEmail: getFieldValue('studentEmail'),
             visitorName: getFieldValue('visitorName'),
             visitorEmail: getFieldValue('visitorEmail'),
+            studyNotes: getFieldValue('enhancerNotesInput'),
             visitorMode: document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false,
             schoolTerm: getFieldValue('schoolTerm'),
             criticism: getFieldValue('criticismInput'),
