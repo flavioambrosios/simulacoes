@@ -2858,6 +2858,17 @@
         });
     }
 
+    function postGradebookWithFallback(url, data) {
+        return postJsonWithResponse(url, data).catch(function (error) {
+            if (!isLikelyCorsOrOpaqueRestriction(error)) {
+                throw error;
+            }
+            return postJsonNoCors(url, data).then(function () {
+                return { status: 'accepted-opaque' };
+            });
+        });
+    }
+
     function postEmailWithRetry(url, data, options) {
         const normalizedOptions = options || {};
         const maxAttempts = Math.max(1, Number(normalizedOptions.maxAttempts || 3));
@@ -2896,10 +2907,10 @@
             promise: postJsonWithResponse(PRIMARY_GRADEBOOK_URL, unifiedPayload)
         });
 
-        if (!isVisitor && TERM_GRADEBOOK_URL && TERM_GRADEBOOK_URL !== PRIMARY_GRADEBOOK_URL) {
+        if (!isVisitor && TERM_GRADEBOOK_URL) {
             jobs.push({
                 key: 'term',
-                promise: postJsonWithResponse(TERM_GRADEBOOK_URL, termPayload)
+                promise: postGradebookWithFallback(TERM_GRADEBOOK_URL, termPayload)
             });
         }
 
@@ -3086,7 +3097,7 @@
                 }
 
                 if (!termSucceeded && rejectedResultsByKey.term) {
-                    warningMessages.push('Lancamento no diario trimestral nao foi confirmado nesta tentativa.');
+                    warningMessages.push('Lançamento no diário trimestral não foi confirmado: ' + getFailureMessage(rejectedResultsByKey.term, 'tente novamente em instantes.'));
                 }
 
                 if (studentEmailRequested && !studentEmailSucceeded) {
