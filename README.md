@@ -47,8 +47,6 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 - Cronograma operacional (12 meses): [docs/CRONOGRAMA-OPERACIONAL-12-MESES.md](docs/CRONOGRAMA-OPERACIONAL-12-MESES.md)
 - Rubrica para respostas discursivas: [docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md](docs/RUBRICA-RESPOSTAS-DISCURSIVAS.md)
 - Protocolo metodológico (versão inicial): [docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md](docs/PROTOCOLO-METODOLOGICO-DOUTORADO.md)
-- Pré-projeto de doutorado (estrutura acadêmica): [docs/PRE-PROJETO-DOUTORADO.md](docs/PRE-PROJETO-DOUTORADO.md)
-- Resumo expandido para potencial orientador (2 a 4 páginas): [docs/RESUMO-EXPANDIDO-ORIENTADOR.md](docs/RESUMO-EXPANDIDO-ORIENTADOR.md)
 - Referências sugeridas: [docs/REFERENCIAS-SUGERIDAS.md](docs/REFERENCIAS-SUGERIDAS.md)
 - Referências em ABNT (lista padronizada): [docs/REFERENCIAS-ABNT-COMPLETO.md](docs/REFERENCIAS-ABNT-COMPLETO.md)
 - Estado da arte (resumo): [docs/ESTADO-DA-ARTE-SIMULACOES-DIDATICAS.md](docs/ESTADO-DA-ARTE-SIMULACOES-DIDATICAS.md)
