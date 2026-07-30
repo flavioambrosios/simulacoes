@@ -1517,9 +1517,40 @@
             return shuffleArray(options);
         }
 
-        function buildExerciseByType(type) {
+        function getExerciseMass(baseMass, forceVariation) {
+            const numericBaseMass = Number(baseMass) || 100;
+            if (!forceVariation) {
+                return numericBaseMass;
+            }
+
+            const step = 25;
+            const minMass = Math.max(50, numericBaseMass - 200);
+            const maxMass = Math.min(1200, numericBaseMass + 200);
+            const minStep = Math.ceil(minMass / step);
+            const maxStep = Math.floor(maxMass / step);
+            let candidate = numericBaseMass;
+            let attempts = 0;
+
+            while (attempts < 14) {
+                candidate = randomInt(minStep, maxStep) * step;
+                if (candidate !== numericBaseMass) {
+                    break;
+                }
+                attempts++;
+            }
+
+            return candidate;
+        }
+
+        function buildExerciseByType(type, forceVariation) {
             const substance = getSubstance();
-            const mass = state.mass;
+            const mass = getExerciseMass(state.mass, !!forceVariation && (
+                type === 'calor_sensivel'
+                || type === 'capacidade_termica'
+                || type === 'calor_especifico'
+                || type === 'calor_latente_fusao'
+                || type === 'calor_latente_vapor'
+            ));
 
             if (type === 'conceito_calor') {
                 return {
@@ -1667,12 +1698,22 @@
                 'grafico_volume'
             ]);
             exercises = types.map(function(type) {
-                return buildExerciseByType(type);
+                return buildExerciseByType(type, false);
             });
         }
 
         function generateNewExerciseOfSameType() {
-            exercises[currentExercise] = buildExerciseByType(exercises[currentExercise].type);
+            const currentType = exercises[currentExercise].type;
+            const previousQuestion = exercises[currentExercise].question;
+            let nextExercise = buildExerciseByType(currentType, true);
+            let attempts = 0;
+
+            while (nextExercise.question === previousQuestion && attempts < 10) {
+                nextExercise = buildExerciseByType(currentType, true);
+                attempts++;
+            }
+
+            exercises[currentExercise] = nextExercise;
         }
 
         function showCurrentExercise() {
