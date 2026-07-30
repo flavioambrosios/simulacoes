@@ -2,16 +2,16 @@
 <html lang="pt-br">
 <head>
     <!-- Metadados de autoria -->
-    <meta name="citation_title" content="Simulacao: Ciclo de Carnot">
+    <meta name="citation_title" content="Simulação: Ciclo de Carnot">
     <meta name="citation_author" content="Flavio Ambrosio Campos">
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737876">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
-    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/MaquinadeCarnot/">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/MaquinadeCarnot/">
     <meta name="description" content="Simulação didática sobre o ciclo de Carnot, com animação em Canvas 2D, controles interativos, teoria, exercícios e comparação com os ciclos Otto e Diesel.">
     <!-- Nota sobre o desenvolvimento:
-         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
-         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação do Ciclo de Carnot</title>
@@ -204,7 +204,7 @@
             background: #1a2a6c;
             color: white;
         }
-        .formula-box {
+        .fórmula-box {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
@@ -561,7 +561,7 @@
             border-radius: 3px;
             font-weight: bold;
         }
-        .theory-formula {
+        .theory-fórmula {
             text-align: center;
             font-family: 'Courier New', monospace;
             font-size: 1.2rem;
@@ -650,7 +650,7 @@
                     <label for="efficiencyDisplay">Rendimento (η):</label>
                     <div class="value-display"><span id="efficiencyValue">50.0</span> %</div>
                 </div>
-                <div class="formula-box">
+                <div class="fórmula-box">
                     <h3 id="formulaTitle">Fórmulas do Ciclo de Carnot</h3>
                     <div id="formulaContent">
                         <p>η = 1 - (T₂/T₁) = 1 - (Q₂/Q₁)</p>
@@ -742,10 +742,10 @@
             <div class="modal-header"><h2>Teoria - Ciclos de Carnot, Otto e Diesel</h2><span class="close">&times;</span></div>
             <div class="theory-content">
                 <div class="theory-section"><h3>O que é a Máquina de Carnot?</h3><p>A máquina de Carnot é uma máquina térmica teórica que opera no ciclo de Carnot, estabelecendo o limite máximo de eficiência que qualquer máquina térmica real pode atingir. Foi proposta em 1824 pelo físico francês Nicolas Léonard Sadi Carnot.</p><p>O ciclo de Carnot consiste em quatro processos reversíveis:</p><ul><li><span class="highlight">Expansão isotérmica:</span> O sistema se expande em contato com a fonte quente (T₁), absorvendo calor Q₁.</li><li><span class="highlight">Expansão adiabática:</span> O sistema continua a se expandir sem trocar calor com o exterior.</li><li><span class="highlight">Compressão isotérmica:</span> O sistema é comprimido em contato com a fonte fria (T₂), rejeitando calor Q₂.</li><li><span class="highlight">Compressão adiabática:</span> O sistema continua a ser comprimido sem trocar calor, retornando ao estado inicial.</li></ul></div>
-                <div class="theory-section"><h3>Primeira Lei da Termodinâmica no Ciclo de Carnot</h3><p>A primeira lei da termodinâmica, que é o princípio da conservação de energia, aplicada ao ciclo de Carnot estabelece que:</p><div class="theory-formula">ΔU = Q - W</div><p>Onde:</p><ul><li><span class="highlight">ΔU</span> = Variação da energia interna</li><li><span class="highlight">Q</span> = Calor líquido trocado (Q₁ - Q₂)</li><li><span class="highlight">W</span> = Trabalho realizado pelo sistema</li></ul><p>Como o ciclo é fechado (o sistema retorna ao estado inicial), a variação da energia interna é zero (ΔU = 0). Portanto:</p><div class="theory-formula">W = Q₁ - Q₂</div><p>O trabalho líquido realizado pelo ciclo é igual ao calor líquido trocado.</p></div>
+                <div class="theory-section"><h3>Primeira Lei da Termodinâmica no Ciclo de Carnot</h3><p>A primeira lei da termodinâmica, que é o princípio da conservação de energia, aplicada ao ciclo de Carnot estabelece que:</p><div class="theory-fórmula">ΔU = Q - W</div><p>Onde:</p><ul><li><span class="highlight">ΔU</span> = Variação da energia interna</li><li><span class="highlight">Q</span> = Calor líquido trocado (Q₁ - Q₂)</li><li><span class="highlight">W</span> = Trabalho realizado pelo sistema</li></ul><p>Como o ciclo é fechado (o sistema retorna ao estado inicial), a variação da energia interna é zero (ΔU = 0). Portanto:</p><div class="theory-fórmula">W = Q₁ - Q₂</div><p>O trabalho líquido realizado pelo ciclo é igual ao calor líquido trocado.</p></div>
                 <div class="theory-section"><h3>Segunda Lei da Termodinâmica e o Ciclo de Carnot</h3><p>A segunda lei da termodinâmica estabelece que é impossível converter completamente calor em trabalho sem que haja outras mudanças no sistema. O ciclo de Carnot ilustra este princípio, mostrando que mesmo na máquina mais eficiente possível, parte do calor deve ser rejeitado para uma fonte fria.</p><p>O teorema de Carnot afirma que:</p><ul><li>Nenhuma máquina térmica operando entre duas fontes de calor pode ser mais eficiente que uma máquina de Carnot operando entre as mesmas fontes.</li><li>Todas as máquinas de Carnot operando entre as mesmas temperaturas têm a mesma eficiência.</li></ul></div>
-                <div class="theory-section"><h3>Rendimento da Máquina de Carnot</h3><p>O rendimento (η) de qualquer máquina térmica é definido como a razão entre o trabalho realizado (W) e o calor absorvido da fonte quente (Q₁):</p><div class="theory-formula">η = W / Q₁ = (Q₁ - Q₂) / Q₁ = 1 - (Q₂ / Q₁)</div><p>Para a máquina de Carnot, pode-se demonstrar que a razão Q₂/Q₁ é igual à razão T₂/T₁, onde T₁ e T₂ são as temperaturas absolutas (em Kelvin) das fontes quente e fria, respectivamente. Portanto:</p><div class="theory-formula">η = 1 - (T₂ / T₁)</div><p>Esta é a famosa fórmula do rendimento de Carnot, que mostra que o rendimento máximo depende apenas das temperaturas das fontes quente e fria, sendo independente da substância de trabalho.</p></div>
-                <div class="theory-section"><h3>Ciclo Otto (Motor a Gasolina)</h3><p>O ciclo Otto ideal modela o funcionamento básico de motores com ignição por centelha (vela). Na simulação, ele aparece associado aos quatro tempos do motor: admissão, compressão, combustão/expansão e escapamento.</p><ul><li><span class="highlight">Adição de calor no Otto:</span> ocorre idealmente em <strong>volume constante</strong> (processo isocórico).</li><li><span class="highlight">Ignição:</span> ocorre por centelha da vela no início da expansão.</li><li><span class="highlight">Rendimento ideal:</span> depende principalmente da razão de compressão r e de γ.</li></ul><div class="theory-formula">η_Otto = 1 - \frac{1}{r^{\gamma-1}}</div></div>
+                <div class="theory-section"><h3>Rendimento da Máquina de Carnot</h3><p>O rendimento (η) de qualquer máquina térmica é definido como a razão entre o trabalho realizado (W) e o calor absorvido da fonte quente (Q₁):</p><div class="theory-fórmula">η = W / Q₁ = (Q₁ - Q₂) / Q₁ = 1 - (Q₂ / Q₁)</div><p>Para a máquina de Carnot, pode-se demonstrar que a razão Q₂/Q₁ é igual à razão T₂/T₁, onde T₁ e T₂ são as temperaturas absolutas (em Kelvin) das fontes quente e fria, respectivamente. Portanto:</p><div class="theory-fórmula">η = 1 - (T₂ / T₁)</div><p>Esta é a famosa fórmula do rendimento de Carnot, que mostra que o rendimento máximo depende apenas das temperaturas das fontes quente e fria, sendo independente da substância de trabalho.</p></div>
+                <div class="theory-section"><h3>Ciclo Otto (Motor a Gasolina)</h3><p>O ciclo Otto ideal modela o funcionamento básico de motores com ignição por centelha (vela). Na simulação, ele aparece associado aos quatro tempos do motor: admissão, compressão, combustão/expansão e escapamento.</p><ul><li><span class="highlight">Adição de calor no Otto:</span> ocorre idealmente em <strong>volume constante</strong> (processo isocórico).</li><li><span class="highlight">Ignição:</span> ocorre por centelha da vela no início da expansão.</li><li><span class="highlight">Rendimento ideal:</span> depende principalmente da razão de compressão r e de γ.</li></ul><div class="theory-fórmula">η_Otto = 1 - \frac{1}{r^{\gamma-1}}</div></div>
                 <div class="theory-section"><h3>Ciclo Diesel (Motor a Diesel)</h3><p>O ciclo Diesel ideal representa motores com ignição por compressão. Nesses motores, o ar é fortemente comprimido, elevando sua temperatura, e a combustão começa com a injeção do combustível.</p><ul><li><span class="highlight">Adição de calor no Diesel:</span> ocorre idealmente em <strong>pressão constante</strong> (processo isobárico).</li><li><span class="highlight">Ignição:</span> não usa vela; ocorre por compressão com injeção.</li><li><span class="highlight">Processos no ciclo:</span> duas adiabáticas, uma isobárica e uma isocórica.</li></ul></div>
                 <div class="theory-section"><h3>Comparação Didática Entre os Três Ciclos</h3><ul><li><span class="highlight">Carnot:</span> ciclo ideal de referência para limite máximo de eficiência entre duas temperaturas.</li><li><span class="highlight">Otto:</span> modelo ideal para motor a gasolina, com aquecimento isocórico.</li><li><span class="highlight">Diesel:</span> modelo ideal para motor a diesel, com aquecimento isobárico.</li></ul><p>Na prática, os motores reais têm perdas mecânicas e térmicas. Mesmo assim, esses modelos ideais são essenciais para compreender os limites e tendências de desempenho.</p></div>
                 <div class="theory-section"><h3>Importância e Aplicações do Ciclo de Carnot</h3><p>O ciclo de Carnot é importante porque:</p><ul><li>Estabelece o limite máximo teórico de eficiência para qualquer máquina térmica</li><li>Fornece insights fundamentais sobre a segunda lei da termodinâmica</li><li>Serve como referência para comparar o desempenho de máquinas térmicas reais</li><li>É utilizado no estudo de refrigeração e bombas de calor (ciclo reverso de Carnot)</li></ul><p>Embora seja uma idealização e não possa ser realizado na prática com perfeição, o ciclo de Carnot é fundamental para a compreensão dos limites termodinâmicos dos processos de conversão de energia.</p></div>
@@ -1810,7 +1810,7 @@
             ctx.fillStyle = state.phase.color;
             ctx.fillText(`Etapa ativa: ${state.stageIndex + 1}`, pvBox.x, infoStartY + infoStep * 2);
             ctx.fillStyle = 'rgba(255, 228, 148, 0.95)';
-            ctx.fillText(`Area do ciclo = trabalho liquido`, pvBox.x, infoStartY + infoStep * 3);
+            ctx.fillText(`Área do ciclo = trabalho liquido`, pvBox.x, infoStartY + infoStep * 3);
             ctx.fillStyle = '#d3e4ff';
             ctx.fillText(`Sentido: ${stageLabel}`, pvBox.x, infoStartY + infoStep * 4);
             ctx.fillStyle = 'rgba(255,255,255,0.85)';
@@ -2122,11 +2122,14 @@
             enhancerScript.src = '../_shared/simulation-enhancer.js';
             enhancerScript.defer = true;
             enhancerScript.onerror = function () {
-                console.warn('simulation-enhancer.js nao encontrado. A simulacao principal continua funcionando.');
+                console.warn('simulation-enhancer.js não encontrado. A simulação principal continua funcionando.');
             };
             document.body.appendChild(enhancerScript);
         })();
     </script>
-    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
+
+
+

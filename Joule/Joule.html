@@ -9,7 +9,7 @@
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737878">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
-    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/Joule/">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/Joule/">
     <title>Experiência de Joule: Equivalente Mecânico do Calor</title>
     <style>
         :root {
@@ -165,14 +165,14 @@
             text-align: center;
         }
 
-        .formula {
+        .fórmula {
             background: var(--panel-strong);
             border-radius: 10px;
             padding: 10px;
             line-height: 1.55;
         }
 
-        .formula-line {
+        .fórmula-line {
             font-family: Consolas, "Courier New", monospace;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 8px;
@@ -541,13 +541,13 @@
                 <div class="value" id="efficiencyVal">85 %</div>
             </div>
 
-            <div class="formula">
+            <div class="fórmula">
                 <strong>Modelagem usada</strong>
-                <div class="formula-line">E<sub>mec</sub> (J) = m (kg) · g (m/s²) · h (m)</div>
-                <div class="formula-line">E<sub>transferida</sub> (J) = η · E<sub>mec</sub> (J)</div>
-                <div class="formula-line">ΔT (°C) = T<sub>final</sub> − T<sub>inicial</sub></div>
-                <div class="formula-line">Q<sub>recebido</sub> (cal) = m<sub>água</sub> (g) · c<sub>água</sub> (cal/(g·°C)) · ΔT (°C)</div>
-                <div class="formula-line">Equivalente mecânico (J/cal) = E<sub>transferida</sub> (J) / Q<sub>recebido</sub> (cal)</div>
+                <div class="fórmula-line">E<sub>mec</sub> (J) = m (kg) · g (m/s²) · h (m)</div>
+                <div class="fórmula-line">E<sub>transferida</sub> (J) = η · E<sub>mec</sub> (J)</div>
+                <div class="fórmula-line">ΔT (°C) = T<sub>final</sub> − T<sub>inicial</sub></div>
+                <div class="fórmula-line">Q<sub>recebido</sub> (cal) = m<sub>água</sub> (g) · c<sub>água</sub> (cal/(g·°C)) · ΔT (°C)</div>
+                <div class="fórmula-line">Equivalente mecânico (J/cal) = E<sub>transferida</sub> (J) / Q<sub>recebido</sub> (cal)</div>
                 <div style="margin-top:8px; line-height:1.5;">Considere c da água = 1 cal/(g·°C). Na experiência real, ΔT é obtido por medição.</div>
             </div>
 
@@ -2096,28 +2096,28 @@
 
     window.tracks = [
         function() {
-            return 'Bem-vindo a experiencia de Joule. Nesta simulacao, voce ajusta massa, altura, massa de agua, temperatura inicial e eficiencia para observar como energia mecanica se transforma em aquecimento da agua. Primeiro, explore os controles e compare como cada ajuste altera os resultados.';
+            return 'Bem-vindo a experiência de Joule. Nesta simulação, voce ajusta massa, altura, massa de agua, temperatura inicial e eficiência para observar como energia mecanica se transforma em aquecimento da agua. Primeiro, explore os controles e compare como cada ajuste altera os resultados.';
         },
         function() {
             return 'Foco conceitual: a energia mecanica do bloco e dada por m vezes g vezes h. Uma parte dessa energia e transferida para a agua, e o aumento de temperatura depende do calor recebido dividido pela massa de agua. Observe como os resultados mudam com mais altura e com diferentes massas de agua.';
         },
         function() {
-            return 'Nos graficos, a inclinacao da reta no plano energia por calor aproxima o equivalente mecanico do calor, em joule por caloria. Voce pode comparar o ajuste livre com a reta forcada na origem para discutir o efeito da incerteza experimental e do termo constante.';
+            return 'Nos gráficos, a inclinacao da reta no plano energia por calor aproxima o equivalente mecânico do calor, em joule por caloria. Voce pode comparar o ajuste livre com a reta forcada na origem para discutir o efeito da incerteza experimental e do termo constante.';
         },
         function() {
-            return 'No fim, responda aos exercicios e escreva uma conclusao explicando o que voce aprendeu. Tente justificar com as formulas, com a tendencia dos graficos e com o papel das incertezas nas medicoes.';
+            return 'No fim, responda aos exercícios e escreva uma conclusão explicando o que voce aprendeu. Tente justificar com as formulas, com a tendencia dos gráficos e com o papel das incertezas nas medicoes.';
         }
     ];
 
     window.exampleNarrations = {
         1: 'Exemplo um. Comece calculando a energia mecanica com m vezes g vezes h. Depois interprete o resultado em joules como a energia disponivel para ser transferida ao sistema.',
-        2: 'Exemplo dois. A eficiencia indica que apenas uma fracao da energia mecanica aquece a agua. Multiplique a energia mecanica por eta para encontrar a energia transferida.',
-        3: 'Exemplo tres. Calcule a variacao de temperatura pela diferenca entre temperatura final e inicial. Em seguida use Q igual a m vezes c vezes delta T para obter o calor em calorias.',
-        4: 'Exemplo quatro. Aqui voce isola delta T na expressao do calor sensivel. O valor encontrado mostra que aquecimentos pequenos podem ser medidos quando a massa de agua e grande.',
-        5: 'Exemplo cinco. A temperatura final e a soma da temperatura inicial com delta T. Esse passo conecta a parte energetica com a leitura termica do experimento.',
+        2: 'Exemplo dois. A eficiência indica que apenas uma fracao da energia mecanica aquece a agua. Multiplique a energia mecanica por eta para encontrar a energia transferida.',
+        3: 'Exemplo tres. Calcule a variação de temperatura pela diferença entre temperatura final e inicial. Em seguida use Q igual a m vezes c vezes delta T para obter o calor em calorias.',
+        4: 'Exemplo quatro. Aqui voce isola delta T na expressao do calor sensível. O valor encontrado mostra que aquecimentos pequenos podem ser medidos quando a massa de agua e grande.',
+        5: 'Exemplo cinco. A temperatura final e a soma da temperatura inicial com delta T. Esse passo conecta a parte energetica com a leitura térmica do experimento.',
         6: 'Exemplo seis. A inclinacao no grafico T por h e uma taxa media de aquecimento por metro. Ela ajuda a interpretar o comportamento global mesmo com pontos espalhados por incerteza.',
-        7: 'Exemplo sete. A equacao da reta tem coeficiente angular e termo constante. O coeficiente angular representa a variacao de energia por unidade de calor, e o termo constante reflete imperfeicoes do ajuste real.',
-        8: 'Exemplo oito. O equivalente mecanico do calor e a razao entre energia transferida e calor recebido. Compare esse valor com o esperado teorico para discutir precisao experimental.'
+        7: 'Exemplo sete. A equacao da reta tem coeficiente angular e termo constante. O coeficiente angular representa a variação de energia por unidade de calor, e o termo constante reflete imperfeicoes do ajuste real.',
+        8: 'Exemplo oito. O equivalente mecânico do calor e a razão entre energia transferida e calor recebido. Compare esse valor com o esperado teorico para discutir precisao experimental.'
     };
 
     function sendResultsToSheet() {
@@ -2161,3 +2161,5 @@
 </footer>
 </body>
 </html>
+
+

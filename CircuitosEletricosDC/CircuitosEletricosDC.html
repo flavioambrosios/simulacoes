@@ -2,19 +2,19 @@
 <html lang="pt-br">
 <head>
     <!-- Metadados de autoria -->
-    <meta name="citation_title" content="Simulacao: Circuitos Elétricos">
+    <meta name="citation_title" content="Simulação: Circuitos Elétricos">
     <meta name="citation_author" content="Flavio Ambrosio Campos">
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737877">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
-    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/CircuitosEletricosDC/">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/CircuitosEletricosDC/">
     <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
     <!-- Nota sobre o desenvolvimento:
-         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
-         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulacao de Circuitos Eletricos DC com Exercicios</title>
+    <title>Simulação de Circuitos Elétricos DC com Exercícios</title>
     <style>
         * {
             box-sizing: border-box;
@@ -131,7 +131,7 @@
             margin: 15px 0 0;
             justify-content: center;
         }
-        .formula-box {
+        .fórmula-box {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
@@ -441,7 +441,7 @@
             border-radius: 3px;
             font-weight: bold;
         }
-        .theory-formula {
+        .theory-fórmula {
             text-align: center;
             font-family: 'Courier New', monospace;
             font-size: 1.15rem;
@@ -471,7 +471,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulacao de Circuitos Eletricos DC com Exercicios</h1>
+            <h1>Simulação de Circuitos Elétricos DC com Exercícios</h1>
             <p class="subtitle">Prof. Flavio Ambrosio</p>
         </header>
 
@@ -496,11 +496,11 @@
                     </a>.
                 </p>
                 <div class="visualization-toggle">
-                    <button id="helpBtn">Como Usar a Simulacao</button>
+                    <button id="helpBtn">Como Usar a Simulação</button>
                 </div>
 
                 <div class="legend">
-                    <p><strong>Roteiro rapido:</strong> monte circuitos simples, observe o sentido da corrente, compare montagens em serie e em paralelo e use o voltimetro e o amperimetro do PhET para confirmar os calculos.</p>
+                    <p><strong>Roteiro rápido:</strong> monte circuitos simples, observe o sentido da corrente, compare montagens em série e em paralelo e use o voltimetro e o amperimetro do PhET para confirmar os calculos.</p>
                 </div>
             </div>
 
@@ -511,9 +511,9 @@
                     <label for="scenarioSelect">Cenario de Estudo:</label>
                     <select id="scenarioSelect">
                         <option value="simples">Circuito simples com uma lampada</option>
-                        <option value="serie">Duas resistencias em serie</option>
+                        <option value="série">Duas resistencias em série</option>
                         <option value="paralelo">Duas resistencias em paralelo</option>
-                        <option value="tensao">Mesmo resistor com tensoes diferentes</option>
+                        <option value="tensão">Mesmo resistor com tensoes diferentes</option>
                     </select>
                 </div>
 
@@ -521,36 +521,36 @@
                     Um gerador de 9 V alimenta um resistor equivalente de 9 ohms. A corrente total esperada e 1,0 A.
                 </div>
 
-                <div class="formula-box">
+                <div class="fórmula-box">
                     <h3>Lei de Ohm</h3>
                     <p>V = R . I</p>
-                    <p>V = tensao</p>
-                    <p>R = resistencia</p>
-                    <p>I = corrente eletrica</p>
+                    <p>V = tensão</p>
+                    <p>R = resistência</p>
+                    <p>I = corrente elétrica</p>
                 </div>
 
-                <div class="formula-box">
-                    <h3>Associacao em Serie</h3>
+                <div class="fórmula-box">
+                    <h3>Associacao em Série</h3>
                     <p>R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub> + ...</p>
                     <p>A corrente e a mesma em todos os elementos.</p>
                 </div>
 
-                <div class="formula-box">
+                <div class="fórmula-box">
                     <h3>Associacao em Paralelo</h3>
                     <p>1 / R<sub>eq</sub> = 1 / R<sub>1</sub> + 1 / R<sub>2</sub> + ...</p>
-                    <p>A tensao e a mesma em cada ramo.</p>
+                    <p>A tensão e a mesma em cada ramo.</p>
                 </div>
 
-                <div class="formula-box">
-                    <h3>Potencia Eletrica</h3>
+                <div class="fórmula-box">
+                    <h3>Potência Elétrica</h3>
                     <p>P = V . I</p>
                     <p>P = I<sup>2</sup> . R</p>
                     <p>P = V<sup>2</sup> / R</p>
                 </div>
 
                 <div class="exercise-buttons">
-                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
-                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
                     <button class="exercise-btn" id="theoryBtn">Teoria</button>
                 </div>
             </div>
@@ -559,11 +559,11 @@
                 <h2 class="panel-title">Medicoes e Resultados Esperados</h2>
                 <div class="measurement-grid">
                     <div class="measurement-item">
-                        <div class="measurement-label">Tensao da Fonte</div>
+                        <div class="measurement-label">Tensão da Fonte</div>
                         <div class="measurement-value" id="voltageDisplay">9 V</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">Resistencia Equivalente</div>
+                        <div class="measurement-label">Resistência Equivalente</div>
                         <div class="measurement-value" id="resistanceDisplay">9 ohms</div>
                     </div>
                     <div class="measurement-item">
@@ -571,7 +571,7 @@
                         <div class="measurement-value" id="currentDisplay">1,0 A</div>
                     </div>
                     <div class="measurement-item">
-                        <div class="measurement-label">Potencia Total</div>
+                        <div class="measurement-label">Potência Total</div>
                         <div class="measurement-value" id="powerDisplay">9 W</div>
                     </div>
                     <div class="measurement-item">
@@ -590,7 +590,7 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios sobre Circuitos Eletricos DC</h2>
+                <h2>Exercícios sobre Circuitos Elétricos DC</h2>
                 <span class="close">&times;</span>
             </div>
 
@@ -606,15 +606,15 @@
             <div id="exerciseContainer"></div>
 
             <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusao de Estudo</h3>
+                <h3>Conclusão de Estudo</h3>
                 <p>Escreva abaixo o que voce aprendeu ao montar e analisar os circuitos.</p>
-                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..."
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."
                         style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
 
             <div id="resultsContainer" style="display: none;">
-                <h3>Resultados dos Exercicios</h3>
+                <h3>Resultados dos Exercícios</h3>
                 <div id="resultsSummary"></div>
 
                 <h3>Enviar Resultados</h3>
@@ -627,9 +627,9 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="studentGrade" class="required">Serie:</label>
+                        <label for="studentGrade" class="required">Série:</label>
                         <select id="studentGrade" required>
-                            <option value="">Selecione sua serie</option>
+                            <option value="">Selecione sua série</option>
                             <option value="1o ano">1o ano</option>
                             <option value="2o ano">2o ano</option>
                             <option value="3o ano">3o ano</option>
@@ -678,8 +678,8 @@
                     </div>
 
                     <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
                     </div>
 
                     <div id="emailStatus" class="email-status"></div>
@@ -693,38 +693,38 @@
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios Resolvidos - Circuitos Eletricos DC</h2>
+                <h2>Exercícios Resolvidos - Circuitos Elétricos DC</h2>
                 <span class="close">&times;</span>
             </div>
 
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Corrente em um circuito simples</h4>
-                    <p><strong>Problema:</strong> Uma bateria de 12 V esta ligada a um resistor de 6 ohms. Qual e a corrente no circuito?</p>
-                    <div class="solution-step"><strong>Formula:</strong> I = V / R</div>
+                    <p><strong>Problema:</strong> Uma bateria de 12 V esta ligada a um resistor de 6 ohms. Qual é a corrente no circuito?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> I = V / R</div>
                     <div class="solution-step"><strong>Passo 1:</strong> Identificar os dados: V = 12 V e R = 6 ohms.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Substituir na Lei de Ohm: I = 12 / 6.</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular: I = 2 A.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A corrente eletrica no circuito e 2 A.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A corrente elétrica no circuito e 2 A.</div>
                 </div>
 
                 <div class="solved-exercise">
-                    <h4>Exemplo 2: Resistencia equivalente em serie</h4>
-                    <p><strong>Problema:</strong> Dois resistores de 4 ohms e 8 ohms estao ligados em serie. Qual e a resistencia equivalente?</p>
-                    <div class="solution-step"><strong>Formula:</strong> R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub></div>
+                    <h4>Exemplo 2: Resistência equivalente em série</h4>
+                    <p><strong>Problema:</strong> Dois resistores de 4 ohms e 8 ohms estao ligados em série. Qual é a resistência equivalente?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub></div>
                     <div class="solution-step"><strong>Passo 1:</strong> Somar os valores: R<sub>eq</sub> = 4 + 8.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Calcular: R<sub>eq</sub> = 12 ohms.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A resistencia equivalente e 12 ohms.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A resistência equivalente e 12 ohms.</div>
                 </div>
 
                 <div class="solved-exercise">
-                    <h4>Exemplo 3: Potencia dissipada</h4>
-                    <p><strong>Problema:</strong> Um resistor de 10 ohms esta ligado a uma bateria de 20 V. Qual e a potencia dissipada?</p>
-                    <div class="solution-step"><strong>Formula:</strong> P = V<sup>2</sup> / R</div>
+                    <h4>Exemplo 3: Potência dissipada</h4>
+                    <p><strong>Problema:</strong> Um resistor de 10 ohms esta ligado a uma bateria de 20 V. Qual é a potência dissipada?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> P = V<sup>2</sup> / R</div>
                     <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: P = 20<sup>2</sup> / 10.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Elevar 20 ao quadrado: 20<sup>2</sup> = 400.</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Dividir: P = 400 / 10 = 40 W.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A potencia dissipada e 40 W.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A potência dissipada e 40 W.</div>
                 </div>
             </div>
 
@@ -737,56 +737,56 @@
     <div id="theoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Teoria - Circuitos Eletricos DC</h2>
+                <h2>Teoria - Circuitos Elétricos DC</h2>
                 <span class="close">&times;</span>
             </div>
 
             <div class="theory-content">
                 <div class="theory-section">
-                    <h3>O que e um circuito eletrico DC?</h3>
-                    <p>Um circuito eletrico de corrente continua e um caminho fechado por onde as cargas eletricas se movem sempre no mesmo sentido convencional. Em montagens simples, a bateria fornece energia, os fios conectam os componentes e resistores ou lampadas transformam energia eletrica em calor e luz.</p>
-                    <p>Na simulacao do PhET, voce pode montar o circuito arrastando pilhas, fios, resistores, lampadas, interruptores e instrumentos de medida. Isso permite relacionar a teoria com observacoes visuais imediatas, como brilho das lampadas, variacao da corrente e distribuicao da tensao.</p>
+                    <h3>O que é um circuito elétrico DC?</h3>
+                    <p>Um circuito elétrico de corrente continua e um caminho fechado por onde as cargas eletricas se movem sempre no mesmo sentido convencional. Em montagens simples, a bateria fornece energia, os fios conectam os componentes e resistores ou lâmpadas transformam energia elétrica em calor e luz.</p>
+                    <p>Na simulação do PhET, voce pode montar o circuito arrastando pilhas, fios, resistores, lâmpadas, interruptores e instrumentos de medida. Isso permite relacionar a teoria com observações visuais imediatas, como brilho das lâmpadas, variação da corrente e distribuicao da tensão.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>Lei de Ohm</h3>
-                    <p>A Lei de Ohm estabelece a relacao entre tensao, corrente e resistencia.</p>
-                    <div class="theory-formula">V = R . I</div>
+                    <p>A Lei de Ohm estabelece a relação entre tensão, corrente e resistência.</p>
+                    <div class="theory-fórmula">V = R . I</div>
                     <ul>
-                        <li><span class="highlight">V</span> representa a tensao em volts.</li>
-                        <li><span class="highlight">R</span> representa a resistencia em ohms.</li>
+                        <li><span class="highlight">V</span> representa a tensão em volts.</li>
+                        <li><span class="highlight">R</span> representa a resistência em ohms.</li>
                         <li><span class="highlight">I</span> representa a corrente em amperes.</li>
                     </ul>
-                    <p>Se a tensao aumenta e a resistencia permanece constante, a corrente aumenta. Se a resistencia aumenta e a tensao permanece constante, a corrente diminui.</p>
+                    <p>Se a tensão aumenta e a resistência permanece constante, a corrente aumenta. Se a resistência aumenta e a tensão permanece constante, a corrente diminui.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Associacao em serie</h3>
-                    <p>Em uma associacao em serie, os componentes ficam no mesmo caminho da corrente. Isso significa que a corrente eletrica tem o mesmo valor em todos os elementos do circuito.</p>
-                    <div class="theory-formula">R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub> + ...</div>
-                    <p>Quando adicionamos mais resistores em serie, a resistencia equivalente aumenta e a corrente total tende a diminuir.</p>
+                    <h3>Associacao em série</h3>
+                    <p>Em uma associacao em série, os componentes ficam no mesmo caminho da corrente. Isso significa que a corrente elétrica tem o mesmo valor em todos os elementos do circuito.</p>
+                    <div class="theory-fórmula">R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub> + ...</div>
+                    <p>Quando adicionamos mais resistores em série, a resistência equivalente aumenta e a corrente total tende a diminuir.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>Associacao em paralelo</h3>
-                    <p>Em uma associacao em paralelo, os componentes ficam ligados em ramos diferentes. A tensao entre os extremos de cada ramo e a mesma.</p>
-                    <div class="theory-formula">1 / R<sub>eq</sub> = 1 / R<sub>1</sub> + 1 / R<sub>2</sub> + ...</div>
-                    <p>Nesse caso, a resistencia equivalente fica menor do que qualquer resistor isolado do conjunto, e a corrente total fornecida pela bateria aumenta.</p>
+                    <p>Em uma associacao em paralelo, os componentes ficam ligados em ramos diferentes. A tensão entre os extremos de cada ramo e a mesma.</p>
+                    <div class="theory-fórmula">1 / R<sub>eq</sub> = 1 / R<sub>1</sub> + 1 / R<sub>2</sub> + ...</div>
+                    <p>Nesse caso, a resistência equivalente fica menor do que qualquer resistor isolado do conjunto, e a corrente total fornecida pela bateria aumenta.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Potencia eletrica</h3>
-                    <p>A potencia indica a taxa de transformacao de energia eletrica por segundo.</p>
-                    <div class="theory-formula">P = V . I</div>
-                    <p>Tambem podemos escrever <span class="highlight">P = I<sup>2</sup> . R</span> ou <span class="highlight">P = V<sup>2</sup> / R</span>, dependendo das grandezas conhecidas. Em lampadas, maior potencia normalmente significa maior brilho.</p>
+                    <h3>Potência elétrica</h3>
+                    <p>A potência indica a taxa de transformacao de energia elétrica por segundo.</p>
+                    <div class="theory-fórmula">P = V . I</div>
+                    <p>Também podemos escrever <span class="highlight">P = I<sup>2</sup> . R</span> ou <span class="highlight">P = V<sup>2</sup> / R</span>, dependendo das grandezas conhecidas. Em lâmpadas, maior potência normalmente significa maior brilho.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>O que observar no PhET</h3>
                     <ul>
-                        <li>Compare o brilho das lampadas em serie e em paralelo.</li>
+                        <li>Compare o brilho das lâmpadas em série e em paralelo.</li>
                         <li>Use o amperimetro para medir a corrente total em cada montagem.</li>
-                        <li>Use o voltimetro para verificar a diferenca de potencial nos componentes.</li>
+                        <li>Use o voltimetro para verificar a diferença de potencial nos componentes.</li>
                         <li>Abra e feche o interruptor para perceber que a corrente so existe em circuito fechado.</li>
                         <li>Troque o valor da bateria ou dos resistores e compare os resultados com a Lei de Ohm.</li>
                     </ul>
@@ -822,32 +822,32 @@
                 current: '0,67 A',
                 power: '8,0 W',
                 behavior: 'Corrente menor em todo o circuito',
-                focus: 'Associacao em serie',
-                description: 'Duas resistencias de 10 ohms e 8 ohms estao em serie com uma bateria de 12 V. A resistencia equivalente aumenta e a corrente total diminui.'
+                focus: 'Associacao em série',
+                description: 'Duas resistencias de 10 ohms e 8 ohms estao em série com uma bateria de 12 V. A resistência equivalente aumenta e a corrente total diminui.'
             },
             paralelo: {
                 voltage: '12 V',
                 resistance: '4 ohms',
                 current: '3,0 A',
                 power: '36 W',
-                behavior: 'Cada ramo recebe a mesma tensao',
+                behavior: 'Cada ramo recebe a mesma tensão',
                 focus: 'Associacao em paralelo',
-                description: 'Duas resistencias de 8 ohms ligadas em paralelo produzem resistencia equivalente de 4 ohms. A corrente total fornecida pela fonte aumenta.'
+                description: 'Duas resistencias de 8 ohms ligadas em paralelo produzem resistência equivalente de 4 ohms. A corrente total fornecida pela fonte aumenta.'
             },
             tensao: {
                 voltage: '6 V a 12 V',
                 resistance: '6 ohms',
                 current: '1,0 A a 2,0 A',
                 power: '6 W a 24 W',
-                behavior: 'Mais tensao gera mais corrente e mais brilho',
-                focus: 'Variacao de tensao e potencia',
-                description: 'Mantendo um resistor de 6 ohms fixo, dobrar a tensao de 6 V para 12 V dobra a corrente e quadruplica a potencia dissipada.'
+                behavior: 'Mais tensão gera mais corrente e mais brilho',
+                focus: 'Variação de tensão e potência',
+                description: 'Mantendo um resistor de 6 ohms fixo, dobrar a tensão de 6 V para 12 V dobra a corrente e quadruplica a potência dissipada.'
             }
         };
 
         function setupEventListeners() {
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert('Como usar a simulacao:\n\n• Arraste bateria, fios, resistores e lampadas para a area do PhET.\n• Feche o circuito para permitir a passagem de corrente.\n• Use o amperimetro para medir a corrente total.\n• Use o voltimetro para comparar a tensao nos componentes.\n• Monte configuracoes em serie e em paralelo e compare o brilho das lampadas.\n\nDica: sempre tente prever o resultado com a Lei de Ohm antes de medir no simulador.');
+                alert('Como usar a simulação:\n\n• Arraste bateria, fios, resistores e lâmpadas para a área do PhET.\n• Feche o circuito para permitir a passagem de corrente.\n• Use o amperimetro para medir a corrente total.\n• Use o voltimetro para comparar a tensão nos componentes.\n• Monte configuracoes em série e em paralelo e compare o brilho das lâmpadas.\n\nDica: sempre tente prever o resultado com a Lei de Ohm antes de medir no simulador.');
             });
 
             document.getElementById('scenarioSelect').addEventListener('change', updateScenarioPanel);
@@ -929,7 +929,7 @@
                 const seriesEquivalent = resistor1Serie + resistor2Serie;
                 exercises.push({
                     type: 'resistencia_serie',
-                    question: `Dois resistores de ${resistor1Serie} ohms e ${resistor2Serie} ohms estao em serie. Qual e a resistencia equivalente?`,
+                    question: `Dois resistores de ${resistor1Serie} ohms e ${resistor2Serie} ohms estao em série. Qual e a resistência equivalente?`,
                     answer: formatOhms(seriesEquivalent),
                     options: generateOptions(seriesEquivalent, 'ohms', formatOhms)
                 });
@@ -941,7 +941,7 @@
                 const equivalentParallel = (resistor1Parallel * resistor2Parallel) / (resistor1Parallel + resistor2Parallel);
                 exercises.push({
                     type: 'resistencia_paralelo',
-                    question: `Dois resistores de ${resistor1Parallel} ohms e ${resistor2Parallel} ohms estao em paralelo. Qual e a resistencia equivalente?`,
+                    question: `Dois resistores de ${resistor1Parallel} ohms e ${resistor2Parallel} ohms estao em paralelo. Qual e a resistência equivalente?`,
                     answer: formatOhms(equivalentParallel),
                     options: generateOptions(equivalentParallel, 'ohms', formatOhms)
                 });
@@ -1107,7 +1107,7 @@
                 const equivalent = resistor1 + resistor2;
                 exercises[currentExercise] = {
                     type: 'resistencia_serie',
-                    question: `Dois resistores de ${resistor1} ohms e ${resistor2} ohms estao em serie. Qual e a resistencia equivalente?`,
+                    question: `Dois resistores de ${resistor1} ohms e ${resistor2} ohms estao em série. Qual e a resistência equivalente?`,
                     answer: formatOhms(equivalent),
                     options: generateOptions(equivalent, 'ohms', formatOhms)
                 };
@@ -1120,7 +1120,7 @@
             const equivalent = (resistor1 * resistor2) / (resistor1 + resistor2);
             exercises[currentExercise] = {
                 type: 'resistencia_paralelo',
-                question: `Dois resistores de ${resistor1} ohms e ${resistor2} ohms estao em paralelo. Qual e a resistencia equivalente?`,
+                question: `Dois resistores de ${resistor1} ohms e ${resistor2} ohms estao em paralelo. Qual e a resistência equivalente?`,
                 answer: formatOhms(equivalent),
                 options: generateOptions(equivalent, 'ohms', formatOhms)
             };
@@ -1178,7 +1178,7 @@
             submitButton.onclick = function() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (conclusionText.trim() === '') {
-                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
                 showResults(conclusionText);
@@ -1194,9 +1194,9 @@
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
 
             document.getElementById('resultsSummary').innerHTML = `
-                <p>Exercicios respondidos: ${totalExercises}</p>
+                <p>Exercícios respondidos: ${totalExercises}</p>
                 <p>Respostas corretas: ${correctAnswers}</p>
-                <p>Exercicios pulados: ${skippedQuestions}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
                 <p>Nota: ${scorePercentage}%</p>
             `;
 
@@ -1236,7 +1236,7 @@
                 serie: studentGrade,
                 turma: studentClass,
                 estudante: studentName,
-                simulacao: 'Circuitos Eletricos DC',
+                simulacao: 'Circuitos Elétricos DC',
                 questoes_puladas: skippedQuestions,
                 acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
                 nota: scorePercentage + '%',
@@ -1275,16 +1275,16 @@
 
                 const emailDataAluno = {
                     to_email: studentEmail,
-                    nome_aluno: studentName || 'Nao informado',
-                    serie: studentGrade || 'Nao informado',
-                    turma: studentClass || 'Nao informado',
+                    nome_aluno: studentName || 'Não informado',
+                    serie: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
                     nota: scorePercentage + '%' || '0%',
                     acertos: `${correctAnswers}/${totalExercises}` || '0/0',
                     questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Nao informado',
+                    conclusao: finalConclusion || 'Não informado',
                     data_envio: new Date().toLocaleString('pt-BR'),
-                    simulacao: 'Circuitos Eletricos DC',
-                    mensagem: `Confirmacao de Envio - Simulacao de Circuitos Eletricos DC\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulacoes Fisicas`
+                    simulacao: 'Circuitos Elétricos DC',
+                    mensagem: `Confirmacao de Envio - Simulação de Circuitos Elétricos DC\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Fisicas`
                 };
 
                 return fetch(emailScriptUrl, {
@@ -1336,7 +1336,7 @@
             if (!studentNameCircuitosDC) {
                 let promptedName = '';
                 try {
-                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulação.');
                 } catch (error) {
                     promptedName = '';
                 }
@@ -1349,41 +1349,45 @@
         const tracks = [
             function () {
                 ensureStudentNameCircuitosDC();
-                return `Ola, ${studentNameCircuitosDC}. Esta pagina usa a simulacao do PhET para estudar circuitos eletricos de corrente continua. A proposta e montar circuitos simples, comparar ligacoes em serie e em paralelo e verificar como tensao, corrente, resistencia e potencia se relacionam.`;
+                return `Ola, ${studentNameCircuitosDC}. Esta página usa a simulação do PhET para estudar circuitos elétricos de corrente continua. A proposta e montar circuitos simples, comparar ligacoes em série e em paralelo e verificar como tensão, corrente, resistência e potência se relacionam.`;
             },
             function () {
                 return 'Comece observando que a corrente eletrica so se mantem quando o circuito esta fechado. A bateria fornece energia, e os fios criam um caminho para o movimento ordenado das cargas. Se houver interrupcao no caminho, a corrente deixa de circular.';
             },
             function () {
-                return 'A Lei de Ohm e o ponto central desta exploracao. Ela relaciona tensao, resistencia e corrente. Quando a tensao aumenta para um mesmo resistor, a corrente aumenta. Quando a resistencia aumenta sob a mesma tensao, a corrente diminui.';
+                return 'A Lei de Ohm e o ponto central desta exploração. Ela relaciona tensão, resistência e corrente. Quando a tensão aumenta para um mesmo resistor, a corrente aumenta. Quando a resistência aumenta sob a mesma tensão, a corrente diminui.';
             },
             function () {
-                return 'Em circuitos em serie, a corrente e a mesma em todos os componentes, mas a resistencia equivalente aumenta. Por isso, lampadas iguais tendem a brilhar menos quando sao colocadas em serie na mesma fonte.';
+                return 'Em circuitos em série, a corrente e a mesma em todos os componentes, mas a resistência equivalente aumenta. Por isso, lâmpadas iguais tendem a brilhar menos quando sao colocadas em série na mesma fonte.';
             },
             function () {
-                return 'Em circuitos em paralelo, cada ramo recebe a mesma tensao da fonte. Isso costuma produzir brilho maior em lampadas iguais, mas tambem exige maior corrente total fornecida pela bateria.';
+                return 'Em circuitos em paralelo, cada ramo recebe a mesma tensão da fonte. Isso costuma produzir brilho maior em lâmpadas iguais, mas também exige maior corrente total fornecida pela bateria.';
             },
             function () {
-                return 'Use o painel de medicoes desta pagina como roteiro de previsao. Antes de medir no PhET, tente calcular o que voce espera encontrar para tensao, corrente, resistencia equivalente e potencia total.';
+                return 'Use o painel de medicoes desta página como roteiro de previsao. Antes de medir no PhET, tente calcular o que voce espera encontrar para tensão, corrente, resistência equivalente e potência total.';
             },
             function () {
-                return 'Depois da exploracao, resolva os exercicios. O objetivo nao e apenas encontrar um numero, mas justificar qual relacao fisica foi usada: Lei de Ohm, associacao em serie, associacao em paralelo ou potencia eletrica.';
+                return 'Depois da exploração, resolva os exercícios. O objetivo não e apenas encontrar um número, mas justificar qual relação física foi usada: Lei de Ohm, associacao em série, associacao em paralelo ou potência eletrica.';
             }
         ];
 
         const exampleNarrations = {
-            '1': 'No primeiro exemplo, temos uma bateria de doze volts ligada a um resistor de seis ohms. A grandeza pedida e a corrente. Pela Lei de Ohm, basta dividir a tensao pela resistencia. O resultado e dois amperes. O importante aqui e perceber que a corrente depende ao mesmo tempo da fonte e da oposicao oferecida pelo resistor.',
-            '2': 'No segundo exemplo, o foco e a associacao em serie. Como os resistores estao no mesmo caminho, a resistencia equivalente e simplesmente a soma dos valores. Esse resultado e importante porque mostra por que a corrente tende a diminuir quando mais resistores sao adicionados em serie.',
-            '3': 'No terceiro exemplo, calculamos a potencia dissipada por um resistor a partir da tensao aplicada. Ao usar a expressao V ao quadrado sobre R, fica claro que a potencia cresce bastante quando a tensao aumenta. Esse raciocinio ajuda a interpretar por que uma lampada pode ficar mais brilhante quando ligada a uma fonte maior.'
+            '1': 'No primeiro exemplo, temos uma bateria de doze volts ligada a um resistor de seis ohms. A grandeza pedida e a corrente. Pela Lei de Ohm, basta dividir a tensão pela resistência. O resultado e dois amperes. O importante aqui e perceber que a corrente depende ao mesmo tempo da fonte e da oposicao oferecida pelo resistor.',
+            '2': 'No segundo exemplo, o foco e a associacao em série. Como os resistores estao no mesmo caminho, a resistência equivalente e simplesmente a soma dos valores. Esse resultado e importante porque mostra por que a corrente tende a diminuir quando mais resistores sao adicionados em série.',
+            '3': 'No terceiro exemplo, calculamos a potência dissipada por um resistor a partir da tensão aplicada. Ao usar a expressao V ao quadrado sobre R, fica claro que a potência cresce bastante quando a tensão aumenta. Esse raciocinio ajuda a interpretar por que uma lampada pode ficar mais brilhante quando ligada a uma fonte maior.'
         };
     </script>
     <script>
         window.SIMULATION_ENHANCER_CONFIG = {
-            simulationName: 'Circuitos Eletricos DC',
+            simulationName: 'Circuitos Elétricos DC',
             storageKey: 'circuitos-eletricos-dc'
         };
     </script>
     <script src="../_shared/simulation-enhancer.js"></script>
-    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
+
+
+
+

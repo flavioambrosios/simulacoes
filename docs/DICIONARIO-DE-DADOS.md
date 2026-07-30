@@ -15,8 +15,8 @@ Este documento descreve, de forma padronizada, os campos que podem ser utilizado
 | periodo_letivo | Texto | 2026/1 | Sim | Organizar análises temporais | Sem risco direto |
 | data_atividade | Data | 2026-06-29 | Sim | Localizar aplicação | Sem risco direto |
 | turma | Texto | 2A | Sim | Agregação por grupo | Usar apenas em ambiente interno |
-| serie | Texto | 2º ano | Sim | Agregação por nível escolar | Sem risco direto |
-| simulacao | Texto | Calorimetria | Sim | Identificar atividade | Sem risco direto |
+| série | Texto | 2º ano | Sim | Agregação por nível escolar | Sem risco direto |
+| simulação | Texto | Calorimetria | Sim | Identificar atividade | Sem risco direto |
 | topico_fisica | Texto | Termologia | Sim | Classificação pedagógica | Sem risco direto |
 | total_participantes | Inteiro | 32 | Sim | Medir adesão | Dado agregado |
 | total_concluintes | Inteiro | 27 | Sim | Medir conclusão | Dado agregado |
@@ -48,3 +48,4 @@ Este documento descreve, de forma padronizada, os campos que podem ser utilizado
 
 - Versão inicial: 1.0
 - Data: 29/06/2026
+

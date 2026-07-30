@@ -26,7 +26,7 @@
         'PCA - Educa��o Digital 3o ano B',
         'Sustentabilidade 2o ano C',
         'Outra',
-        'Nenhuma (Turma de Fisica)'
+        'Nenhuma (Turma de Física)'
     ];
     const DEFAULT_DATABASE = {
         bySheet: {},
@@ -300,7 +300,7 @@
         indicator.id = 'enhancerSaveIndicator';
         indicator.className = 'enhancer-save-indicator';
         indicator.setAttribute('aria-live', 'polite');
-        indicator.innerHTML = '<strong>Progresso salvo</strong><div>O ponto atual dos exercicios foi guardado.</div>';
+        indicator.innerHTML = '<strong>Progresso salvo</strong><div>O ponto atual dos exercícios foi guardado.</div>';
         document.body.appendChild(indicator);
     }
 
@@ -1387,7 +1387,7 @@
 
         const aiPreview = document.getElementById('enhancerAiPreview');
         if (aiPreview) {
-            aiPreview.innerHTML = '<h4>Avaliacao local da conclusao</h4><p class="enhancer-inline-note">Escreva a conclusao para ver a leitura automatizada.</p>';
+            aiPreview.innerHTML = '<h4>Avaliacao local da conclusão</h4><p class="enhancer-inline-note">Escreva a conclusão para ver a leitura automatizada.</p>';
         }
         lastAiAnalysis = null;
     }
@@ -1399,11 +1399,11 @@
         }
 
         if (!mainExerciseBtn.dataset.defaultLabel) {
-            mainExerciseBtn.dataset.defaultLabel = mainExerciseBtn.textContent.trim() || 'Iniciar Exercicios';
+            mainExerciseBtn.dataset.defaultLabel = mainExerciseBtn.textContent.trim() || 'Iniciar Exercícios';
         }
 
         const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
-        mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercicios' : mainExerciseBtn.dataset.defaultLabel;
+        mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : mainExerciseBtn.dataset.defaultLabel;
         mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
     }
 
@@ -1669,7 +1669,7 @@
         }
 
         const title = simulationName;
-        const description = Array.from(document.querySelectorAll('header p, .panel-title, .formula-box, .status-indicator, .measurement-label, .theory-section h3, .theory-content p'))
+        const description = Array.from(document.querySelectorAll('header p, .panel-title, .fórmula-box, .status-indicator, .measurement-label, .theory-section h3, .theory-content p'))
             .map(function (node) {
                 return node.textContent.replace(/\s+/g, ' ').trim();
             })
@@ -2483,7 +2483,7 @@
     }
 
     function getTopicReferenceTerms() {
-        const rawTexts = Array.from(document.querySelectorAll('h1, h2, h3, .formula-box, .theory-content p, .theory-content li, .measurement-label, .controls-panel label'))
+        const rawTexts = Array.from(document.querySelectorAll('h1, h2, h3, .fórmula-box, .theory-content p, .theory-content li, .measurement-label, .controls-panel label'))
             .map(function (node) {
                 return normalizeText(node.textContent);
             });
@@ -2565,7 +2565,7 @@
         }
 
         if (!trimmedText) {
-            previewCard.innerHTML = '<h4>Avaliacao local da conclusao</h4><p class="enhancer-inline-note">Escreva a conclusao para ver a leitura automatizada.</p>';
+            previewCard.innerHTML = '<h4>Avaliacao local da conclusão</h4><p class="enhancer-inline-note">Escreva a conclusão para ver a leitura automatizada.</p>';
             return null;
         }
 
@@ -2579,9 +2579,9 @@
         const finalScore = calculateCompositeSimulationScore(exercisePercentage, lastAiAnalysis.finalScore);
 
         previewCard.innerHTML = [
-            '<h4>Avaliacao local da conclusao</h4>',
+            '<h4>Avaliacao local da conclusão</h4>',
             '<div class="enhancer-ai-score">',
-            '<span>Conclusao: ' + lastAiAnalysis.finalScore.toFixed(1) + '/10</span>',
+            '<span>Conclusão: ' + lastAiAnalysis.finalScore.toFixed(1) + '/10</span>',
             '<span>Extensao: ' + lastAiAnalysis.lengthScore.toFixed(1) + '/10</span>',
             '<span>Coerencia tematica: ' + lastAiAnalysis.semanticsScore.toFixed(1) + '/10</span>',
             '<span>Aprendizagem evidenciada: ' + lastAiAnalysis.learningScore.toFixed(1) + '/10</span>',
@@ -2609,7 +2609,7 @@
             return explicitSheetName;
         }
 
-        if (studentTrail && !['Outra', 'Nenhuma (Turma de Fisica)'].includes(studentTrail) && studentSource.bySheet[studentTrail]) {
+        if (studentTrail && !['Outra', 'Nenhuma (Turma de Física)'].includes(studentTrail) && studentSource.bySheet[studentTrail]) {
             return studentTrail;
         }
 
@@ -2648,7 +2648,7 @@
             estudante: formData.studentName,
             estudanteDigitado: getManualStudentName(),
             sheetName: resolvedSheetName,
-            avaliacao: 'Simulacao - ' + simulationName,
+            avaliacao: 'Simulação - ' + simulationName,
             categoria: 'simulacao',
             atividade: simulationName,
             simulacao: simulationName,
@@ -3089,10 +3089,10 @@
                     const backupReason = rejectedResultsByKey.backup;
                     const ceanMessage = ceanReason && ceanReason.message
                         ? ceanReason.message
-                        : String(ceanReason || 'A planilha CEAN nao confirmou o recebimento deste envio.');
+                        : String(ceanReason || 'A planilha CEAN não confirmou o recebimento deste envio.');
                     const backupMessage = backupReason && backupReason.message
                         ? backupReason.message
-                        : String(backupReason || 'A planilha de seguranca nao confirmou o recebimento deste envio.');
+                        : String(backupReason || 'A planilha de seguranca não confirmou o recebimento deste envio.');
                     throw new Error('Falha no envio principal e no backup. CEAN: ' + ceanMessage + ' | Backup: ' + backupMessage);
                 }
 
@@ -3101,7 +3101,7 @@
                 }
 
                 if (studentEmailRequested && !studentEmailSucceeded) {
-                    warningMessages.push('Copia para o e-mail do aluno nao foi confirmada: ' + getFailureMessage(rejectedResultsByKey['student-email'], 'o servico pode estar temporariamente com limite de envios.'));
+                    warningMessages.push('Copia para o e-mail do aluno não foi confirmada: ' + getFailureMessage(rejectedResultsByKey['student-email'], 'o servico pode estar temporariamente com limite de envios.'));
                 }
 
                 if (emailStatus) {
@@ -3112,10 +3112,10 @@
                         : '';
                     if (ceanSucceeded) {
                         emailStatus.textContent = sentToBackup
-                            ? '✅ CEAN confirmou o recebimento.' + ceanLocation + ' Backup tambem enviado.'
+                            ? '✅ CEAN confirmou o recebimento.' + ceanLocation + ' Backup também enviado.'
                             : '✅ CEAN confirmou o recebimento.' + ceanLocation;
                     } else {
-                        emailStatus.textContent = '⚠ CEAN nao confirmou o envio nesta tentativa, mas a planilha de seguranca recebeu os dados.';
+                        emailStatus.textContent = '⚠ CEAN não confirmou o envio nesta tentativa, mas a planilha de seguranca recebeu os dados.';
                     }
 
                     if (warningMessages.length) {
@@ -3175,3 +3175,5 @@
             .replace(/'/g, '&#39;');
     }
 })();
+
+

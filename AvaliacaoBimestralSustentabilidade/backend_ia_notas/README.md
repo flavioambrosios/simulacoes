@@ -2,7 +2,7 @@
 
 Este módulo em Python faz quatro tarefas:
 
-1. Lê um CSV com as colunas estudante, turma, simulacao, nota, conclusao.
+1. Lê um CSV com as colunas estudante, turma, simulação, nota, conclusao.
 2. Usa heurísticas locais e uma API de IA para avaliar a conclusão.
 3. Salva tudo em banco SQLite e, se você quiser, também em um CSV de saída.
 4. Calcula média geral do aluno integrando nota da simulação e nota da conclusão.
@@ -14,7 +14,7 @@ Agora ele também inclui um módulo consolidado de notas bimestrais para avalia�
 Exemplo de cabeçalho:
 
 ```csv
-estudante,turma,simulacao,nota,conclusao
+estudante,turma,simulação,nota,conclusao
 Ana Silva,3o ano E,Espectrômetro de Massa,8.5,"Percebi que o aumento do campo magnético altera a trajetória..."
 ```
 
@@ -117,7 +117,7 @@ Use um CSV com pelo menos:
 ```csv
 categoria,atividade,bimestre,recuperacao,peso,nota_maxima,turma,origem
 avaliacao,Avaliação Bimestral - Educação Digital,1o bimestre,nao,2,10,3o ano E,manual
-experiencia,Experiência 1,1o bimestre,nao,1,10,3o ano E,manual
+experiência,Experiência 1,1o bimestre,nao,1,10,3o ano E,manual
 outra,Gincana,1o bimestre,nao,1,10,3o ano E,manual
 ```
 
@@ -132,7 +132,7 @@ python main.py gradebook-import-items .\componentes_bimestre.csv
 Use um CSV com pelo menos:
 
 ```csv
-estudante,turma,categoria,atividade,nota,bimestre,recuperacao,peso,nota_maxima,observacoes,origem
+estudante,turma,categoria,atividade,nota,bimestre,recuperacao,peso,nota_maxima,observações,origem
 ANA BEATRIZ DE OLIVEIRA DA SILVA,3o ano E,avaliacao,Avaliação Bimestral - Educação Digital,8.5,1o bimestre,nao,2,10,prova objetiva,manual
 ```
 
@@ -171,5 +171,6 @@ python main.py gradebook-student-summary "ANA BEATRIZ DE OLIVEIRA DA SILVA" --bi
 Esse resumo devolve:
 
 - média geral bimestral normalizada em escala 0-10;
-- médias por categoria, como avaliacao, simulacao, experiencia e outra;
+- médias por categoria, como avaliacao, simulação, experiência e outra;
 - quantidade de lançamentos usados no cálculo.
+

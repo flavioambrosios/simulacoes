@@ -1,11 +1,11 @@
-# Versao web do simulador
+# Versão web do simulador
 
 O arquivo principal para navegador e publicacao online e [app_web.py](app_web.py).
 
 ## O que mudou
 
 - O programa original em Matplotlib abria varias janelas do desktop.
-- Na web, essas janelas foram preservadas como abas da pagina: Simulador, Fourier Antes, Fourier Depois, Hilbert e Lab RGB.
+- Na web, essas janelas foram preservadas como abas da página: Simulador, Fourier Antes, Fourier Depois, Hilbert e Lab RGB.
 - Isso permite uso online sem depender de janelas nativas do sistema operacional.
 
 ## Como executar localmente
@@ -43,7 +43,7 @@ Start Command: gunicorn app_web:server
 
 ## Envio para a planilha Notas CEAN 2026
 
-O app agora pode registrar cada envio da aba Exercicios em uma planilha do Google Sheets.
+O app agora pode registrar cada envio da aba Exercícios em uma planilha do Google Sheets.
 
 ### O que o app envia
 
@@ -92,7 +92,7 @@ Ao clicar em Enviar resultados no app web, o sistema agora faz duas gravacoes au
 - adiciona o relatorio completo na aba app web resultados
 - atualiza a coluna Soma de Cores na aba da turma correspondente, dentro do bimestre selecionado
 
-Essa atualizacao da turma preserva as outras colunas da aba e nao apaga notas de outras simulacoes.
+Essa atualizacao da turma preserva as outras colunas da aba e nao apaga notas de outras simulações.
 
 ## Consolidar notas por turma
 
@@ -141,7 +141,7 @@ Se esta pasta ainda nao estiver conectada ao seu repositorio remoto no GitHub, v
 
 ```bash
 git add app_web.py requirements.txt Procfile runtime.txt .gitignore README_publicacao_web.md
-git commit -m "Adiciona versao web para publicacao online"
+git commit -m "Adiciona versão web para publicacao online"
 git push
 ```
 
@@ -183,3 +183,4 @@ Na raiz do repositorio agora existe o arquivo [render.yaml](../render.yaml). Em 
 
 - Um HTML estatico simples nao consegue manter a logica interativa completa deste simulador, porque a otimizacao e os calculos dependem de Python.
 - Por isso, a solucao correta para publicar online e uma aplicacao web interativa, nao apenas um arquivo .html isolado.
+

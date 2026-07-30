@@ -2,16 +2,16 @@
 <html lang="pt-br">
 <head>
     <!-- Metadados de autoria -->
-    <meta name="citation_title" content="Simulacao: Resistencia Eletrica">
+    <meta name="citation_title" content="Simulação: Resistência Elétrica">
     <meta name="citation_author" content="Flavio Ambrosio Campos">
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737876">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
-    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/Resistenca/">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/Resistenca/">
     <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
     <!-- Nota sobre o desenvolvimento:
-         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
-         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação: A Resistência Elétrica em um Fio</title>
@@ -117,7 +117,7 @@
             background: #1a2a6c;
             color: white;
         }
-        .formula-box {
+        .fórmula-box {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
@@ -575,7 +575,7 @@
             font-weight: bold;
         }
         
-        .theory-formula {
+        .theory-fórmula {
             text-align: center;
             font-family: 'Courier New', monospace;
             font-size: 1.2rem;
@@ -649,7 +649,7 @@
             <div class="controls-panel">
                 <h2 class="panel-title">Informações Teóricas</h2>
                 
-                <div class="formula-box">
+                <div class="fórmula-box">
                     <h3>Fórmula da Resistência</h3>
                     <p>R = ρ × L / A</p>
                     <p>Onde:</p>
@@ -888,7 +888,7 @@
                     <h3>Resistência Elétrica</h3>
                     <p>A resistência elétrica é uma propriedade dos materiais que mede a oposição à passagem de corrente elétrica. Em condutores, essa resistência depende das características físicas do material e de suas dimensões.</p>
                     
-                    <div class="theory-formula">R = ρ × L / A</div>
+                    <div class="theory-fórmula">R = ρ × L / A</div>
                     
                     <p>Onde:</p>
                     <ul>
@@ -1504,7 +1504,7 @@
                 let materialName = getMaterialName(resistivity);
                 exercises.push({
                     type: 'calcular_resistencia',
-                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(área * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
                     answer: formatScientific(resistance, 'Ω'),
                     options: generateOptions(resistance, 'Ω')
                 });
@@ -1517,7 +1517,7 @@
                 materialName = getMaterialName(resistivity);
                 exercises.push({
                     type: 'calcular_comprimento',
-                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(área * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
                     answer: formatScientific(length, 'm'),
                     options: generateOptions(length, 'm')
                 });
@@ -1548,7 +1548,7 @@
                 let materialName = getMaterialName(resistivity);
                 exercises[currentExercise] = {
                     type: 'calcular_resistencia',
-                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(area * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) tem ${length} m de comprimento e área transversal de ${(área * 1e6).toFixed(2)} mm². Qual é sua resistência?`,
                     answer: formatScientific(resistance, 'Ω'),
                     options: generateOptions(resistance, 'Ω')
                 };
@@ -1560,7 +1560,7 @@
                 let materialName = getMaterialName(resistivity);
                 exercises[currentExercise] = {
                     type: 'calcular_comprimento',
-                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(area * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
+                    question: `Um fio de ${materialName} (ρ = ${formatScientific(resistivity, 'Ω·m')}) com área transversal de ${(área * 1e6).toFixed(2)} mm² tem resistência de ${resistance} Ω. Qual é seu comprimento?`,
                     answer: formatScientific(length, 'm'),
                     options: generateOptions(length, 'm')
                 };
@@ -1960,11 +1960,14 @@
     </script>
     <script>
         window.SIMULATION_ENHANCER_CONFIG = {
-            simulationName: 'Resistencia Eletrica',
+            simulationName: 'Resistência Eletrica',
             storageKey: 'resistencia'
         };
     </script>
     <script src="../_shared/simulation-enhancer.js"></script>
-    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
+
+
+

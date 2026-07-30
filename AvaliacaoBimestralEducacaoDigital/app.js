@@ -486,7 +486,7 @@ function addStudentToRuntimeSource(profile) {
 
     const sheetName = resolveSheetName({ serie: profile.serie, turma: profile.turma, trilha: profile.trilha })
         || profile.trilha
-        || `${normalizeSerieForSheet(profile.serie)} ${profile.turma}`;
+        || `${normalizeSerieForSheet(profile.série)} ${profile.turma}`;
     const serieTurmaKey = `${profile.serie}|${profile.turma}`;
 
     STUDENT_SOURCE.bySheet[sheetName] = STUDENT_SOURCE.bySheet[sheetName] || [];
@@ -582,7 +582,7 @@ function updateStudentSummary() {
 
     const items = [
         { text: state.profile.nome, className: 'name-pill' },
-        { text: `Série: ${state.profile.serie}`, className: 'detail-pill' },
+        { text: `Série: ${state.profile.série}`, className: 'detail-pill' },
         { text: `Turma: ${state.profile.turma}`, className: 'detail-pill' },
         { text: `Bimestre: ${state.profile.bimestre}`, className: 'detail-pill' },
         { text: `Tipo: ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'}`, className: 'detail-pill' },
@@ -668,7 +668,7 @@ async function handleExamSubmit(event) {
 }
 
 function fillResultScreen() {
-    document.getElementById('result-student').textContent = `${state.profile.nome} · ${state.profile.serie} ${state.profile.turma} · ${state.profile.bimestre} · ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'} · ${state.profile.trilha}`;
+    document.getElementById('result-student').textContent = `${state.profile.nome} · ${state.profile.série} ${state.profile.turma} · ${state.profile.bimestre} · ${state.profile.isRecovery ? 'Recuperação' : 'Prova regular'} · ${state.profile.trilha}`;
     document.getElementById('result-score').textContent = state.result.score.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     document.getElementById('result-pairs').textContent = `${state.result.correctPairs}/${TOTAL_PAIRS}`;
     document.getElementById('result-individual').textContent = `${state.result.correctIndividuals}/${TOTAL_QUESTIONS}`;
@@ -707,12 +707,12 @@ async function sendResultToSheet() {
         respostas: state.result.answers
     };
 
-    const targetSheetLabel = state.profile.sheetName || `${normalizeSerieForSheet(state.profile.serie)} ${state.profile.turma}`;
+    const targetSheetLabel = state.profile.sheetName || `${normalizeSerieForSheet(state.profile.série)} ${state.profile.turma}`;
     showStatus(resultStatus, `Enviando resultado para a aba ${targetSheetLabel}, coluna ${targetColumn || state.profile.scoreHeader}...`, 'info');
 
     try {
         await postJsonNoCors(APPS_SCRIPT_URL, payload);
-        showStatus(resultStatus, `Envio disparado para a aba ${targetSheetLabel}, coluna ${targetColumn || state.profile.scoreHeader}. ${state.profile.email ? 'Tambem foi solicitada a confirmação por email.' : 'Sem email de confirmação, porque nenhum email foi informado.'}`, 'success');
+        showStatus(resultStatus, `Envio disparado para a aba ${targetSheetLabel}, coluna ${targetColumn || state.profile.scoreHeader}. ${state.profile.email ? 'Também foi solicitada a confirmação por email.' : 'Sem email de confirmação, porque nenhum email foi informado.'}`, 'success');
     } catch (error) {
         showStatus(resultStatus, `A nota foi calculada, mas o envio falhou: ${error.message}`, 'error');
     }
@@ -812,3 +812,4 @@ function shuffleArray(items) {
 
     return shuffled;
 }
+

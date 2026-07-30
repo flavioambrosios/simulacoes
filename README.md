@@ -157,7 +157,7 @@ Observação: a estrutura acima é resumida e destaca os componentes mais import
 <script>
 window.SIMULATION_ENHANCER_CONFIG = {
     simulationName: "Nome da Simulação",
-    storageKey: "nome-da-simulacao"
+    storageKey: "nome-da-simulação"
 };
 </script>
 <script src="../_shared/simulation-enhancer.js"></script>
@@ -346,3 +346,4 @@ AMBRÓSIO, Flávio. Simulações interativas de Física para o Ensino Médio. Ze
 2. Publicar protocolo de governança de dados e retenção.
 3. Estruturar rubrica pública para avaliação das respostas escritas.
 4. Consolidar desenho metodológico para submissão em programa de doutorado.
+

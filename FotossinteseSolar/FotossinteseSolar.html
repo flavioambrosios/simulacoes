@@ -126,7 +126,7 @@
             background: #1a2a6c;
             color: white;
         }
-        .formula-box {
+        .fórmula-box {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 8px;
@@ -475,7 +475,7 @@
             border-radius: 3px;
             font-weight: bold;
         }
-        .theory-formula {
+        .theory-fórmula {
             text-align: center;
             font-family: 'Courier New', monospace;
             font-size: 1.2rem;
@@ -652,15 +652,15 @@
                 <label>Absorção estimada:</label>
                 <div class="value-display" id="absorptionControl">90 %</div>
             </div>
-            <div class="formula-box">
+            <div class="fórmula-box">
                 <h3>Energia da radiação</h3>
                 <p>E = h · c / λ</p>
             </div>
-            <div class="formula-box">
+            <div class="fórmula-box">
                 <h3>Fotossíntese global</h3>
                 <p>6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</p>
             </div>
-            <div class="formula-box">
+            <div class="fórmula-box">
                 <h3>Energia química na glicose</h3>
                 <p>Energia ≈ n · 2803 kJ/mol</p>
             </div>
@@ -756,7 +756,7 @@
             <div class="theory-section">
                 <h3>Radiação solar e espectro eletromagnético</h3>
                 <p>A luz solar é uma radiação eletromagnética composta por diferentes comprimentos de onda. Na fotossíntese, a região mais importante é a faixa visível, aproximadamente entre 400 nm e 700 nm, chamada de radiação fotossinteticamente ativa.</p>
-                <div class="theory-formula">E = h · c / λ</div>
+                <div class="theory-fórmula">E = h · c / λ</div>
                 <p>Quanto menor o comprimento de onda, maior a energia transportada por cada fóton.</p>
                 <ul>
                     <li><span class="highlight">λ</span> representa o comprimento de onda.</li>
@@ -808,7 +808,7 @@
             <div class="theory-section">
                 <h3>Absorção da luz pelas plantas</h3>
                 <p>As plantas não absorvem todas as cores com a mesma eficiência. Pigmentos como a clorofila a, a clorofila b e os carotenoides apresentam curvas de absorção diferentes ao longo do espectro, e isso é exatamente o que orienta a resolução das questões sobre cor, pigmento e taxa fotossintética.</p>
-                <div class="theory-formula">Absorção depende do pigmento e do comprimento de onda</div>
+                <div class="theory-fórmula">Absorção depende do pigmento e do comprimento de onda</div>
                 <p>Quando a luz incide sobre a folha, uma parte é absorvida, outra pode ser refletida e outra pode atravessar o tecido. A parte absorvida é a que realmente transfere energia para o sistema fotossintético. Por isso, em uma questão, pensar em fotossíntese é pensar primeiro em <span class="highlight">quanto da luz foi absorvido</span>.</p>
                 <p>De modo geral, a faixa verde é menos absorvida, por isso muitas folhas parecem verdes. Já as regiões azul e vermelha costumam apresentar maior absorção, sobretudo quando predominam clorofilas.</p>
                 <ul>
@@ -830,13 +830,13 @@
             <div class="theory-section">
                 <h3>Da energia luminosa à glicose</h3>
                 <p>No cloroplasto, a energia da luz é usada para transferir elétrons, formar ATP e NADPH e, depois, fixar carbono no ciclo de Calvin. O resultado global é o armazenamento de energia química na molécula de glicose.</p>
-                <div class="theory-formula">6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</div>
+                <div class="theory-fórmula">6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</div>
                 <p>A glicose funciona como uma reserva energética e matéria-prima para muitos processos metabólicos.</p>
             </div>
             <div class="theory-section">
                 <h3>Alimento e biocombustíveis</h3>
                 <p>A energia química armazenada na glicose pode seguir muitos caminhos: sustentar o crescimento da planta, alimentar outros seres vivos ou ser convertida em biomassa usada na produção de etanol, biodiesel e outros biocombustíveis.</p>
-                <div class="theory-formula">1 mol de glicose ≈ 2803 kJ</div>
+                <div class="theory-fórmula">1 mol de glicose ≈ 2803 kJ</div>
                 <ul>
                     <li>Na cadeia alimentar, essa energia chega aos consumidores.</li>
                     <li>Na indústria, açúcares e biomassa podem ser fermentados ou processados.</li>
@@ -1010,7 +1010,7 @@
 
 function initSimulation() {
         canvas = document.getElementById('photosynthesisCanvas');
-        if (!canvas) { console.error('Canvas nao encontrado'); return; }
+        if (!canvas) { console.error('Canvas não encontrado'); return; }
         ctx = canvas.getContext('2d');
         
         resizeCanvas();
@@ -1878,7 +1878,7 @@ function initSimulation() {
         });
 
         document.getElementById('helpBtn').addEventListener('click', function() {
-            alert('Ajuste comprimento de onda, intensidade, CO2, agua e pigmento. Depois clique em Iniciar para observar o fluxo de fotons, a absorcao na folha e a formacao de glicose.');
+            alert('Ajuste comprimento de onda, intensidade, CO2, agua e pigmento. Depois clique em Iniciar para observar o fluxo de fótons, a absorção na folha e a formação de glicose.');
         });
     }
 
@@ -2148,7 +2148,7 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
             type: 'comparacao_taxa',
             question: `Qual cenário tende a produzir maior taxa fotossintética? Cenário A: ${scenarioA.lambda} nm, ${scenarioA.intensity} W/m², ${scenarioA.co2} ppm de CO₂, ${scenarioA.water}% de água e ${getPigmentLabel(scenarioA.pigment)}. Cenário B: ${scenarioB.lambda} nm, ${scenarioB.intensity} W/m², ${scenarioB.co2} ppm de CO₂, ${scenarioB.water}% de água e ${getPigmentLabel(scenarioB.pigment)}.`,
             answer: answer,
-            options: generateTextOptions(answer, ['Cenario A', 'Cenario B', 'Os dois cenarios produzem a mesma taxa'])
+            options: generateTextOptions(answer, ['Cenario A', 'Cenario B', 'Os dois cenários produzem a mesma taxa'])
         };
     }
 
@@ -2355,7 +2355,7 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
             serie: studentGrade,
             turma: studentClass,
             estudante: studentName,
-            simulacao: 'Fotossintese Solar',
+            simulacao: 'Fotossíntese Solar',
             questoes_puladas: skippedQuestions,
             acertos_erros: `${correct}/${total - correct}`,
             nota: percent + '%',
@@ -2485,10 +2485,12 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
 </script>
 <script>
     window.SIMULATION_ENHANCER_CONFIG = {
-        simulationName: 'Fotossintese Solar',
+        simulationName: 'Fotossíntese Solar',
         storageKey: 'fotossintese-solar'
     };
 </script>
 <script src="../_shared/simulation-enhancer.js"></script>
 </body>
 </html>
+
+

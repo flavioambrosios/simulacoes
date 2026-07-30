@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulacao de Diodo Emissor de Luz - LED e OLED</title>
+    <title>Simulação de Diodo Emissor de Luz - LED e OLED</title>
     <!-- Metadados de autoria -->
-    <meta name="citation_title" content="Simulacao: LED e OLED">
+    <meta name="citation_title" content="Simulação: LED e OLED">
     <meta name="citation_author" content="Flavio Ambrosio Campos">
     <meta name="citation_publication_date" content="2026">
     <meta name="citation_doi" content="10.5281/zenodo.20737876">
     <meta name="citation_publisher" content="GitHub Pages - CEAN">
-    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/LEDeOLED/">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/LEDeOLED/">
     <!-- Nota sobre o desenvolvimento:
-         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
-         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
 
     
     <style>
@@ -151,7 +151,7 @@
             background: #ffe199;
         }
 
-        .formula-box,
+        .fórmula-box,
         .legend,
         .measurement-panel,
         .theory-section,
@@ -161,7 +161,7 @@
             border-radius: 8px;
         }
 
-        .formula-box {
+        .fórmula-box {
             padding: 15px;
             margin: 15px 0;
             font-family: 'Courier New', monospace;
@@ -420,7 +420,7 @@
             font-weight: bold;
         }
 
-        .theory-formula,
+        .theory-fórmula,
         .solution-step {
             margin: 10px 0;
             padding: 10px;
@@ -485,13 +485,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulacao de Diodo Emissor de Luz - LED e OLED</h1>
+            <h1>Simulação de Diodo Emissor de Luz - LED e OLED</h1>
             <p class="subtitle">Prof. Flavio Ambrosio</p>
         </header>
 
         <div class="content">
             <div class="simulation-panel">
-                <h2 class="panel-title">Emissao de luz em dispositivos semicondutores</h2>
+                <h2 class="panel-title">Emissão de luz em dispositivos semicondutores</h2>
                 <div class="simulation-container">
                     <canvas id="deviceCanvas"></canvas>
                 </div>
@@ -516,14 +516,14 @@
                     </div>
                     <div class="legend-item">
                         <div class="legend-color light"></div>
-                        <span>Fotons emitidos</span>
+                        <span>Fótons emitidos</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color panel"></div>
                         <span>Camada emissora OLED</span>
                     </div>
                 </div>
-                <p class="canvas-hint">Clique nas cores do quadro de niveis de energia para mudar o salto quantico diretamente no desenho.</p>
+                <p class="canvas-hint">Clique nas cores do quadro de níveis de energia para mudar o salto quântico diretamente no desenho.</p>
             </div>
 
             <div class="controls-panel">
@@ -549,58 +549,58 @@
                 </div>
 
                 <div class="control-group">
-                    <label for="currentInput">Corrente eletrica:</label>
+                    <label for="currentInput">Corrente elétrica:</label>
                     <input type="range" id="currentInput" min="2" max="40" value="18" step="1">
                     <div class="value-display"><span id="currentValue">18</span> mA</div>
                 </div>
 
                 <div class="control-group">
-                    <label for="areaInput">Area emissora:</label>
+                    <label for="areaInput">Área emissora:</label>
                     <input type="range" id="areaInput" min="0.2" max="12.0" value="1.2" step="0.1">
                     <div class="value-display"><span id="areaValue">1.2</span> cm²</div>
                 </div>
 
                 <div class="control-group">
-                    <label for="efficiencyInput">Eficiencia luminosa relativa:</label>
+                    <label for="efficiencyInput">Eficiência luminosa relativa:</label>
                     <input type="range" id="efficiencyInput" min="15" max="95" value="62" step="1">
                     <div class="value-display"><span id="efficiencyValue">62</span> %</div>
                 </div>
 
-                <div class="formula-box">
-                    <h3>Relacoes principais</h3>
+                <div class="fórmula-box">
+                    <h3>Relações principais</h3>
                     <p>E = h . f</p>
                     <p>c = λ · f</p>
                     <p>E = h . c / λ</p>
                     <p>E(eV) ~= 1240 / λ(nm)</p>
                     <p>q . V ~= ΔE</p>
-                    <p>P eletrica = V . I</p>
-                    <p>Brilho relativo ~= corrente . eficiencia</p>
-                    <p>No LED, o salto quantico ocorre no semicondutor. No OLED, em materiais organicos excitados.</p>
+                    <p>P elétrica = V . I</p>
+                    <p>Brilho relativo ~= corrente . eficiência</p>
+                    <p>No LED, o salto quântico ocorre no semicondutor. No OLED, em materiais orgânicos excitados.</p>
                 </div>
 
                 <div class="exercise-buttons">
-                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercicios</button>
-                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercicios Resolvidos</button>
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
                     <button class="exercise-btn" id="theoryBtn">Teoria</button>
                 </div>
             </div>
 
             <div class="measurement-panel">
-                <h2 class="panel-title">Medicoes e Resultados</h2>
+                <h2 class="panel-title">Medições e Resultados</h2>
                 <div class="measurement-grid">
                     <div class="measurement-item"><div class="measurement-label">Tecnologia</div><div class="measurement-value" id="technologyDisplay">LED</div></div>
                     <div class="measurement-item"><div class="measurement-label">Cor</div><div class="measurement-value" id="colorDisplay">Vermelho</div></div>
                     <div class="measurement-item"><div class="measurement-label">Comprimento de onda</div><div class="measurement-value" id="wavelengthDisplay">650 nm</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Frequencia</div><div class="measurement-value" id="frequencyDisplay">461.2 THz</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Energia do foton</div><div class="measurement-value" id="photonEnergyDisplay">1.91 eV</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Salto quantico (ΔE)</div><div class="measurement-value" id="gapDisplay">1.91 eV</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Tensao direta estimada</div><div class="measurement-value" id="forwardVoltageDisplay">1.91 V</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Potencia eletrica</div><div class="measurement-value" id="electricalPowerDisplay">34.4 mW</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Taxa de fotons</div><div class="measurement-value" id="photonRateDisplay">6.97 x 10^16 /s</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Frequência</div><div class="measurement-value" id="frequencyDisplay">461.2 THz</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Energia do fóton</div><div class="measurement-value" id="photonEnergyDisplay">1.91 eV</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Salto quântico (ΔE)</div><div class="measurement-value" id="gapDisplay">1.91 eV</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Tensão direta estimada</div><div class="measurement-value" id="forwardVoltageDisplay">1.91 V</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Potência elétrica</div><div class="measurement-value" id="electricalPowerDisplay">34.4 mW</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Taxa de fótons</div><div class="measurement-value" id="photonRateDisplay">6.97 x 10^16 /s</div></div>
                     <div class="measurement-item"><div class="measurement-label">Brilho relativo</div><div class="measurement-value" id="brightnessDisplay">11.2 u.a.</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Tipo de emissao</div><div class="measurement-value" id="emissionDisplay">Focal e direcional</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Brilho por area</div><div class="measurement-value" id="densityDisplay">9.3 u.a./cm²</div></div>
-                    <div class="measurement-item"><div class="measurement-label">Aplicacao tipica</div><div class="measurement-value" id="applicationDisplay">Indicadores e lampadas</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Tipo de emissão</div><div class="measurement-value" id="emissionDisplay">Focal e direcional</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Brilho por área</div><div class="measurement-value" id="densityDisplay">9.3 u.a./cm²</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Aplicação típica</div><div class="measurement-value" id="applicationDisplay">Indicadores e lâmpadas</div></div>
                 </div>
             </div>
         </div>
@@ -609,7 +609,7 @@
     <div id="exercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios sobre LED e OLED</h2>
+                <h2>Exercícios sobre LED e OLED</h2>
                 <span class="close">&times;</span>
             </div>
 
@@ -618,14 +618,14 @@
             <div id="exerciseContainer"></div>
 
             <div id="conclusionContainer" style="display: none;">
-                <h3>Conclusao de estudo</h3>
-                <p>Escreva abaixo o que voce aprendeu sobre LED e OLED.</p>
-                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observacoes..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
-                <button id="submitConclusion" class="check-btn">Enviar Conclusao</button>
+                <h3>Conclusão de estudo</h3>
+                <p>Escreva abaixo o que você aprendeu sobre LED e OLED.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
             </div>
 
             <div id="resultsContainer" style="display:none;">
-                <h3>Resultados dos Exercicios</h3>
+                <h3>Resultados dos Exercícios</h3>
                 <div id="resultsSummary"></div>
 
                 <h3>Enviar Resultados</h3>
@@ -637,9 +637,9 @@
                         <input type="text" id="studentName" required>
                     </div>
                     <div class="form-row">
-                        <label for="studentGrade" class="required">Serie:</label>
+                        <label for="studentGrade" class="required">Série:</label>
                         <select id="studentGrade" required>
-                            <option value="">Selecione sua serie</option>
+                            <option value="">Selecione sua série</option>
                             <option value="1o ano">1o ano</option>
                             <option value="2o ano">2o ano</option>
                             <option value="3o ano">3o ano</option>
@@ -683,8 +683,8 @@
                         <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestao?"></textarea>
                     </div>
                     <div class="form-row">
-                        <label for="finalConclusion" class="required">Conclusao sobre o exercicio:</label>
-                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusao sobre a simulacao e os exercicios..."></textarea>
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
                     </div>
 
                     <div id="emailStatus" class="email-status"></div>
@@ -697,52 +697,52 @@
     <div id="solvedExercisesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Exercicios Resolvidos - LED e OLED</h2>
+                <h2>Exercícios Resolvidos - LED e OLED</h2>
                 <span class="close">&times;</span>
             </div>
 
             <div class="solved-exercise">
-                <h4>Exemplo 1: Energia do foton</h4>
-                <p><strong>Problema:</strong> Um LED azul emite luz com comprimento de onda de 470 nm. Qual e a energia aproximada de cada foton?</p>
-                <div class="solution-step"><strong>Formula:</strong> E(eV) ~= 1240 / λ(nm)</div>
-                <div class="solution-step"><strong>Calculo:</strong> E ~= 1240 / 470 ~= 2.64 eV</div>
-                <div class="solution-step"><strong>Conclusao:</strong> Como a energia e maior, a cor azul precisa de uma diferenca de energia maior do que a vermelha.</div>
+                <h4>Exemplo 1: Energia do fóton</h4>
+                <p><strong>Problema:</strong> Um LED azul emite luz com comprimento de onda de 470 nm. Qual é a energia aproximada de cada fóton?</p>
+                <div class="solution-step"><strong>Fórmula:</strong> E(eV) ~= 1240 / λ(nm)</div>
+                <div class="solution-step"><strong>Cálculo:</strong> E ~= 1240 / 470 ~= 2.64 eV</div>
+                <div class="solution-step"><strong>Conclusão:</strong> Como a energia é maior, a cor azul precisa de uma diferença de energia maior do que a vermelha.</div>
             </div>
 
             <div class="solved-exercise">
-                <h4>Exemplo 2: Potencia eletrica</h4>
-                <p><strong>Problema:</strong> Um LED opera com tensao de 2.0 V e corrente de 20 mA. Qual e a potencia eletrica?</p>
+                <h4>Exemplo 2: Potência elétrica</h4>
+                <p><strong>Problema:</strong> Um LED opera com tensão de 2.0 V e corrente de 20 mA. Qual é a potência elétrica?</p>
                 <div class="solution-step"><strong>Passo 1:</strong> Converter 20 mA para ampere: 0.020 A</div>
                 <div class="solution-step"><strong>Passo 2:</strong> P = V . I = 2.0 . 0.020 = 0.040 W</div>
-                <div class="solution-step"><strong>Resposta:</strong> A potencia eletrica e 40 mW.</div>
+                <div class="solution-step"><strong>Resposta:</strong> A potência elétrica e 40 mW.</div>
             </div>
 
             <div class="solved-exercise">
                 <h4>Exemplo 3: De onde vem E ~= 1240 / λ?</h4>
-                <p><strong>Problema:</strong> Justifique a formula pratica usada para calcular a energia do foton em eletron-volts.</p>
-                <div class="solution-step"><strong>Passo 1:</strong> Comecamos com E = h . f.</div>
-                <div class="solution-step"><strong>Passo 2:</strong> Como c = λ · f, entao f = c / λ.</div>
+                <p><strong>Problema:</strong> Justifique a fórmula prática usada para calcular a energia do fóton em elétron-volts.</p>
+                <div class="solution-step"><strong>Passo 1:</strong> Começamos com E = h . f.</div>
+                <div class="solution-step"><strong>Passo 2:</strong> Como c = λ · f, então f = c / λ.</div>
                 <div class="solution-step"><strong>Passo 3:</strong> Substituindo em E = h . f, obtemos E = h . c / λ.</div>
-                <div class="solution-step"><strong>Passo 4:</strong> Trocando joule por eV e metro por nm, surge a aproximacao E(eV) ~= 1240 / λ(nm).</div>
+                <div class="solution-step"><strong>Passo 4:</strong> Trocando joule por eV e metro por nm, surge a aproximação E(eV) ~= 1240 / λ(nm).</div>
             </div>
 
             <div class="solved-exercise">
-                <h4>Exemplo 4: Ligacao entre ddp e cor emitida</h4>
-                <p><strong>Problema:</strong> Se a diferenca de energia responsavel pela emissao for de 2.2 eV, qual comprimento de onda aproximado esperamos?</p>
-                <div class="solution-step"><strong>Ideia:</strong> No modelo simplificado do LED, q . V ~= ΔE e ΔE ~= E do foton.</div>
-                <div class="solution-step"><strong>Calculo:</strong> λ ~= 1240 / 2.2 ~= 564 nm.</div>
-                <div class="solution-step"><strong>Conclusao:</strong> Esse valor fica na regiao do amarelo-esverdeado, mostrando a ligacao entre salto quantico e cor emitida.</div>
+                <h4>Exemplo 4: Ligação entre ddp e cor emitida</h4>
+                <p><strong>Problema:</strong> Se a diferença de energia responsável pela emissão for de 2.2 eV, qual comprimento de onda aproximado esperamos?</p>
+                <div class="solution-step"><strong>Ideia:</strong> No modelo simplificado do LED, q . V ~= ΔE e ΔE ~= E do fóton.</div>
+                <div class="solution-step"><strong>Cálculo:</strong> λ ~= 1240 / 2.2 ~= 564 nm.</div>
+                <div class="solution-step"><strong>Conclusão:</strong> Esse valor fica na região do amarelo-esverdeado, mostrando a ligação entre salto quântico e cor emitida.</div>
             </div>
 
             
                 <div class="theory-section">
-                    <h3>Tabela de comprimento de onda, frequencia e cor</h3>
+                    <h3>Tabela de comprimento de onda, frequência e cor</h3>
                     <table style="width:100%; border-collapse: collapse; margin-top:10px; color: #e0fbfc; font-size: 14px;">
                         <thead>
                             <tr style="border-bottom: 2px solid #ffd166;">
                                 <th style="padding: 8px; text-align: center; color: #ffd166;">Cor</th>
                                 <th style="padding: 8px; text-align: center; color: #ffd166;">Comprimento de onda (nm)</th>
-                                <th style="padding: 8px; text-align: center; color: #ffd166;">Frequencia (THz)</th>
+                                <th style="padding: 8px; text-align: center; color: #ffd166;">Frequência (THz)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -796,91 +796,91 @@
 
             <div class="theory-content">
                 <div class="theory-section">
-                    <h3>O que e um LED?</h3>
-                    <p>LED significa <span class="highlight">diodo emissor de luz</span>. Ele e um componente eletronico que transforma parte da energia eletrica em luz. Em uma linguagem um pouco mais fisica, eletrons e lacunas se recombinam no material semicondutor e a diferenca de energia pode ser emitida na forma de fotons.</p>
+                    <h3>O que é um LED?</h3>
+                    <p>LED significa <span class="highlight">diodo emissor de luz</span>. Ele é um componente eletrônico que transforma parte da energia elétrica em luz. Em uma linguagem um pouco mais física, elétrons e lacunas se recombinam no material semicondutor e a diferença de energia pode ser emitida na forma de fótons.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Saltos quanticos e niveis de energia</h3>
-                    <p>A emissao luminosa pode ser interpretada como um <span class="highlight">salto quantico</span>. O sistema passa de um nivel de energia mais alto para outro mais baixo. A diferenca entre esses niveis e <span class="highlight">ΔE</span>, e essa energia aparece no foton emitido:</p>
-                    <div class="theory-formula">ΔE = E do foton = h . f</div>
-                    <p>No LED, essa diferenca esta ligada ao <span class="highlight">gap de energia</span> do semicondutor. No OLED, a ideia continua parecida, mas a emissao acontece em estados excitados de moleculas organicas.</p>
+                    <h3>Saltos quânticos e níveis de energia</h3>
+                    <p>A emissão luminosa pode ser interpretada como um <span class="highlight">salto quântico</span>. O sistema passa de um nível de energia mais alto para outro mais baixo. A diferença entre esses níveis e <span class="highlight">ΔE</span>, é essa energia aparece no fóton emitido:</p>
+                    <div class="theory-fórmula">ΔE = E do fóton = h . f</div>
+                    <p>No LED, essa diferença esta ligada ao <span class="highlight">gap de energia</span> do semicondutor. No OLED, a ideia continua parecida, mas a emissão acontece em estados excitados de moléculas organicas.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>De onde vem E(eV) ~= 1240 / λ(nm)?</h3>
-                    <p>Essa expressao nao surge do nada. Ela vem de duas relacoes fundamentais da fisica moderna:</p>
-                    <div class="theory-formula">E = h . f</div>
-                    <div class="theory-formula">c = λ · f</div>
-                    <p>Isolando a frequencia, obtemos <span class="highlight">f = c / λ</span>. Substituindo na expressao da energia:</p>
-                    <div class="theory-formula">E = h . c / λ</div>
-                    <p>Se usarmos <span class="highlight">h = 6.63 x 10^-34 J.s</span>, <span class="highlight">c = 3.0 x 10^8 m/s</span>, <span class="highlight">1 eV = 1.60 x 10^-19 J</span> e convertermos metro para nanometro, aparece a forma pratica:</p>
-                    <div class="theory-formula">E(eV) ~= 1240 / λ(nm)</div>
-                    <p>Por isso, quando o comprimento de onda diminui, a energia do foton aumenta. Assim, a luz azul transporta mais energia por foton do que a vermelha.</p>
+                    <p>Essa expressão não surge do nada. Ela vem de duas relações fundamentais da física moderna:</p>
+                    <div class="theory-fórmula">E = h . f</div>
+                    <div class="theory-fórmula">c = λ · f</div>
+                    <p>Isolando a frequência, obtemos <span class="highlight">f = c / λ</span>. Substituindo na expressão da energia:</p>
+                    <div class="theory-fórmula">E = h . c / λ</div>
+                    <p>Se usarmos <span class="highlight">h = 6.63 x 10^-34 J.s</span>, <span class="highlight">c = 3.0 x 10^8 m/s</span>, <span class="highlight">1 eV = 1.60 x 10^-19 J</span> e convertermos metro para nanometro, aparece a forma prática:</p>
+                    <div class="theory-fórmula">E(eV) ~= 1240 / λ(nm)</div>
+                    <p>Por isso, quando o comprimento de onda diminui, a energia do fóton aumenta. Assim, a luz azul transporta mais energia por fóton do que a vermelha.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Ligacao com a ddp aplicada</h3>
-                    <p>Quando uma carga elementar <span class="highlight">q</span> atravessa uma diferenca de potencial <span class="highlight">V</span>, a variacao de energia eletrica vale:</p>
-                    <div class="theory-formula">ΔE_eletrica = q . V</div>
-                    <p>No modelo simplificado do LED, essa energia pode ser associada ao salto quantico que gera o foton. Por isso usamos a aproximacao:</p>
-                    <div class="theory-formula">q . V ~= ΔE ~= h . f ~= h . c / λ</div>
-                    <p>Na pratica, nao e uma igualdade perfeita, porque parte da energia pode virar calor. Mesmo assim, essa relacao ajuda muito a estimar a cor emitida e a ordem de grandeza da tensao direta.</p>
+                    <h3>Ligação com a ddp aplicada</h3>
+                    <p>Quando uma carga elementar <span class="highlight">q</span> atravessa uma diferença de potencial <span class="highlight">V</span>, a variação de energia elétrica vale:</p>
+                    <div class="theory-fórmula">ΔE_eletrica = q . V</div>
+                    <p>No modelo simplificado do LED, essa energia pode ser associada ao salto quântico que gera o fóton. Por isso usamos a aproximação:</p>
+                    <div class="theory-fórmula">q . V ~= ΔE ~= h . f ~= h . c / λ</div>
+                    <p>Na prática, não e uma igualdade perfeita, porque parte da energia pode virar calor. Mesmo assim, essa relação ajuda muito a estimar a cor emitida e a ordem de grandeza da tensão direta.</p>
                 </div>
 
                 <div class="theory-section">
                     <h3>O que muda no OLED?</h3>
-                    <p>O OLED tambem emite luz por excitacao eletrica, mas usa materiais organicos em camadas muito finas. Em vez de um ponto luminoso pequeno, a emissao pode acontecer em uma <span class="highlight">area maior e mais uniforme</span>, o que favorece telas finas.</p>
+                    <p>O OLED também emite luz por excitação elétrica, mas usa materiais orgânicos em camadas muito finas. Em vez de um ponto luminoso pequeno, a emissão pode acontecer em uma <span class="highlight">área maior e mais uniforme</span>, o que favorece telas finas.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Conexao com o efeito fotoeletrico</h3>
-                    <p>No efeito fotoeletrico, a luz chega ao material e pode arrancar eletrons. Aqui acontece o processo inverso: a energia eletrica chega ao material e pode produzir luz. Nos dois casos, a ideia central do <span class="highlight">foton com energia E = h . f</span> continua a mesma.</p>
+                    <h3>Conexão com o efeito fotoelétrico</h3>
+                    <p>No efeito fotoelétrico, a luz chega ao material e pode arrancar elétrons. Aqui acontece o processo inverso: a energia elétrica chega ao material e pode produzir luz. Nos dois casos, a ideia central do <span class="highlight">fóton com energia E = h . f</span> continua a mesma.</p>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Equacoes uteis para esta atividade</h3>
+                    <h3>Equações úteis para esta atividade</h3>
                     <ul>
-                        <li><span class="highlight">Energia do foton:</span> E = h . f</li>
-                        <li><span class="highlight">Relacao ondulatoria:</span> c = λ · f</li>
-                        <li><span class="highlight">Forma pratica:</span> E(eV) ~= 1240 / λ(nm)</li>
-                        <li><span class="highlight">Energia eletrica por carga:</span> ΔE = q . V</li>
-                        <li><span class="highlight">Potencia eletrica:</span> P = V . I</li>
-                        <li><span class="highlight">Numero de fotons por segundo:</span> N ~= potencia luminosa / energia de cada foton</li>
+                        <li><span class="highlight">Energia do fóton:</span> E = h . f</li>
+                        <li><span class="highlight">Relação ondulatoria:</span> c = λ · f</li>
+                        <li><span class="highlight">Forma prática:</span> E(eV) ~= 1240 / λ(nm)</li>
+                        <li><span class="highlight">Energia elétrica por carga:</span> ΔE = q . V</li>
+                        <li><span class="highlight">Potência elétrica:</span> P = V . I</li>
+                        <li><span class="highlight">Número de fótons por segundo:</span> N ~= potência luminosa / energia de cada fóton</li>
                     </ul>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Diferencas que valem para o 3o ano</h3>
+                    <h3>Diferenças que valem para o 3o ano</h3>
                     <ul>
-                        <li><span class="highlight">LED:</span> pequeno, resistente, muito usado em lampadas, sinais e indicadores.</li>
+                        <li><span class="highlight">LED:</span> pequeno, resistente, muito usado em lâmpadas, sinais e indicadores.</li>
                         <li><span class="highlight">OLED:</span> camada luminosa espalhada, muito usado em telas modernas.</li>
-                        <li><span class="highlight">Corrente maior:</span> tende a aumentar o brilho, mas tambem aumenta o consumo e o aquecimento.</li>
-                        <li><span class="highlight">Maior ΔE:</span> significa fotons mais energeticos e, em geral, comprimentos de onda menores.</li>
-                        <li><span class="highlight">Area maior:</span> no OLED ajuda a espalhar a emissao por uma superficie maior.</li>
+                        <li><span class="highlight">Corrente maior:</span> tende a aumentar o brilho, mas também aumenta o consumo e o aquecimento.</li>
+                        <li><span class="highlight">Maior ΔE:</span> significa fótons mais energéticos e, em geral, comprimentos de onda menores.</li>
+                        <li><span class="highlight">Área maior:</span> no OLED ajuda a espalhar a emissão por uma superfície maior.</li>
                     </ul>
                 </div>
 
                 <div class="theory-section">
-                    <h3>Aplicacoes praticas</h3>
+                    <h3>Aplicações práticas</h3>
                     <ul>
-                        <li>indicadores luminosos e semaforos</li>
-                        <li>lampadas de alta eficiencia</li>
+                        <li>indicadores luminosos e semáforos</li>
+                        <li>lâmpadas de alta eficiência</li>
                         <li>telas de celulares, tablets e televisores</li>
-                        <li>paineis finos e projetos de design de iluminacao</li>
+                        <li>painéis finos e projetos de design de iluminação</li>
                     </ul>
                 </div>
             </div>
             
             <div class="theory-section">
-                <h3>Referencias Bibliograficas Sugeridas</h3>
+                <h3>Referências Bibliográficas Sugeridas</h3>
                 <ol style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
-                    <li>SOUZA, Maria Jose de; PIETROCOLA, Mauricio. <strong>Fisica moderna e contemporanea no ensino medio: uma experiencia com o efeito fotoeletrico e LEDs.</strong>
-                    Caderno Brasileiro de Ensino de Fisica, v. 29, n. 2, 2012.</li>
-                    <li>MACHADO, Kleber Daum. <strong>Semicondutores e dispositivos optoeletronicos: uma introducao ao funcionamento de LEDs.</strong>
-                    Editora Livraria da Fisica, 2018.</li>
-                    <li>CHAVES, Alaor. <strong>Fisica: Eletromagnetismo e Fisica Moderna.</strong>
-                    Rio de Janeiro: Reichmann & Affonso Editores, 2001. (Capitulo sobre semicondutores e emissao de luz)</li>
+                    <li>SOUZA, Maria José de; PIETROCOLA, Maurício. <strong>Física moderna e contemporânea no ensino médio: uma experiência com o efeito fotoelétrico e LEDs.</strong>
+                    Caderno Brasileiro de Ensino de Física, v. 29, n. 2, 2012.</li>
+                    <li>MACHADO, Kleber Daum. <strong>Semicondutores e dispositivos optoeletrônicos: uma introdução ao funcionamento de LEDs.</strong>
+                    Editora Livraria da Física, 2018.</li>
+                    <li>CHAVES, Alaor. <strong>Física: Eletromagnetismo e Física Moderna.</strong>
+                    Rio de Janeiro: Reichmann & Affonso Editores, 2001. (Capítulo sobre semicondutores e emissão de luz)</li>
                 </ol>
             </div>
             
@@ -1480,9 +1480,9 @@ function drawBackground() {
             const tagY = clamp(arrowMidY - tagHeight / 2, boxY + 48, boxY + boxHeight - tagHeight - 14);
             const glow = getDeviceColor();
             const colorName = colorMap[String(wavelength)].name;
-            const upperLabel = technology === 'led' ? 'Nivel alto: conducao' : 'Nivel alto: LUMO';
-            const lowerLabel = technology === 'led' ? 'Nivel baixo: valencia' : 'Nivel baixo: HOMO';
-            const diagramNote = technology === 'led' ? 'Gap do semicondutor' : 'Transicao molecular';
+            const upperLabel = technology === 'led' ? 'Nível alto: conducao' : 'Nível alto: LUMO';
+            const lowerLabel = technology === 'led' ? 'Nível baixo: valencia' : 'Nível baixo: HOMO';
+            const diagramNote = technology === 'led' ? 'Gap do semicondutor' : 'Transição molecular';
 
             energyDiagramRegions = [];
 
@@ -1496,7 +1496,7 @@ function drawBackground() {
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ffd166';
             ctx.font = 'bold 20px Arial';
-            ctx.fillText('Niveis de energia', boxX + 12, boxY + 22);
+            ctx.fillText('Níveis de energia', boxX + 12, boxY + 22);
             ctx.font = '11px Arial';
             ctx.fillStyle = '#e0fbfc';
             ctx.fillText(diagramNote, boxX + 12, boxY + 40);
@@ -1657,14 +1657,14 @@ function drawBackground() {
             ctx.fillStyle = '#e0fbfc';
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'center';
-            ctx.fillText(technology === 'led' ? 'LED: emissao em ponto pequeno' : 'OLED: emissao em camada espalhada', canvas.width / 2, 34);
+            ctx.fillText(technology === 'led' ? 'LED: emissão em ponto pequeno' : 'OLED: emissão em camada espalhada', canvas.width / 2, 34);
 
             ctx.font = '14px Arial';
             ctx.fillStyle = '#ffd166';
             ctx.fillText('Cor selecionada: ' + colorMap[String(wavelength)].name, canvas.width / 2, 58);
 
             ctx.fillStyle = '#cfd8dc';
-            ctx.fillText('Corrente = ' + currentmA.toFixed(0) + ' mA  |  Area = ' + areaCm2.toFixed(1) + ' cm²  |  ΔE = ' + quantumJumpEV.toFixed(2) + ' eV', canvas.width / 2, canvas.height - 18);
+            ctx.fillText('Corrente = ' + currentmA.toFixed(0) + ' mA  |  Área = ' + areaCm2.toFixed(1) + ' cm²  |  ΔE = ' + quantumJumpEV.toFixed(2) + ' eV', canvas.width / 2, canvas.height - 18);
         }
 
         function hexToRgba(hex, alpha) {
@@ -1719,7 +1719,7 @@ function drawBackground() {
             document.getElementById('brightnessDisplay').textContent = relativeBrightness.toFixed(1) + ' u.a.';
             document.getElementById('emissionDisplay').textContent = technology === 'led' ? 'Focal e direcional' : 'Difusa e superficial';
             document.getElementById('densityDisplay').textContent = brightnessDensity.toFixed(1) + ' u.a./cm²';
-            document.getElementById('applicationDisplay').textContent = technology === 'led' ? 'Indicadores e lampadas' : 'Telas e paineis finos';
+            document.getElementById('applicationDisplay').textContent = technology === 'led' ? 'Indicadores e lâmpadas' : 'Telas e painéis finos';
         }
 
         function resetSimulation() {
@@ -1797,7 +1797,7 @@ function drawBackground() {
             document.getElementById('resetBtn').addEventListener('click', resetSimulation);
 
             document.getElementById('helpBtn').addEventListener('click', function() {
-                alert('Como usar:\n\n• Escolha a tecnologia LED ou OLED.\n• Mude a cor emitida para comparar comprimento de onda, frequencia e energia do foton.\n• Clique nas cores do quadro de niveis de energia para trocar rapidamente o salto quantico.\n• Clique nos niveis ou na seta para destacar estado excitado, estado final e transicao.\n• Ajuste a corrente para observar o aumento do brilho e da potencia.\n• Ajuste a area emissora para perceber a diferenca entre ponto luminoso e painel emissor.\n• Use a eficiencia relativa para discutir que nem toda energia eletrica vira luz util.\n\nDica: compare um LED azul com um LED vermelho e relacione a mudanca de cor com ΔE.');
+                alert('Como usar:\n\n• Escolha a tecnologia LED ou OLED.\n• Mude a cor emitida para comparar comprimento de onda, frequência e energia do fóton.\n• Clique nas cores do quadro de níveis de energia para trocar rapidamente o salto quântico.\n• Clique nos níveis ou na seta para destacar estado excitado, estado final e transição.\n• Ajuste a corrente para observar o aumento do brilho e da potência.\n• Ajuste a área emissora para perceber a diferença entre ponto luminoso e painel emissor.\n• Use a eficiência relativa para discutir que nem toda energia elétrica vira luz útil.\n\nDica: compare um LED azul com um LED vermelho e relacione a mudanca de cor com ΔE.');
             });
 
             
@@ -1882,14 +1882,14 @@ canvas.addEventListener('click', handleCanvasClick);
             const sampleEnergy = sampleEnergyValue.toFixed(2);
             exercises.push({
                 type: 'energia',
-                question: 'Um dispositivo emite luz de ' + sampleLambda + ' nm. Qual e a energia aproximada do foton?',
+                question: 'Um dispositivo emite luz de ' + sampleLambda + ' nm. Qual é a energia aproximada do fóton?',
                 answer: sampleEnergy + ' eV',
                 options: shuffleArray([sampleEnergy + ' eV', (sampleEnergyValue * 0.8).toFixed(2) + ' eV', (sampleEnergyValue * 1.2).toFixed(2) + ' eV', (sampleEnergyValue + 1.5).toFixed(2) + ' eV'])
             });
 
             exercises.push({
                 type: 'derivacao',
-                question: 'Qual sequencia de equacoes leva corretamente a forma E = h . c / λ?',
+                question: 'Qual sequencia de equações leva corretamente a forma E = h . c / λ?',
                 answer: 'E = h . f e c = λ · f',
                 options: shuffleArray(['E = h . f e c = λ · f', 'P = V . I e F = q . v . B', 'V = R . I e Q = m . c . ΔT', 'F = m . a e c = lambda / f'])
             });
@@ -1900,27 +1900,27 @@ canvas.addEventListener('click', handleCanvasClick);
             const samplePower = samplePowerValue.toFixed(1);
             exercises.push({
                 type: 'potencia',
-                question: 'Se a tensao direta e ' + sampleVoltage + ' V e a corrente e ' + sampleCurrent + ' mA, qual e a potencia eletrica?',
+                question: 'Se a tensão direta e ' + sampleVoltage + ' V e a corrente e ' + sampleCurrent + ' mA, qual é a potência elétrica?',
                 answer: samplePower + ' mW',
                 options: shuffleArray([samplePower + ' mW', (samplePowerValue / 2).toFixed(1) + ' mW', (samplePowerValue * 2).toFixed(1) + ' mW', (samplePowerValue + 20).toFixed(1) + ' mW'])
             });
 
             exercises.push({
                 type: 'cor',
-                question: 'Qual cor, em geral, corresponde a fotons de maior energia?',
+                question: 'Qual cor, em geral, corresponde a fótons de maior energia?',
                 answer: 'Azul',
                 options: shuffleArray(['Azul', 'Vermelho', 'Laranja', 'Amarelo'])
             });
 
             exercises.push({
                 type: 'fotoeletrico',
-                question: 'Qual comparacao entre esta simulacao e o efeito fotoeletrico esta mais correta?',
-                answer: 'No fotoeletrico a luz fornece energia ao eletron; aqui a energia eletrica pode gerar fotons.',
+                question: 'Qual comparacao entre está simulação e o efeito fotoelétrico está mais correta?',
+                answer: 'No fotoelétrico a luz fornece energia ao elétron; aqui a energia elétrica pode gerar fótons.',
                 options: shuffleArray([
-                    'No fotoeletrico a luz fornece energia ao eletron; aqui a energia eletrica pode gerar fotons.',
-                    'Nos dois casos a corrente eletrica sempre desaparece completamente.',
-                    'No LED a luz arranca eletrons do metal exatamente como no fotoeletrico.',
-                    'Os dois fenomenos nao usam a ideia de foton.'
+                    'No fotoelétrico a luz fornece energia ao elétron; aqui a energia elétrica pode gerar fótons.',
+                    'Nos dois casos a corrente elétrica sempre desaparece completamente.',
+                    'No LED a luz arranca elétrons do metal exatamente como no fotoelétrico.',
+                    'Os dois fenomenos não usam a ideia de fóton.'
                 ])
             });
 
@@ -1929,14 +1929,14 @@ canvas.addEventListener('click', handleCanvasClick);
             const sampleGapColor = sampleGapLambda > 620 ? 'Vermelho' : sampleGapLambda > 585 ? 'Amarelo' : sampleGapLambda > 500 ? 'Verde' : 'Azul';
             exercises.push({
                 type: 'gap',
-                question: 'Se o salto quantico for de ' + sampleGap.toFixed(1) + ' eV, qual cor aproximada fica mais proxima da emissao esperada?',
+                question: 'Se o salto quântico for de ' + sampleGap.toFixed(1) + ' eV, qual cor aproximada fica mais próxima da emissão esperada?',
                 answer: sampleGapColor,
                 options: shuffleArray(['Vermelho', 'Amarelo', 'Verde', 'Azul'])
             });
 
             exercises.push({
                 type: 'area',
-                question: 'Qual tecnologia e mais apropriada para uma tela fina que brilha em uma area maior?',
+                question: 'Qual tecnologia é mais apropriada para uma tela fina que brilha em uma área maior?',
                 answer: 'OLED',
                 options: shuffleArray(['OLED', 'LED comum', 'Resistor', 'Bateria'])
             });
@@ -2044,7 +2044,7 @@ canvas.addEventListener('click', handleCanvasClick);
             document.getElementById('submitConclusion').addEventListener('click', function handler() {
                 const conclusionText = document.getElementById('conclusionText').value;
                 if (!conclusionText.trim()) {
-                    alert('Por favor, escreva uma conclusao antes de enviar.');
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
                     return;
                 }
                 document.getElementById('submitConclusion').removeEventListener('click', handler);
@@ -2060,7 +2060,7 @@ canvas.addEventListener('click', handleCanvasClick);
             const correctAnswers = exerciseResults.filter(function(result) { return result.correct; }).length;
             const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
 
-            document.getElementById('resultsSummary').innerHTML = '<p>Exercicios respondidos: ' + totalExercises + '</p><p>Respostas corretas: ' + correctAnswers + '</p><p>Exercicios pulados: ' + skippedQuestions + '</p><p>Nota: ' + scorePercentage + '%</p>';
+            document.getElementById('resultsSummary').innerHTML = '<p>Exercícios respondidos: ' + totalExercises + '</p><p>Respostas corretas: ' + correctAnswers + '</p><p>Exercícios pulados: ' + skippedQuestions + '</p><p>Nota: ' + scorePercentage + '%</p>';
             document.getElementById('finalConclusion').value = conclusion;
             document.getElementById('sendResults').addEventListener('click', sendResultsToSheet, { once: true });
         }
@@ -2134,16 +2134,16 @@ canvas.addEventListener('click', handleCanvasClick);
                 }
                 const emailDataAluno = {
                     to_email: studentEmail,
-                    nome_aluno: studentName || 'Nao informado',
-                    serie: studentGrade || 'Nao informado',
-                    turma: studentClass || 'Nao informado',
+                    nome_aluno: studentName || 'Não informado',
+                    serie: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
                     nota: scorePercentage + '%',
                     acertos: correctAnswers + '/' + totalExercises,
                     questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Nao informado',
+                    conclusao: finalConclusion || 'Não informado',
                     data_envio: new Date().toLocaleString('pt-BR'),
                     simulacao: 'LED e OLED',
-                    mensagem: 'Confirmacao de Envio - LED e OLED\n\nPrezado(a) ' + studentName + ',\n\nConfirmamos o recebimento dos seus resultados.\n\nNota: ' + scorePercentage + '%\nAcertos: ' + correctAnswers + ' de ' + totalExercises + ' questoes\nQuestoes puladas: ' + skippedQuestions + '\n\nAtenciosamente,\nSistema de Simulacoes Fisicas'
+                    mensagem: 'Confirmação de Envio - LED e OLED\n\nPrezado(a) ' + studentName + ',\n\nConfirmamos o recebimento dos seus resultados.\n\nNota: ' + scorePercentage + '%\nAcertos: ' + correctAnswers + ' de ' + totalExercises + ' questões\nQuestoes puladas: ' + skippedQuestions + '\n\nAtenciosamente,\nSistema de Simulações Fisicas'
                 };
                 return fetch(emailScriptUrl, {
                     method: 'POST',
@@ -2194,7 +2194,7 @@ canvas.addEventListener('click', handleCanvasClick);
             if (!studentNameLEDOLED) {
                 let promptedName = '';
                 try {
-                    promptedName = prompt('Qual e o seu nome? Vou usar isso nos audios da simulacao.');
+                    promptedName = prompt('Qual é o seu nome? Vou usar isso nos áudios da simulação.');
                 } catch (error) {
                     promptedName = '';
                 }
@@ -2206,36 +2206,36 @@ canvas.addEventListener('click', handleCanvasClick);
         const tracks = [
             function() {
                 ensureStudentNameLEDOLED();
-                return 'Ola, ' + studentNameLEDOLED + '. Esta simulacao compara LED e OLED com linguagem introdutoria. A ideia principal e observar como corrente, cor emitida, area emissora e eficiencia alteram o brilho e o tipo de emissao.';
+                return 'Olá, ' + studentNameLEDOLED + '. Esta simulação compara LED e OLED com linguagem introdutória. A ideia principal é observar como corrente, cor emitida, área emissora e eficiência alteram o brilho e o tipo de emissão.';
             },
             function() {
-                return 'No LED comum, a luz sai de uma regiao pequena. No quadro de niveis de energia, isso aparece como uma transicao entre dois estados do semicondutor. No OLED, a ideia do salto quantico continua, mas agora em materiais organicos excitados.';
+                return 'No LED comum, a luz sai de uma região pequena. No quadro de níveis de energia, isso aparece como uma transição entre dois estados do semicondutor. No OLED, a ideia do salto quântico continua, mas agora em materiais orgânicos excitados.';
             },
             function() {
-                return 'A cor emitida esta ligada ao comprimento de onda. Quando o comprimento de onda diminui, a energia do foton aumenta. Por isso, a luz azul carrega mais energia por foton do que a vermelha. Essa e a ideia resumida pela formula E igual a h c sobre lambda.';
+                return 'A cor emitida está ligada ao comprimento de onda. Quando o comprimento de onda diminui, a energia do fóton aumenta. Por isso, a luz azul carrega mais energia por fóton do que a vermelha. Essa e a ideia resumida pela fórmula E igual a h c sobre lambda.';
             },
             function() {
-                return 'A formula E igual a h f, junto com c igual a lambda f, leva a E igual a h c sobre lambda. Quando a energia esta em eletron-volts e o comprimento de onda em nanometros, aparece a forma pratica E aproximadamente igual a 1240 sobre lambda.';
+                return 'A fórmula E igual a h f, junto com c igual a lambda f, leva a E igual a h c sobre lambda. Quando a energia está em elétron-volts e o comprimento de onda em nanometros, aparece a forma prática E aproximadamente igual a 1240 sobre lambda.';
             },
             function() {
-                return 'A corrente eletrica influencia o brilho. Em geral, mais corrente significa mais emissao luminosa, mas tambem mais consumo e mais aquecimento do dispositivo. A potencia eletrica pode ser estimada por P igual a V vezes I.';
+                return 'A corrente elétrica influencia o brilho. Em geral, mais corrente significa mais emissão luminosa, mas também mais consumo e mais aquecimento do dispositivo. A potência elétrica pode ser estimada por P igual a V vezes I.';
             },
             function() {
-                return 'A eficiencia relativa foi colocada aqui como forma simples de discutir que nem toda energia eletrica vira luz visivel. Parte dessa energia pode aparecer em forma de calor, entao q vezes V nao se converte integralmente em luz util.';
+                return 'A eficiência relativa foi colocada aqui como forma simples de discutir que nem toda energia elétrica vira luz visível. Parte dessa energia pode aparecer em forma de calor, então q vezes V não se converte integralmente em luz útil.';
             },
             function() {
-                return 'Quando voce aumentar a area emissora em modo OLED, repare que a luz fica distribuida em uma superficie maior. Isso ajuda a explicar por que essa tecnologia e tao importante para telas.';
+                return 'Quando você aumentar a área emissora em modo OLED, repare que a luz fica distribuída em uma superfície maior. Isso ajuda a explicar por que essa tecnologia é tão importante para telas.';
             },
             function() {
-                return 'Depois da exploracao, use os exercicios para consolidar ideias centrais: energia do foton, origem da formula E igual a h c sobre λ, potencia eletrica, salto quantico e diferenca estrutural entre LED e OLED.';
+                return 'Depois da exploração, use os exercícios para consolidar ideias centrais: energia do fóton, origem da fórmula E igual a h c sobre λ, potência elétrica, salto quântico e diferença estrutural entre LED e OLED.';
             }
         ];
 
         const exampleNarrations = {
-            '1': 'O primeiro exemplo mostra como usar a relacao aproximada entre energia e comprimento de onda. O objetivo nao e memorizar uma conta, mas perceber que a cor da luz revela uma diferenca de energia.',
-            '2': 'O segundo exemplo usa potencia eletrica para ligar fisica moderna e eletronica basica. Essa conta ajuda o estudante a ver que o dispositivo consome energia mesmo quando o foco da atividade e a luz emitida.',
-            '3': 'O terceiro exemplo reconstrui a origem da formula E aproximadamente igual a 1240 sobre lambda. Isso ajuda a mostrar que a expressao pratica vem de E igual a h f e c igual a lambda f.',
-            '4': 'O quarto exemplo faz a ponte entre diferenca de potencial, salto quantico e cor emitida. Essa e a conexao mais importante entre o circuito eletrico e a fisica da luz nesta atividade.'
+            '1': 'O primeiro exemplo mostra como usar a relação aproximada entre energia é comprimento de onda. O objetivo não e memorizar uma conta, mas perceber que a cor da luz revela uma diferença de energia.',
+            '2': 'O segundo exemplo usa potência elétrica para ligar física moderna e eletrônica básica. Essa conta ajuda o estudante a ver que o dispositivo consome energia mesmo quando o foco da atividade é a luz emitida.',
+            '3': 'O terceiro exemplo reconstrói a origem da fórmula E aproximadamente igual a 1240 sobre lambda. Isso ajuda a mostrar que a expressão prática vem de E igual a h f e c igual a lambda f.',
+                '4': 'O quarto exemplo faz a ponte entre diferença de potencial, salto quântico e cor emitida. Essa é a conexão mais importante entre o circuito elétrico e a física da luz nesta atividade.'
         };
     </script>
     <script>
@@ -2245,6 +2245,11 @@ canvas.addEventListener('click', handleCanvasClick);
         };
     </script>
     <script src="../_shared/simulation-enhancer.js"></script>
-<footer style="text-align: center; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; color: #ccc; font-size: 0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color: #ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+<footer style="text-align: center; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; color: #ccc; font-size: 0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color: #ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
+
+
+
+
+

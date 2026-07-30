@@ -11,7 +11,7 @@
 No terminal, dentro da pasta do projeto:
 
 ```powershell
-cd "C:\Users\flavi\OneDrive\simulacoes\AvaliacaoBimestralEducacaoDigital"
+cd "C:\Users\flavi\OneDrive\simulações\AvaliacaoBimestralEducacaoDigital"
 git init
 git add .
 git commit -m "Atualiza avaliação bimestral"
@@ -28,7 +28,7 @@ git push -u origin main
 Se o repositório já existir:
 
 ```powershell
-cd "C:\Users\flavi\OneDrive\simulacoes\AvaliacaoBimestralEducacaoDigital"
+cd "C:\Users\flavi\OneDrive\simulações\AvaliacaoBimestralEducacaoDigital"
 git add .
 git commit -m "Atualiza avaliação bimestral"
 git push
@@ -119,3 +119,4 @@ Se você quiser eliminar a manutenção manual do alunos.js, o próximo ajuste i
 - trocar a lista estática de estudantes por uma lista dinâmica vinda do Apps Script.
 
 Isso deixará a avaliação online muito mais prática de manter.
+
