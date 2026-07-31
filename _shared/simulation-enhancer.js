@@ -2667,6 +2667,7 @@
             extensaoTexto: aiAnalysis.lengthScore,
             coerenciaSemantica: aiAnalysis.semanticsScore,
             significanciaAprendizagem: aiAnalysis.learningScore,
+            suppressStudentEmail: true,
             criticas: formData.criticism,
             sugestoes: formData.suggestion,
             email: formData.studentEmail || ''
@@ -2739,6 +2740,7 @@
             coerenciaSemantica: aiAnalysis.semanticsScore,
             significanciaAprendizagem: aiAnalysis.learningScore,
             analiseIa: aiAnalysis.feedback,
+            suppressStudentEmail: true,
             email: formData.studentEmail || ''
         };
     }
@@ -2869,6 +2871,10 @@
         });
     }
 
+    function normalizeEndpoint(url) {
+        return String(url || '').trim().replace(/\/+$/, '');
+    }
+
     function postEmailWithRetry(url, data, options) {
         const normalizedOptions = options || {};
         const maxAttempts = Math.max(1, Number(normalizedOptions.maxAttempts || 3));
@@ -2901,17 +2907,27 @@
         const normalizedOptions = options || {};
         const isVisitor = !!normalizedOptions.isVisitor;
         const jobs = [];
+        const primaryUrl = normalizeEndpoint(PRIMARY_GRADEBOOK_URL);
+        const termUrl = normalizeEndpoint(TERM_GRADEBOOK_URL);
+        const shouldUseTermAsPrimary = !isVisitor && !!termUrl && primaryUrl && primaryUrl === termUrl;
 
-        jobs.push({
-            key: 'cean',
-            promise: postJsonWithResponse(PRIMARY_GRADEBOOK_URL, unifiedPayload)
-        });
-
-        if (!isVisitor && TERM_GRADEBOOK_URL) {
+        if (shouldUseTermAsPrimary) {
             jobs.push({
                 key: 'term',
                 promise: postGradebookWithFallback(TERM_GRADEBOOK_URL, termPayload)
             });
+        } else {
+            jobs.push({
+                key: 'cean',
+                promise: postJsonWithResponse(PRIMARY_GRADEBOOK_URL, unifiedPayload)
+            });
+
+            if (!isVisitor && TERM_GRADEBOOK_URL) {
+                jobs.push({
+                    key: 'term',
+                    promise: postGradebookWithFallback(TERM_GRADEBOOK_URL, termPayload)
+                });
+            }
         }
 
         jobs.push({
@@ -3054,6 +3070,9 @@
                 const successfulResultsByKey = {};
                 const rejectedResultsByKey = {};
                 const warningMessages = [];
+                const dispatchedTargets = sendJobs.map(function (job) {
+                    return job.key;
+                });
 
                 function getFailureMessage(reason, fallbackMessage) {
                     if (reason && reason.message) {
@@ -3081,10 +3100,13 @@
                 const ceanSucceeded = successfulTargets.indexOf('cean') !== -1;
                 const backupSucceeded = successfulTargets.indexOf('backup') !== -1;
                 const termSucceeded = successfulTargets.indexOf('term') !== -1;
+                const ceanDispatched = dispatchedTargets.indexOf('cean') !== -1;
+                const termDispatched = dispatchedTargets.indexOf('term') !== -1;
+                const primaryGradebookSucceeded = ceanDispatched ? ceanSucceeded : termSucceeded;
                 const studentEmailRequested = !!studentEmailPayload;
                 const studentEmailSucceeded = successfulTargets.indexOf('student-email') !== -1;
 
-                if (!ceanSucceeded && !backupSucceeded) {
+                if (!primaryGradebookSucceeded && !backupSucceeded) {
                     const ceanReason = rejectedResultsByKey.cean;
                     const backupReason = rejectedResultsByKey.backup;
                     const ceanMessage = ceanReason && ceanReason.message
@@ -3096,7 +3118,7 @@
                     throw new Error('Falha no envio principal e no backup. CEAN: ' + ceanMessage + ' | Backup: ' + backupMessage);
                 }
 
-                if (!termSucceeded && rejectedResultsByKey.term) {
+                if (termDispatched && !termSucceeded && rejectedResultsByKey.term) {
                     warningMessages.push('Lançamento no diário trimestral não foi confirmado: ' + getFailureMessage(rejectedResultsByKey.term, 'tente novamente em instantes.'));
                 }
 
@@ -3110,10 +3132,14 @@
                     const ceanLocation = ceanResult.sheet && ceanResult.row
                         ? ' Aba ' + ceanResult.sheet + ', linha ' + ceanResult.row + '.'
                         : '';
-                    if (ceanSucceeded) {
+                    if (ceanDispatched && ceanSucceeded) {
                         emailStatus.textContent = sentToBackup
                             ? '✅ CEAN confirmou o recebimento.' + ceanLocation + ' Backup também enviado.'
                             : '✅ CEAN confirmou o recebimento.' + ceanLocation;
+                    } else if (!ceanDispatched && termSucceeded) {
+                        emailStatus.textContent = sentToBackup
+                            ? '✅ Lançamento bimestral confirmado. Backup também enviado.'
+                            : '✅ Lançamento bimestral confirmado.';
                     } else {
                         emailStatus.textContent = '⚠ CEAN não confirmou o envio nesta tentativa, mas a planilha de seguranca recebeu os dados.';
                     }
@@ -3121,7 +3147,7 @@
                     if (warningMessages.length) {
                         emailStatus.textContent += ' ⚠ ' + warningMessages.join(' ');
                         emailStatus.className = 'email-status warning-status';
-                    } else if (ceanSucceeded) {
+                    } else if ((ceanDispatched && ceanSucceeded) || (!ceanDispatched && termSucceeded)) {
                         emailStatus.className = 'email-status sent';
                     } else {
                         emailStatus.className = 'email-status warning-status';
