@@ -1,15 +1,49 @@
 const SPREADSHEET_ID = '1SgAsDYqCKlz2Kel0_dmbdMEf9pmCz2mDVQHJwV2kIZk';
 const HISTORY_SHEET_NAME = 'Historico Avaliacoes';
 const DEFAULT_SCORE_HEADER = 'prova';
-const SCRIPT_VERSION = '2026-05-04-a';
-const MODELO_ABA_NOME = '2o ano A';
+const SCRIPT_VERSION = '2026-05-11-b';
 const LINHA_CABECALHO = 1;
 const LINHA_INICIO_ALUNOS = 2;
 const SCHOOL_NAME = 'CEAN - Centro de Ensino Médio Asa Norte';
 const TEACHER_NAME = 'Prof. Flávio Ambrósio';
+const ACCESS_TOKEN_HASH = 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1';
+const MAX_ROSTER_NAMES_PER_RESPONSE = 80;
+const TERM_ORDER = ['1o', '2o', '3o', '4o'];
+const TERM_START_COLUMNS_PROPERTY = 'TERM_START_COLUMNS_MAP';
+const TERM_START_COLUMNS = {
+  '1o': 'J',
+  '2o': 'N',
+  '3o': 'R',
+  '4o': 'V'
+};
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'sheets') {
+    const accessToken = String(e.parameter.accessToken || '').trim().toLowerCase();
+    if (!accessToken || accessToken !== String(ACCESS_TOKEN_HASH).toLowerCase()) {
+      return jsonResponse({
+        status: 'error',
+        message: 'Nao autorizado. Use token valido para consultar as abas.'
+      });
+    }
+
+    return jsonResponse({
+      status: 'ok',
+      action: 'getAvailableSheets',
+      sheets: getAvailableStudentSheets(getManagedSpreadsheet()),
+      version: SCRIPT_VERSION
+    });
+  }
+
   if (e && e.parameter && e.parameter.action === 'students') {
+    const accessToken = String(e.parameter.accessToken || '').trim().toLowerCase();
+    if (!accessToken || accessToken !== String(ACCESS_TOKEN_HASH).toLowerCase()) {
+      return jsonResponse({
+        status: 'error',
+        message: 'Nao autorizado. Use doPost com action=getStudentNames e token valido.'
+      });
+    }
+
     return jsonResponse({
       status: 'ok',
       version: SCRIPT_VERSION,
@@ -22,15 +56,43 @@ function doGet(e) {
     message: 'Apps Script de notas ativo.',
     version: SCRIPT_VERSION,
     hasDoPost: true,
+    hasDoGet: true,
     spreadsheetId: SPREADSHEET_ID,
     historySheet: HISTORY_SHEET_NAME,
-    defaultScoreHeader: DEFAULT_SCORE_HEADER
+    defaultScoreHeader: DEFAULT_SCORE_HEADER,
+    termStartColumns: getTermStartColumnsMap()
   });
 }
 
 function doPost(e) {
   try {
     const payload = parsePayload(e);
+
+    if (payload.action === 'getAvailableSheets') {
+      validateAccessToken(payload.accessToken);
+
+      return jsonResponse({
+        status: 'ok',
+        action: 'getAvailableSheets',
+        sheets: getAvailableStudentSheets(getManagedSpreadsheet()),
+        version: SCRIPT_VERSION
+      });
+    }
+
+    if (payload.action === 'getStudentNames') {
+      validateAccessToken(payload.accessToken);
+
+      const spreadsheet = getManagedSpreadsheet();
+      const studentDatabase = buildStudentDatabase(spreadsheet);
+      const names = getFilteredStudentNames(studentDatabase, payload);
+
+      return jsonResponse({
+        status: 'ok',
+        action: 'getStudentNames',
+        names: names,
+        version: SCRIPT_VERSION
+      });
+    }
 
     if (payload.action === 'addStudent') {
       validateStudentPayload(payload);
@@ -59,7 +121,7 @@ function doPost(e) {
 
     const spreadsheet = getManagedSpreadsheet();
     const targetSheet = findTargetSheet(spreadsheet, payload);
-    const scoreColumn = findOrCreateColumn(targetSheet, payload.scoreHeader || DEFAULT_SCORE_HEADER);
+    const scoreColumn = resolveScoreColumn(targetSheet, payload);
     const studentRow = findOrCreateStudentRow(targetSheet, payload.estudante);
 
     targetSheet.getRange(studentRow, scoreColumn).setValue(payload.nota || 0);
@@ -74,7 +136,8 @@ function doPost(e) {
       recuperacao: payload.recuperacao ? 'sim' : 'nao',
       trilha: payload.trilha || '',
       sheetName: payload.sheetName || targetSheet.getName(),
-      scoreHeader: payload.scoreHeader || DEFAULT_SCORE_HEADER,
+      scoreHeader: buildScoreHeader(payload),
+      colunaDestino: columnToLetter(scoreColumn),
       estudante: payload.estudante || '',
       estudanteDigitado: payload.estudanteDigitado || '',
       nota: payload.nota || 0,
@@ -103,7 +166,6 @@ function doPost(e) {
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
   ui.createMenu('Notas CEAN')
-    .addItem('Aplicar formatação segura', 'aplicarFormatacaoSegura')
     .addItem('Adicionar estudante', 'adicionarEstudanteManualmente')
     .addItem('Testar envio de email', 'testarEnvioEmailDoSistema')
     .addItem('Verificar configuração do script', 'mostrarDiagnosticoDoScript')
@@ -208,77 +270,6 @@ function adicionarEstudanteManualmente() {
   ui.alert('Estudante registrado na aba ' + targetSheet.getName() + ', linha ' + studentRow + '.');
 }
 
-function aplicarFormatacaoSegura() {
-  try {
-    const planilha = getManagedSpreadsheet();
-    const abaModelo = planilha.getSheetByName(MODELO_ABA_NOME);
-
-    if (!abaModelo) {
-      SpreadsheetApp.getUi().alert('Aba modelo ' + MODELO_ABA_NOME + ' não encontrada.');
-      return;
-    }
-
-    const ultimaColunaModelo = abaModelo.getLastColumn();
-    const todasAbas = planilha.getSheets();
-    let abasAtualizadas = 0;
-    const abasIgnoradas = [];
-
-    for (let index = 0; index < todasAbas.length; index += 1) {
-      const aba = todasAbas[index];
-      const nomeAba = aba.getName();
-
-      if (nomeAba === MODELO_ABA_NOME) {
-        continue;
-      }
-
-      if (shouldSkipSheet(nomeAba)) {
-        abasIgnoradas.push(nomeAba);
-        continue;
-      }
-
-      for (let col = 1; col <= ultimaColunaModelo; col += 1) {
-        aba.setColumnWidth(col, abaModelo.getColumnWidth(col));
-      }
-
-      aba.setFrozenRows(abaModelo.getFrozenRows());
-
-      abaModelo.getRange(LINHA_CABECALHO, 1, 1, ultimaColunaModelo)
-        .copyTo(aba.getRange(LINHA_CABECALHO, 1, 1, ultimaColunaModelo), { contentsOnly: false, formatOnly: false });
-
-      const ultimaLinhaDestino = aba.getLastRow();
-      if (ultimaLinhaDestino >= LINHA_INICIO_ALUNOS) {
-        const numLinhasAlunos = ultimaLinhaDestino - LINHA_INICIO_ALUNOS + 1;
-        const ultimaLinhaModelo = abaModelo.getLastRow();
-        const numLinhasModelo = ultimaLinhaModelo - LINHA_INICIO_ALUNOS + 1;
-        const linhasParaCopiar = Math.min(numLinhasAlunos, numLinhasModelo);
-
-        if (linhasParaCopiar > 0) {
-          abaModelo.getRange(LINHA_INICIO_ALUNOS, 1, linhasParaCopiar, ultimaColunaModelo)
-            .copyTo(aba.getRange(LINHA_INICIO_ALUNOS, 1, linhasParaCopiar, ultimaColunaModelo), { formatOnly: true });
-        }
-
-        copyModelFormulas(abaModelo, aba, ultimaColunaModelo, ultimaLinhaDestino);
-      }
-
-      abasAtualizadas += 1;
-    }
-
-    let mensagem = 'Formatação aplicada com segurança.\n\n';
-    mensagem += abasAtualizadas + ' turmas formatadas.\n';
-    mensagem += 'Cabeçalho copiado com texto e formatação.\n';
-    mensagem += 'Dados dos alunos não foram alterados.\n';
-
-    if (abasIgnoradas.length) {
-      mensagem += '\nAbas ignoradas:\n' + abasIgnoradas.join('\n');
-    }
-
-    SpreadsheetApp.getUi().alert(mensagem);
-  } catch (error) {
-    SpreadsheetApp.getUi().alert('Erro: ' + error.message);
-    console.error(error);
-  }
-}
-
 function shouldSkipSheet(sheetName) {
   const normalized = normalizeText(sheetName);
   return normalized.includes('sheet') || normalized.includes('config') || normalized.includes('resumo') || normalized === normalizeText(HISTORY_SHEET_NAME);
@@ -321,6 +312,25 @@ function buildStudentDatabase(spreadsheet) {
   return database;
 }
 
+function getAvailableStudentSheets(spreadsheet) {
+  return spreadsheet.getSheets()
+    .map(function(sheet) {
+      return {
+        sheet: sheet,
+        name: sheet.getName()
+      };
+    })
+    .filter(function(entry) {
+      return !shouldSkipSheet(entry.name) && readStudentNamesFromSheet(entry.sheet).length > 0;
+    })
+    .map(function(entry) {
+      return entry.name;
+    })
+    .sort(function(first, second) {
+      return first.localeCompare(second, 'pt-BR');
+    });
+}
+
 function readStudentNamesFromSheet(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < LINHA_INICIO_ALUNOS) {
@@ -359,25 +369,6 @@ function mergeStudentLists(currentList, nextList) {
   return Array.from(merged).sort(function(first, second) {
     return first.localeCompare(second, 'pt-BR');
   });
-}
-
-function copyModelFormulas(abaModelo, abaDestino, ultimaColunaModelo, ultimaLinhaDestino) {
-  const formulasModelo = abaModelo.getRange(LINHA_INICIO_ALUNOS, 1, 1, ultimaColunaModelo).getFormulas()[0];
-
-  for (let linha = LINHA_INICIO_ALUNOS; linha <= ultimaLinhaDestino; linha += 1) {
-    for (let col = 0; col < formulasModelo.length; col += 1) {
-      const formula = formulasModelo[col];
-      if (!formula) {
-        continue;
-      }
-
-      const formulaAdaptada = formula.replace(/\d+/g, function(match) {
-        return String(parseInt(match, 10) - LINHA_INICIO_ALUNOS + linha);
-      });
-
-      abaDestino.getRange(linha, col + 1).setFormula(formulaAdaptada);
-    }
-  }
 }
 
 function parsePayload(e) {
@@ -443,6 +434,303 @@ function findOrCreateColumn(sheet, headerName) {
   return newColumn;
 }
 
+function resolveScoreColumn(sheet, payload) {
+  const requestedColumn = getRequestedColumnFromPayload(sheet, payload);
+  const scoreHeader = buildScoreHeader(payload);
+
+  if (!requestedColumn) {
+    return findOrCreateColumn(sheet, scoreHeader);
+  }
+
+  if (!shouldUseColumnBlock(payload)) {
+    return ensureFixedColumn(sheet, requestedColumn, scoreHeader);
+  }
+
+  return findOrCreateColumnInRequestedBlock(sheet, requestedColumn, scoreHeader, payload.bimestre || '');
+}
+
+function getRequestedColumnFromPayload(sheet, payload) {
+  const normalizedTerm = normalizeTermKey(payload.bimestre);
+  if (normalizedTerm) {
+    const headerColumns = getTermStartColumnsFromSheet(sheet);
+    if (headerColumns[normalizedTerm]) {
+      return String(headerColumns[normalizedTerm]).trim().toUpperCase();
+    }
+  }
+
+  const explicitColumn = String(payload.coluna || payload.colunaBimestre || '').trim().toUpperCase();
+  if (explicitColumn) {
+    return explicitColumn;
+  }
+
+  return String(TERM_START_COLUMNS[normalizedTerm] || '').trim().toUpperCase();
+}
+
+function shouldUseColumnBlock(payload) {
+  return payload.categoria === 'nota-bimestral'
+    || payload.acao === 'acumular_nota_bimestral'
+    || !!String(payload.simulacao || '').trim();
+}
+
+function normalizeTermKey(value) {
+  const normalized = normalizeText(value)
+    .replace(/bimestre/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.startsWith('1')) return '1o';
+  if (normalized.startsWith('2')) return '2o';
+  if (normalized.startsWith('3')) return '3o';
+  if (normalized.startsWith('4')) return '4o';
+  if (normalized.startsWith('primeir')) return '1o';
+  if (normalized.startsWith('segund')) return '2o';
+  if (normalized.startsWith('terceir')) return '3o';
+  if (normalized.startsWith('quart')) return '4o';
+
+  return normalized;
+}
+
+function buildScoreHeader(payload) {
+  const explicitHeader = String(payload.scoreHeader || '').trim();
+  const normalizedExplicitHeader = normalizeText(explicitHeader);
+
+  if (payload.simulacao) {
+    return String(payload.simulacao).trim();
+  }
+
+  if (payload.atividade && payload.categoria === 'nota-bimestral') {
+    return String(payload.atividade).trim();
+  }
+
+  if (explicitHeader && normalizedExplicitHeader !== normalizeText(DEFAULT_SCORE_HEADER)) {
+    return explicitHeader;
+  }
+
+  return explicitHeader || DEFAULT_SCORE_HEADER;
+}
+
+function findOrCreateColumnInRequestedBlock(sheet, requestedColumnLetter, headerName, schoolTerm) {
+  const normalizedSchoolTerm = normalizeTermKey(schoolTerm);
+  const headerColumns = getTermStartColumnsFromSheet(sheet);
+
+  if (normalizedSchoolTerm && !headerColumns[normalizedSchoolTerm]) {
+    throw new Error(
+      'Nao encontrei o marcador do ' + normalizedSchoolTerm + ' bimestre na linha 1 da aba ' + sheet.getName() +
+      '. Use um cabecalho como "1o bimestre", "2o bimestre", "3o bimestre" ou "4o bimestre".'
+    );
+  }
+
+  const resolvedColumnLetter = headerColumns[normalizedSchoolTerm] || requestedColumnLetter;
+  const targetColumn = columnLetterToNumber(resolvedColumnLetter);
+  if (!targetColumn) {
+    throw new Error('Coluna de destino inválida: ' + resolvedColumnLetter);
+  }
+
+  ensureColumnExists(sheet, targetColumn);
+
+  const nextProtectedColumn = getNextProtectedColumn(targetColumn, sheet, normalizedSchoolTerm);
+  const blockEnd = nextProtectedColumn ? nextProtectedColumn - 1 : Math.max(sheet.getLastColumn(), targetColumn);
+  ensureColumnExists(sheet, blockEnd);
+
+  const lastColumn = Math.max(sheet.getLastColumn(), blockEnd);
+  const headers = sheet.getRange(LINHA_CABECALHO, 1, 1, lastColumn).getDisplayValues()[0];
+  const normalizedHeader = normalizeText(headerName);
+  let rightmostUsedInBlock = 0;
+
+  for (let column = targetColumn; column <= blockEnd; column += 1) {
+    const headerValue = String(headers[column - 1] || '').trim();
+    if (normalizeText(headerValue) === normalizedHeader) {
+      return column;
+    }
+    if (headerValue) {
+      rightmostUsedInBlock = column;
+    }
+  }
+
+  if (!rightmostUsedInBlock) {
+    sheet.getRange(LINHA_CABECALHO, targetColumn).setValue(headerName);
+    return targetColumn;
+  }
+
+  const nextColumnInBlock = rightmostUsedInBlock + 1;
+
+  if (!nextProtectedColumn || nextColumnInBlock < nextProtectedColumn) {
+    ensureColumnExists(sheet, nextColumnInBlock);
+    sheet.getRange(LINHA_CABECALHO, nextColumnInBlock).setValue(headerName);
+    if (nextColumnInBlock !== targetColumn) {
+      copyColumnFormatting(sheet, rightmostUsedInBlock, nextColumnInBlock);
+    }
+    return nextColumnInBlock;
+  }
+
+  if (!schoolTerm) {
+    throw new Error('Não foi possível expandir o bloco iniciado em ' + resolvedColumnLetter + ' sem informar o bimestre.');
+  }
+
+  const insertedColumn = insertSimulationColumnAcrossManagedSheets(nextProtectedColumn, normalizedSchoolTerm, headerName);
+  return insertedColumn;
+}
+
+function ensureFixedColumn(sheet, requestedColumnLetter, headerName) {
+  const targetColumn = columnLetterToNumber(requestedColumnLetter);
+  if (!targetColumn) {
+    throw new Error('Coluna de destino inválida: ' + requestedColumnLetter);
+  }
+
+  ensureColumnExists(sheet, targetColumn);
+
+  if (!String(sheet.getRange(LINHA_CABECALHO, targetColumn).getDisplayValue() || '').trim() && headerName) {
+    sheet.getRange(LINHA_CABECALHO, targetColumn).setValue(headerName);
+  }
+
+  return targetColumn;
+}
+
+function getNextProtectedColumn(currentColumn, sheet, currentTerm) {
+  if (sheet && currentTerm) {
+    const headerColumns = getTermStartColumnsFromSheet(sheet);
+    const currentIndex = TERM_ORDER.indexOf(currentTerm);
+
+    if (currentIndex !== -1) {
+      for (let index = currentIndex + 1; index < TERM_ORDER.length; index += 1) {
+        const termKey = TERM_ORDER[index];
+        if (headerColumns[termKey]) {
+          return columnLetterToNumber(headerColumns[termKey]);
+        }
+      }
+    }
+
+    return null;
+  }
+
+  const dynamicColumns = getTermStartColumnsMap();
+  const protectedLetters = TERM_ORDER.map(function(termKey) {
+    return dynamicColumns[termKey] || TERM_START_COLUMNS[termKey] || '';
+  }).filter(Boolean);
+
+  for (let index = 0; index < protectedLetters.length; index += 1) {
+    const protectedColumn = columnLetterToNumber(protectedLetters[index]);
+    if (protectedColumn > currentColumn) {
+      return protectedColumn;
+    }
+  }
+
+  return null;
+}
+
+function ensureColumnExists(sheet, columnNumber) {
+  const maxColumns = sheet.getMaxColumns();
+  if (columnNumber <= maxColumns) {
+    return;
+  }
+
+  sheet.insertColumnsAfter(maxColumns, columnNumber - maxColumns);
+}
+
+function copyColumnFormatting(sheet, sourceColumn, targetColumn) {
+  const totalRows = Math.max(sheet.getMaxRows(), LINHA_INICIO_ALUNOS);
+  sheet.getRange(1, sourceColumn, totalRows, 1)
+    .copyTo(sheet.getRange(1, targetColumn, totalRows, 1), { formatOnly: true });
+  sheet.setColumnWidth(targetColumn, sheet.getColumnWidth(sourceColumn));
+}
+
+function getTermStartColumnsMap() {
+  const storedValue = PropertiesService.getScriptProperties().getProperty(TERM_START_COLUMNS_PROPERTY);
+  if (!storedValue) {
+    return Object.assign({}, TERM_START_COLUMNS);
+  }
+
+  try {
+    const parsed = JSON.parse(storedValue);
+    return Object.assign({}, TERM_START_COLUMNS, parsed || {});
+  } catch (error) {
+    return Object.assign({}, TERM_START_COLUMNS);
+  }
+}
+
+function saveTermStartColumnsMap(termStartColumns) {
+  PropertiesService.getScriptProperties().setProperty(
+    TERM_START_COLUMNS_PROPERTY,
+    JSON.stringify(termStartColumns)
+  );
+}
+
+function insertSimulationColumnAcrossManagedSheets(insertionColumn, schoolTerm, headerName) {
+  const spreadsheet = getManagedSpreadsheet();
+  const sheets = spreadsheet.getSheets();
+
+  if (!insertionColumn || insertionColumn <= 0) {
+    throw new Error('Não foi possível calcular a coluna de inserção para a nova simulação.');
+  }
+
+  for (let index = 0; index < sheets.length; index += 1) {
+    const sheet = sheets[index];
+    if (shouldSkipSheet(sheet.getName())) {
+      continue;
+    }
+
+    const lastExistingColumn = Math.max(sheet.getMaxColumns(), 1);
+    const sourceColumn = Math.max(Math.min(insertionColumn - 1, lastExistingColumn), 1);
+
+    if (insertionColumn > lastExistingColumn) {
+      sheet.insertColumnAfter(lastExistingColumn);
+    } else {
+      sheet.insertColumnBefore(insertionColumn);
+    }
+
+    copyColumnFormatting(sheet, sourceColumn, insertionColumn);
+    sheet.getRange(LINHA_CABECALHO, insertionColumn).setValue(headerName);
+  }
+
+  const dynamicColumns = getTermStartColumnsMap();
+  const currentIndex = TERM_ORDER.indexOf(String(schoolTerm || '').trim());
+
+  if (currentIndex !== -1) {
+    for (let index = currentIndex + 1; index < TERM_ORDER.length; index += 1) {
+      const termKey = TERM_ORDER[index];
+      const currentLetter = dynamicColumns[termKey] || TERM_START_COLUMNS[termKey];
+      dynamicColumns[termKey] = columnToLetter(columnLetterToNumber(currentLetter) + 1);
+    }
+    saveTermStartColumnsMap(dynamicColumns);
+  }
+
+  return insertionColumn;
+}
+
+function columnLetterToNumber(columnLetter) {
+  const normalized = String(columnLetter || '').trim().toUpperCase();
+  if (!/^[A-Z]+$/.test(normalized)) {
+    return 0;
+  }
+
+  let result = 0;
+  for (let index = 0; index < normalized.length; index += 1) {
+    result = result * 26 + (normalized.charCodeAt(index) - 64);
+  }
+
+  return result;
+}
+
+function columnToLetter(columnNumber) {
+  let number = Number(columnNumber) || 0;
+  if (number <= 0) {
+    return '';
+  }
+
+  let result = '';
+  while (number > 0) {
+    const remainder = (number - 1) % 26;
+    result = String.fromCharCode(65 + remainder) + result;
+    number = Math.floor((number - 1) / 26);
+  }
+
+  return result;
+}
+
 function findOrCreateStudentRow(sheet, studentName) {
   const lastRow = Math.max(sheet.getLastRow(), 2);
   const names = sheet.getRange(2, 2, Math.max(lastRow - 1, 1), 1).getDisplayValues().flat();
@@ -481,7 +769,7 @@ function appendHistory(spreadsheet, data) {
     data.recuperacao || 'nao',
     data.trilha || '',
     data.sheetName || '',
-    data.scoreHeader || '',
+    data.colunaDestino || data.scoreHeader || '',
     data.estudante || '',
     data.estudanteDigitado || '',
     data.nota || '',
@@ -595,4 +883,102 @@ function jsonResponse(data) {
   return ContentService
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function validateAccessToken(accessToken) {
+  const normalized = String(accessToken || '').trim().toLowerCase();
+  if (!normalized || normalized !== String(ACCESS_TOKEN_HASH).toLowerCase()) {
+    throw new Error('Nao autorizado. Token de acesso invalido.');
+  }
+}
+
+function getFilteredStudentNames(studentDatabase, payload) {
+  const requestedSheetName = String(payload.sheetName || '').trim();
+  const serie = String(payload.serie || '').replace('º', 'o').trim();
+  const turma = String(payload.turma || '').trim().toUpperCase();
+  const trilha = String(payload.trilha || '').trim();
+
+  const names = new Set();
+  const preferredSheet = requestedSheetName || resolvePreferredSheetName(serie, turma, trilha);
+  const serieTurmaKey = serie && turma ? `${serie}|${turma}` : '';
+
+  if (preferredSheet && studentDatabase.bySheet[preferredSheet]) {
+    studentDatabase.bySheet[preferredSheet].forEach(function(name) { names.add(name); });
+  }
+
+  if (serieTurmaKey && studentDatabase.bySerieTurma[serieTurmaKey]) {
+    studentDatabase.bySerieTurma[serieTurmaKey].forEach(function(name) { names.add(name); });
+  }
+
+  if (trilha && studentDatabase.byTrilha[trilha]) {
+    studentDatabase.byTrilha[trilha].forEach(function(name) { names.add(name); });
+  }
+
+  return Array.from(names)
+    .filter(function(name) { return !!String(name || '').trim(); })
+    .sort(function(first, second) { return first.localeCompare(second, 'pt-BR'); })
+    .slice(0, MAX_ROSTER_NAMES_PER_RESPONSE);
+}
+
+function resolvePreferredSheetName(serie, turma, trilha) {
+  if (trilha && trilha !== 'Outra' && trilha !== 'Nenhuma (Turma de Fisica)' && trilha !== 'Visitante') {
+    return trilha;
+  }
+
+  if (!serie || !turma || serie === 'Visitante' || turma === 'Visitante') {
+    return '';
+  }
+
+  return `${serie} ${turma}`;
+}
+function debugSpreadsheet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  Logger.log('ID: ' + ss.getId());
+  Logger.log('Nome: ' + ss.getName());
+  Logger.log('URL: ' + ss.getUrl());
+}
+
+function getTermStartColumnsFromSheet(sheet) {
+  const result = {};
+  const lastColumn = Math.max(sheet.getLastColumn(), 1);
+  const headers = sheet.getRange(LINHA_CABECALHO, 1, 1, lastColumn).getDisplayValues()[0];
+
+  for (let column = 1; column <= headers.length; column += 1) {
+    const termKey = detectTermHeaderKey(headers[column - 1]);
+    if (!termKey || TERM_ORDER.indexOf(termKey) === -1 || result[termKey]) {
+      continue;
+    }
+
+    result[termKey] = columnToLetter(column);
+  }
+
+  return result;
+}
+
+function detectTermHeaderKey(headerValue) {
+  const compact = normalizeText(headerValue)
+    .replace(/[º°]/g, 'o')
+    .replace(/\s+/g, '');
+
+  if (!compact) {
+    return '';
+  }
+
+  if (compact === '1obimestre' || compact === '1bimestre' || compact === '1o' || compact === 'primeirobimestre' || compact === 'primeiro') {
+    return '1o';
+  }
+
+  if (compact === '2obimestre' || compact === '2bimestre' || compact === '2o' || compact === 'segundobimestre' || compact === 'segundo') {
+    return '2o';
+  }
+
+  if (compact === '3obimestre' || compact === '3bimestre' || compact === '3o' || compact === 'terceirobimestre' || compact === 'terceiro') {
+    return '3o';
+  }
+
+  if (compact === '4obimestre' || compact === '4bimestre' || compact === '4o' || compact === 'quartobimestre' || compact === 'quarto') {
+    return '4o';
+  }
+
+  return '';
 }
