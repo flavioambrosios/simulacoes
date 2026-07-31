@@ -2695,6 +2695,7 @@
             analise_ia: aiAnalysis.feedback,
             criticas: formData.criticism,
             sugestoes: formData.suggestion,
+            suppressStudentEmail: true,
             email: formData.studentEmail || '',
             to_email: TEACHER_EMAIL,
             nome_aluno: formData.studentName,
