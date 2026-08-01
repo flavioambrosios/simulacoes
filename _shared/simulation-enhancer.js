@@ -2939,11 +2939,8 @@
         if (studentEmailPayload) {
             const studentEmailPromise = waitMs(randomInt(350, 1200))
                 .then(function () {
-                    return postEmailWithRetry(EMAIL_SCRIPT_URL, studentEmailPayload, {
-                        maxAttempts: 3,
-                        baseDelayMs: 1200,
-                        jitterMs: 800,
-                        initialJitterMs: 600
+                    return postJsonNoCors(EMAIL_SCRIPT_URL, studentEmailPayload).then(function () {
+                        return { status: 'accepted-opaque' };
                     });
                 });
 
