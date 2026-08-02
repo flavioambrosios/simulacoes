@@ -2632,11 +2632,37 @@
         return studentNameManual.value.trim();
     }
 
+    function buildScoreAliasPayload(finalScore, scoreData, aiAnalysis) {
+        const normalizedFinalScore = Number(Number(finalScore || 0).toFixed(1));
+        const normalizedExerciseScore = Number((Number((scoreData && scoreData.scorePercentage) || 0) / 10).toFixed(1));
+        const normalizedConclusionScore = Number(Number((aiAnalysis && aiAnalysis.finalScore) || 0).toFixed(1));
+
+        return {
+            notaFinal: normalizedFinalScore,
+            nota_final: normalizedFinalScore,
+            notaFinalCombinada: normalizedFinalScore,
+            nota_final_combinada: normalizedFinalScore,
+            notaCombinada: normalizedFinalScore,
+            finalScore: normalizedFinalScore,
+            notaExercicios: normalizedExerciseScore,
+            nota_exercicios: normalizedExerciseScore,
+            notaConclusaoIa: normalizedConclusionScore,
+            nota_conclusao_ia: normalizedConclusionScore,
+            notaConclusao: normalizedConclusionScore,
+            nota_conclusao: normalizedConclusionScore,
+            notaPercentual: ((scoreData && scoreData.scorePercentage) || 0) + '%',
+            nota_percentual: ((scoreData && scoreData.scorePercentage) || 0) + '%',
+            acertos: Number((scoreData && scoreData.correctAnswers) || 0),
+            totalQuestoes: Number((scoreData && scoreData.totalExercises) || 0),
+            questoes_puladas: Number((scoreData && scoreData.skippedQuestions) || 0)
+        };
+    }
+
     function buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
             || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
-        return {
+        return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toISOString(),
             visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
@@ -2654,9 +2680,6 @@
             simulacao: simulationName,
             scoreHeader: simulationName,
             nota: finalScore,
-            notaExercicios: Number((scoreData.scorePercentage / 10).toFixed(1)),
-            notaConclusaoIa: aiAnalysis.finalScore,
-            notaPercentual: scoreData.scorePercentage + '%',
             acertosIndividuais: scoreData.correctAnswers,
             totalQuestoes: scoreData.totalExercises,
             questoes_puladas: scoreData.skippedQuestions,
@@ -2671,11 +2694,11 @@
             criticas: formData.criticism,
             sugestoes: formData.suggestion,
             email: formData.studentEmail || ''
-        };
+        });
     }
 
     function buildLegacyBackupPayload(formData, scoreData, aiAnalysis, finalScore) {
-        return {
+        return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toLocaleString('pt-BR'),
             visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
@@ -2688,8 +2711,6 @@
             questoes_puladas: scoreData.skippedQuestions,
             acertos_erros: scoreData.correctAnswers + '/' + (scoreData.totalExercises - scoreData.correctAnswers),
             nota: scoreData.scorePercentage + '%',
-            nota_final: finalScore,
-            nota_conclusao_ia: aiAnalysis.finalScore,
             conclusao: formData.finalConclusion,
             anotacoes_estudo: formData.studyNotes || '',
             analise_ia: aiAnalysis.feedback,
@@ -2701,14 +2722,14 @@
             nome_aluno: formData.studentName,
             acertos: scoreData.correctAnswers + '/' + scoreData.totalExercises,
             data_envio: new Date().toLocaleString('pt-BR')
-        };
+        });
     }
 
     function buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
             || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
 
-        return {
+        return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toISOString(),
             visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
@@ -2729,9 +2750,6 @@
             simulacao: simulationName,
             totalSimulacoesAcumuladas: 1,
             nota: finalScore,
-            notaExercicios: Number((scoreData.scorePercentage / 10).toFixed(1)),
-            notaConclusaoIa: aiAnalysis.finalScore,
-            notaPercentual: scoreData.scorePercentage + '%',
             acertos: scoreData.correctAnswers,
             totalQuestoes: scoreData.totalExercises,
             conclusao: formData.finalConclusion,
@@ -2743,24 +2761,54 @@
             analiseIa: aiAnalysis.feedback,
             suppressStudentEmail: true,
             email: formData.studentEmail || ''
-        };
+        });
     }
 
     function buildStudentCopyEmailPayload(formData, scoreData, aiAnalysis, finalScore) {
-        return {
+        const envioTimestamp = new Date().toLocaleString('pt-BR');
+        const notaFinalFormatada = Number(finalScore || 0).toFixed(1);
+        const mensagemTexto = [
+            'RESULTADOS SOBRE: ' + simulationName,
+            '',
+            'DESEMPENHO DO ESTUDANTE:',
+            '• Nome: ' + (formData.studentName || 'Não informado'),
+            '• Série/Turma: ' + ((formData.studentGrade || '') + (formData.studentClass ? ' - ' + formData.studentClass : '')),
+            '• Nota: ' + notaFinalFormatada,
+            '• Acertos: ' + (scoreData.correctAnswers || 0) + '/' + (scoreData.totalExercises || 0),
+            '• Questões Puladas: ' + (scoreData.skippedQuestions || 0),
+            '',
+            'DETALHES:',
+            String(formData.finalConclusion || 'Nenhuma conclusão enviada.'),
+            '',
+            'FEEDBACK:',
+            '• Críticas: ' + String(formData.criticism || 'Nenhuma'),
+            '• Sugestões: ' + String(formData.suggestion || 'Nenhuma'),
+            '',
+            'Data de envio: ' + envioTimestamp
+        ].join('\n');
+
+        return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             to_email: formData.studentEmail,
             visitorMode: !!formData.visitorMode,
             nome_aluno: formData.studentName,
+            nomeAluno: formData.studentName,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             simulacao: simulationName,
+            atividade: simulationName,
+            avaliacao: simulationName,
             nota: scoreData.scorePercentage + '%',
-            nota_final: finalScore,
-            nota_conclusao_ia: aiAnalysis.finalScore,
+            notaPercentual: scoreData.scorePercentage + '%',
             acertos: scoreData.correctAnswers + '/' + scoreData.totalExercises,
             conclusao: formData.finalConclusion,
-            mensagem: 'Confirmacao de envio - ' + simulationName + '\nNota final: ' + finalScore.toFixed(1) + '\nAcertos: ' + scoreData.correctAnswers + '/' + scoreData.totalExercises
-        };
+            detalhes: String(formData.finalConclusion || 'Nenhuma conclusão enviada.'),
+            mensagem: mensagemTexto,
+            message: mensagemTexto,
+            textoEmail: mensagemTexto,
+            dataEnvio: envioTimestamp,
+            data_envio: envioTimestamp,
+            timestamp: envioTimestamp
+        });
     }
 
     function postJsonNoCors(url, data) {
