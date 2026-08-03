@@ -783,13 +783,26 @@
         }
     }
 
+    function hasMeaningfulStudentDatabase(database) {
+        if (!database || !database.bySheet || typeof database.bySheet !== 'object') {
+            return false;
+        }
+
+        return Object.keys(database.bySheet).some(function (sheetName) {
+            const names = Array.isArray(database.bySheet[sheetName]) ? database.bySheet[sheetName] : [];
+            return names.some(function (name) {
+                return !!String(name || '').trim();
+            });
+        });
+    }
+
     function loadStudentDatabase() {
         if (isGoogleOnlyRosterMode()) {
             return Promise.resolve(DEFAULT_DATABASE);
         }
 
         const loadedDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
-        if (loadedDatabase) {
+        if (hasMeaningfulStudentDatabase(loadedDatabase)) {
             return Promise.resolve(loadedDatabase);
         }
 
@@ -798,6 +811,8 @@
         }
 
         const candidates = [
+            new URL('../AvaliacaoBimestralEducacaoDigital/STUDENT_DATABASE.js', document.baseURI).toString(),
+            new URL('../../AvaliacaoBimestralEducacaoDigital/STUDENT_DATABASE.js', document.baseURI).toString(),
             new URL('../AvaliacaoBimestralEducacaoDigital/alunos.js', document.baseURI).toString(),
             new URL('../../AvaliacaoBimestralEducacaoDigital/alunos.js', document.baseURI).toString()
         ];
@@ -807,12 +822,12 @@
 
             function tryNext() {
                 const studentDatabase = readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE;
-                if (studentDatabase) {
+                if (hasMeaningfulStudentDatabase(studentDatabase)) {
                     resolve(studentDatabase);
                     return;
                 }
                 if (index >= candidates.length) {
-                    resolve(DEFAULT_DATABASE);
+                    resolve(studentDatabase || DEFAULT_DATABASE);
                     return;
                 }
 
@@ -820,7 +835,7 @@
                 script.src = candidates[index++];
                 script.async = true;
                 script.onload = function () {
-                    resolve(readGlobalBinding('STUDENT_DATABASE') || window.STUDENT_DATABASE || DEFAULT_DATABASE);
+                    tryNext();
                 };
                 script.onerror = tryNext;
                 document.head.appendChild(script);
