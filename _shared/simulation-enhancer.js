@@ -862,8 +862,8 @@
         if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
             return normalized;
         }
-        // Default to merge for compatibility with existing simulations.
-        return 'merge';
+        // Default to Google-only to avoid stale local rosters showing wrong classes.
+        return 'google-only';
     }
 
     function isGoogleOnlyRosterMode() {
@@ -1045,14 +1045,14 @@
 
             if (isGoogleOnlyRosterMode()) {
                 if (!shouldUseProtectedRosterApi()) {
-                    return localSheets;
+                    return [];
                 }
                 return fetchProtectedAvailableSheets().catch(function (error) {
                     console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
                     if (rosterSheetsCache && Array.isArray(rosterSheetsCache.sheets) && rosterSheetsCache.sheets.length) {
                         return rosterSheetsCache.sheets;
                     }
-                    return localSheets;
+                    return [];
                 });
             }
 
@@ -1209,7 +1209,7 @@
 
             if (isGoogleOnlyRosterMode()) {
                 if (!shouldUseProtectedRosterApi()) {
-                    return localNames;
+                    return [];
                 }
                 return fetchProtectedStudentNames(filters).catch(function (error) {
                     console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
@@ -1217,7 +1217,7 @@
                     if (staleEntry && Array.isArray(staleEntry.names) && staleEntry.names.length) {
                         return staleEntry.names;
                     }
-                    return localNames;
+                    return [];
                 });
             }
 
@@ -3018,7 +3018,7 @@
         } else {
             jobs.push({
                 key: 'cean',
-                promise: postJsonWithResponse(PRIMARY_GRADEBOOK_URL, unifiedPayload)
+                promise: postGradebookWithFallback(PRIMARY_GRADEBOOK_URL, unifiedPayload)
             });
 
             if (!isVisitor && TERM_GRADEBOOK_URL) {
