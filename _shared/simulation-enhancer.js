@@ -98,6 +98,7 @@
     let lastAiAnalysis = null;
     let studentDatabaseLoadPromise = null;
     let studentAccessConfigLoadPromise = null;
+    let sheetOptionsRequestToken = 0;
     let studentOptionsRequestToken = 0;
     let rosterApiCache = {};
     let rosterSheetsCache = null;
@@ -861,8 +862,8 @@
         if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
             return normalized;
         }
-        // Default to Google-only to avoid stale local rosters showing wrong classes.
-        return 'google-only';
+        // Default to merge for compatibility with existing simulations.
+        return 'merge';
     }
 
     function isGoogleOnlyRosterMode() {
@@ -975,8 +976,6 @@
             return Promise.resolve(rosterSheetsCache.sheets);
         }
 
-        rosterSheetsCache = null;
-
         const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
         const timeoutMs = Math.max(6000, Number(config.apiTimeoutMs || 20000));
         const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -1041,27 +1040,35 @@
     }
 
     function getAvailableSheetsHybrid() {
-        const localSheets = getLocalAvailableSheets();
+        return loadStudentDatabase().then(function () {
+            const localSheets = getLocalAvailableSheets();
 
-        if (isGoogleOnlyRosterMode()) {
-            if (!shouldUseProtectedRosterApi()) {
-                return Promise.resolve([]);
+            if (isGoogleOnlyRosterMode()) {
+                if (!shouldUseProtectedRosterApi()) {
+                    return localSheets;
+                }
+                return fetchProtectedAvailableSheets().catch(function (error) {
+                    console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
+                    if (rosterSheetsCache && Array.isArray(rosterSheetsCache.sheets) && rosterSheetsCache.sheets.length) {
+                        return rosterSheetsCache.sheets;
+                    }
+                    return localSheets;
+                });
             }
-            return fetchProtectedAvailableSheets().catch(function (error) {
-                console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
-                return [];
-            });
-        }
 
-        if (!shouldUseProtectedRosterApi()) {
-            return Promise.resolve(localSheets);
-        }
-
-        return fetchProtectedAvailableSheets()
-            .catch(function (error) {
-                console.warn('[simulation-enhancer] Falha na API protegida de turmas. Usando fallback local.', error);
+            if (!shouldUseProtectedRosterApi()) {
                 return localSheets;
-            });
+            }
+
+            return fetchProtectedAvailableSheets()
+                .catch(function (error) {
+                    console.warn('[simulation-enhancer] Falha na API protegida de turmas. Usando fallback local.', error);
+                    if (rosterSheetsCache && Array.isArray(rosterSheetsCache.sheets) && rosterSheetsCache.sheets.length) {
+                        return rosterSheetsCache.sheets;
+                    }
+                    return localSheets;
+                });
+        });
     }
 
     function populateSimulationSheetOptions(preservedValue) {
@@ -1069,6 +1076,8 @@
         if (!studentSheetSelect) {
             return;
         }
+
+        const requestToken = ++sheetOptionsRequestToken;
 
         if (!isStudentAccessAuthenticated()) {
             studentSheetSelect.innerHTML = '<option value="">Libere o modo estudante para carregar turmas</option>';
@@ -1079,6 +1088,10 @@
         studentSheetSelect.innerHTML = '<option value="">Carregando turmas...</option>';
 
         getAvailableSheetsHybrid().then(function (sheetNames) {
+            if (requestToken !== sheetOptionsRequestToken) {
+                return;
+            }
+
             studentSheetSelect.innerHTML = (sheetNames.length
                 ? '<option value="">Selecione sua turma</option>'
                 : '<option value="">Nenhuma turma encontrada</option>')
@@ -1094,6 +1107,12 @@
 
             syncSelectedSheetMetadata();
             populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
+        }).catch(function () {
+            if (requestToken !== sheetOptionsRequestToken) {
+                return;
+            }
+            studentSheetSelect.innerHTML = '<option value="">Falha ao carregar turmas</option>';
+            studentSheetSelect.value = '';
         });
     }
 
@@ -1110,8 +1129,6 @@
         if (cachedEntry && cachedEntry.expiresAt > Date.now()) {
             return Promise.resolve(cachedEntry.names);
         }
-
-        delete rosterApiCache[cacheKey];
 
         const cacheTtlMs = Math.max(1000, Number(config.rosterCacheTtlMs || 15000));
 
@@ -1186,27 +1203,38 @@
     }
 
     function getStudentNamesHybrid(filters) {
-        const localNames = getLocalStudentNames(filters);
+        const cacheKey = buildRosterCacheKey(filters);
+        return loadStudentDatabase().then(function () {
+            const localNames = getLocalStudentNames(filters);
 
-        if (isGoogleOnlyRosterMode()) {
-            if (!shouldUseProtectedRosterApi()) {
-                return Promise.resolve([]);
+            if (isGoogleOnlyRosterMode()) {
+                if (!shouldUseProtectedRosterApi()) {
+                    return localNames;
+                }
+                return fetchProtectedStudentNames(filters).catch(function (error) {
+                    console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
+                    const staleEntry = rosterApiCache[cacheKey];
+                    if (staleEntry && Array.isArray(staleEntry.names) && staleEntry.names.length) {
+                        return staleEntry.names;
+                    }
+                    return localNames;
+                });
             }
-            return fetchProtectedStudentNames(filters).catch(function (error) {
-                console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
-                return [];
-            });
-        }
 
-        if (!shouldUseProtectedRosterApi()) {
-            return Promise.resolve(localNames);
-        }
-
-        return fetchProtectedStudentNames(filters)
-            .catch(function (error) {
-                console.warn('[simulation-enhancer] Falha na API protegida de alunos. Usando fallback local.', error);
+            if (!shouldUseProtectedRosterApi()) {
                 return localNames;
-            });
+            }
+
+            return fetchProtectedStudentNames(filters)
+                .catch(function (error) {
+                    console.warn('[simulation-enhancer] Falha na API protegida de alunos. Usando fallback local.', error);
+                    const staleEntry = rosterApiCache[cacheKey];
+                    if (staleEntry && Array.isArray(staleEntry.names) && staleEntry.names.length) {
+                        return staleEntry.names;
+                    }
+                    return localNames;
+                });
+        });
     }
 
     function populateSimulationStudentOptions(preservedValue) {
