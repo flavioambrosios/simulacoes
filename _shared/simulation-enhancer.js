@@ -861,7 +861,8 @@
         if (normalized === 'merge' || normalized === 'local-only' || normalized === 'google-only') {
             return normalized;
         }
-        return 'merge';
+        // Default to Google-only to avoid stale local rosters showing wrong classes.
+        return 'google-only';
     }
 
     function isGoogleOnlyRosterMode() {
