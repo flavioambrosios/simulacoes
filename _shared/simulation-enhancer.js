@@ -1040,21 +1040,22 @@
     }
 
     function getAvailableSheetsHybrid() {
+        if (isGoogleOnlyRosterMode()) {
+            if (!shouldUseProtectedRosterApi()) {
+                return Promise.resolve([]);
+            }
+
+            return fetchProtectedAvailableSheets().catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
+                if (rosterSheetsCache && Array.isArray(rosterSheetsCache.sheets) && rosterSheetsCache.sheets.length) {
+                    return rosterSheetsCache.sheets;
+                }
+                return [];
+            });
+        }
+
         return loadStudentDatabase().then(function () {
             const localSheets = getLocalAvailableSheets();
-
-            if (isGoogleOnlyRosterMode()) {
-                if (!shouldUseProtectedRosterApi()) {
-                    return [];
-                }
-                return fetchProtectedAvailableSheets().catch(function (error) {
-                    console.warn('[simulation-enhancer] Falha na API protegida de turmas em modo Google-only.', error);
-                    if (rosterSheetsCache && Array.isArray(rosterSheetsCache.sheets) && rosterSheetsCache.sheets.length) {
-                        return rosterSheetsCache.sheets;
-                    }
-                    return [];
-                });
-            }
 
             if (!shouldUseProtectedRosterApi()) {
                 return localSheets;
@@ -1204,22 +1205,23 @@
 
     function getStudentNamesHybrid(filters) {
         const cacheKey = buildRosterCacheKey(filters);
+        if (isGoogleOnlyRosterMode()) {
+            if (!shouldUseProtectedRosterApi()) {
+                return Promise.resolve([]);
+            }
+
+            return fetchProtectedStudentNames(filters).catch(function (error) {
+                console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
+                const staleEntry = rosterApiCache[cacheKey];
+                if (staleEntry && Array.isArray(staleEntry.names) && staleEntry.names.length) {
+                    return staleEntry.names;
+                }
+                return [];
+            });
+        }
+
         return loadStudentDatabase().then(function () {
             const localNames = getLocalStudentNames(filters);
-
-            if (isGoogleOnlyRosterMode()) {
-                if (!shouldUseProtectedRosterApi()) {
-                    return [];
-                }
-                return fetchProtectedStudentNames(filters).catch(function (error) {
-                    console.warn('[simulation-enhancer] Falha na API protegida de alunos em modo Google-only.', error);
-                    const staleEntry = rosterApiCache[cacheKey];
-                    if (staleEntry && Array.isArray(staleEntry.names) && staleEntry.names.length) {
-                        return staleEntry.names;
-                    }
-                    return [];
-                });
-            }
 
             if (!shouldUseProtectedRosterApi()) {
                 return localNames;
