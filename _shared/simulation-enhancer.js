@@ -211,6 +211,9 @@
             '.enhancer-student-auth-panel { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }',
             '.enhancer-student-auth-panel input { margin: 0; }',
             '.enhancer-student-auth-status { margin-top: 6px; }',
+            '.enhancer-sheet-actions { display: flex; gap: 8px; margin-top: 8px; }',
+            '.enhancer-refresh-sheets-btn { width: auto; margin: 0; padding: 8px 12px; background: #1d4e89; color: #fff; }',
+            '.enhancer-refresh-sheets-btn:disabled { opacity: 0.7; cursor: wait; }',
             '.email-status.warning-status { background: rgba(255, 193, 7, 0.15); border-left: 4px solid #ffc107; color: #fff3cd; }',
                         '.enhancer-visitor-checkbox input { width: auto; margin: 0; cursor: pointer; }',
                         '.enhancer-visitor-checkbox label { margin: 0; cursor: pointer; font-size: 0.95rem; color: #ffdd88; }',
@@ -372,6 +375,9 @@
                     '<select id="studentSheet" required>',
                     '<option value="">Selecione sua turma</option>',
                     '</select>',
+                    '<div class="enhancer-sheet-actions">',
+                    '<button type="button" id="refreshSheetsBtn" class="check-btn enhancer-refresh-sheets-btn">Buscar turmas novamente</button>',
+                    '</div>',
                     '<input type="hidden" id="studentTrail">',
                     '<input type="hidden" id="studentGrade">',
                     '<input type="hidden" id="studentClass">',
@@ -428,6 +434,7 @@
         restoreFormState(currentValues);
         syncSelectedSheetMetadata();
         setupStudentFieldInteractions();
+        setupSheetRefreshControl();
         setupVisitorModeToggle();
         bindFormPersistence();
 
@@ -1075,7 +1082,7 @@
     function populateSimulationSheetOptions(preservedValue) {
         const studentSheetSelect = document.getElementById('studentSheet');
         if (!studentSheetSelect) {
-            return;
+            return Promise.resolve([]);
         }
 
         const requestToken = ++sheetOptionsRequestToken;
@@ -1083,14 +1090,14 @@
         if (!isStudentAccessAuthenticated()) {
             studentSheetSelect.innerHTML = '<option value="">Libere o modo estudante para carregar turmas</option>';
             studentSheetSelect.value = '';
-            return;
+            return Promise.resolve([]);
         }
 
         studentSheetSelect.innerHTML = '<option value="">Carregando turmas...</option>';
 
-        getAvailableSheetsHybrid().then(function (sheetNames) {
+        return getAvailableSheetsHybrid().then(function (sheetNames) {
             if (requestToken !== sheetOptionsRequestToken) {
-                return;
+                return sheetNames;
             }
 
             studentSheetSelect.innerHTML = (sheetNames.length
@@ -1108,13 +1115,43 @@
 
             syncSelectedSheetMetadata();
             populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
+            return sheetNames;
         }).catch(function () {
             if (requestToken !== sheetOptionsRequestToken) {
-                return;
+                return [];
             }
             studentSheetSelect.innerHTML = '<option value="">Falha ao carregar turmas</option>';
             studentSheetSelect.value = '';
+            return [];
         });
+    }
+
+    function setupSheetRefreshControl() {
+        const refreshButton = document.getElementById('refreshSheetsBtn');
+        if (!refreshButton || refreshButton.dataset.enhancerBound === 'true') {
+            return;
+        }
+
+        refreshButton.addEventListener('click', function () {
+            const preservedSheet = getFieldValue('studentSheet');
+            const preservedStudent = getFieldValue('studentNameSelect');
+            const originalLabel = refreshButton.textContent;
+
+            refreshButton.disabled = true;
+            refreshButton.textContent = 'Atualizando turmas...';
+            clearRosterApiCache();
+
+            populateSimulationSheetOptions(preservedSheet)
+                .then(function () {
+                    populateSimulationStudentOptions(preservedStudent);
+                })
+                .finally(function () {
+                    refreshButton.disabled = false;
+                    refreshButton.textContent = originalLabel;
+                });
+        });
+
+        refreshButton.dataset.enhancerBound = 'true';
     }
 
     function fetchProtectedStudentNames(filters) {
