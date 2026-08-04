@@ -1,13 +1,14 @@
 const SPREADSHEET_ID = '1SgAsDYqCKlz2Kel0_dmbdMEf9pmCz2mDVQHJwV2kIZk';
 const HISTORY_SHEET_NAME = 'Historico Avaliacoes';
 const DEFAULT_SCORE_HEADER = 'prova';
-const SCRIPT_VERSION = '2026-05-11-b';
+const SCRIPT_VERSION = '2026-08-03-email-single-path';
 const LINHA_CABECALHO = 1;
 const LINHA_INICIO_ALUNOS = 2;
 const SCHOOL_NAME = 'CEAN - Centro de Ensino Médio Asa Norte';
 const TEACHER_NAME = 'Prof. Flávio Ambrósio';
 const ACCESS_TOKEN_HASH = 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1';
 const MAX_ROSTER_NAMES_PER_RESPONSE = 80;
+const EMAIL_CONFIRMATION_ENABLED = false;
 const TERM_ORDER = ['1o', '2o', '3o', '4o'];
 const TERM_START_COLUMNS_PROPERTY = 'TERM_START_COLUMNS_MAP';
 const TERM_START_COLUMNS = {
@@ -165,9 +166,13 @@ function doPost(e) {
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
+  const emailTestMenuLabel = EMAIL_CONFIRMATION_ENABLED
+    ? 'Testar envio de email'
+    : 'Testar envio de email (desativado)';
+
   ui.createMenu('Notas CEAN')
     .addItem('Adicionar estudante', 'adicionarEstudanteManualmente')
-    .addItem('Testar envio de email', 'testarEnvioEmailDoSistema')
+    .addItem(emailTestMenuLabel, 'testarEnvioEmailDoSistema')
     .addItem('Verificar configuração do script', 'mostrarDiagnosticoDoScript')
     .addToUi();
 }
@@ -189,6 +194,12 @@ function mostrarDiagnosticoDoScript() {
 
 function testarEnvioEmailDoSistema() {
   const ui = SpreadsheetApp.getUi();
+
+  if (!EMAIL_CONFIRMATION_ENABLED) {
+    ui.alert('Envio de email desativado neste script. Os dados continuam sendo gravados normalmente na planilha.');
+    return;
+  }
+
   const resposta = ui.prompt(
     'Teste de envio de email',
     'Digite o email que deve receber a mensagem de teste:',
@@ -789,6 +800,18 @@ function appendHistory(spreadsheet, data) {
 }
 
 function sendConfirmationEmailIfPossible(payload) {
+  if (!EMAIL_CONFIRMATION_ENABLED) {
+    return { status: 'skipped', reason: 'envio_email_desativado_temporariamente' };
+  }
+
+  if (payload && (payload.categoria === 'simulacao' || String(payload.simulacao || '').trim())) {
+    return { status: 'skipped', reason: 'email_confirmacao_desativado_para_simulacao' };
+  }
+
+  if (payload && payload.suppressStudentEmail) {
+    return { status: 'skipped', reason: 'email_terceirizado' };
+  }
+
   const email = String(payload.email || '').trim();
   if (!email) {
     return { status: 'skipped', reason: 'email_nao_informado' };
