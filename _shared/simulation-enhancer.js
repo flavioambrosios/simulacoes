@@ -356,18 +356,13 @@
         };
 
         emailForm.innerHTML = [
-                    '<div class="form-row enhancer-visitor-checkbox">',
                                 '<div class="form-row enhancer-student-auth">',
                                 '<button type="button" id="unlockStudentModeBtn" class="enhancer-student-auth-btn">Sou estudante (liberar por senha)</button>',
                                 '<div id="studentAccessPanel" class="enhancer-student-auth-panel enhancer-hidden">',
                                 '<input type="password" id="studentAccessPassword" placeholder="Digite a senha do estudante">',
                                 '<button type="button" id="confirmStudentAccessBtn" class="check-btn">Liberar acesso</button>',
                                 '</div>',
-                                '<div id="enhancerStudentAccessStatus" class="enhancer-inline-note enhancer-student-auth-status">Modo visitante ativo por padrão.</div>',
-                                '</div>',
-                    '<div class="form-row enhancer-visitor-checkbox">',
-                                '<input type="checkbox" id="visitorMode">',
-                                '<label for="visitorMode">Sou visitante (não tenho série, turma ou trilha definida)</label>',
+                                '<div id="enhancerStudentAccessStatus" class="enhancer-inline-note enhancer-student-auth-status">Modo estudante bloqueado até informar a senha.</div>',
                                 '</div>',
                                 '<div id="studentFieldsArea" class="enhancer-visitor-fields">',
                     '<div class="form-row">',
@@ -405,16 +400,6 @@
                     '</select>',
                     '</div>',
                     '</div>',
-                    '<div id="visitorFieldsArea" class="enhancer-visitor-fields enhancer-hidden">',
-                    '<div class="form-row">',
-                    '<label for="visitorName" class="required">Nome do visitante:</label>',
-                    '<input type="text" id="visitorName" placeholder="Digite seu nome completo">',
-                    '</div>',
-                    '<div class="form-row">',
-                    '<label for="visitorEmail">E-mail do visitante (opcional):</label>',
-                    '<input type="email" id="visitorEmail" placeholder="seu@email.com">',
-                    '</div>',
-                    '</div>',
                     '<div class="form-row">',
                     '<label for="criticismInput">Críticas:</label>',
                     '<textarea id="criticismInput" rows="3" placeholder="O que poderia ser melhorado na simulação e nos exercícios?"></textarea>',
@@ -435,7 +420,6 @@
         syncSelectedSheetMetadata();
         setupStudentFieldInteractions();
         setupSheetRefreshControl();
-        setupVisitorModeToggle();
         bindFormPersistence();
 
         loadStudentDatabase()
@@ -666,22 +650,19 @@
     }
 
     function setupStudentAccessGate() {
-        const visitorCheckbox = document.getElementById('visitorMode');
         const unlockButton = document.getElementById('unlockStudentModeBtn');
         const accessPanel = document.getElementById('studentAccessPanel');
         const passwordInput = document.getElementById('studentAccessPassword');
         const confirmButton = document.getElementById('confirmStudentAccessBtn');
         const config = getStudentAccessConfig();
 
-        if (!visitorCheckbox || !unlockButton || !accessPanel || !passwordInput || !confirmButton) {
+        if (!unlockButton || !accessPanel || !passwordInput || !confirmButton) {
             return;
         }
 
         if (!config.rememberStudentAccess) {
             setStudentAccessAuthenticated(false);
             setStudentAccessToken('');
-            visitorCheckbox.checked = true;
-            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
         if (!config.enabled) {
@@ -691,11 +672,9 @@
             return;
         }
 
-        updateStudentAccessStatus(config.hint || 'Para sair do modo visitante, informe a senha.', 'info');
+        updateStudentAccessStatus(config.hint || 'Informe a senha para liberar o envio como estudante.', 'info');
 
         if (isStudentAccessAuthenticated()) {
-            visitorCheckbox.checked = false;
-            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
             updateStudentAccessStatus('Acesso de estudante liberado nesta sessão.', 'success');
             populateSimulationSheetOptions(getFieldValue('studentSheet'));
         }
@@ -722,19 +701,15 @@
                 hashStudentAccessInput(seed).then(function (digest) {
                     const acceptedHashes = getAcceptedStudentAccessHashes(config);
                     if (!digest || (acceptedHashes.length && acceptedHashes.indexOf(String(digest).toLowerCase()) === -1)) {
-                        updateStudentAccessStatus('Senha inválida. Permanecendo no modo visitante.', 'error');
+                        updateStudentAccessStatus('Senha inválida. O envio permanece bloqueado.', 'error');
                         setStudentAccessAuthenticated(false);
                         setStudentAccessToken('');
-                        visitorCheckbox.checked = true;
-                        visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
                         return;
                     }
 
                     setStudentAccessAuthenticated(true);
                     setStudentAccessToken(resolveRosterApiToken(config, digest));
                     updateStudentAccessStatus('Acesso de estudante liberado com sucesso.', 'success');
-                    visitorCheckbox.checked = false;
-                    visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
                     populateSimulationSheetOptions(getFieldValue('studentSheet'));
                     passwordInput.value = '';
                     accessPanel.classList.add('enhancer-hidden');
@@ -3131,31 +3106,16 @@
             finalConclusion: getFieldValue('finalConclusion')
         };
 
-        const isVisitor = document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false;
+        const isVisitor = false;
 
-                if (isVisitor) {
-                    if (!formData.visitorName || !formData.finalConclusion) {
-                        alert('Preencha o nome e a conclusão antes de enviar.');
-                        return;
-                    }
-                    // Para visitantes, usar valores padrão
-                    formData.studentName = formData.visitorName;
-                    formData.studentEmail = formData.visitorEmail;
-                    formData.studentGrade = 'Visitante';
-                    formData.studentClass = 'Visitante';
-                    formData.schoolTerm = 'Visitante';
-                    formData.studentTrail = 'Visitante';
-                    formData.studentSheet = 'VISITANTE';
-                } else {
-                    if (!isStudentAccessAuthenticated()) {
-                        alert('Para enviar como estudante, libere o acesso por senha.');
-                        return;
-                    }
-                    if (!formData.studentName || !formData.studentSheet || !formData.schoolTerm || !formData.finalConclusion) {
-                        alert('Preencha nome, turma, bimestre e conclusão antes de enviar.');
-                        return;
-                    }
-                }
+        if (!isStudentAccessAuthenticated()) {
+            alert('Para enviar como estudante, libere o acesso por senha.');
+            return;
+        }
+        if (!formData.studentName || !formData.studentSheet || !formData.schoolTerm || !formData.finalConclusion) {
+            alert('Preencha nome, turma, bimestre e conclusão antes de enviar.');
+            return;
+        }
 
         const exercises = Array.isArray(readGlobalBinding('exercises')) ? readGlobalBinding('exercises') : [];
         const exerciseResults = Array.isArray(readGlobalBinding('exerciseResults')) ? readGlobalBinding('exerciseResults') : [];
