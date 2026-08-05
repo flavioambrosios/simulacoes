@@ -346,9 +346,6 @@
             studentNameSelect: getFieldValue('studentNameSelect'),
             studentNameManual: getFieldValue('studentNameManual') || getFieldValue('studentName'),
             studentEmail: getFieldValue('studentEmail'),
-            visitorName: getFieldValue('visitorName'),
-            visitorEmail: getFieldValue('visitorEmail'),
-            visitorMode: getCheckboxValue('visitorMode'),
             schoolTerm: getFieldValue('schoolTerm'),
             criticismInput: getFieldValue('criticismInput'),
             suggestionInput: getFieldValue('suggestionInput'),
@@ -432,45 +429,6 @@
                 populateSimulationStudentOptions(currentValues.studentNameSelect || '');
             });
     }
-
-    function setupVisitorModeToggle() {
-            const visitorCheckbox = document.getElementById('visitorMode');
-            const studentFieldsArea = document.getElementById('studentFieldsArea');
-            const visitorFieldsArea = document.getElementById('visitorFieldsArea');
-            const visitorName = document.getElementById('visitorName');
-            if (!visitorCheckbox || !studentFieldsArea || !visitorFieldsArea) {
-                return;
-            }
-
-            function toggleVisitorMode() {
-                if (!visitorCheckbox.checked && !isStudentAccessAuthenticated()) {
-                    visitorCheckbox.checked = true;
-                    updateStudentAccessStatus('Para usar o modo estudante, informe a senha.', 'error');
-                }
-                const isVisitor = visitorCheckbox.checked;
-                studentFieldsArea.classList.toggle('enhancer-hidden', isVisitor);
-                visitorFieldsArea.classList.toggle('enhancer-hidden', !isVisitor);
-
-                const requiredFields = studentFieldsArea.querySelectorAll('[required]');
-                requiredFields.forEach(function (field) {
-                    field.required = !isVisitor;
-                    if (isVisitor) {
-                        field.value = '';
-                    }
-                });
-
-                if (visitorName) {
-                    visitorName.required = isVisitor;
-                }
-                saveExerciseState();
-            }
-
-            visitorCheckbox.addEventListener('change', toggleVisitorMode);
-            visitorCheckbox.dataset.enhancerBound = 'true';
-
-            visitorCheckbox.checked = !isStudentAccessAuthenticated();
-            toggleVisitorMode();
-        }
 
     function getStudentAccessConfig() {
         const externalConfig = window.SIMULATION_ENHANCER_STUDENT_ACCESS
@@ -2265,7 +2223,6 @@
     function bindFormPersistence() {
         [
             'conclusionText', 'studentSheet', 'studentTrail', 'studentName', 'studentNameSelect', 'studentNameManual', 'studentGrade', 'studentClass', 'schoolTerm', 'studentEmail',
-            'visitorName', 'visitorEmail', 'visitorMode',
             'criticismInput', 'suggestionInput', 'finalConclusion', 'enhancerNotesInput'
         ].forEach(function (fieldId) {
             const field = document.getElementById(fieldId);
@@ -2315,13 +2272,10 @@
                             studentClass: getFieldValue('studentClass'),
                             schoolTerm: getFieldValue('schoolTerm'),
                             studentEmail: getFieldValue('studentEmail'),
-                            visitorName: getFieldValue('visitorName'),
-                            visitorEmail: getFieldValue('visitorEmail'),
                             criticismInput: getFieldValue('criticismInput'),
                             suggestionInput: getFieldValue('suggestionInput'),
                             finalConclusion: finalConclusion ? finalConclusion.value : '',
-                            studyNotes: getFieldValue('enhancerNotesInput'),
-                            visitorMode: getCheckboxValue('visitorMode')
+                            studyNotes: getFieldValue('enhancerNotesInput')
                         },
             aiAnalysis: lastAiAnalysis
         };
@@ -2507,10 +2461,6 @@
         });
         updateStudyNotesCounter();
         syncSelectedSheetMetadata();
-        const visitorCheckbox = document.getElementById('visitorMode');
-        if (visitorCheckbox) {
-            visitorCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-        }
         loadStudentDatabase().then(function () {
             populateSimulationSheetOptions(getFieldValue('studentSheet'));
             populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
@@ -2723,11 +2673,10 @@
 
     function buildUnifiedSimulationPayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
-            || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
+            || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
 
         return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toISOString(),
-            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             trilha: formData.studentTrail,
@@ -2763,7 +2712,6 @@
     function buildLegacyBackupPayload(formData, scoreData, aiAnalysis, finalScore) {
         return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toLocaleString('pt-BR'),
-            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             coluna: getTermGradeColumn(formData.schoolTerm),
@@ -2790,11 +2738,10 @@
 
     function buildTermGradePayload(formData, scoreData, aiAnalysis, finalScore) {
         const resolvedSheetName = formData.studentSheet
-            || (formData.visitorMode ? 'VISITANTE' : resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail));
+            || resolveSimulationSheetName(formData.studentGrade, formData.studentClass, formData.studentTrail);
 
         return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             timestamp: new Date().toISOString(),
-            visitorMode: !!formData.visitorMode,
             serie: formData.studentGrade,
             turma: formData.studentClass,
             trilha: formData.studentTrail,
@@ -2853,7 +2800,6 @@
 
         return Object.assign(buildScoreAliasPayload(finalScore, scoreData, aiAnalysis), {
             to_email: formData.studentEmail,
-            visitorMode: !!formData.visitorMode,
             nome_aluno: formData.studentName,
             nomeAluno: formData.studentName,
             serie: formData.studentGrade,
@@ -3096,17 +3042,12 @@
             studentClass: getFieldValue('studentClass'),
             studentTrail: getFieldValue('studentTrail') || '',
             studentEmail: getFieldValue('studentEmail'),
-            visitorName: getFieldValue('visitorName'),
-            visitorEmail: getFieldValue('visitorEmail'),
             studyNotes: getFieldValue('enhancerNotesInput'),
-            visitorMode: document.getElementById('visitorMode') ? document.getElementById('visitorMode').checked : false,
             schoolTerm: getFieldValue('schoolTerm'),
             criticism: getFieldValue('criticismInput'),
             suggestion: getFieldValue('suggestionInput'),
             finalConclusion: getFieldValue('finalConclusion')
         };
-
-        const isVisitor = false;
 
         if (!isStudentAccessAuthenticated()) {
             alert('Para enviar como estudante, libere o acesso por senha.');
@@ -3154,7 +3095,7 @@
             legacyPayload,
             termPayload,
             studentEmailPayload,
-            { isVisitor: isVisitor }
+            { isVisitor: false }
         );
 
         Promise.allSettled(sendJobs.map(function (job) {
