@@ -8,6 +8,7 @@ const SCHOOL_NAME = 'CEAN - Centro de Ensino Médio Asa Norte';
 const TEACHER_NAME = 'Prof. Flávio Ambrósio';
 const ACCESS_TOKEN_HASH = 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1';
 const MAX_ROSTER_NAMES_PER_RESPONSE = 80;
+const STUDENT_DATABASE_CACHE_TTL_SECONDS = 300;
 const EMAIL_CONFIRMATION_ENABLED = false;
 const TERM_ORDER = ['1o', '2o', '3o', '4o'];
 const TERM_START_COLUMNS_PROPERTY = 'TERM_START_COLUMNS_MAP';
@@ -48,7 +49,7 @@ function doGet(e) {
     return jsonResponse({
       status: 'ok',
       version: SCRIPT_VERSION,
-      studentDatabase: buildStudentDatabase(getManagedSpreadsheet())
+      studentDatabase: getStudentDatabase(getManagedSpreadsheet())
     });
   }
 
@@ -84,7 +85,7 @@ function doPost(e) {
       validateAccessToken(payload.accessToken);
 
       const spreadsheet = getManagedSpreadsheet();
-      const studentDatabase = buildStudentDatabase(spreadsheet);
+      const studentDatabase = getStudentDatabase(spreadsheet);
       const names = getFilteredStudentNames(studentDatabase, payload);
 
       return jsonResponse({
@@ -287,6 +288,11 @@ function shouldSkipSheet(sheetName) {
 }
 
 function buildStudentDatabase(spreadsheet) {
+  const cachedDatabase = getStudentDatabaseFromCache(spreadsheet);
+  if (cachedDatabase) {
+    return cachedDatabase;
+  }
+
   const database = {
     bySheet: {},
     bySerieTurma: {},
@@ -320,23 +326,14 @@ function buildStudentDatabase(spreadsheet) {
     }
   }
 
+  saveStudentDatabaseToCache(spreadsheet, database);
   return database;
 }
 
 function getAvailableStudentSheets(spreadsheet) {
-  return spreadsheet.getSheets()
-    .map(function(sheet) {
-      return {
-        sheet: sheet,
-        name: sheet.getName()
-      };
-    })
-    .filter(function(entry) {
-      return !shouldSkipSheet(entry.name) && readStudentNamesFromSheet(entry.sheet).length > 0;
-    })
-    .map(function(entry) {
-      return entry.name;
-    })
+  const database = getStudentDatabase(spreadsheet);
+
+  return Object.keys(database.bySheet || {})
     .sort(function(first, second) {
       return first.localeCompare(second, 'pt-BR');
     });
@@ -360,7 +357,8 @@ function readStudentNamesFromSheet(sheet) {
 }
 
 function extractSerieTurmaFromSheetName(sheetName) {
-  const match = String(sheetName || '').match(/([123]o ano)\s+([A-Z])/i);
+  const normalized = normalizeSheetNameKey(sheetName);
+  const match = normalized.match(/([123]o ano)\s+([a-z])/i);
   if (!match) {
     return null;
   }
@@ -418,6 +416,22 @@ function findTargetSheet(spreadsheet, payload) {
     }
   }
 
+  const normalizedCandidates = candidates.map(function(candidate) {
+    return normalizeSheetNameKey(candidate);
+  });
+
+  const sheets = spreadsheet.getSheets();
+  for (let sheetIndex = 0; sheetIndex < sheets.length; sheetIndex += 1) {
+    const sheet = sheets[sheetIndex];
+    const normalizedSheetName = normalizeSheetNameKey(sheet.getName());
+
+    for (let candidateIndex = 0; candidateIndex < normalizedCandidates.length; candidateIndex += 1) {
+      if (normalizedSheetName === normalizedCandidates[candidateIndex]) {
+        return sheet;
+      }
+    }
+  }
+
   throw new Error('Não foi possível localizar a aba correspondente ao estudante.');
 }
 
@@ -426,7 +440,7 @@ function buildSerieTurmaSheetName(serie, turma) {
     return '';
   }
 
-  return String(serie).replace('º', 'o').trim() + ' ' + String(turma).trim();
+  return normalizeSheetNameKey(serie).replace(/\s+/g, ' ').trim() + ' ' + String(turma).trim().toUpperCase();
 }
 
 function findOrCreateColumn(sheet, headerName) {
@@ -799,6 +813,60 @@ function appendHistory(spreadsheet, data) {
   ]);
 }
 
+function getStudentDatabase(spreadsheet) {
+  const cachedDatabase = getStudentDatabaseFromCache(spreadsheet);
+  if (cachedDatabase) {
+    return cachedDatabase;
+  }
+
+  return buildStudentDatabase(spreadsheet);
+}
+
+function getStudentDatabaseFromCache(spreadsheet) {
+  const cache = CacheService.getScriptCache();
+  const cacheKey = buildStudentDatabaseCacheKey(spreadsheet);
+  const cachedValue = cache.get(cacheKey);
+
+  if (!cachedValue) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(cachedValue);
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+    return parsed;
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveStudentDatabaseToCache(spreadsheet, database) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const cacheKey = buildStudentDatabaseCacheKey(spreadsheet);
+    const serialized = JSON.stringify(database || {});
+
+    if (serialized.length > 90000) {
+      return;
+    }
+
+    cache.put(cacheKey, serialized, STUDENT_DATABASE_CACHE_TTL_SECONDS);
+  } catch (error) {
+    return;
+  }
+}
+
+function buildStudentDatabaseCacheKey(spreadsheet) {
+  return [
+    'student-database',
+    SPREADSHEET_ID,
+    SCRIPT_VERSION,
+    spreadsheet && spreadsheet.getId ? spreadsheet.getId() : SPREADSHEET_ID
+  ].join('|');
+}
+
 function sendConfirmationEmailIfPossible(payload) {
   if (!EMAIL_CONFIRMATION_ENABLED) {
     return { status: 'skipped', reason: 'envio_email_desativado_temporariamente' };
@@ -900,6 +968,13 @@ function normalizeText(value) {
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();
+}
+
+function normalizeSheetNameKey(value) {
+  return normalizeText(value)
+    .replace(/[º°]/g, 'o')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function jsonResponse(data) {
