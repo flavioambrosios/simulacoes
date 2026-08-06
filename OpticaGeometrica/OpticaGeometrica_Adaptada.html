@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optica Geometrica - Atividade Adaptada (Qualitativa)</title>
+  <style>
+    :root {
+      --bgA: #fdf6ec;
+      --bgB: #edf8ff;
+      --card: #ffffff;
+      --ink: #1f2a36;
+      --muted: #596579;
+      --line: #d7e1ec;
+      --good: #146c43;
+      --accent: #9e5a00;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 8% 4%, var(--bgA), transparent 44%),
+                  radial-gradient(circle at 85% 0%, var(--bgB), transparent 45%),
+                  #f8fbff;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(980px, 94vw);
+      margin: 24px auto 40px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 10px 24px rgba(18, 26, 36, 0.06);
+    }
+
+    h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    h2 { margin: 0 0 10px; font-size: 1.15rem; }
+    p, li { line-height: 1.5; }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    .controls {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      align-items: end;
+    }
+
+    label { font-weight: 700; display: block; margin-bottom: 6px; }
+    select, input[type="range"], button {
+      width: 100%;
+      border: 1px solid #c7d2de;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      background: #fff7ec;
+      border-color: #ebc28f;
+    }
+
+    .scene {
+      margin-top: 12px;
+      border: 1px dashed #c4cfdd;
+      border-radius: 12px;
+      min-height: 190px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fefefe, #f5faff);
+    }
+
+    .axis {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 2px;
+      background: #9db0c3;
+    }
+
+    .lens {
+      position: absolute;
+      width: 18px;
+      height: 130px;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 20px;
+      background: #9fd3ff;
+      border: 2px solid #4d93c8;
+    }
+
+    .mirror {
+      position: absolute;
+      width: 10px;
+      height: 130px;
+      top: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #9aa8b6;
+      border-radius: 8px;
+    }
+
+    .obj, .img {
+      position: absolute;
+      width: 12px;
+      border-radius: 10px;
+      bottom: 95px;
+    }
+
+    .obj {
+      background: #d94841;
+      left: 22%;
+    }
+
+    .img {
+      background: #2c7fb8;
+    }
+
+    .ray {
+      position: absolute;
+      height: 2px;
+      background: #f59f00;
+      transform-origin: left center;
+      opacity: 0.85;
+    }
+
+    .result {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #e8f8ee;
+      color: var(--good);
+      font-weight: 700;
+    }
+
+    .question {
+      padding: 12px;
+      border: 1px solid #d7e1ec;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #fcfdff;
+    }
+
+    .options { display: grid; gap: 8px; margin-top: 8px; }
+
+    .opt {
+      text-align: left;
+      border: 1px solid #cdd8e4;
+      background: #fff;
+      border-radius: 9px;
+      padding: 9px 10px;
+      cursor: pointer;
+    }
+
+    .opt.correct { border-color: #7bc998; background: #ecfdf3; }
+    .opt.wrong { border-color: #f2a5a5; background: #fff1f1; }
+
+    .score {
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 10px;
+      border: 1px solid #c7d2de;
+      padding: 10px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Optica Geometrica - Atividade Adaptada</h1>
+      <p class="small">Foco qualitativo: observar caminho da luz e caracteristicas da imagem.</p>
+      <h2>Objetivo da aula</h2>
+      <p>Perceber como o tipo de elemento optico e a posicao do objeto mudam a imagem observada.</p>
+      <h2>Roteiro em 3 passos</h2>
+      <ol>
+        <li>Escolha lente convergente ou espelho plano.</li>
+        <li>Mude a distancia do objeto.</li>
+        <li>Descreva a imagem: direita/invertida e maior/menor/igual.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Exploracao guiada</h2>
+      <div class="controls">
+        <div>
+          <label for="elemento">Elemento optico</label>
+          <select id="elemento">
+            <option value="lente">Lente convergente</option>
+            <option value="espelho">Espelho plano</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="dist">Distancia do objeto</label>
+          <input id="dist" type="range" min="1" max="3" step="1" value="2" />
+          <div class="small" id="distLabel">Media</div>
+        </div>
+
+        <div>
+          <button id="updateBtn" type="button">Atualizar cena</button>
+        </div>
+      </div>
+
+      <div class="scene" id="scene" aria-live="polite"></div>
+      <div class="result" id="result">Imagem: -</div>
+      <p class="small" id="explain"></p>
+    </section>
+
+    <section class="card">
+      <h2>Atividade qualitativa</h2>
+      <p class="small">Marque uma alternativa por questao e clique em conferir.</p>
+      <div id="questions"></div>
+      <button id="checkBtn" type="button">Conferir respostas</button>
+      <p class="score" id="score"></p>
+    </section>
+
+    <section class="card">
+      <h2>Fechamento com frase-guia</h2>
+      <p>Complete no seu ritmo: "Quando eu <strong>___</strong>, a imagem ficou <strong>___</strong>, porque <strong>___</strong>."</p>
+      <textarea placeholder="Exemplo: Quando usei espelho plano, a imagem ficou direita e com tamanho parecido, porque o espelho forma imagem simetrica."></textarea>
+    </section>
+  </main>
+
+  <script>
+    const elemento = document.getElementById('elemento');
+    const dist = document.getElementById('dist');
+    const distLabel = document.getElementById('distLabel');
+    const scene = document.getElementById('scene');
+    const result = document.getElementById('result');
+    const explain = document.getElementById('explain');
+
+    const questionsWrap = document.getElementById('questions');
+    const scoreEl = document.getElementById('score');
+
+    const questions = [
+      {
+        id: 'o1',
+        text: '1) No espelho plano, a imagem tende a ser:',
+        options: ['Direita e de tamanho parecido', 'Sempre invertida e gigante', 'Sem relacao com o objeto'],
+        answer: 'Direita e de tamanho parecido'
+      },
+      {
+        id: 'o2',
+        text: '2) Na lente convergente, mudar a distancia do objeto pode:',
+        options: ['Mudar tamanho e orientacao da imagem', 'Nao mudar nada', 'Apagar totalmente a imagem em todos os casos'],
+        answer: 'Mudar tamanho e orientacao da imagem'
+      },
+      {
+        id: 'o3',
+        text: '3) Em abordagem qualitativa, observar raios de luz ajuda a:',
+        options: ['Entender para onde a luz segue', 'Somente decorar formulas', 'Evitar qualquer explicacao'],
+        answer: 'Entender para onde a luz segue'
+      },
+      {
+        id: 'o4',
+        text: '4) Se o objeto fica muito perto da lente convergente (nesta atividade), a imagem tende a:',
+        options: ['Ficar direita e ampliada', 'Ficar sempre igual', 'Desaparecer sem explicacao'],
+        answer: 'Ficar direita e ampliada'
+      },
+      {
+        id: 'o5',
+        text: '5) Melhor conclusao cientifica curta:',
+        options: [
+          'A imagem nao depende do sistema optico.',
+          'A imagem depende do tipo de elemento e da posicao do objeto.',
+          'So a cor do fundo define a imagem.'
+        ],
+        answer: 'A imagem depende do tipo de elemento e da posicao do objeto.'
+      }
+    ];
+
+    function distanceText(v) {
+      if (v === 1) return 'Perto';
+      if (v === 2) return 'Media';
+      return 'Longe';
+    }
+
+    function drawRay(x, y, len, deg) {
+      const r = document.createElement('div');
+      r.className = 'ray';
+      r.style.left = x + '%';
+      r.style.top = y + 'px';
+      r.style.width = len + 'px';
+      r.style.transform = 'rotate(' + deg + 'deg)';
+      scene.appendChild(r);
+    }
+
+    function renderScene() {
+      const mode = elemento.value;
+      const d = Number(dist.value);
+      distLabel.textContent = distanceText(d);
+
+      scene.innerHTML = '<div class="axis"></div>';
+
+      const obj = document.createElement('div');
+      obj.className = 'obj';
+      obj.style.height = (d === 1 ? 58 : d === 2 ? 44 : 34) + 'px';
+      scene.appendChild(obj);
+
+      const img = document.createElement('div');
+      img.className = 'img';
+
+      if (mode === 'lente') {
+        const lens = document.createElement('div');
+        lens.className = 'lens';
+        scene.appendChild(lens);
+
+        if (d === 1) {
+          img.style.height = '62px';
+          img.style.left = '70%';
+          img.style.bottom = '95px';
+          result.textContent = 'Imagem: direita e ampliada';
+          explain.textContent = 'Leitura qualitativa: objeto perto da lente convergente pode gerar imagem direita e maior nesta representacao didatica.';
+        } else if (d === 2) {
+          img.style.height = '42px';
+          img.style.left = '73%';
+          img.style.bottom = '95px';
+          result.textContent = 'Imagem: invertida e tamanho intermediario';
+          explain.textContent = 'Leitura qualitativa: ao afastar o objeto, a imagem muda de orientacao e tamanho.';
+        } else {
+          img.style.height = '28px';
+          img.style.left = '76%';
+          img.style.bottom = '95px';
+          result.textContent = 'Imagem: invertida e reduzida';
+          explain.textContent = 'Leitura qualitativa: objeto mais longe tende a gerar imagem menor nesta lente.';
+        }
+
+        if (d !== 1) {
+          img.style.transform = 'scaleY(-1)';
+          img.style.transformOrigin = 'center bottom';
+        }
+
+        drawRay(23, 84, 140, d === 1 ? -6 : d === 2 ? 4 : 10);
+        drawRay(23, 98, 145, d === 1 ? 8 : d === 2 ? -2 : -7);
+      } else {
+        const mirror = document.createElement('div');
+        mirror.className = 'mirror';
+        scene.appendChild(mirror);
+
+        img.style.height = obj.style.height;
+        img.style.left = '64%';
+        img.style.bottom = '95px';
+
+        result.textContent = 'Imagem: direita e tamanho parecido';
+        explain.textContent = 'Leitura qualitativa: no espelho plano, a imagem fica simetrica em relacao ao espelho.';
+
+        drawRay(23, 85, 130, 0);
+        drawRay(50, 85, 105, 180);
+      }
+
+      scene.appendChild(img);
+    }
+
+    function renderQuestions() {
+      questionsWrap.innerHTML = questions.map((q) => {
+        const optionsHtml = q.options.map((op) => {
+          return '<button class="opt" type="button" data-q="' + q.id + '" data-value="' + op + '">' + op + '</button>';
+        }).join('');
+
+        return '<div class="question">' +
+          '<strong>' + q.text + '</strong>' +
+          '<div class="options">' + optionsHtml + '</div>' +
+          '</div>';
+      }).join('');
+
+      questionsWrap.querySelectorAll('.opt').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const qid = btn.dataset.q;
+          questionsWrap.querySelectorAll('.opt[data-q="' + qid + '"]').forEach((x) => {
+            x.dataset.selected = 'false';
+            x.style.outline = 'none';
+          });
+          btn.dataset.selected = 'true';
+          btn.style.outline = '3px solid #ebc28f';
+        });
+      });
+    }
+
+    function checkAnswers() {
+      let correct = 0;
+
+      questions.forEach((q) => {
+        const group = questionsWrap.querySelectorAll('.opt[data-q="' + q.id + '"]');
+        let picked = null;
+
+        group.forEach((btn) => {
+          btn.classList.remove('correct', 'wrong');
+          if (btn.dataset.selected === 'true') picked = btn;
+        });
+
+        group.forEach((btn) => {
+          if (btn.dataset.value === q.answer) btn.classList.add('correct');
+        });
+
+        if (picked) {
+          if (picked.dataset.value === q.answer) {
+            correct += 1;
+          } else {
+            picked.classList.add('wrong');
+          }
+        }
+      });
+
+      scoreEl.textContent = 'Resultado qualitativo: ' + correct + ' de ' + questions.length + ' itens com leitura correta.';
+    }
+
+    document.getElementById('updateBtn').addEventListener('click', renderScene);
+    elemento.addEventListener('change', renderScene);
+    dist.addEventListener('input', renderScene);
+    document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+
+    renderScene();
+    renderQuestions();
+  </script>
+</body>
+</html>

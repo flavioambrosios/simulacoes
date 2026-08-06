@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Ondas 2D">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/Ondas/Ondas2D/">
+    <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Interferência de Ondas em 2D</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .simulation-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .fórmula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-fórmula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Interferência de Ondas em Duas Dimensões</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação de Interferência de Ondas - PhET</h2>
+                <div class="simulation-container">
+                    <iframe src="https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_pt_BR.html"
+                            width="800"
+                            height="600"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                <!-- CRÉDITO OBRIGATÓRIO DO PHET -->
+                <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                    <strong>Simulação interativa:</strong> 
+                    <a href="https://phet.colorado.edu" target="_blank" style="color: #ffcc00;">
+                        PhET Interactive Simulations
+                    </a>, University of Colorado Boulder – Licenciado sob 
+                    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #ffcc00;">
+                        CC BY 4.0
+                    </a>.
+                </p>
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Como Usar a Simulação</button>
+                </div>
+                
+               
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Conceitos Fundamentais</h2>
+                
+                <div class="control-group">
+                    <label for="waveTypeSelect">Tipo de Onda:</label>
+                    <select id="waveTypeSelect">
+                        <option value="onda_agua">Ondas na Água</option>
+                        <option value="onda_sonora">Ondas Sonoras</option>
+                        <option value="onda_luz">Ondas de Luz</option>
+                    </select>
+                </div>
+                
+                <div class="fórmula-box">
+                    <h3>Princípio da Superposição</h3>
+                    <p>Quando duas ondas se encontram, elas se somam</p>
+                    <p>y<sub>total</sub> = y<sub>1</sub> + y<sub>2</sub></p>
+                </div>
+                
+                <div class="fórmula-box">
+                    <h3>Interferência Construtiva</h3>
+                    <p>Ocorre quando as cristas das ondas coincidem</p>
+                    <p>Δd = n·λ (n = 0, 1, 2, ...)</p>
+                </div>
+                
+                <div class="fórmula-box">
+                    <h3>Interferência Destrutiva</h3>
+                    <p>Ocorre quando uma crista encontra um vale</p>
+                    <p>Δd = (n + ½)·λ (n = 0, 1, 2, ...)</p>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria Completa</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Observações e Conceitos</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Interferência Construtiva</div>
+                        <div class="measurement-value">Amplificação</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Interferência Destrutiva</div>
+                        <div class="measurement-value">Cancelamento</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Padrão de Interferência</div>
+                        <div class="measurement-value">Regiões Claras e Escuras</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Coerência</div>
+                        <div class="measurement-value">Frequências Iguais</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Interferência de Ondas</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Interferência de Ondas</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Como reconhecer reforço entre ondas</h4>
+                    <p><strong>Problema:</strong> Em uma cuba de ondas, duas fontes vibram em sincronia. Em alguns pontos a agitação da água parece mais intensa do que a produzida por cada fonte isoladamente. Como interpretar isso?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Quando as fontes vibram de forma coerente, as frentes de onda chegam a muitos pontos mantendo uma relação regular entre si.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Se em certo ponto uma crista encontra outra crista, ou um vale encontra outro vale, os efeitos se somam.</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> O resultado visível é uma região em que a oscilação fica mais intensa, como se a onda resultante tivesse ficado "mais forte".</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Esse ponto corresponde a interferência construtiva, porque as duas ondas chegaram ali se reforçando.</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Como reconhecer cancelamento entre ondas</h4>
+                    <p><strong>Problema:</strong> Em outra região da simulação, quase não há perturbação visível, mesmo que as duas fontes continuem emitindo ondas. Por que isso acontece?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Nem sempre as ondas chegam em fase ao mesmo ponto. Às vezes, uma crista encontra um vale.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Quando isso ocorre, uma onda tende a compensar o efeito da outra.</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> O cancelamento pode ser parcial ou quase total, dependendo do quanto as ondas têm amplitudes parecidas e chegam em oposição.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Essas regiões correspondem à interferência destrutiva, em que os efeitos das duas ondas se anulam em grande parte.</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Por que surgem franjas claras e escuras</h4>
+                    <p><strong>Problema:</strong> Em uma experiência de dupla fenda, por que a tela não fica uniformemente iluminada, mas mostra faixas alternadas?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> As duas fendas passam a funcionar como duas fontes coerentes de luz.</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Em alguns pontos da tela, as ondas chegam se reforçando, o que gera regiões mais intensas e portanto mais claras.</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Em outros pontos, elas chegam em oposição e enfraquecem a intensidade luminosa, formando regiões escuras.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> As franjas alternadas aparecem porque a interferência não é igual em toda a tela: em alguns pontos há reforço, em outros há cancelamento.</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Interferência de Ondas</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Princípio da Superposição</h3>
+                    <p>Quando duas ou mais ondas passam pela mesma região, os seus efeitos se combinam. Em vez de cada onda agir separadamente, o meio responde ao efeito conjunto delas naquele instante.</p>
+                    <p>Na linguagem da simulação, isso significa observar o que acontece quando as perturbações vindas de duas fontes chegam ao mesmo ponto do plano. O resultado pode ser reforço, cancelamento parcial ou quase cancelamento total.</p>
+                    <div class="theory-fórmula">ideia central: ondas podem se somar ou se compensar</div>
+                    <p>O importante aqui não é decorar uma expressão algébrica, mas entender que o padrão final depende da comparação entre as duas ondas em cada ponto do espaço.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Interferência Construtiva</h3>
+                    <p>A interferência construtiva acontece quando duas ondas chegam de forma compatível ao mesmo ponto. Uma maneira simples de imaginar isso é pensar em crista com crista, ou vale com vale.</p>
+                    <p>Nessa situação, a oscilação observada fica mais intensa. Em água, isso aparece como uma agitação maior da superfície. Em som, isso pode significar uma região em que o som parece mais forte. Em luz, corresponde a regiões mais brilhantes.</p>
+                    <p><strong>Leitura didática:</strong> interferência construtiva não cria energia do nada; ela apenas redistribui a intensidade no espaço, concentrando mais efeito em certos pontos.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Interferência Destrutiva</h3>
+                    <p>A interferência destrutiva aparece quando uma onda tende a desfazer o efeito da outra no mesmo ponto, como acontece no encontro entre uma crista e um vale.</p>
+                    <p>O resultado é uma oscilação menor do que se esperaria para cada onda isoladamente. Se o ajuste entre elas for muito preciso, o cancelamento pode ser quase total.</p>
+                    <p><strong>Exemplo cotidiano:</strong> tecnologias de cancelamento de ruído exploram exatamente essa ideia, produzindo uma onda que se opõe ao som indesejado.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Coerência</h3>
+                    <p>Para que o padrão de interferência permaneça organizado, as fontes precisam ser coerentes. Isso quer dizer que elas devem manter uma relação estável entre frequência e fase.</p>
+                    
+                    <ul>
+                        <li>Devem oscilar com a mesma frequência ou com frequências muito bem controladas</li>
+                        <li>Devem manter uma diferença de fase que não fique mudando aleatoriamente</li>
+                    </ul>
+                    
+                    <p>Se isso não acontecer, o padrão muda rapidamente e deixa de parecer estável. É por isso que nem toda combinação de fontes produz franjas bem definidas ou regiões fixas de reforço e cancelamento.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Experiência de Young (Dupla Fenda)</h3>
+                    <p>A experiência de Young é importante porque mostra, de forma visual, que a luz pode produzir interferência como qualquer outro fenômeno ondulatório.</p>
+                    
+                    <ul>
+                        <li>Uma mesma fonte ilumina duas fendas muito próximas</li>
+                        <li>Cada fenda passa a agir como uma nova fonte de ondas luminosas</li>
+                        <li>Na tela, essas ondas não chegam com o mesmo efeito em todos os pontos</li>
+                        <li>Por isso surgem faixas claras e escuras alternadas</li>
+                    </ul>
+                    <p>O aspecto mais importante para os seus exercícios é interpretar o padrão: franjas claras indicam reforço da luz; franjas escuras indicam cancelamento. A análise qualitativa já permite entender o fenômeno antes de qualquer cálculo.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações da Interferência</h3>
+                    <p>Interferência não é apenas um tema teórico. Ela aparece em situações reais em que o encontro entre ondas produz reforço ou cancelamento de forma útil.</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Antirreflexo em lentes:</span> o objetivo é reduzir parte da luz refletida por cancelamento</li>
+                        <li><span class="highlight">Interferômetros:</span> usam padrões de interferência para perceber variações muito pequenas</li>
+                        <li><span class="highlight">Holografia:</span> registra como ondas luminosas se combinam para reconstruir imagens</li>
+                        <li><span class="highlight">Cancelamento de ruído:</span> produz uma onda oposta para diminuir o som indesejado</li>
+                    </ul>
+                    <p>Esses exemplos ajudam a perceber que interferência é uma ferramenta de interpretação: observar onde há reforço e onde há cancelamento permite extrair informação física importante.</p>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        
+        // Configurar eventos
+        function setupEventListeners() {
+            // Botão de ajuda
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar a simulação:\n\n• Selecione o tipo de onda (água, som ou luz)\n• Ajuste a frequência e amplitude das fontes\n• Observe os padrões de interferência formados\n• Use a régua para medir distâncias entre as franjas\n• Compare com os conceitos teóricos aprendidos\n\nDica: Experimente diferentes configurações para observar como o padrão de interferência muda!");
+            });
+            
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        function buildQualitativeExerciseByType(type) {
+            if (type === 'construtiva') {
+                return {
+                    type: 'construtiva',
+                    question: 'Quando crista encontra crista, o resultado tende a ser:',
+                    answer: 'Interferência construtiva',
+                    options: ['Interferência construtiva', 'Interferência destrutiva', 'Ausência de superposição']
+                };
+            }
+
+            if (type === 'destrutiva') {
+                return {
+                    type: 'destrutiva',
+                    question: 'Quando crista encontra vale, a amplitude resultante tende a:',
+                    answer: 'Diminuir por interferência destrutiva',
+                    options: ['Aumentar sempre', 'Diminuir por interferência destrutiva', 'Não se alterar em nenhum ponto']
+                };
+            }
+
+            if (type === 'franjas') {
+                return {
+                    type: 'franjas',
+                    question: 'No padrão de dupla fonte, as regiões de maior intensidade representam:',
+                    answer: 'Regiões de reforço das ondas',
+                    options: ['Regiões de reforço das ondas', 'Regiões sem ondas', 'Somente sombra geométrica']
+                };
+            }
+
+            if (type === 'coerencia') {
+                return {
+                    type: 'coerencia',
+                    question: 'Para manter um padrão estável de interferência, as fontes devem ser:',
+                    answer: 'Coerentes',
+                    options: ['Coerentes', 'Aleatórias em frequência', 'Sempre de amplitudes opostas']
+                };
+            }
+
+            return {
+                type: 'aplicacao',
+                question: 'Qual aplicação usa interferência destrutiva de forma controlada?',
+                answer: 'Cancelamento ativo de ruído',
+                options: ['Cancelamento ativo de ruído', 'Termômetro de mercúrio', 'Efeito fotoelétrico em metais']
+            };
+        }
+
+        // Gerar exercícios sobre Interferência de Ondas
+        function generateExercises() {
+            exercises = shuffleArray([
+                buildQualitativeExerciseByType('construtiva'),
+                buildQualitativeExerciseByType('destrutiva'),
+                buildQualitativeExerciseByType('franjas'),
+                buildQualitativeExerciseByType('coerencia'),
+                buildQualitativeExerciseByType('aplicacao')
+            ]);
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            exercises[currentExercise] = buildQualitativeExerciseByType(currentType);
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            });
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < 5; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+
+            document.getElementById('submitConclusion').onclick = function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            };
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+
+            document.getElementById('sendResults').onclick = sendResultsToSheet;
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Interferência de Ondas (Adaptada N2)',
+                versao_atividade: 'adaptada_n2',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Interferência de Ondas (Adaptada N2)',
+                        versao_atividade: 'adaptada_n2',
+                        mensagem: `Confirmação de Envio - Simulação de Interferência de Ondas (Adaptada N2)
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos. Se o serviço de e-mail não estiver em limite, as mensagens serão enviadas.' 
+                    : '✅ Dados salvos. O e-mail ao professor será enviado se o serviço não estiver em limite.';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('emailStatus').style.display = 'none';
+            document.getElementById('emailStatus').textContent = '';
+            document.getElementById('sendResults').disabled = false;
+            document.getElementById('sendResults').textContent = 'Enviar Resultados';
+            showCurrentExercise();
+        }
+        
+        // Inicializar quando a página carregar
+        window.addEventListener('load', function() {
+            setupEventListeners();
+        });
+    </script>
+    <script>
+        let studentNameOndas2D = localStorage.getItem('studentNameOndas2D') || '';
+
+        function ensureStudentNameOndas2D() {
+            if (!studentNameOndas2D) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameOndas2D = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameOndas2D', studentNameOndas2D);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameOndas2D();
+                return `Olá, ${studentNameOndas2D}. Esta simulação de ondas em duas dimensões usa o simulador do PhET como núcleo da exploração. Na área principal você observa frentes de onda se espalhando sobre uma superfície e formando padrões de encontro entre duas fontes. Ao lado, a página resume os conceitos fundamentais de superposição e interferência. A ideia é ver como a geometria das frentes de onda produz regiões de reforço e de cancelamento.`;
+            },
+            function () {
+                return 'O primeiro conceito importante é o princípio da superposição. Quando duas ondas passam pelo mesmo ponto do meio, os deslocamentos se somam. Isso significa que o resultado observado não pertence isoladamente a uma ou outra fonte, mas à combinação das duas. Esse é o ponto de partida para compreender qualquer padrão de interferência.';
+            },
+            function () {
+                return 'Na interferência construtiva, crista encontra crista ou vale encontra vale. As amplitudes se reforçam e surgem regiões de maior intensidade. Na interferência destrutiva, crista encontra vale e ocorre cancelamento parcial ou total. A simulação ajuda a ver esse processo como um desenho em movimento, não apenas como uma fórmula escrita na lateral.';
+            },
+            function () {
+                return 'As expressões de diferença de caminho resumem quando cada caso acontece. Para a interferência construtiva, a diferença de caminho é um múltiplo inteiro do comprimento de onda. Para a destrutiva, aparece um múltiplo meio ímpar. Em vez de decorar isso de modo mecânico, vale relacionar a ideia à fase das ondas: em fase, reforçam; em oposição de fase, cancelam.';
+            },
+            function () {
+                return 'O seletor de tipo de onda ajuda a comparar contextos físicos diferentes, como água, som e luz. Embora o padrão geométrico de interferência siga a mesma lógica, cada caso lembra ao estudante que o conceito de onda aparece em fenômenos muito diversos. Isso amplia a compreensão do tema e evita que a interferência seja vista como algo restrito a um único exemplo.';
+            },
+            function () {
+                return 'Na área de observações, aparecem palavras-chave como amplificação, cancelamento, padrão de interferência e coerência. O termo coerência é especialmente importante: sem fontes coerentes, o padrão estável de franjas não se mantém. Ou seja, para ver claramente as regiões claras e escuras, é preciso que as fontes tenham relação de fase bem definida.';
+            },
+            function () {
+                return 'Depois da exploração visual, passe para os exercícios resolvidos e para a prática. Nos exemplos, tente perguntar primeiro se a situação pede interpretação espacial do padrão, cálculo da separação entre franjas ou explicação qualitativa da alternância entre regiões claras e escuras. Essa organização ajuda a transformar a interferência em raciocínio físico, e não em coleção de casos soltos.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a pergunta é sobre interferência construtiva entre duas fontes. A ideia central é olhar para a diferença de caminho entre as ondas que chegam a um ponto. Sempre que essa diferença for um múltiplo inteiro do comprimento de onda, as ondas chegam em fase e se reforçam. O exercício mostra isso usando o ponto médio e pontos simétricos ao redor dele. Mais importante que decorar posições específicas é compreender o critério físico do reforço.',
+            '2': 'No segundo exemplo, o foco é a distância entre franjas escuras em uma situação semelhante à dupla fenda. A expressão usada relaciona comprimento de onda, distância até a tela e separação entre as fontes. O ponto pedagógico é perceber que o padrão de interferência não depende só da cor da luz, mas também da geometria do experimento. Ao final, a conta fornece uma separação entre franjas escuras de um vírgula dois centímetro.',
+            '3': 'No terceiro exemplo, a questão é qualitativa e muito importante: por que aparecem franjas claras e escuras alternadas. A resposta vem da alternância entre regiões onde as ondas chegam em fase e regiões onde chegam em oposição de fase. Esse exemplo ajuda o estudante a enxergar o padrão como consequência direta da superposição de duas fontes coerentes, e não como um desenho arbitrário na tela.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ondas 2D (Adaptada N2)',
+            storageKey: 'ondas-2d'
+        };
+    </script>
+    <script src="../../_shared/simulation-enhancer.js"></script>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+</body>
+</html>
+

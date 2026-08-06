@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lei de Coulomb - Atividade Adaptada (Qualitativa)</title>
+  <style>
+    :root {
+      --bg1: #f3f8ff;
+      --bg2: #fff8ef;
+      --card: #ffffff;
+      --ink: #1f2a36;
+      --muted: #5b6672;
+      --ok: #1f7a3d;
+      --warn: #b54708;
+      --bad: #b42318;
+      --accent: #005b99;
+      --line: #d9e2ec;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 15% 10%, var(--bg2), transparent 40%),
+                  radial-gradient(circle at 85% 0%, var(--bg1), transparent 45%),
+                  #f7fafc;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(980px, 94vw);
+      margin: 24px auto 40px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 20px rgba(16, 24, 40, 0.05);
+    }
+
+    h1 { margin: 0 0 8px; font-size: 1.5rem; }
+    h2 { margin: 0 0 10px; font-size: 1.15rem; }
+    p, li { line-height: 1.5; }
+
+    .small { color: var(--muted); font-size: 0.95rem; }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    label { font-weight: 600; display: block; margin-bottom: 6px; }
+    select, input[type="range"], button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #c7d2de;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    button {
+      cursor: pointer;
+      background: #eef6ff;
+      border-color: #9cc3e3;
+      font-weight: 700;
+    }
+
+    .scene {
+      border: 1px dashed #c5cfdb;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 180px;
+      background: linear-gradient(180deg, #f7fbff 0%, #fff 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .charge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      position: absolute;
+      top: 62px;
+      font-size: 1.3rem;
+    }
+
+    .positive { background: #0077b6; }
+    .negative { background: #d14334; }
+
+    .arrow {
+      position: absolute;
+      top: 86px;
+      height: 8px;
+      background: #222;
+      border-radius: 6px;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      top: -6px;
+      right: -10px;
+      border-left: 12px solid #222;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+    }
+
+    .arrow.left { transform: scaleX(-1); }
+
+    .tag {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      background: #ecfdf3;
+      color: #116337;
+    }
+
+    .question {
+      padding: 12px;
+      border: 1px solid #d7e0ea;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #fbfdff;
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .opt {
+      text-align: left;
+      border: 1px solid #cdd8e4;
+      background: #fff;
+      border-radius: 9px;
+      padding: 9px 10px;
+      cursor: pointer;
+    }
+
+    .opt.correct { border-color: #7bc998; background: #ecfdf3; }
+    .opt.wrong { border-color: #f2a5a5; background: #fff1f1; }
+
+    .score {
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      border-radius: 10px;
+      border: 1px solid #c7d2de;
+      padding: 10px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card">
+      <h1>Lei de Coulomb - Atividade Adaptada</h1>
+      <p class="small">Foco qualitativo: observar, comparar e explicar sem contas longas.</p>
+      <h2>Objetivo da aula</h2>
+      <p>Entender quando as cargas se atraem ou se repelem e como a distancia muda a intensidade da forca.</p>
+      <h2>Roteiro em 3 passos</h2>
+      <ol>
+        <li>Escolha os sinais das duas cargas.</li>
+        <li>Mude a distancia entre elas.</li>
+        <li>Explique com uma frase: o que mudou e por que mudou.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Exploracao guiada</h2>
+      <div class="controls">
+        <div>
+          <label for="q1">Carga A</label>
+          <select id="q1">
+            <option value="+">Positiva (+)</option>
+            <option value="-">Negativa (-)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="q2">Carga B</label>
+          <select id="q2">
+            <option value="-">Negativa (-)</option>
+            <option value="+">Positiva (+)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="dist">Distancia</label>
+          <input id="dist" type="range" min="1" max="3" step="1" value="2" />
+          <div class="small" id="distLabel">Media</div>
+        </div>
+
+        <div>
+          <button id="updateBtn" type="button">Atualizar cena</button>
+        </div>
+      </div>
+
+      <div class="scene" id="scene" aria-live="polite"></div>
+      <div id="resultTag" class="tag">Interacao: -</div>
+      <p id="explain" class="small"></p>
+    </section>
+
+    <section class="card">
+      <h2>Atividade qualitativa</h2>
+      <p class="small">Marque uma alternativa por questao e clique em conferir.</p>
+      <div id="questions"></div>
+      <button id="checkBtn" type="button">Conferir respostas</button>
+      <p id="score" class="score"></p>
+    </section>
+
+    <section class="card">
+      <h2>Fechamento com frase-guia</h2>
+      <p>Complete no seu ritmo: "Quando eu <strong>___</strong>, entao <strong>___</strong>, porque <strong>___</strong>."</p>
+      <textarea id="finalText" placeholder="Exemplo: Quando aproximei as cargas de sinais diferentes, a atracao ficou mais forte, porque a distancia diminuiu."></textarea>
+    </section>
+  </main>
+
+  <script>
+    const q1 = document.getElementById('q1');
+    const q2 = document.getElementById('q2');
+    const dist = document.getElementById('dist');
+    const distLabel = document.getElementById('distLabel');
+    const scene = document.getElementById('scene');
+    const resultTag = document.getElementById('resultTag');
+    const explain = document.getElementById('explain');
+
+    const questionsWrap = document.getElementById('questions');
+    const scoreEl = document.getElementById('score');
+
+    const questions = [
+      {
+        id: 'qA',
+        text: '1) Cargas de sinais iguais tendem a:',
+        options: ['Se atrair', 'Se repelir', 'Ficar sem forca'],
+        answer: 'Se repelir'
+      },
+      {
+        id: 'qB',
+        text: '2) Se aproximarmos duas cargas que ja interagem, a forca tende a ficar:',
+        options: ['Mais forte', 'Mais fraca', 'Igual'],
+        answer: 'Mais forte'
+      },
+      {
+        id: 'qC',
+        text: '3) Sinais diferentes indicam:',
+        options: ['Atracao', 'Repulsao', 'Nao ha interacao'],
+        answer: 'Atracao'
+      },
+      {
+        id: 'qD',
+        text: '4) Em atividade qualitativa, a melhor evidencia e observar:',
+        options: ['Mudanca no tipo e na intensidade da interacao', 'Somente numeros longos', 'Somente a cor da tela'],
+        answer: 'Mudanca no tipo e na intensidade da interacao'
+      },
+      {
+        id: 'qE',
+        text: '5) Qual frase esta mais correta?',
+        options: [
+          'Distancia nao influencia a forca eletrica.',
+          'A distancia pode enfraquecer ou fortalecer a forca eletrica.',
+          'So o sinal da carga importa.'
+        ],
+        answer: 'A distancia pode enfraquecer ou fortalecer a forca eletrica.'
+      }
+    ];
+
+    function distanceText(v) {
+      if (v === 1) return 'Perto';
+      if (v === 2) return 'Media';
+      return 'Longe';
+    }
+
+    function intensityText(v) {
+      if (v === 1) return 'forte';
+      if (v === 2) return 'moderada';
+      return 'fraca';
+    }
+
+    function renderScene() {
+      const a = q1.value;
+      const b = q2.value;
+      const d = Number(dist.value);
+
+      distLabel.textContent = distanceText(d);
+
+      const leftX = d === 1 ? 34 : d === 2 ? 20 : 8;
+      const rightX = d === 1 ? 66 : d === 2 ? 78 : 90;
+
+      const sameSignal = a === b;
+      const interaction = sameSignal ? 'Repulsao' : 'Atracao';
+      const intensity = intensityText(d);
+
+      scene.innerHTML = '';
+
+      const c1 = document.createElement('div');
+      c1.className = 'charge ' + (a === '+' ? 'positive' : 'negative');
+      c1.style.left = leftX + '%';
+      c1.textContent = a;
+
+      const c2 = document.createElement('div');
+      c2.className = 'charge ' + (b === '+' ? 'positive' : 'negative');
+      c2.style.left = rightX + '%';
+      c2.textContent = b;
+
+      const size = d === 1 ? 72 : d === 2 ? 52 : 36;
+
+      const ar1 = document.createElement('div');
+      ar1.className = 'arrow';
+      ar1.style.width = size + 'px';
+
+      const ar2 = document.createElement('div');
+      ar2.className = 'arrow';
+      ar2.style.width = size + 'px';
+
+      if (sameSignal) {
+        ar1.style.left = (leftX - 8) + '%';
+        ar1.classList.add('left');
+
+        ar2.style.left = (rightX + 2) + '%';
+      } else {
+        ar1.style.left = (leftX + 4) + '%';
+
+        ar2.style.left = (rightX - 11) + '%';
+        ar2.classList.add('left');
+      }
+
+      scene.appendChild(c1);
+      scene.appendChild(c2);
+      scene.appendChild(ar1);
+      scene.appendChild(ar2);
+
+      resultTag.textContent = 'Interacao: ' + interaction + ' | Intensidade: ' + intensity;
+      explain.textContent = 'Leitura qualitativa: sinais ' + (sameSignal ? 'iguais' : 'diferentes') +
+        ' produzem ' + interaction.toLowerCase() + '. Com distancia ' + distanceText(d).toLowerCase() +
+        ', a forca fica ' + intensity + '.';
+    }
+
+    function renderQuestions() {
+      questionsWrap.innerHTML = questions.map((q) => {
+        const optionsHtml = q.options.map((op) => {
+          return '<button class="opt" type="button" data-q="' + q.id + '" data-value="' + op + '">' + op + '</button>';
+        }).join('');
+
+        return '<div class="question">' +
+          '<strong>' + q.text + '</strong>' +
+          '<div class="options">' + optionsHtml + '</div>' +
+          '</div>';
+      }).join('');
+
+      questionsWrap.querySelectorAll('.opt').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const qid = btn.dataset.q;
+          questionsWrap.querySelectorAll('.opt[data-q="' + qid + '"]').forEach((x) => {
+            x.dataset.selected = 'false';
+            x.style.outline = 'none';
+          });
+          btn.dataset.selected = 'true';
+          btn.style.outline = '3px solid #9cc3e3';
+        });
+      });
+    }
+
+    function checkAnswers() {
+      let correct = 0;
+
+      questions.forEach((q) => {
+        const group = questionsWrap.querySelectorAll('.opt[data-q="' + q.id + '"]');
+        let picked = null;
+
+        group.forEach((btn) => {
+          btn.classList.remove('correct', 'wrong');
+          if (btn.dataset.selected === 'true') picked = btn;
+        });
+
+        group.forEach((btn) => {
+          if (btn.dataset.value === q.answer) btn.classList.add('correct');
+        });
+
+        if (picked) {
+          if (picked.dataset.value === q.answer) {
+            correct += 1;
+          } else {
+            picked.classList.add('wrong');
+          }
+        }
+      });
+
+      scoreEl.textContent = 'Resultado qualitativo: ' + correct + ' de ' + questions.length + ' itens com leitura correta.';
+    }
+
+    document.getElementById('updateBtn').addEventListener('click', renderScene);
+    dist.addEventListener('input', renderScene);
+    q1.addEventListener('change', renderScene);
+    q2.addEventListener('change', renderScene);
+    document.getElementById('checkBtn').addEventListener('click', checkAnswers);
+
+    renderScene();
+    renderQuestions();
+  </script>
+</body>
+</html>

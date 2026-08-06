@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Resistência Elétrica">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/Resistenca/">
+    <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação: A Resistência Elétrica em um Fio</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 8px;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .fórmula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .orange { background: #ff7700; }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .modal-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .resume-badge {
+            display: none;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(0, 255, 170, 0.16);
+            border: 1px solid rgba(0, 255, 170, 0.4);
+            color: #a8ffe1;
+            font-size: 0.82rem;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .audio-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 204, 0, 0.25);
+        }
+
+        .audio-controls button {
+            width: auto;
+            margin-bottom: 0;
+            min-width: 96px;
+        }
+
+        .audio-controls span {
+            color: #ffdd88;
+            font-weight: bold;
+        }
+
+        .voice-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #fff;
+        }
+
+        .voice-selector label {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .voice-selector select {
+            width: auto;
+            min-width: 220px;
+            margin-bottom: 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .audio-example-btn {
+            margin-top: 12px;
+            background: #1d7f5f;
+            color: #fff;
+        }
+
+        .audio-example-btn:hover {
+            background: #249c74;
+        }
+
+        .audio-example-btn.playing {
+            background: #c96d00;
+        }
+
+        .audio-example-btn.playing:hover {
+            background: #df7a00;
+        }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-fórmula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: none;
+                width: 100%;
+            }
+            .modal-header {
+                align-items: flex-start;
+            }
+            .modal-header-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .audio-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .audio-controls button,
+            .voice-selector select {
+                width: 100%;
+            }
+            .voice-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação: A Resistência Elétrica em um Fio</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+            <h2 class="panel-title">Simulação Interativa</h2>
+            <iframe src="https://phet.colorado.edu/sims/html/resistance-in-a-wire/latest/resistance-in-a-wire_pt_BR.html"
+                    class="simulation-iframe"
+                    allowfullscreen>
+            </iframe>
+                                    
+            
+
+            <!-- CRÉDITO OBRIGATÓRIO DO PHET -->
+            <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                <strong>Simulação interativa:</strong> 
+                <a href="https://phet.colorado.edu" target="_blank" style="color: #ffcc00;">
+                    PhET Interactive Simulations
+                </a>, University of Colorado Boulder – Licenciado sob 
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #ffcc00;">
+                    CC BY 4.0
+                </a>.
+            </p>
+            <div class="visualization-toggle">
+                <button id="helpBtn">Ajuda</button>
+            </div>
+        </div>            
+            <div class="controls-panel">
+                <h2 class="panel-title">Informações Teóricas</h2>
+                
+                <div class="fórmula-box">
+                    <h3>Fórmula da Resistência</h3>
+                    <p>R = ρ × L / A</p>
+                    <p>Onde:</p>
+                    <p>R = Resistência (Ω)</p>
+                    <p>ρ = Resistividade do material (Ω·m)</p>
+                    <p>L = Comprimento do fio (m)</p>
+                    <p>A = Área da seção transversal (m²)</p>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Fatores que Afetam a Resistência</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Comprimento do fio: Resistência é diretamente proporcional ao comprimento</li>
+                        <li>Área transversal: Resistência é inversamente proporcional à área</li>
+                        <li>Material: Cada material tem uma resistividade específica</li>
+                        <li>Temperatura: A resistência geralmente aumenta com a temperatura</li>
+                    </ul>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Valores Típicos de Resistividade</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Prata: 1.59 × 10⁻⁸ Ω·m</li>
+                        <li>Cobre: 1.68 × 10⁻⁸ Ω·m</li>
+                        <li>Ouro: 2.44 × 10⁻⁸ Ω·m</li>
+                        <li>Alumínio: 2.82 × 10⁻⁸ Ω·m</li>
+                        <li>Tungstênio: 5.60 × 10⁻⁸ Ω·m</li>
+                        <li>Ferro: 1.00 × 10⁻⁷ Ω·m</li>
+                    </ul>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Exemplos Práticos</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (1m, 1mm²)</div>
+                        <div class="measurement-value">0.017 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Alumínio (1m, 1mm²)</div>
+                        <div class="measurement-value">0.028 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Ferro (1m, 1mm²)</div>
+                        <div class="measurement-value">0.100 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (10m, 1mm²)</div>
+                        <div class="measurement-value">0.170 Ω</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Fio de Cobre (1m, 2mm²)</div>
+                        <div class="measurement-value">0.008 Ω</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Resistência Elétrica em Fios</h2>
+                <div class="modal-header-actions">
+                    <span id="exerciseResumeBadge" class="resume-badge">Progresso salvo</span>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+            </div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Resistência em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo da Resistência</h4>
+                    <p><strong>Problema:</strong> Um fio de cobre (ρ = 1.68×10⁻⁸ Ω·m) tem 2 m de comprimento e área transversal de 0.5 mm². Qual é sua resistência?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> R = ρ × L / A</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 0.5 mm² = 0.5×10⁻⁶ m² = 5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: R = (1.68×10⁻⁸) × 2 / (5×10⁻⁷)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: R = (3.36×10⁻⁸) / (5×10⁻⁷) = 0.0672 Ω</div>
+                    <div class="solution-step"><strong>Resposta:</strong> R = 0.0672 Ω</div>
+                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Cálculo do Comprimento</h4>
+                    <p><strong>Problema:</strong> Um fio de alumínio (ρ = 2.82×10⁻⁸ Ω·m) com área transversal de 1 mm² tem resistência de 0.5 Ω. Qual é seu comprimento?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> L = R × A / ρ</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter a área para m²: A = 1 mm² = 1×10⁻⁶ m²</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: L = 0.5 × (1×10⁻⁶) / (2.82×10⁻⁸)</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: L = (5×10⁻⁷) / (2.82×10⁻⁸) = 17.73 m</div>
+                    <div class="solution-step"><strong>Resposta:</strong> L ≈ 17.73 m</div>
+                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Cálculo da Área Transversal</h4>
+                    <p><strong>Problema:</strong> Um fio de ferro (ρ = 1.00×10⁻⁷ Ω·m) com 5 m de comprimento tem resistência de 2 Ω. Qual é sua área transversal?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> A = ρ × L / R</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: A = (1.00×10⁻⁷) × 5 / 2</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: A = (5×10⁻⁷) / 2 = 2.5×10⁻⁷ m²</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Converter para mm²: A = 2.5×10⁻⁷ m² = 0.25 mm²</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A = 0.25 mm²</div>
+                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Resistência Elétrica em Fios</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Resistência Elétrica</h3>
+                    <p>A resistência elétrica é uma propriedade dos materiais que mede a oposição à passagem de corrente elétrica. Em condutores, essa resistência depende das características físicas do material e de suas dimensões.</p>
+                    
+                    <div class="theory-fórmula">R = ρ × L / A</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">R</span> = Resistência elétrica (Ohms - Ω)</li>
+                        <li><span class="highlight">ρ</span> = Resistividade do material (Ω·m)</li>
+                        <li><span class="highlight">L</span> = Comprimento do condutor (metros)</li>
+                        <li><span class="highlight">A</span> = Área da seção transversal (m²)</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Fatores que Influenciam a Resistência</h3>
+                    <p>A resistência de um condutor depende de vários fatores:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Comprimento (L):</span> A resistência é diretamente proporcional ao comprimento do fio. Quanto maior o fio, maior a resistência.</li>
+                        <li><span class="highlight">Área transversal (A):</span> A resistência é inversamente proporcional à área da seção transversal. Fios mais grossos têm menor resistência.</li>
+                        <li><span class="highlight">Material (ρ):</span> Cada material tem uma resistividade específica. Materiais como prata e cobre têm baixa resistividade, enquanto materiais como ferro e tungstênio têm maior resistividade.</li>
+                        <li><span class="highlight">Temperatura:</span> Para a maioria dos metais, a resistência aumenta com a temperatura devido ao aumento das vibrações da rede cristalina.</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Resistividade de Materiais Comuns</h3>
+                    <p>Valores típicos de resistividade a 20°C:</p>
+                    
+                    <ul>
+                        <li>Prata: 1.59 × 10⁻⁸ Ω·m</li>
+                        <li>Cobre: 1.68 × 10⁻⁸ Ω·m</li>
+                        <li>Ouro: 2.44 × 10⁻⁸ Ω·m</li>
+                        <li>Alumínio: 2.82 × 10⁻⁸ Ω·m</li>
+                        <li>Tungstênio: 5.60 × 10⁻⁸ Ω·m</li>
+                        <li>Ferro: 1.00 × 10⁻⁷ Ω·m</li>
+                        <li>Constantan: 4.90 × 10⁻⁷ Ω·m</li>
+                        <li>Carbono: 3.50 × 10⁻⁵ Ω·m</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O conhecimento da resistência elétrica é fundamental para:</p>
+                    
+                    <ul>
+                        <li>Projetar circuitos elétricos e eletrônicos</li>
+                        <li>Selecionar cabos adequados para instalações elétricas</li>
+                        <li>Projetar elementos de aquecimento (resistências)</li>
+                        <li>Construir sensores de temperatura (termistores)</li>
+                        <li>Desenvolver dispositivos de proteção contra sobrecargas</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="audio-controls" id="audioControls">
+        <button id="prevTrackBtn" title="Trecho anterior">◀◀</button>
+        <button id="playPauseAudioBtn" title="Iniciar ou pausar narração">▶️ Iniciar</button>
+        <button id="nextTrackBtn" title="Próximo trecho">▶▶</button>
+        <span id="trackCounter">Trecho 0/6</span>
+        <div class="voice-selector">
+            <label for="voiceSelect">Voz:</label>
+            <select id="voiceSelect" aria-label="Selecionar voz da narração">
+                <option value="">Carregando vozes...</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
+        const EXERCISE_STORAGE_KEY = 'resistenciaExerciseState';
+        const AUDIO_VOICE_STORAGE_KEY = 'voicePreferenceResistencia';
+        let studentNameResistencia = localStorage.getItem('studentNameResistencia') || '';
+
+        function ensureStudentNameResistencia() {
+            if (!studentNameResistencia) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameResistencia = providedName.trim();
+                    localStorage.setItem('studentNameResistencia', studentNameResistencia);
+                } else {
+                    studentNameResistencia = 'estudante';
+                }
+            }
+            return studentNameResistencia;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameResistencia()}! Bem-vindo à simulação sobre resistência elétrica em um fio. A tela foi organizada para que você compare três fatores decisivos: o comprimento do fio, a área da seção transversal e o material escolhido. O objetivo não é decorar a fórmula, mas perceber como cada variável interfere na dificuldade que as cargas elétricas encontram para atravessar o condutor.`,
+            'A equação principal é R igual a resistividade vezes comprimento dividido pela área. O comprimento aparece no numerador, então fios mais longos apresentam maior resistência. A interpretação é direta: quanto maior o caminho percorrido pelos elétrons, maior a oposição ao movimento da corrente.',
+            'A área da seção transversal aparece no denominador. Isso significa que fios mais grossos têm menor resistência. Quando aumentamos a área, oferecemos mais espaço para a passagem das cargas, e a corrente encontra menos dificuldade. Vale observar esse comportamento nas medições enquanto você altera o controle do fio.',
+            'O material entra na conta por meio da resistividade. Cada substância tem um valor próprio, ligado à sua estrutura microscópica. Por isso dois fios com mesmo comprimento e mesma área podem apresentar resistências diferentes se forem feitos de materiais diferentes, como cobre, alumínio ou ferro.',
+            'Nos exercícios resolvidos, preste atenção especial às unidades. Em vários casos a área vem em milímetro quadrado, mas a fórmula pede metro quadrado. Esse tipo de conversão é parte do raciocínio físico e costuma ser exatamente o ponto em que muitos erros aparecem.',
+            'Depois de explorar os controles, abra os exemplos resolvidos para acompanhar como a fórmula é reorganizada quando a incógnita muda. Em seguida, use os exercícios para testar se você consegue identificar qual grandeza deve ser isolada em cada situação.'
+        ];
+        const exampleNarrations = {
+            '1': 'Exemplo 1. Queremos calcular a resistência, então mantemos a forma original da equação. O ponto mais importante aqui é a conversão da área: 0,5 milímetro quadrado precisa virar 5 vezes 10 elevado a menos 7 metro quadrado. Só depois disso substituímos os valores. A conta mostra uma resistência de aproximadamente 0,0672 ohm. Esse exemplo reforça duas ideias: comprimento aumenta a resistência e área maior a reduz.',
+            '2': 'Exemplo 2. Agora a incógnita é o comprimento, então isolamos L na equação. Multiplicamos a resistência pela área e dividimos pela resistividade do alumínio. Como a área já está em metro quadrado, podemos seguir direto para a substituição. O resultado é cerca de 17,73 metros. O raciocínio importante aqui é perceber que um fio mais resistivo ou mais fino precisa ser mais curto para manter a mesma resistência.',
+            '3': 'Exemplo 3. Neste problema a grandeza procurada é a área transversal. Reorganizamos a fórmula para A igual a resistividade vezes comprimento dividido pela resistência. Depois de substituir os dados do fio de ferro, obtemos 2,5 vezes 10 elevado a menos 7 metro quadrado. Convertendo para uma unidade mais familiar, isso corresponde a 0,25 milímetro quadrado. O exemplo mostra como um fio de área pequena pode gerar uma resistência relativamente alta.'
+        };
+        let selectedVoice = null;
+        let currentTrack = 0;
+        let speaking = false;
+        let audioPaused = false;
+        let currentSpeechSource = null;
+        let activeExampleButton = null;
+        let speechSessionId = 0;
+
+        function getCurrentExerciseView() {
+            if (document.getElementById('resultsContainer').style.display === 'block') return 'results';
+            if (document.getElementById('conclusionContainer').style.display === 'block') return 'conclusion';
+            return 'exercise';
+        }
+
+        function getSelectedOptionValue() {
+            const selectedOption = document.querySelector('#exerciseContainer .option.selected');
+            return selectedOption ? (selectedOption.dataset.value || selectedOption.textContent.trim()) : null;
+        }
+
+        function captureFormState() {
+            return {
+                studentName: document.getElementById('studentName').value,
+                studentGrade: document.getElementById('studentGrade').value,
+                studentClass: document.getElementById('studentClass').value,
+                studentEmail: document.getElementById('studentEmail').value,
+                criticismInput: document.getElementById('criticismInput').value,
+                suggestionInput: document.getElementById('suggestionInput').value,
+                finalConclusion: document.getElementById('finalConclusion').value,
+                conclusionText: document.getElementById('conclusionText').value
+            };
+        }
+
+        function applyFormState(formState = {}) {
+            document.getElementById('studentName').value = formState.studentName || '';
+            document.getElementById('studentGrade').value = formState.studentGrade || '';
+            document.getElementById('studentClass').value = formState.studentClass || '';
+            document.getElementById('studentEmail').value = formState.studentEmail || '';
+            document.getElementById('criticismInput').value = formState.criticismInput || '';
+            document.getElementById('suggestionInput').value = formState.suggestionInput || '';
+            document.getElementById('finalConclusion').value = formState.finalConclusion || '';
+            document.getElementById('conclusionText').value = formState.conclusionText || conclusionTextSaved || '';
+        }
+
+        function getSavedExerciseState() {
+            try {
+                const rawState = localStorage.getItem(EXERCISE_STORAGE_KEY);
+                if (!rawState) return null;
+
+                const parsedState = JSON.parse(rawState);
+                if (!parsedState || !Array.isArray(parsedState.exercises) || !parsedState.exercises.length) {
+                    return null;
+                }
+
+                return parsedState;
+            } catch (error) {
+                console.warn('Não foi possível recuperar o estado salvo dos exercícios.', error);
+                return null;
+            }
+        }
+
+        function hasMeaningfulProgress(savedState) {
+            if (!savedState || !Array.isArray(savedState.exercises) || !savedState.exercises.length) {
+                return false;
+            }
+
+            const answeredCount = Array.isArray(savedState.exerciseResults)
+                ? savedState.exerciseResults.filter(function(result) { return result !== null && result !== undefined; }).length
+                : 0;
+            const skippedCount = Number(savedState.skippedQuestions) || 0;
+            const attemptCount = Number(savedState.currentExerciseAttempts) || 0;
+            const currentIndex = Number(savedState.currentExercise) || 0;
+            const hasConclusion = !!(savedState.conclusionTextSaved && String(savedState.conclusionTextSaved).trim());
+            const view = savedState.view || '';
+
+            return answeredCount > 0 || skippedCount > 0 || attemptCount > 0 || currentIndex > 0 || hasConclusion || view === 'conclusion' || view === 'results';
+        }
+
+        function hasResumableExerciseState(savedState) {
+            return !!(savedState && Array.isArray(savedState.exercises) && savedState.exercises.length && hasMeaningfulProgress(savedState));
+        }
+
+        function updateExerciseLauncherState() {
+            const mainExerciseBtn = document.getElementById('mainExerciseBtn');
+            if (!mainExerciseBtn) return;
+
+            const hasSavedState = hasResumableExerciseState(getSavedExerciseState());
+            mainExerciseBtn.textContent = hasSavedState ? 'Continuar Exercícios' : 'Iniciar Exercícios';
+            mainExerciseBtn.classList.toggle('pulse', !hasSavedState);
+        }
+
+        function updateExerciseResumeBadge(forceVisible) {
+            const badge = document.getElementById('exerciseResumeBadge');
+            if (!badge) return;
+
+            const isVisible = typeof forceVisible === 'boolean' ? forceVisible : hasResumableExerciseState(getSavedExerciseState());
+            badge.style.display = isVisible ? 'inline-flex' : 'none';
+        }
+
+        function clearExerciseState() {
+            localStorage.removeItem(EXERCISE_STORAGE_KEY);
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(false);
+        }
+
+        function saveExerciseState() {
+            if (!exercises.length) {
+                clearExerciseState();
+                return;
+            }
+
+            conclusionTextSaved = document.getElementById('conclusionText').value || conclusionTextSaved;
+
+            const exerciseState = {
+                exercises,
+                currentExercise,
+                exerciseResults,
+                skippedQuestions,
+                currentExerciseAttempts,
+                conclusionTextSaved,
+                view: getCurrentExerciseView(),
+                selectedOptionValue: getSelectedOptionValue(),
+                formState: captureFormState()
+            };
+
+            if (!hasMeaningfulProgress(exerciseState)) {
+                clearExerciseState();
+                return;
+            }
+
+            try {
+                localStorage.setItem(EXERCISE_STORAGE_KEY, JSON.stringify(exerciseState));
+            } catch (error) {
+                console.warn('Não foi possível salvar o progresso dos exercícios.', error);
+            }
+
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge(true);
+        }
+
+        function restoreExerciseState(savedState) {
+            exercises = Array.isArray(savedState.exercises) ? savedState.exercises : [];
+            currentExercise = Math.min(savedState.currentExercise || 0, Math.max(exercises.length - 1, 0));
+            exerciseResults = Array.isArray(savedState.exerciseResults) ? savedState.exerciseResults : [];
+            skippedQuestions = savedState.skippedQuestions || 0;
+            currentExerciseAttempts = savedState.currentExerciseAttempts || 0;
+            conclusionTextSaved = savedState.conclusionTextSaved || '';
+            applyFormState(savedState.formState || {});
+        }
+
+        function setupPersistentInputs() {
+            document.getElementById('conclusionText').addEventListener('input', function() {
+                conclusionTextSaved = this.value;
+                if (exercises.length) saveExerciseState();
+            });
+
+            ['studentName', 'studentEmail', 'criticismInput', 'suggestionInput', 'finalConclusion'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('input', function() {
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+
+            ['studentGrade', 'studentClass'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('change', function() {
+                    if (exercises.length) saveExerciseState();
+                });
+            });
+        }
+
+        function getVoiceKey(voice) {
+            return `${voice.name}__${voice.lang}`;
+        }
+
+        function getPreferredVoices(voices) {
+            const portugueseVoices = voices.filter(function(voice) {
+                return /^pt(-|$)/i.test(voice.lang);
+            });
+            return portugueseVoices.length ? portugueseVoices : voices;
+        }
+
+        function setMainAudioButtonState(state) {
+            const button = document.getElementById('playPauseAudioBtn');
+            if (!button) return;
+
+            if (state === 'playing') button.innerHTML = '⏸️ Pausar';
+            else if (state === 'paused') button.innerHTML = '▶️ Continuar';
+            else button.innerHTML = '▶️ Iniciar';
+        }
+
+        function setExampleButtonState(button, state) {
+            if (!button) return;
+
+            if (state === 'playing') {
+                button.innerHTML = '⏸️ Pausar resolução';
+                button.classList.add('playing');
+            } else if (state === 'paused') {
+                button.innerHTML = '▶️ Continuar resolução';
+                button.classList.add('playing');
+            } else {
+                button.innerHTML = '🔊 Ouvir resolução';
+                button.classList.remove('playing');
+            }
+        }
+
+        function clearExampleAudioState() {
+            if (activeExampleButton) {
+                setExampleButtonState(activeExampleButton, 'idle');
+                activeExampleButton = null;
+            }
+        }
+
+        function updateTrackCounter() {
+            document.getElementById('trackCounter').textContent = speaking && currentSpeechSource === 'track'
+                ? `Trecho ${currentTrack + 1}/${tracks.length}`
+                : `Trecho 0/${tracks.length}`;
+        }
+
+        function resetAudioUi() {
+            setMainAudioButtonState('idle');
+            clearExampleAudioState();
+            updateTrackCounter();
+        }
+
+        function finishSpeech(sessionId) {
+            if (sessionId !== speechSessionId) return;
+
+            speaking = false;
+            audioPaused = false;
+            currentSpeechSource = null;
+            resetAudioUi();
+        }
+
+        function populateVoiceSelector(voices) {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            const availableVoices = getPreferredVoices(voices);
+            voiceSelect.innerHTML = '';
+
+            availableVoices.forEach(function(voice) {
+                const option = document.createElement('option');
+                option.value = getVoiceKey(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+
+            if (!availableVoices.length) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhuma voz encontrada';
+                voiceSelect.appendChild(option);
+                voiceSelect.disabled = true;
+                selectedVoice = null;
+                return;
+            }
+
+            voiceSelect.disabled = false;
+            const savedVoicePreference = localStorage.getItem(AUDIO_VOICE_STORAGE_KEY) || '';
+            const savedVoice = availableVoices.find(function(voice) {
+                return getVoiceKey(voice) === savedVoicePreference;
+            });
+
+            selectedVoice = savedVoice || availableVoices[0] || null;
+            voiceSelect.value = selectedVoice ? getVoiceKey(selectedVoice) : '';
+        }
+
+        function setupVoiceSelector() {
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+
+            voiceSelect.addEventListener('change', function() {
+                const voices = getPreferredVoices(window.speechSynthesis ? window.speechSynthesis.getVoices() : []);
+                selectedVoice = voices.find(function(voice) {
+                    return getVoiceKey(voice) === voiceSelect.value;
+                }) || null;
+
+                localStorage.setItem(AUDIO_VOICE_STORAGE_KEY, selectedVoice ? getVoiceKey(selectedVoice) : '');
+            });
+        }
+
+        function loadPreferredVoice() {
+            return new Promise(function(resolve) {
+                if (!window.speechSynthesis) {
+                    resolve(false);
+                    return;
+                }
+
+                const tryGetVoice = function() {
+                    const voices = window.speechSynthesis.getVoices();
+                    populateVoiceSelector(voices);
+                    resolve(!!selectedVoice);
+                };
+
+                if (window.speechSynthesis.getVoices().length) {
+                    tryGetVoice();
+                } else {
+                    window.speechSynthesis.onvoiceschanged = tryGetVoice;
+                }
+            });
+        }
+
+        function speakText(text) {
+            if (!window.speechSynthesis) {
+                alert('Este navegador não oferece suporte à fala sintetizada.');
+                return;
+            }
+
+            if (window.speechSynthesis.speaking || window.speechSynthesis.pending || window.speechSynthesis.paused) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+            }
+
+            const sessionId = ++speechSessionId;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.92;
+            if (selectedVoice) utterance.voice = selectedVoice;
+            utterance.onend = function() { finishSpeech(sessionId); };
+            utterance.onerror = function() { finishSpeech(sessionId); };
+
+            window.speechSynthesis.speak(utterance);
+            speaking = true;
+            audioPaused = false;
+        }
+
+        function resolveTrackText(track) {
+            return typeof track === 'function' ? track() : track;
+        }
+
+        function speakTrack(index) {
+            currentSpeechSource = 'track';
+            clearExampleAudioState();
+            setMainAudioButtonState('playing');
+            speakText(resolveTrackText(tracks[index]));
+            if (speaking) updateTrackCounter();
+        }
+
+        function pauseAudio() {
+            if (window.speechSynthesis && speaking && !audioPaused) {
+                window.speechSynthesis.pause();
+                audioPaused = true;
+
+                if (currentSpeechSource === 'track') setMainAudioButtonState('paused');
+                else if (currentSpeechSource === 'example') setExampleButtonState(activeExampleButton, 'paused');
+            }
+        }
+
+        function resumeAudio() {
+            if (currentSpeechSource === 'track' && speaking && audioPaused && window.speechSynthesis) {
+                window.speechSynthesis.resume();
+                audioPaused = false;
+                setMainAudioButtonState('playing');
+                updateTrackCounter();
+                return;
+            }
+
+            if (!speaking || currentSpeechSource !== 'track') {
+                speakTrack(currentTrack);
+            }
+        }
+
+        function toggleExampleAudio(button) {
+            const narrationText = exampleNarrations[button.getAttribute('data-example')];
+            if (!narrationText) return;
+
+            if (currentSpeechSource === 'example' && activeExampleButton === button && speaking) {
+                if (audioPaused && window.speechSynthesis) {
+                    window.speechSynthesis.resume();
+                    audioPaused = false;
+                    setExampleButtonState(button, 'playing');
+                } else {
+                    pauseAudio();
+                }
+                return;
+            }
+
+            currentSpeechSource = 'example';
+            clearExampleAudioState();
+            activeExampleButton = button;
+            setMainAudioButtonState('idle');
+            setExampleButtonState(button, 'playing');
+            speakText(narrationText);
+        }
+
+        function nextTrack() {
+            if (currentTrack + 1 < tracks.length) {
+                currentTrack++;
+                speakTrack(currentTrack);
+            } else {
+                alert('Você concluiu todos os trechos de áudio.');
+            }
+        }
+
+        function previousTrack() {
+            if (currentTrack > 0) {
+                currentTrack--;
+                speakTrack(currentTrack);
+            } else {
+                alert('Este é o primeiro trecho.');
+            }
+        }
+
+        function toggleMainAudio() {
+            if (currentSpeechSource === 'track' && speaking) {
+                if (audioPaused) resumeAudio();
+                else pauseAudio();
+                return;
+            }
+
+            resumeAudio();
+        }
+
+        function stopExampleNarration() {
+            if (currentSpeechSource === 'example' && window.speechSynthesis) {
+                speechSessionId++;
+                window.speechSynthesis.cancel();
+                speaking = false;
+                audioPaused = false;
+                currentSpeechSource = null;
+                resetAudioUi();
+            }
+        }
+
+        function setupAudioControls() {
+            document.getElementById('prevTrackBtn').addEventListener('click', previousTrack);
+            document.getElementById('playPauseAudioBtn').addEventListener('click', toggleMainAudio);
+            document.getElementById('nextTrackBtn').addEventListener('click', nextTrack);
+            setupVoiceSelector();
+            updateTrackCounter();
+        }
+
+        // ========== FUNÇÕES AUXILIARES ==========
+        function toSuperscriptExponent(exponent) {
+            const superscriptMap = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+            return String(exponent).split('').map(function(char) { return superscriptMap[char] || char; }).join('');
+        }
+
+        function formatScientificWith3Digits(value, unit = '') {
+            if (value === 0) return '0.00 ' + unit;
+            if (Math.abs(value) < 0.001 || Math.abs(value) > 1000) {
+                const exponent = Math.floor(Math.log10(Math.abs(value)));
+                const mantissa = value / Math.pow(10, exponent);
+                const roundedMantissa = Math.round(mantissa * 100) / 100;
+                let mantissaStr = roundedMantissa.toFixed(2);
+                if (mantissaStr === '10.00') { mantissaStr = '1.00'; return mantissaStr + '×10' + toSuperscriptExponent(exponent + 1) + ' ' + unit; }
+                return mantissaStr + '×10' + toSuperscriptExponent(exponent) + ' ' + unit;
+            }
+            const integerPart = Math.floor(Math.abs(value));
+            let decimalPlaces = (integerPart === 0) ? 4 : (integerPart < 10 ? 2 : (integerPart < 100 ? 1 : 0));
+            return value.toFixed(decimalPlaces) + ' ' + unit;
+        }
+        
+        function formatScientific(value, unit = '') {
+            return formatScientificWith3Digits(value, unit);
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let formattedCorrect = formatScientificWith3Digits(correctValue, unit);
+            options.push({ value: correctValue, display: formattedCorrect });
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) optionValue = correctValue * (Math.random() * 1.5 + 0.5);
+                    else if (variationType < 0.6) optionValue = correctValue / (Math.random() * 1.5 + 0.5);
+                    else {
+                        const percentChange = (Math.random() * 60 + 20) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    if (unit === 'Ω' || unit === 'm' || unit === 'm²') optionValue = Math.abs(optionValue);
+                    attempts++;
+                    if (attempts > 20) break;
+                } while (options.some(opt => opt.display === formatScientificWith3Digits(optionValue, unit)));
+                options.push({ value: optionValue, display: formatScientificWith3Digits(optionValue, unit) });
+            }
+            return shuffleArray(options).map(opt => opt.display);
+        }
+
+        function getMaterialName(resistivity) {
+            if (Math.abs(resistivity - 1.68e-8) < 1e-10) return "Cobre";
+            if (Math.abs(resistivity - 2.82e-8) < 1e-10) return "Alumínio";
+            if (Math.abs(resistivity - 1.0e-7) < 1e-10) return "Ferro";
+            return "Material Desconhecido";
+        }
+
+        function buildQualitativeExerciseByType(type) {
+            if (type === 'efeito_comprimento') {
+                return {
+                    type: 'efeito_comprimento',
+                    question: 'Mantendo material e área constantes, se o fio fica mais comprido, a resistência tende a:',
+                    answer: 'Aumentar',
+                    options: shuffleArray(['Aumentar', 'Diminuir', 'Permanecer igual'])
+                };
+            }
+
+            if (type === 'efeito_area') {
+                return {
+                    type: 'efeito_area',
+                    question: 'Mantendo material e comprimento constantes, se a área da seção transversal aumenta, a resistência tende a:',
+                    answer: 'Diminuir',
+                    options: shuffleArray(['Aumentar', 'Diminuir', 'Ficar nula em qualquer caso'])
+                };
+            }
+
+            if (type === 'efeito_material') {
+                return {
+                    type: 'efeito_material',
+                    question: 'Dois fios com mesmo comprimento e área, mas materiais diferentes, podem ter resistências diferentes porque:',
+                    answer: 'Cada material tem resistividade própria',
+                    options: shuffleArray(['Cada material tem resistividade própria', 'A resistência não depende do material', 'Somente a cor do fio define a resistência'])
+                };
+            }
+
+            if (type === 'comparacao_cenario') {
+                return {
+                    type: 'comparacao_cenario',
+                    question: 'Cenário A: fio longo e fino. Cenário B: fio curto e grosso. Qual tende a ter maior resistência?',
+                    answer: 'Cenário A',
+                    options: shuffleArray(['Cenário A', 'Cenário B', 'Mesma resistência'])
+                };
+            }
+
+            return {
+                type: 'linguagem_cientifica_resistencia',
+                question: 'Qual frase representa melhor uma conclusão qualitativa sobre resistência elétrica?',
+                answer: 'A resistência aumenta com o comprimento e diminui com a área',
+                options: shuffleArray([
+                    'A resistência aumenta com o comprimento e diminui com a área',
+                    'A resistência não depende das dimensões do fio',
+                    'A área maior sempre aumenta a resistência'
+                ])
+            };
+        }
+
+        function generateExercises() {
+            exercises = shuffleArray([
+                buildQualitativeExerciseByType('efeito_comprimento'),
+                buildQualitativeExerciseByType('efeito_area'),
+                buildQualitativeExerciseByType('efeito_material'),
+                buildQualitativeExerciseByType('comparacao_cenario'),
+                buildQualitativeExerciseByType('linguagem_cientifica_resistencia')
+            ]);
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            exercises[currentExercise] = buildQualitativeExerciseByType(currentType);
+        }
+
+        // ========== EXIBIR EXERCÍCIOS ==========
+        function showCurrentExercise(selectedOptionValue = null) {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `<div class="option" data-value="${option}">${option}</div>`).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            if (selectedOptionValue) {
+                const selectedOption = Array.from(container.querySelectorAll('.option')).find(function(option) {
+                    return option.dataset.value === selectedOptionValue;
+                });
+                if (selectedOption) selectedOption.classList.add('selected');
+            }
+
+            container.onclick = function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    saveExerciseState();
+                }
+            };
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+            saveExerciseState();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkBtn = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selected) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkBtn.disabled = true;
+            
+            const isCorrect = selected.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                saveExerciseState();
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                    <div class="error">Incorreto. Tente novamente.</div>
+                    <div class="button-group">
+                        <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                        <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                    </div>
+                `;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+                saveExerciseState();
+            }
+        }
+
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                saveExerciseState();
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            saveExerciseState();
+            if (currentExercise < exercises.length) showCurrentExercise();
+            else showConclusion();
+        }
+
+        function updateProgressBar() {
+            for (let i = 0; i < 5; i++) {
+                const item = document.getElementById(`progress${i+1}`);
+                item.classList.remove('active', 'completed');
+                if (i === currentExercise) item.classList.add('active');
+                else if (i < currentExercise) item.classList.add('completed');
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            const textarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+            const submit = document.getElementById('submitConclusion');
+            const newSubmit = submit.cloneNode(true);
+            submit.parentNode.replaceChild(newSubmit, submit);
+            newSubmit.addEventListener('click', function() {
+                const text = document.getElementById('conclusionText').value;
+                if (text.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                conclusionTextSaved = text;
+                showResults(text);
+            });
+            saveExerciseState();
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${total}</p>
+                <p>Respostas corretas: ${correct}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${percent}%</p>
+            `;
+            document.getElementById('finalConclusion').value = conclusion;
+            const sendBtn = document.getElementById('sendResults');
+            const newSend = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSend, sendBtn);
+            newSend.addEventListener('click', sendResultsToSheet);
+            saveExerciseState();
+        }
+
+        function sendResultsToSheet() {
+            if (typeof window.__simulationEnhancerSendResults === 'function') {
+                return window.__simulationEnhancerSendResults();
+            }
+
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const total = exercises.length;
+            const correct = exerciseResults.filter(r => r.correct).length;
+            const percent = Math.round((correct / total) * 100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.style.display = 'block';
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Resistência em um Fio (Adaptada N2)',
+                versao_atividade: 'adaptada_n2',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correct}/${total - correct}`,
+                nota: percent + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correct}/${total}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName,
+                        serie: studentGrade,
+                        turma: studentClass,
+                        nota: percent + '%',
+                        acertos: `${correct}/${total}`,
+                        questoes_puladas: skippedQuestions,
+                        conclusao: finalConclusion,
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Resistência em um Fio (Adaptada N2)',
+                        versao_atividade: 'adaptada_n2',
+                        mensagem: `Confirmação de Envio - Simulação de Resistência em um Fio (Adaptada N2)\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\n📊 SEUS RESULTADOS:\n• Nota: ${percent}%\n• Acertos: ${correct} de ${total} questões\n• Questões Puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
+                    };
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                setTimeout(() => {
+                    clearExerciseState();
+                    resetExerciseState();
+                    closeExercisesModal(false);
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        // ========== RESET E PERSISTÊNCIA ==========
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = "";
+        }
+
+        function closeExercisesModal(preserveState = true) {
+            const textarea = document.getElementById('conclusionText');
+            if (textarea && document.getElementById('conclusionContainer').style.display === 'block') {
+                conclusionTextSaved = textarea.value;
+            }
+
+            if (preserveState && exercises.length) {
+                saveExerciseState();
+            }
+
+            document.getElementById('exercisesModal').style.display = 'none';
+            updateExerciseLauncherState();
+            updateExerciseResumeBadge();
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                clearExerciseState();
+                document.getElementById('emailStatus').style.display = 'none';
+                applyFormState({});
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('emailStatus').style.display = 'none';
+
+            const savedState = getSavedExerciseState();
+            if (hasResumableExerciseState(savedState)) {
+                restoreExerciseState(savedState);
+                updateExerciseResumeBadge(true);
+
+                if (savedState.view === 'results') {
+                    showResults((savedState.formState && savedState.formState.finalConclusion) || conclusionTextSaved || '');
+                    applyFormState(savedState.formState || {});
+                } else if (savedState.view === 'conclusion') {
+                    showConclusion();
+                } else {
+                    showCurrentExercise(savedState.selectedOptionValue || null);
+                }
+                return;
+            }
+
+            if (savedState) {
+                clearExerciseState();
+            }
+
+            resetExerciseState();
+            applyFormState({});
+            generateExercises();
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+            document.querySelectorAll('#solvedExercisesModal .audio-example-btn').forEach(function(button) {
+                button.onclick = function() {
+                    toggleExampleAudio(button);
+                };
+            });
+        }
+
+        function closeSolvedExercisesModal() {
+            stopExampleNarration();
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function openTheoryModal() { document.getElementById('theoryModal').style.display = 'flex'; }
+        function closeTheoryModal() { document.getElementById('theoryModal').style.display = 'none'; }
+
+        // ========== EVENTOS DA UI ==========
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            alert("Como usar:\n\n• Utilize a simulação do PhET para explorar como a resistência varia com comprimento, área e material\n• Observe a fórmula R = ρ × L / A e como cada parâmetro afeta a resistência\n• Use os exercícios para testar seu conhecimento");
+        });
+        
+        document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+        document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+        document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+        
+        document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+        document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+        document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+        document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+        document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+        document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+        setupPersistentInputs();
+        setupAudioControls();
+        updateExerciseLauncherState();
+        updateExerciseResumeBadge();
+        loadPreferredVoice();
+        
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('exercisesModal')) closeExercisesModal();
+            else if (event.target == document.getElementById('solvedExercisesModal')) closeSolvedExercisesModal();
+            else if (event.target == document.getElementById('theoryModal')) closeTheoryModal();
+        });
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Resistência Eletrica',
+            storageKey: 'resistencia'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+</body>
+</html>
+
+
+
