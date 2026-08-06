@@ -251,7 +251,11 @@
     <section class="hero">
       <h1>Roteiro detalhado das simulações Ondas e Cores</h1>
       <p>Este material foi reescrito em tom mais academico para servir como texto de apoio a um artigo ou relato de experiência em ensino de Física. O objetivo e descrever, com precisao conceitual e clareza metodologica, o funcionamento das duas versoes do projeto: <strong>Ondas_e_Cores.py</strong>, destinada ao uso local em PC com Matplotlib, e <strong>app_web.py</strong>, destinada ao navegador com Dash e Plotly.</p>
+<<<<<<< Updated upstream
       <p>Em ambas as implementacoes, o nucleo conceitual permanece o mesmo: construcao de duas ondas por sintese de Fourier, calculo de envelopes por transformada de Hilbert, comparacao entre envelopes como criterio de semelhanca global e interpretação cromatica de frequencias visiveis em ambiente RGB. A versão web, por sua vez, introduz diferenças de arquitetura, interacao e avaliacao que ampliam o alcance pedagogico do simulador.</p>
+=======
+      <p>Em ambas as implementacoes, o nucleo conceitual permanece o mesmo: construcao de duas ondas por sintese de Fourier, calculo de envelopes por transformada de Hilbert, comparacao entre envelopes como criterio de semelhanca global e interpretação cromatica de frequencias visiveis em ambiente RGB. A versão web, por sua vez, introduz diferencas de arquitetura, interacao e avaliacao que ampliam o alcance pedagogico do simulador.</p>
+>>>>>>> Stashed changes
       <div class="callout">
         <strong>Problema didatico central:</strong> investigar de que modo a composicao espectral de um sinal pode ser manipulada pelo estudante, observada no dominio do tempo e reinterpretada por meio de envelopes de amplitude e de representacoes cromaticas, articulando conteudos de ondulatoria, analise de sinais e percepcao de cor.
       </div>
@@ -290,7 +294,11 @@
           </div>
           <div class="mini">
             <strong>Resumo rápido</strong>
+<<<<<<< Updated upstream
             <p>Apresenta o pico absoluto de cada onda e a diferença maxima entre envelopes. Esse bloco ajuda a transformar a leitura visual em um criterio numerico.</p>
+=======
+            <p>Apresenta o pico absoluto de cada onda e a diferenca maxima entre envelopes. Esse bloco ajuda a transformar a leitura visual em um criterio numerico.</p>
+>>>>>>> Stashed changes
           </div>
           <div class="mini">
             <strong>Colunas de sliders</strong>
@@ -305,13 +313,21 @@
         <p>Aberta pelo botao Fourier (Depois). Mostra as equações montadas a partir das amplitudes resultantes da ultima otimizacao executada.</p>
 
         <h4>Janela Envelopes Hilbert</h4>
+<<<<<<< Updated upstream
         <p>Aberta pelo botao Envelopes Hilbert. Reune a definicao matematica do envelope complexo, a fórmula do modulo, a interpretação física e a explicacao do criterio de minimizacao usado na otimizacao.</p>
+=======
+        <p>Aberta pelo botao Envelopes Hilbert. Reune a definicao matematica do envelope complexo, a formula do modulo, a interpretação física e a explicacao do criterio de minimizacao usado na otimizacao.</p>
+>>>>>>> Stashed changes
 
         <h4>Janela Lab RGB</h4>
         <p>Aberta pelo botao Lab RGB. Mostra uma barra de cores organizada por frequência e quatro cartoes de cor: Onda 1 antes, Onda 1 depois, Onda 2 antes e Onda 2 depois. O usuario pode alternar entre dois modos: RGB visual e Paleta em RGB.</p>
 
         <h4>Janela Exercícios</h4>
+<<<<<<< Updated upstream
         <p>Na versão PC, essa janela ainda e uma estrutura de preparacao. Ela explica a ideia pedagogica da futura aba de exercícios, mas não implementa o fluxo completo que existe na versão web.</p>
+=======
+        <p>Na versão PC, essa janela ainda e uma estrutura de preparacao. Ela explica a ideia pedagogica da futura aba de exercícios, mas nao implementa o fluxo completo que existe na versão web.</p>
+>>>>>>> Stashed changes
 
         <h3>2. Tela "Simulador": gráficos, informacoes e construcao</h3>
 
@@ -320,7 +336,11 @@
         <div class="eq">y_n(t) = A_n . sen(2.pi.f_n.t)</div>
         <p>A onda total e a soma de todas essas componentes:</p>
         <div class="eq">y(t) = soma de A_n . sen(2.pi.f_n.t)</div>
+<<<<<<< Updated upstream
         <p>No codigo, isso aparece como uma soma sobre os pares amplitude-frequência. Assim, os gráficos Onda 1 e Onda 2 não sao desenhos independentes: eles sao a visualizacao direta da sintese de Fourier definida pelos sliders.</p>
+=======
+        <p>No codigo, isso aparece como uma soma sobre os pares amplitude-frequencia. Assim, os gráficos Onda 1 e Onda 2 nao sao desenhos independentes: eles sao a visualizacao direta da sintese de Fourier definida pelos sliders.</p>
+>>>>>>> Stashed changes
 
         <h4>Grafico Envelopes de Hilbert</h4>
         <p>Esse grafico e construido a partir do sinal no tempo. Primeiro calcula-se a transformada de Hilbert do sinal. Depois monta-se o modulo do sinal analitico. Em linguagem matematica:</p>
@@ -335,7 +355,11 @@
 
         <h3>3. Interatividade na versão PC</h3>
         <ul>
+<<<<<<< Updated upstream
           <li>Os sliders alteram, em tempo real, as amplitudes de cada frequência das duas ondas.</li>
+=======
+          <li>Os sliders alteram, em tempo real, as amplitudes de cada frequencia das duas ondas.</li>
+>>>>>>> Stashed changes
           <li>Os botoes superiores abrem janelas teoricas ou janelas auxiliares de interpretação.</li>
           <li>O controle Suavizacao Hilbert muda a janela da media movel aplicada depois do calculo do modulo do envelope.</li>
           <li>O controle Max. iteracoes define o teto computacional da busca automatica.</li>
@@ -346,7 +370,11 @@
         </ul>
 
         <h3>4. Sintese de Fourier: como os gráficos Onda 1 e Onda 2 sao gerados</h3>
+<<<<<<< Updated upstream
         <p>Na simulação, a sintese de Fourier aparece de forma concreta: cada slider escolhe o coeficiente de uma componente senoidal. Em vez de partir da fórmula abstrata e depois chegar ao grafico, o estudante faz o caminho inverso: altera coeficientes, ve a forma de onda mudar e depois consulta a equacao correspondente.</p>
+=======
+        <p>Na simulação, a sintese de Fourier aparece de forma concreta: cada slider escolhe o coeficiente de uma componente senoidal. Em vez de partir da formula abstrata e depois chegar ao grafico, o estudante faz o caminho inverso: altera coeficientes, ve a forma de onda mudar e depois consulta a equacao correspondente.</p>
+>>>>>>> Stashed changes
         <div class="eq">Onda 1: y_1(t) = soma de A_n^(1) . sen(2.pi.f_n.t)</div>
         <div class="eq">Onda 2: y_2(t) = soma de A_n^(2) . sen(2.pi.f_n.t)</div>
         <p>Cada termo traz uma contribuicao parcial. Quando muitos termos sao somados, a forma resultante pode ficar bastante diferente de uma senoide simples. O valor didatico disso e mostrar que sinais complexos podem ser descritos como superposicao de ondas elementares.</p>
@@ -369,7 +397,11 @@
 
         <h3>7. Como os envelopes criam uma curva suavizada</h3>
         <p>Primeiro, o modulo do sinal analitico ja remove a alternancia positiva-negativa rapida da onda. Depois, quando a suavizacao adicional esta ligada, aplica-se uma media movel de janela impar sobre o envelope calculado. Isso filtra pequenas irregularidades locais e deixa mais evidente a tendencia geral da amplitude.</p>
+<<<<<<< Updated upstream
         <p>Em sala de aula, essa etapa e útil porque ajuda o estudante a separar duas escalas de leitura: a oscilacao microscopica da senoide e a variação macroscopica do envelope.</p>
+=======
+        <p>Em sala de aula, essa etapa e util porque ajuda o estudante a separar duas escalas de leitura: a oscilacao microscopica da senoide e a variação macroscopica do envelope.</p>
+>>>>>>> Stashed changes
 
         <h3>8. Diferença entre envelopes e confirmacao de proximidade</h3>
         <p>O criterio usado pela otimizacao não e deixar as ondas identicas ponto a ponto, mas sim aproximar seus envelopes. Isso e medido pela maior distancia absoluta entre as curvas de envelope ao longo do tempo:</p>
@@ -388,8 +420,13 @@
         </ul>
         <p>Didaticamente, isso mostra um exemplo excelente de problema inverso: em vez de escolher manualmente todos os coeficientes, o aluno define uma meta global e o algoritmo procura uma combinacao de amplitudes que aproxime os envelopes.</p>
 
+<<<<<<< Updated upstream
         <h3>10. Tela Lab RGB: frequência e cor</h3>
         <p>O Lab RGB converte a frequência em um comprimento de onda aproximado e, a partir dele, monta uma cor RGB aproximada para a faixa visível. Aqui ha duas leituras complementares:</p>
+=======
+        <h3>10. Tela Lab RGB: frequencia e cor</h3>
+        <p>O Lab RGB converte a frequencia em um comprimento de onda aproximado e, a partir dele, monta uma cor RGB aproximada para a faixa visível. Aqui ha duas leituras complementares:</p>
+>>>>>>> Stashed changes
         <div class="grid">
           <div class="mini">
             <strong>Modo RGB visual</strong>
@@ -447,9 +484,15 @@
           <h3>Janelas teoricas e auxiliares</h3>
           <ul class="function-list">
             <li><strong>_show_exercises_tab</strong>: abre a janela preparatoria da futura aba de exercícios da versão local.</li>
+<<<<<<< Updated upstream
             <li><strong>_show_fourier_before</strong>: abre a visualizacao das equações antes da otimizacao.</li>
             <li><strong>_show_fourier_after</strong>: abre a visualizacao das equações depois da otimizacao.</li>
             <li><strong>_show_fourier_equations</strong>: organiza a janela textual das equações e do resumo teorico.</li>
+=======
+            <li><strong>_show_fourier_before</strong>: abre a visualizacao das equacoes antes da otimizacao.</li>
+            <li><strong>_show_fourier_after</strong>: abre a visualizacao das equacoes depois da otimizacao.</li>
+            <li><strong>_show_fourier_equations</strong>: organiza a janela textual das equacoes e do resumo teorico.</li>
+>>>>>>> Stashed changes
             <li><strong>_show_hilbert_info</strong>: abre a janela explicativa sobre envelopes de Hilbert.</li>
             <li><strong>_show_visible_colors</strong>: abre o Laboratorio RGB do monitor.</li>
           </ul>
@@ -458,8 +501,13 @@
         <div class="function-group">
           <h3>Conversao frequência-cor e construcao do Lab RGB</h3>
           <ul class="function-list">
+<<<<<<< Updated upstream
             <li><strong>_frequency_to_rgb</strong>: converte uma frequência visível em uma aproximacao RGB.</li>
             <li><strong>_frequency_to_wavelength_nm</strong>: converte frequência em comprimento de onda.</li>
+=======
+            <li><strong>_frequency_to_rgb</strong>: converte uma frequencia visível em uma aproximacao RGB.</li>
+            <li><strong>_frequency_to_wavelength_nm</strong>: converte frequencia em comprimento de onda.</li>
+>>>>>>> Stashed changes
             <li><strong>_clamp_to_visible_wavelength</strong>: limita o comprimento de onda a faixa visível usada pelo programa.</li>
             <li><strong>_compute_emitted_rgb</strong>: calcula a cor media emitida pelas amplitudes ativas.</li>
             <li><strong>_compute_display_rgb_visual</strong>: gera a cor visual renormalizada para comparacao na tela.</li>
@@ -512,9 +560,15 @@
     <section id="web" class="section">
       <div class="card">
         <h2>Versão web - app_web.py</h2>
+<<<<<<< Updated upstream
         <p class="muted">Nesta seção, o foco recai apenas sobre as diferenças em relação a versão PC. Os fundamentos matematicos da sintese de Fourier, dos envelopes de Hilbert, do criterio de semelhanca entre envelopes e do Laboratorio RGB permanecem conceitualmente identicos; por isso, não sao repetidos em detalhe aqui.</p>
 
         <h3>1. Diferenças de arquitetura e de interface</h3>
+=======
+        <p class="muted">Nesta seção, o foco recai apenas sobre as diferencas em relação a versão PC. Os fundamentos matematicos da sintese de Fourier, dos envelopes de Hilbert, do criterio de semelhanca entre envelopes e do Laboratorio RGB permanecem conceitualmente identicos; por isso, nao sao repetidos em detalhe aqui.</p>
+
+        <h3>1. Diferencas de arquitetura e de interface</h3>
+>>>>>>> Stashed changes
         <p>A principal alteracao introduzida em <strong>app_web.py</strong> diz respeito ao paradigma de interface. Em vez de uma figura unica do Matplotlib acompanhada de janelas auxiliares, a versão web organiza a experiência em abas permanentes, atualizadas por callbacks reativos do Dash. Esse redesenho modifica o modo de navegacao do estudante: em lugar de abrir janelas independentes, o usuario percorre uma interface unica, organizada em blocos tematicos.</p>
         <div class="grid">
           <div class="mini">
@@ -527,6 +581,7 @@
           </div>
           <div class="mini">
             <strong>Persistencia local</strong>
+<<<<<<< Updated upstream
             <p>Estados do simulador, historico e progresso de exercícios podem ser mantidos no navegador, o que não existia na versão local.</p>
           </div>
         </div>
@@ -551,6 +606,32 @@
 
         <h3>6. Relevancia academica da versão web</h3>
         <p>Do ponto de vista de um texto academico, a versão web representa uma transição de um <em>simulador exploratorio local</em> para uma <em>plataforma didatica distribuida</em>. A base teorica permanece, mas a mediação pedagogica se amplia: ha orientacao de percurso, responsividade para celular, acompanhamento de respostas, consolidacao de resultados e integracao com instrumentos de registro escolar. Essa ampliacao sugere uma passagem do uso demonstrativo para o uso sistematico em sequencias de ensino.</p>
+=======
+            <p>Estados do simulador, historico e progresso de exercícios podem ser mantidos no navegador, o que nao existia na versão local.</p>
+          </div>
+        </div>
+
+        <h3>2. Diferencas na tela Simulador</h3>
+        <p>A tela Simulador conserva os mesmos objetos conceituais da versão PC, mas muda a forma de manipulacao. Os sliders verticais extensos sao substituidos, no desktop, por uma tabela editavel de amplitudes e, no celular, por um editor de uma frequencia por vez. O grafico espectral por barras, construído em <strong>build_intensity_figure</strong>, ganha maior centralidade porque passa a funcionar como ponte visual entre a tabela numerica e a resposta cromatica do sistema.</p>
+        <p>Outro ponto distintivo e a figura principal 2x2 produzida por <strong>build_main_figure</strong>. Embora ela mantenha as curvas ja presentes na versão PC, sua implementacao com Plotly permite uma composicao mais integrada para navegacao em navegador. Alem disso, a funcao <strong>lock_figure_interaction</strong> restringe gestos de zoom e arrasto, privilegiando a leitura guiada em contexto didatico.</p>
+
+        <h3>3. Diferencas no tratamento pedagogico</h3>
+        <p>A maior inovacao da versão web e a presenca de uma sessao estruturada de exercícios. Na versão PC, a área de exercícios ainda aparece como esboco conceitual. Em <strong>app_web.py</strong>, por outro lado, o estudante percorre uma sequencia de etapas com objetivos distintos, produz respostas curtas, recebe feedback automatico, escreve uma conclusao final e envia um relatorio consolidado.</p>
+        <div class="callout">
+          <strong>Diferenca pedagogica decisiva:</strong> a versão web deixa de ser apenas um ambiente de exploracao aberta e passa a operar tambem como instrumento de avaliacao formativa, orientacao passo a passo e registro institucional da atividade.
+        </div>
+        <p>As etapas implementadas em <strong>generate_random_exercise</strong> exploram metas de aproximacao entre envelopes, observacao do efeito da suavizacao, analise da restricao espectral por delta f e comparacao entre envelope e representacao cromatica. Em outras palavras, o simulador deixa de apenas mostrar fenomenos e passa a solicitar interpretacoes sobre esses fenomenos.</p>
+
+        <h3>4. Diferencas na camada de dados e acompanhamento</h3>
+        <p>A versão web tambem acrescenta uma camada de dados inexistente na implementacao local. O arquivo <strong>alunos.js</strong> fornece trilhas, turmas e nomes; as funcoes de integracao com Google Sheets gravam resultados finais; e a rotina <strong>send_final_session_to_class_worksheet</strong> atualiza automaticamente a aba correspondente da turma. Assim, a simulação passa a ocupar tambem um lugar administrativo no fluxo de avaliacao.</p>
+        <p>Essa mudanca e relevante do ponto de vista de um artigo de ensino porque transforma o simulador em um artefato que nao apenas media a aprendizagem, mas produz rastros avaliativos, historico de desempenho e evidencias escritas de compreensao conceitual.</p>
+
+        <h3>5. Diferencas no Laboratorio RGB e no uso em dispositivos moveis</h3>
+        <p>Embora o Laboratorio RGB mantenha a mesma base conceitual da versão PC, a versão web o integra com mais clareza ao fluxo geral da atividade: ha atualizacao automatica dos cartoes, seletor explicito entre modos de exibicao e adaptacao para telas pequenas. O mesmo vale para o conjunto do simulador, que passa a dispor de resumos moveis, navegacao entre frequencias e composicoes visuais mais compactas.</p>
+
+        <h3>6. Relevancia academica da versão web</h3>
+        <p>Do ponto de vista de um texto academico, a versão web representa uma transicao de um <em>simulador exploratorio local</em> para uma <em>plataforma didatica distribuida</em>. A base teorica permanece, mas a mediação pedagogica se amplia: ha orientacao de percurso, responsividade para celular, acompanhamento de respostas, consolidacao de resultados e integracao com instrumentos de registro escolar. Essa ampliacao sugere uma passagem do uso demonstrativo para o uso sistematico em sequencias de ensino.</p>
+>>>>>>> Stashed changes
       </div>
     </section>
 
@@ -623,7 +704,11 @@
             <li><strong>get_next_bimester_start</strong>: encontra o proximo bloco de bimestre.</li>
             <li><strong>ensure_bimester_and_simulation_column</strong>: cria ou reutiliza a coluna Soma de Cores dentro do bimestre correto.</li>
             <li><strong>update_class_simulation_column</strong>: grava as notas da simulação na coluna correta.</li>
+<<<<<<< Updated upstream
             <li><strong>update_class_bimester_total_column</strong>: reconstroi a fórmula de total do bimestre.</li>
+=======
+            <li><strong>update_class_bimester_total_column</strong>: reconstroi a formula de total do bimestre.</li>
+>>>>>>> Stashed changes
             <li><strong>write_class_sheet_worksheet</strong>: coordena a atualizacao segura da aba da turma inteira, sem apagar outras simulações.</li>
             <li><strong>build_class_sheet_summary_row</strong>: monta a linha-resumo minima usada na sincronizacao da turma.</li>
             <li><strong>send_final_session_to_class_worksheet</strong>: liga o envio final do estudante a atualizacao automatica da aba da turma.</li>
@@ -645,9 +730,15 @@
           <h3>Fourier, RGB e visualizacao principal</h3>
           <ul class="function-list">
             <li><strong>generate_fourier_equation</strong>: transforma as amplitudes ativas em expressao textual da sintese de Fourier.</li>
+<<<<<<< Updated upstream
             <li><strong>frequency_to_wavelength_nm</strong>: converte frequência em comprimento de onda.</li>
             <li><strong>clamp_to_visible_wavelength</strong>: prende o valor a faixa visível tratada pela simulação.</li>
             <li><strong>frequency_to_rgb</strong>: traduz frequência em cor RGB aproximada.</li>
+=======
+            <li><strong>frequency_to_wavelength_nm</strong>: converte frequencia em comprimento de onda.</li>
+            <li><strong>clamp_to_visible_wavelength</strong>: prende o valor a faixa visível tratada pela simulação.</li>
+            <li><strong>frequency_to_rgb</strong>: traduz frequencia em cor RGB aproximada.</li>
+>>>>>>> Stashed changes
             <li><strong>normalize_rgb</strong>: renormaliza o vetor RGB.</li>
             <li><strong>compute_emitted_rgb</strong>: calcula a emissão RGB media gerada pelas amplitudes.</li>
             <li><strong>compute_display_rgb_visual</strong>: produz a cor final do modo RGB visual.</li>
@@ -656,12 +747,21 @@
             <li><strong>format_rgb</strong>: formata os canais RGB como texto.</li>
             <li><strong>has_valid_optimization_result</strong>: verifica se existe um antes/depois coerente de otimizacao.</li>
             <li><strong>lock_figure_interaction</strong>: trava zoom e pan para manter a leitura guiada.</li>
+<<<<<<< Updated upstream
             <li><strong>build_main_figure</strong>: monta a figura principal 2x2 com ondas, envelopes e diferença.</li>
             <li><strong>build_intensity_figure</strong>: monta os gráficos de barras das amplitudes por frequência.</li>
             <li><strong>build_summary</strong>: cria o resumo textual do estado atual da simulação.</li>
             <li><strong>build_color_scale_figure</strong>: monta a barra de cores por frequência.</li>
             <li><strong>build_rgb_card</strong>: cria um cartao RGB informativo para uma onda em um certo estagio.</li>
             <li><strong>build_pending_rgb_card</strong>: cria o cartao de espera para o caso de não haver resultado apos otimizacao.</li>
+=======
+            <li><strong>build_main_figure</strong>: monta a figura principal 2x2 com ondas, envelopes e diferenca.</li>
+            <li><strong>build_intensity_figure</strong>: monta os gráficos de barras das amplitudes por frequencia.</li>
+            <li><strong>build_summary</strong>: cria o resumo textual do estado atual da simulação.</li>
+            <li><strong>build_color_scale_figure</strong>: monta a barra de cores por frequencia.</li>
+            <li><strong>build_rgb_card</strong>: cria um cartao RGB informativo para uma onda em um certo estagio.</li>
+            <li><strong>build_pending_rgb_card</strong>: cria o cartao de espera para o caso de nao haver resultado apos otimizacao.</li>
+>>>>>>> Stashed changes
             <li><strong>optimize_amplitudes</strong>: executa a busca numerica da versão web.</li>
             <li><strong>build_hilbert_notes</strong>: gera os textos didaticos dinâmicos sobre suavizacao e delta f.</li>
           </ul>
@@ -695,7 +795,11 @@
             <li><strong>refresh_lab_rgb</strong>: atualiza a mensagem de horario do laboratorio RGB.</li>
             <li><strong>refresh_outputs</strong>: recalcula tudo que aparece nas abas Fourier, Hilbert, Lab RGB e Simulador.</li>
             <li><strong>browse_mobile_frequency</strong>: navega entre frequencias no editor movel.</li>
+<<<<<<< Updated upstream
             <li><strong>sync_mobile_editor</strong>: sincroniza os campos moveis com a frequência selecionada.</li>
+=======
+            <li><strong>sync_mobile_editor</strong>: sincroniza os campos moveis com a frequencia selecionada.</li>
+>>>>>>> Stashed changes
             <li><strong>handle_exercises</strong>: coordena o fluxo inteiro da sessao de exercícios.</li>
             <li><strong>sync_student_group_with_track</strong>: preenche série e turma a partir da trilha quando possivel.</li>
             <li><strong>sync_student_name_options</strong>: atualiza os nomes disponiveis conforme a selecao atual.</li>
@@ -705,7 +809,11 @@
 
         <div class="function-group">
           <h3>Fechamento didatico</h3>
+<<<<<<< Updated upstream
           <p>As duas versoes mostram a mesma ideia física e matematica por caminhos de interface diferentes. A versão PC e excelente para exploração local e demonstracao ao vivo. A versão web amplia o alcance: roda no navegador, adapta-se ao celular, registra estudantes, cria exercícios e transforma o simulador em uma plataforma completa de atividade guiada.</p>
+=======
+          <p>As duas versoes mostram a mesma ideia física e matematica por caminhos de interface diferentes. A versão PC e excelente para exploracao local e demonstracao ao vivo. A versão web amplia o alcance: roda no navegador, adapta-se ao celular, registra estudantes, cria exercícios e transforma o simulador em uma plataforma completa de atividade guiada.</p>
+>>>>>>> Stashed changes
         </div>
 
         <div class="doc-access">
@@ -717,5 +825,8 @@
   </div>
 </body>
 </html>
+<<<<<<< Updated upstream
 
 
+=======
+>>>>>>> Stashed changes
