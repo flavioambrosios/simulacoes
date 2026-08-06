@@ -381,6 +381,16 @@
             background: var(--ink);
         }
 
+        .card-actions a.secondary-link {
+            background: rgba(23, 50, 77, 0.1);
+            color: var(--ink);
+            border: 1px solid rgba(23, 50, 77, 0.14);
+        }
+
+        .card-actions a.secondary-link:hover {
+            background: rgba(23, 50, 77, 0.16);
+        }
+
         .empty-state {
             display: none;
             padding: 28px;
@@ -554,7 +564,7 @@
             { title: 'Resistência Elétrica', description: 'Atividade focada em resistência, variação de parâmetros e interpretação de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade' },
             { title: 'Força Magnética', description: 'Estudo da força magnética com página principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo' },
             { title: 'Lei de Ampère', description: 'Exploração do campo magnético associado a correntes elétricas.', href: 'LeideAmpere/LeideAmpere.html', section: 'eletricidade', type: 'principal', accent: '#264653', badge: 'Magnetismo' },
-            { title: 'Lei de Faraday', description: 'Simulação para indução eletromagnética e interpretação da variação de fluxo.', href: 'LeideFaraday/LeideFaraday.html', section: 'eletricidade', type: 'principal', accent: '#3a5a40', badge: 'Indução' },
+            { title: 'Lei de Faraday', description: 'Simulação para indução eletromagnética e interpretação da variação de fluxo.', href: 'LeideFaraday/LeideFaraday.html', section: 'eletricidade', type: 'principal', accent: '#3a5a40', badge: 'Indução', altLinks: [{ label: 'Versão adaptada', href: 'LeideFaraday/LeideFaraday.html' }] },
             { title: 'Solenoide', description: 'Página para explorar campo magnético em solenoides e relações associadas.', href: 'Solenoide/Solenoide.html', section: 'eletricidade', type: 'principal', accent: '#588157', badge: 'Magnetismo' },
             { title: 'Transformadores', description: 'Atividade sobre transformadores e variação entre tensões e espiras.', href: 'Transformadores/Transformadores.html', section: 'eletricidade', type: 'principal', accent: '#bc6c25', badge: 'Aplicação' },
             { title: 'Radiação de Corpo Negro', description: 'Outra versão disponível do tema radiação de corpo negro.', href: 'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html', section: 'termologia', type: 'principal', accent: '#ae2012', badge: 'Radiação' },
@@ -766,6 +776,10 @@
                     const openUrl = buildPrimaryUrl(item.href);
                     const externalLink = isAbsoluteUrl(item.href);
                     const dateBadge = formatDateBadge(getNewsDate(item));
+                    const altLinksMarkup = (item.altLinks || []).map(function(link) {
+                        const altUrl = buildPrimaryUrl(link.href);
+                        return `<a class="secondary-link" href="${altUrl}" target="_blank" rel="noreferrer">${link.label}</a>`;
+                    }).join('');
                     const card = document.createElement('article');
                     card.className = 'card';
                     card.style.setProperty('--accent', item.accent);
@@ -784,6 +798,7 @@
                             <p>${item.description}</p>
                             <div class="card-actions">
                                 <a href="${openUrl}" target="_blank" rel="noreferrer">${externalLink ? 'Abrir site' : (isLocalRuntime ? 'Abrir simulação' : 'Abrir online')}</a>
+                                ${altLinksMarkup}
                             </div>
                         </div>
                     `;
