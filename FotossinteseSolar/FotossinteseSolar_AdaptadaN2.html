@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atividade Interativa - Física da Fotossíntese</title>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Fotossíntese Solar">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/FotossinteseSolar/">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <!-- Canvas 2D substituindo Three.js -->
     <style>
         /* ===== ESTILOS COMPLETOS (mesmos do original) ===== */
@@ -41,17 +51,18 @@
             gap: 20px;
         }
         .simulation-panel {
-            flex: 2;
+            flex: 3;
             background: rgba(0, 0, 0, 0.6);
             padding: 20px;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-width: 0;
         }
         .simulation-container {
             width: 100%;
-            height: 500px;
+            height: 600px;
             background: #0a1628;
             border-radius: 8px;
             overflow: hidden;
@@ -62,10 +73,25 @@
             height: 100%;
             position: relative;
         }
-        #photosynthesisCanvas {
+        #photosynthesisGif {
             width: 100%;
             height: 100%;
             display: block;
+            object-fit: contain;
+        }
+        #filtroOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #filtroOverlay.ativo {
+            opacity: 0.3;
         }
         .controls-panel {
             flex: 1;
@@ -577,11 +603,6 @@
                 margin-bottom: 14px;
             }
         }
-            .simulation-panel, .controls-panel {
-                flex: 1;
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
@@ -594,20 +615,18 @@
         <div class="simulation-panel">
             <h2 class="panel-title">Simulação 3D - Radiação Solar, Clorofila e Formação de Glicose</h2>
             <div class="simulation-container">
-                <div id="renderer-container" style="position:relative;">
-                <canvas id="photosynthesisCanvas"></canvas>
-                <canvas id="gridOverlayFotos" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:10;"></canvas>
-            </div>
+                <div id="renderer-container" style="position:relative;width:100%;height:100%;">
+                    <img id="photosynthesisGif" src="FotossinteseGif.gif" alt="Animação da Fotossíntese" style="width:100%;height:100%;object-fit:contain;display:block;background:#000;">
+                    <canvas id="gridOverlayFotos" style="position:absolute;inset:0;pointer-events:none;z-index:1;"></canvas>
+                    <div id="filtroOverlay"></div>
+                </div>
             </div>
             <div class="visualization-toggle">
-                <button id="startBtn">Iniciar</button>
-                <button id="pauseBtn">Pausar</button>
-                <button id="resetBtn">Reiniciar</button>
                 <button id="helpBtn">Ajuda</button>
             </div>
             <div class="trail-controls">
-                <label for="photonToggle">Mostrar fluxo de fótons:</label>
-                <input type="checkbox" id="photonToggle" checked>
+                <label for="filterToggle">Aplicar filtro:</label>
+                <input type="checkbox" id="filterToggle">
             </div>
         </div>
         <div class="controls-panel">
@@ -628,10 +647,10 @@
             <div class="control-group">
                 <label for="intensityInput">Intensidade da radiação solar:</label>
                 <input type="range" id="intensityInput" min="200" max="1200" value="800" step="10">
-                <div class="value-display"><span id="intensityValue">800</span> W/m²</div>
+                <div class="value-display"><span id="intensityValue">800</span> W/m<sup>2</sup></div>
             </div>
             <div class="control-group">
-                <label for="co2Input">Concentração de CO₂:</label>
+                <label for="co2Input">Concentração de CO<sub>2</sub>:</label>
                 <input type="range" id="co2Input" min="200" max="1000" value="420" step="10">
                 <div class="value-display"><span id="co2Value">420</span> ppm</div>
             </div>
@@ -658,11 +677,11 @@
             </div>
             <div class="fórmula-box">
                 <h3>Fotossíntese global</h3>
-                <p>6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</p>
+                <p>6CO<sub>2</sub> + 6H<sub>2</sub>O + luz → C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub></p>
             </div>
             <div class="fórmula-box">
                 <h3>Energia química na glicose</h3>
-                <p>Energia ≈ n · 2803 kJ/mol</p>
+                <p>Energia ≈ n · 2800 kJ/mol</p>
             </div>
             <div class="exercise-buttons">
                 <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
@@ -701,6 +720,7 @@
             <div class="progress-item" id="progress3">3</div>
             <div class="progress-item" id="progress4">4</div>
             <div class="progress-item" id="progress5">5</div>
+            <div class="progress-item" id="progress6">6</div>
         </div>
         <div id="exerciseContainer"></div>
         <div id="conclusionContainer" style="display: none;">
@@ -735,10 +755,10 @@
     <div class="modal-content">
         <div class="modal-header"><h2>Exercícios Resolvidos - Física da Fotossíntese</h2><span class="close">&times;</span></div>
         <div id="solvedExercivesContainer">
-            <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Fórmula:</strong> E = 1240 / λ, com λ em nm</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 1: Energia de um fóton vermelho</h4><p><strong>Problema:</strong> Um fóton de luz vermelha com comprimento de onda de 680 nm atinge uma folha. Qual é a sua energia aproximada em elétron-volt?</p><div class="solution-step"><strong>Constantes:</strong> h = 6,626 × 10<sup>-34</sup> J·s, c = 3,00 × 10<sup>8</sup> m/s, portanto h·c = 1,986 × 10<sup>-25</sup> J·m = 1240 eV·nm</div><div class="solution-step"><strong>Fórmula original:</strong> E = h·c / λ</div><div class="solution-step"><strong>Forma prática:</strong> E(eV) = 1240 / λ(nm)</div><div class="solution-step"><strong>Substituição:</strong> E = 1240 / 680</div><div class="solution-step"><strong>Resultado:</strong> E ≈ 1,82 eV</div><div class="solution-step"><strong>Interpretação:</strong> Fótons vermelhos têm menos energia que os azuis, mas ainda são muito eficientes para a fotossíntese.</div></div>
             <div class="solved-exercise"><h4>Exemplo 2: Absorção da clorofila e cor verde</h4><p><strong>Problema:</strong> Por que folhas geralmente parecem verdes quando recebem luz branca do Sol?</p><div class="solution-step"><strong>Observação física:</strong> A clorofila absorve melhor luz azul e vermelha.</div><div class="solution-step"><strong>Faixa menos absorvida:</strong> A região verde do espectro sofre menor absorção.</div><div class="solution-step"><strong>Conclusão:</strong> A luz verde é mais refletida ou transmitida pela folha e, por isso, chega aos nossos olhos.</div></div>
-            <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2803 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2803 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
-            <div class="solved-exercise"><h4>Exemplo 4: Comparação entre cenários fotossintéticos</h4><p><strong>Problema:</strong> Qual cenário tende a produzir maior taxa fotossintética? Cenário A: 450 nm, 930 W/m², 470 ppm de CO₂, 84% de água e Clorofila b. Cenário B: 540 nm, 800 W/m², 360 ppm de CO₂, 34% de água e Clorofila a.</p><div class="solution-step"><strong>Passo 1:</strong> Comparar a faixa do espectro. Em 450 nm a luz está na região azul, muito bem absorvida pela clorofila b. Em 540 nm a luz cai na região verde, em que a absorção tende a ser bem menor.</div><div class="solution-step"><strong>Passo 2:</strong> Comparar os reagentes e a intensidade. O cenário A também tem maior intensidade luminosa, mais CO₂ e muito mais água disponível.</div><div class="solution-step"><strong>Passo 3:</strong> Aplicando a lógica da simulação, o cenário A atinge taxa relativa aproximada de 74,8%, enquanto o cenário B fica em torno de 1,4%.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Cenário A</strong>.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 3: Energia química armazenada</h4><p><strong>Problema:</strong> Uma planta produz 5 mmol de glicose por hora. Quanta energia química essa glicose armazena aproximadamente?</p><div class="solution-step"><strong>Relação usada:</strong> 1 mol de glicose armazena cerca de 2800 kJ</div><div class="solution-step"><strong>Conversão:</strong> 5 mmol = 0,005 mol</div><div class="solution-step"><strong>Cálculo:</strong> E = 0,005 × 2800 ≈ 14,02 kJ</div><div class="solution-step"><strong>Resposta:</strong> Aproximadamente 14,0 kJ por hora.</div></div>
+            <div class="solved-exercise"><h4>Exemplo 4: Comparação entre cenários fotossintéticos</h4><p><strong>Problema:</strong> Qual cenário tende a produzir maior taxa fotossintética? Cenário A: 450 nm, 930 W/m<sup>2</sup>, 470 ppm de CO<sub>2</sub>, 84% de água e Clorofila b. Cenário B: 540 nm, 800 W/m<sup>2</sup>, 360 ppm de CO<sub>2</sub>, 34% de água e Clorofila a.</p><div class="solution-step"><strong>Passo 1:</strong> Comparar a faixa do espectro. Em 450 nm a luz está na região azul, muito bem absorvida pela clorofila b. Em 540 nm a luz cai na região verde, em que a absorção tende a ser bem menor.</div><div class="solution-step"><strong>Passo 2:</strong> Comparar os reagentes e a intensidade. O cenário A também tem maior intensidade luminosa, mais CO<sub>2</sub> e muito mais água disponível.</div><div class="solution-step"><strong>Passo 3:</strong> Aplicando a lógica da simulação, o cenário A atinge taxa relativa aproximada de 74,8%, enquanto o cenário B fica em torno de 1,4%.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Cenário A</strong>.</div></div>
             <div class="solved-exercise"><h4>Exemplo 5: Classificação da absorção em 530 nm</h4><p><strong>Problema:</strong> Para um tecido vegetal em que predomina Clorofila a, a absorção de luz em 530 nm tende a ser classificada como: Alta, Baixa, Moderada ou Muito baixa?</p><div class="solution-step"><strong>Passo 1:</strong> Identificar a faixa espectral. O comprimento de onda de 530 nm está na região verde.</div><div class="solution-step"><strong>Passo 2:</strong> Lembrar do comportamento da clorofila a. Esse pigmento absorve melhor no azul e no vermelho, mas absorve pouco na região verde.</div><div class="solution-step"><strong>Passo 3:</strong> Na lógica numérica da simulação, 530 nm para clorofila a cai no nível mínimo de absorção estimada, cerca de 0,05.</div><div class="solution-step"><strong>Resposta:</strong> <strong>Muito baixa</strong>.</div></div>
         </div>
         <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
@@ -759,8 +779,9 @@
                 <p>Quanto menor o comprimento de onda, maior a energia transportada por cada fóton.</p>
                 <ul>
                     <li><span class="highlight">λ</span> representa o comprimento de onda.</li>
-                    <li><span class="highlight">h</span> é a constante de Planck.</li>
-                    <li><span class="highlight">c</span> é a velocidade da luz.</li>
+                    <li><span class="highlight">h</span> = 6,626 × 10<sup>-34</sup> J·s (constante de Planck).</li>
+                    <li><span class="highlight">c</span> = 3,00 × 10<sup>8</sup> m/s (velocidade da luz).</li>
+                    <li><span class="highlight">h · c</span> = 1,986 × 10<sup>-25</sup> J·m = 1240 eV·nm (produto usado nos cálculos).</li>
                 </ul>
                 <table class="spectrum-table">
                     <thead>
@@ -818,24 +839,230 @@
                 <div class="theory-note">
                     <strong>Regra prática para os exercícios:</strong> se a questão destacar azul ou vermelho, pense primeiro em absorção maior. Se destacar verde, pense em absorção menor e maior reflexão. Se comparar pigmentos, procure qual deles tem o pico de absorção mais próximo do comprimento de onda informado.
                 </div>
+                
+                <div class="theory-section">
+                    <h3>Curvas de Absorção dos Pigmentos</h3>
+                    <p>O gráfico abaixo mostra a <strong>absorbância relativa</strong> (escala de 0 a 100%) dos principais pigmentos fotossintetizantes em função do comprimento de onda.</p>
+                    <p><strong>O que é absorbância relativa?</strong> É uma medida da fração da luz incidente que foi absorvida pelo pigmento, normalizada entre 0% (nenhuma absorção) e 100% (absorção máxima). Cada pigmento tem seu próprio padrão de absorção, e a absorbância relativa permite comparar diretamente o comportamento de diferentes pigmentos no mesmo gráfico.</p>
+                    <p><strong>Por que a absorção total não é simplesmente a soma das curvas?</strong> Porque em uma folha real os pigmentos não atuam de forma independente: a luz que não foi absorvida por um pigmento pode ser absorvida por outro, e há sobreposição dos espectros. Além disso, a estrutura do tecido vegetal (espessura, disposição dos cloroplastos) influencia a absorção total. Portanto, a curva de absorção total representa a absorbância medida do conjunto, que é diferente da soma aritmética das absorbâncias individuais.</p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <canvas id="absorptionChart" width="600" height="350" style="background: rgba(0,0,0,0.3); border-radius: 10px; max-width: 100%;"></canvas>
+                    </div>
+                    <script>
+                    (function() {
+                        function drawAbsorptionChart() {
+                            var canvas = document.getElementById("absorptionChart");
+                            if (!canvas) return;
+                            var ctx = canvas.getContext("2d");
+                            var w = canvas.width, h = canvas.height;
+                            var pad = {left: 60, right: 20, top: 30, bottom: 40};
+                            var chartW = w - pad.left - pad.right;
+                            var chartH = h - pad.top - pad.bottom;
+                            
+                            // Dados dos pigmentos: [comprimento_onda, absorbancia] normalizada 0-1
+                            var clorofilaA = [];
+                            var clorofilaB = [];
+                            var carotenoides = [];
+                            var absorcaoTotal = [];
+                            
+                            // Gerar dados sinteticos baseados nos picos reais
+                            for (var lambda = 380; lambda <= 750; lambda += 5) {
+                                // Clorofila a: picos em ~430 nm e ~662 nm
+                                var ca = 0.3 * Math.exp(-Math.pow(lambda - 430, 2) / (2 * 25*25)) + 0.9 * Math.exp(-Math.pow(lambda - 662, 2) / (2 * 20*20)) + 0.05;
+                                // Clorofila b: picos em ~453 nm e ~642 nm
+                                var cb = 0.6 * Math.exp(-Math.pow(lambda - 453, 2) / (2 * 25*25)) + 0.7 * Math.exp(-Math.pow(lambda - 642, 2) / (2 * 22*22)) + 0.05;
+                                // Carotenoides: pico em ~460-470 nm
+                                var car = 0.7 * Math.exp(-Math.pow(lambda - 465, 2) / (2 * 35*35)) + 0.1 * Math.exp(-Math.pow(lambda - 490, 2) / (2 * 20*20)) + 0.03;
+                                // Absorcao total: combinacao ponderada
+                                var total = Math.min(1.0, 0.5 * ca + 0.3 * cb + 0.2 * car + 0.1);
+                                
+                                clorofilaA.push({x: lambda, y: Math.min(1.0, ca)});
+                                clorofilaB.push({x: lambda, y: Math.min(1.0, cb)});
+                                carotenoides.push({x: lambda, y: Math.min(1.0, car)});
+                                absorcaoTotal.push({x: lambda, y: total});
+                            }
+                            
+                            function xPos(lambda) { return pad.left + (lambda - 380) / (750 - 380) * chartW; }
+                            function yPos(val) { return pad.top + chartH - val * chartH; }
+                            
+                            function drawCurve(data, color, lineWidth) {
+                                ctx.beginPath();
+                                for (var i = 0; i < data.length; i++) {
+                                    var x = xPos(data[i].x);
+                                    var y = yPos(data[i].y);
+                                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                                }
+                                ctx.strokeStyle = color;
+                                ctx.lineWidth = lineWidth || 2;
+                                ctx.stroke();
+                            }
+                            
+                            function fillUnderCurve(data, color) {
+                                ctx.beginPath();
+                                ctx.moveTo(xPos(data[0].x), pad.top + chartH);
+                                for (var i = 0; i < data.length; i++) {
+                                    ctx.lineTo(xPos(data[i].x), yPos(data[i].y));
+                                }
+                                ctx.lineTo(xPos(data[data.length-1].x), pad.top + chartH);
+                                ctx.closePath();
+                                ctx.fillStyle = color;
+                                ctx.globalAlpha = 0.15;
+                                ctx.fill();
+                                ctx.globalAlpha = 1.0;
+                            }
+                            
+                            // Fundo
+                            ctx.fillStyle = "rgba(0,0,0,0.1)";
+                            ctx.fillRect(pad.left, pad.top, chartW, chartH);
+                            
+                            // Eixos
+                            ctx.strokeStyle = "#888";
+                            ctx.lineWidth = 1;
+                            ctx.beginPath();
+                            ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + chartH);
+                            ctx.lineTo(pad.left + chartW, pad.top + chartH);
+                            ctx.stroke();
+                            
+                            // Legendas eixos
+                            ctx.fillStyle = "#ccc";
+                            ctx.font = "12px Arial";
+                            ctx.textAlign = "center";
+                            ctx.fillText("Comprimento de onda (nm)", pad.left + chartW/2, h - 5);
+                            ctx.save(); ctx.translate(15, pad.top + chartH/2); ctx.rotate(-Math.PI/2); ctx.fillText("Absorbância relativa", 0, 0); ctx.restore();
+                            
+                            // Marcacoes eixo X
+                            for (var l = 400; l <= 700; l += 50) {
+                                var x = xPos(l);
+                                ctx.strokeStyle = "#555";
+                                ctx.beginPath(); ctx.moveTo(x, pad.top + chartH); ctx.lineTo(x, pad.top + chartH + 5); ctx.stroke();
+                                ctx.fillStyle = "#aaa";
+                                ctx.textAlign = "center";
+                                ctx.fillText(l.toString(), x, pad.top + chartH + 18);
+                            }
+                            
+                            // Marcacoes eixo Y
+                            for (var v = 0; v <= 1; v += 0.2) {
+                                var y = yPos(v);
+                                ctx.strokeStyle = "#444";
+                                ctx.lineWidth = 0.5;
+                                ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y); ctx.stroke();
+                                ctx.fillStyle = "#888";
+                                ctx.textAlign = "right";
+                                ctx.fillText((v * 100).toFixed(0) + "%", pad.left - 5, y + 4);
+                            }
+                            
+                            // Faixas espectrais coloridas no fundo
+                            var bands = [
+                                {start: 380, end: 450, color: "rgba(100,50,180,0.2)"},
+                                {start: 450, end: 495, color: "rgba(50,80,255,0.2)"},
+                                {start: 495, end: 570, color: "rgba(50,200,50,0.2)"},
+                                {start: 570, end: 590, color: "rgba(200,200,50,0.2)"},
+                                {start: 590, end: 620, color: "rgba(200,120,30,0.2)"},
+                                {start: 620, end: 700, color: "rgba(200,50,50,0.2)"},
+                                {start: 700, end: 750, color: "rgba(100,50,50,0.2)"},
+                            ];
+                            for (var b = 0; b < bands.length; b++) {
+                                ctx.fillStyle = bands[b].color;
+                                ctx.fillRect(xPos(bands[b].start), pad.top, xPos(bands[b].end) - xPos(bands[b].start), chartH);
+                            }
+                            
+                            // Curvas com area
+                            fillUnderCurve(absorcaoTotal, "rgba(200,200,200,0.3)");
+                            drawCurve(absorcaoTotal, "#ffffff", 2.5);
+                            fillUnderCurve(clorofilaA, "rgba(50,180,50,0.3)");
+                            drawCurve(clorofilaA, "#33cc33", 2);
+                            fillUnderCurve(clorofilaB, "rgba(50,130,50,0.3)");
+                            drawCurve(clorofilaB, "#228822", 2);
+                            fillUnderCurve(carotenoides, "rgba(200,150,50,0.3)");
+                            drawCurve(carotenoides, "#cc8800", 2);
+                            
+                            // Picos
+                            var peaks = [
+                                {lambda: 430, label: "Clorofila a: 430 nm", color: "#33cc33", yOff: 15},
+                                {lambda: 662, label: "Clorofila a: 662 nm", color: "#33cc33", yOff: 15},
+                                {lambda: 453, label: "Clorofila b: 453 nm", color: "#228822", yOff: -15},
+                                {lambda: 642, label: "Clorofila b: 642 nm", color: "#228822", yOff: -15},
+                                {lambda: 465, label: "Carotenoides: ~465 nm", color: "#cc8800", yOff: -15},
+                            ];
+                            for (var p = 0; p < peaks.length; p++) {
+                                var px = xPos(peaks[p].lambda);
+                                ctx.fillStyle = peaks[p].color;
+                                ctx.font = "bold 10px Arial";
+                                ctx.textAlign = "center";
+                                ctx.fillText(peaks[p].label, px, pad.top + chartH + peaks[p].yOff + 30);
+                                ctx.fillStyle = "#fff";
+                                ctx.beginPath();
+                                ctx.arc(px, pad.top + chartH + peaks[p].yOff + 22, 3, 0, 2 * Math.PI);
+                                ctx.fill();
+                            }
+                            
+                            // Legenda
+                            var legX = pad.left + 10, legY = pad.top + 15;
+                            ctx.font = "11px Arial";
+                            var legend = [
+                                {label: "Absorção total", color: "#ffffff"},
+                                {label: "Clorofila a", color: "#33cc33"},
+                                {label: "Clorofila b", color: "#228822"},
+                                {label: "Carotenoides", color: "#cc8800"},
+                            ];
+                            for (var lg = 0; lg < legend.length; lg++) {
+                                ctx.fillStyle = legend[lg].color;
+                                ctx.fillRect(legX, legY + lg * 16, 12, 12);
+                                ctx.fillStyle = "#ccc";
+                                ctx.textAlign = "left";
+                                ctx.fillText(legend[lg].label, legX + 18, legY + lg * 16 + 10);
+                            }
+                        }
+                        setTimeout(drawAbsorptionChart, 100);
+                    })();
+                    </script>
+                    
+                    <h4>Picos de Absorção por Pigmento</h4>
+                    <table class="spectrum-table">
+                        <thead>
+                            <tr>
+                                <th>Pigmento</th>
+                                <th>Pico 1 (azul/violeta)</th>
+                                <th>Pico 2 (vermelho/laranja)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="highlight">Clorofila a</span></td>
+                                <td>430 nm</td>
+                                <td>662 nm</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Clorofila b</span></td>
+                                <td>453 nm</td>
+                                <td>642 nm</td>
+                            </tr>
+                            <tr>
+                                <td><span class="highlight">Carotenoides</span></td>
+                                <td>465 nm (pico principal)</td>
+                                <td>490 nm (pico secundário)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <p>Nas questões comparativas, não basta observar apenas a cor da luz. A produção de glicose depende de uma combinação de fatores:</p>
                 <ul>
                     <li><span class="highlight">energia por fóton</span>, ligada ao comprimento de onda;</li>
                     <li><span class="highlight">eficiência de absorção</span>, ligada ao pigmento predominante;</li>
-                    <li><span class="highlight">disponibilidade de água e CO₂</span>, que limita a continuidade do processo químico.</li>
+                    <li><span class="highlight">disponibilidade de água e CO<sub>2</sub></span>, que limita a continuidade do processo químico.</li>
                 </ul>
-                <p>Assim, uma luz muito energética não garante, sozinha, uma taxa fotossintética maior. Se o pigmento absorver pouco aquela faixa ou se faltar CO₂ e água, a produção final de glicose pode ser menor. Esse raciocínio integrado é o principal subsídio para resolver os exercícios de comparação de cenários.</p>
+                <p>Assim, uma luz muito energética não garante, sozinha, uma taxa fotossintética maior. Se o pigmento absorver pouco aquela faixa ou se faltar CO<sub>2</sub> e água, a produção final de glicose pode ser menor. Esse raciocínio integrado é o principal subsídio para resolver os exercícios de comparação de cenários.</p>
             </div>
             <div class="theory-section">
                 <h3>Da energia luminosa à glicose</h3>
                 <p>No cloroplasto, a energia da luz é usada para transferir elétrons, formar ATP e NADPH e, depois, fixar carbono no ciclo de Calvin. O resultado global é o armazenamento de energia química na molécula de glicose.</p>
-                <div class="theory-fórmula">6CO₂ + 6H₂O + luz → C₆H₁₂O₆ + 6O₂</div>
+                <div class="theory-fórmula">6CO<sub>2</sub> + 6H<sub>2</sub>O + luz → C<sub>6</sub>H<sub>12</sub>O<sub>6</sub> + 6O<sub>2</sub></div>
                 <p>A glicose funciona como uma reserva energética e matéria-prima para muitos processos metabólicos.</p>
             </div>
             <div class="theory-section">
                 <h3>Alimento e biocombustíveis</h3>
                 <p>A energia química armazenada na glicose pode seguir muitos caminhos: sustentar o crescimento da planta, alimentar outros seres vivos ou ser convertida em biomassa usada na produção de etanol, biodiesel e outros biocombustíveis.</p>
-                <div class="theory-fórmula">1 mol de glicose ≈ 2803 kJ</div>
+                <div class="theory-fórmula">1 mol de glicose ≈ 2800 kJ</div>
                 <ul>
                     <li>Na cadeia alimentar, essa energia chega aos consumidores.</li>
                     <li>Na indústria, açúcares e biomassa podem ser fermentados ou processados.</li>
@@ -843,7 +1070,16 @@
                 </ul>
             </div>
         </div>
-        <div class="buttons-container">
+                    <div class="theory-section">
+                <h3>Referências Bibliográficas Sugeridas</h3>
+                <ol style="font-size: 0.85rem; line-height: 1.8; text-align: justify;">
+                    <li>MELO JÚNIOR, Ronaldo Pereira de; SILVA, Virgínia Rodrigues; SILFRÔNIO, Emily Karem Silva; LIMA, Júlia Aparecida Gomes Aires de; MOCCELIN, Michele Monteiro; ROLDAN, Ricardo Salas; SILVA, Stella Cristina Cabral da. <strong>Qual a influência da luz na fotossíntese?</strong> Caderno Brasileiro de Ensino de Física, v. 32, n. 1, p. 224-243, 2015.
+                    Disponível em: <a href="https://dialnet.unirioja.es/descarga/articulo/6584316.pdf" target="_blank" style="color: #ffcc00;">dialnet.unirioja.es/descarga/articulo/6584316.pdf</a></li>
+                    <li>GREF - GRUPO DE REELABORAÇÃO DO ENSINO DE FÍSICA. <strong>Física 3: Eletromagnetismo.</strong> 5. ed. São Paulo: EDUSP, 2000. (Capítulo sobre ondas eletromagnéticas e espectro)
+                    Disponível em: <a href="https://fep.if.usp.br/~profis/arquivo/gref/termo6-2.pdf" target="_blank" style="color: #ffcc00;">fep.if.usp.br/~profis/arquivo/gref/termo6-2.pdf</a></li>
+                </ol>
+            </div>
+<div class="buttons-container">
             <button id="closeTheory" class="check-btn">Fechar</button>
         </div>
     </div>
@@ -977,16 +1213,16 @@
     function calculateAbsorption(lambda, pigment) {
         let absorption = 0.10;
         if (pigment === 'chlorophyllA') {
-            absorption += gaussian(lambda, 430, 22, 0.75);
-            absorption += gaussian(lambda, 662, 24, 0.90);
+            absorption += gaussian(lambda, 430, 20, 0.85);
+            absorption += gaussian(lambda, 662, 18, 0.95);
         } else if (pigment === 'chlorophyllB') {
-            absorption += gaussian(lambda, 453, 24, 0.72);
-            absorption += gaussian(lambda, 642, 24, 0.82);
+            absorption += gaussian(lambda, 453, 22, 0.78);
+            absorption += gaussian(lambda, 642, 20, 0.88);
         } else {
-            absorption += gaussian(lambda, 470, 28, 0.85);
-            absorption += gaussian(lambda, 505, 24, 0.45);
+            absorption += gaussian(lambda, 465, 30, 0.80);
+            absorption += gaussian(lambda, 490, 20, 0.50);
         }
-        absorption -= gaussian(lambda, 550, 24, 0.28);
+        absorption -= gaussian(lambda, 550, 22, 0.30);
         return clamp(absorption, 0.05, 0.98);
     }
 
@@ -1003,22 +1239,21 @@
         absorptionEfficiency = calculateAbsorption(wavelength, pigmentType);
         photosynthesisRate = calculatePhotosynthesisRate(wavelength, solarIntensity, co2Level, waterAvailability, pigmentType);
         glucoseProduction = photosynthesisRate / 10;
-        storedEnergy = glucoseProduction * 2.803;
+        storedEnergy = glucoseProduction * 2.800;
     }
 
 
 function initSimulation() {
         canvas = document.getElementById('photosynthesisCanvas');
-        if (!canvas) { console.error('Canvas não encontrado'); return; }
-        ctx = canvas.getContext('2d');
-        
-        resizeCanvas();
-        window.addEventListener('resize', onWindowResize);
-        
+        if (canvas) {
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', onWindowResize);
+        }
         calculateDerivedValues();
         updateMeasurements();
         setupEventListeners();
-        animate();
+        if (canvas) animate();
     }
     
     function resizeCanvas() {
@@ -1756,28 +1991,14 @@ function initSimulation() {
         }
     }
 
-        function drawSystem() {
-        if (!ctx || !canvas) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawBackground();
-        drawFeixe();
-        drawSun();
-        drawPlants();
-        drawStorageBoxes();
-        drawPhotons();
-        updateParticles();
-        drawLabels();
-        drawGridFotos();
+                function drawSystem() {
+        // Substituido pelo video
+        return;
     }
     
     function animate() {
-        requestAnimationFrame(animate);
-        
-        if (isRunning) {
-            simulationTime += 0.016;
-        }
-        
-        drawSystem();
+        // Substituido pelo video
+        return;
     }
     
     function updateMeasurements() {
@@ -1804,47 +2025,59 @@ function initSimulation() {
     }
 
     function setupEventListeners() {
-        document.getElementById('pigmentSelect').addEventListener('change', function() {
+        function bindById(elementId, eventName, handler, options) {
+            const element = document.getElementById(elementId);
+            const optional = options && options.optional;
+            if (!element) {
+                if (!optional) {
+                    console.warn('[Fotossíntese] Elemento não encontrado para evento:', elementId);
+                }
+                return;
+            }
+            element.addEventListener(eventName, handler);
+        }
+
+        bindById('pigmentSelect', 'change', function() {
             pigmentType = this.value;
             refreshModel();
         });
 
-        document.getElementById('wavelengthInput').addEventListener('input', function() {
+        bindById('wavelengthInput', 'input', function() {
             wavelength = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('intensityInput').addEventListener('input', function() {
+        bindById('intensityInput', 'input', function() {
             solarIntensity = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('co2Input').addEventListener('input', function() {
+        bindById('co2Input', 'input', function() {
             co2Level = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('waterInput').addEventListener('input', function() {
+        bindById('waterInput', 'input', function() {
             waterAvailability = parseFloat(this.value);
             refreshModel();
         });
 
-        document.getElementById('photonToggle').addEventListener('change', function() {
+        bindById('photonToggle', 'change', function() {
             showPhotons = this.checked;
             if (!showPhotons) {
                 photons = [];
             }
-        });
+        }, { optional: true });
 
-        document.getElementById('startBtn').addEventListener('click', function() {
+        bindById('startBtn', 'click', function() {
             isRunning = true;
-        });
+        }, { optional: true });
 
-        document.getElementById('pauseBtn').addEventListener('click', function() {
+        bindById('pauseBtn', 'click', function() {
             isRunning = false;
-        });
+        }, { optional: true });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
+        bindById('resetBtn', 'click', function() {
             isRunning = false;
             wavelength = 680;
             solarIntensity = 800;
@@ -1867,16 +2100,16 @@ function initSimulation() {
             document.getElementById('pigmentSelect').value = pigmentType;
 
             refreshModel();
-        });
+        }, { optional: true });
 
         // [Grade] Event listener
-        document.getElementById('gridToggleFotos').addEventListener('click', function() {
+        bindById('gridToggleFotos', 'click', function() {
             showGridFotos = !showGridFotos;
             this.textContent = showGridFotos ? 'Esconder Grade' : 'Mostrar Grade';
             drawGridFotos();
         });
 
-        document.getElementById('helpBtn').addEventListener('click', function() {
+        bindById('helpBtn', 'click', function() {
             alert('Ajuste comprimento de onda, intensidade, CO2, agua e pigmento. Depois clique em Iniciar para observar o fluxo de fótons, a absorção na folha e a formação de glicose.');
         });
     }
@@ -1922,9 +2155,9 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
         `O primeiro ponto físico importante é o espectro eletromagnético. A luz visível ocupa uma faixa pequena desse espectro, mas é justamente nela que a fotossíntese acontece com mais intensidade. Ao mover o controle de comprimento de onda, você altera a cor da radiação e a energia de cada fóton.`,
         `Pela relação E igual a h vezes c dividido por lambda, fótons de menor comprimento de onda carregam mais energia. Isso explica por que a luz azul é mais energética que a luz vermelha. Mesmo assim, eficiência fotossintética não depende só da energia do fóton, mas também da capacidade de absorção do pigmento.`,
         `A clorofila a e a clorofila b absorvem especialmente nas regiões azul e vermelha. Já a faixa verde é menos absorvida e tende a ser refletida. Por isso muitas folhas parecem verdes para o observador.`,
-        `Além da luz, a produção de glicose depende dos reagentes do processo. Nesta atividade, CO₂ e água aparecem como controles porque a taxa fotossintética diminui quando esses recursos ficam escassos. Observe como a combinação entre absorção e disponibilidade de reagentes muda os indicadores do painel.`,
+        `Além da luz, a produção de glicose depende dos reagentes do processo. Nesta atividade, CO<sub>2</sub> e água aparecem como controles porque a taxa fotossintética diminui quando esses recursos ficam escassos. Observe como a combinação entre absorção e disponibilidade de reagentes muda os indicadores do painel.`,
         `A glicose mostrada na simulação representa energia solar armazenada em ligações químicas. É isso que permite à planta crescer, alimentar outros seres vivos e fornecer biomassa para biocombustíveis como etanol e biodiesel.`,
-        `Compare situações diferentes: luz vermelha intensa com bastante água e CO₂, luz verde moderada, ou domínio de carotenoides. A ideia é relacionar cor, absorção e taxa de produção em vez de decorar frases isoladas.`,
+        `Compare situações diferentes: luz vermelha intensa com bastante água e CO<sub>2</sub>, luz verde moderada, ou domínio de carotenoides. A ideia é relacionar cor, absorção e taxa de produção em vez de decorar frases isoladas.`,
         `Parabéns, ${guidedStudentName}! Depois de explorar a cena, use os exercícios para transformar a observação em explicação científica. Tente sempre responder três perguntas: qual radiação chegou, quanto dela foi absorvida e onde a energia ficou armazenada. Bons estudos.`
     ];
 
@@ -2054,72 +2287,60 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
     function generateTextOptions(correctOption, distractors) {
         const options = [correctOption].concat(distractors.filter(function(option) {
             return option !== correctOption;
-        }).slice(0, 4));
+        }).slice(0, 2));
         return shuffleArray(options);
     }
 
-    function buildQualitativeExerciseByType(type) {
-        if (type === 'luz_e_absorcao') {
-            return {
-                type: 'luz_e_absorcao',
-                question: 'Na fotossíntese, a luz tem o papel principal de:',
-                answer: 'Fornecer energia para as reações fotoquímicas',
-                options: ['Fornecer energia para as reações fotoquímicas', 'Substituir o CO2 da planta', 'Eliminar totalmente a necessidade de água']
-            };
-        }
-
-        if (type === 'pigmentos') {
-            return {
-                type: 'pigmentos',
-                question: 'Os pigmentos fotossintéticos são importantes porque:',
-                answer: 'Absorvem luz em diferentes faixas do espectro',
-                options: ['Absorvem luz em diferentes faixas do espectro', 'Produzem calor para o solo', 'Impedem a entrada de CO2']
-            };
-        }
-
-        if (type === 'fases') {
-            return {
-                type: 'fases',
-                question: 'A produção de ATP e NADPH está mais associada a qual etapa?',
-                answer: 'Fase luminosa',
-                options: ['Fase luminosa', 'Respiração celular', 'Fermentação alcoólica']
-            };
-        }
-
-        if (type === 'fator_limitante') {
-            return {
-                type: 'fator_limitante',
-                question: 'Mesmo com boa iluminação, a taxa fotossintética pode cair quando falta:',
-                answer: 'CO2 disponível',
-                options: ['CO2 disponível', 'Cor verde das folhas', 'Movimento do vento']
-            };
-        }
+    function buildQualitativeExercise(type) {
+        const cases = {
+            luz: {
+                question: 'Qual papel principal da luz na fotossíntese?',
+                answer: 'Fornecer energia para as reações químicas',
+                options: ['Fornecer energia para as reações químicas', 'Substituir o CO₂ da planta', 'Eliminar a necessidade de água']
+            },
+            pigmento: {
+                question: 'Por que os pigmentos das folhas são importantes para a fotossíntese?',
+                answer: 'Porque absorvem luz em diferentes faixas do espectro',
+                options: ['Porque absorvem luz em diferentes faixas do espectro', 'Porque produzem calor para o solo', 'Porque impedem a entrada de gás carbônico']
+            },
+            cor: {
+                question: 'Por que muitas folhas parecem verdes para nós?',
+                answer: 'Porque a luz verde é menos absorvida e mais refletida',
+                options: ['Porque a luz verde é menos absorvida e mais refletida', 'Porque a folha produz pigmento verde em excesso', 'Porque o verde é a cor mais energética']
+            },
+            reagentes: {
+                question: 'Além da luz, quais substâncias são fundamentais para a fotossíntese?',
+                answer: 'Água e dióxido de carbono',
+                options: ['Água e dióxido de carbono', 'Oxigênio e sal', 'Nitrogênio e ferro']
+            },
+            resultado: {
+                question: 'O que a planta armazena como resultado do processo?',
+                answer: 'Energia química na glicose',
+                options: ['Energia química na glicose', 'Calor no solo', 'Água pura nas raízes']
+            }
+        };
 
         return {
-            type: 'leitura_qualitativa',
-            question: 'Qual síntese qualitativa melhor descreve a fotossíntese na simulação?',
-            answer: 'A eficiência depende da interação entre luz, pigmentos e condições do meio',
-            options: [
-                'A eficiência depende da interação entre luz, pigmentos e condições do meio',
-                'A fotossíntese ocorre igual em qualquer condição',
-                'Apenas a temperatura define todo o processo'
-            ]
+            type: type,
+            question: cases[type].question,
+            answer: cases[type].answer,
+            options: shuffleArray(cases[type].options)
         };
     }
 
     function generateExercises() {
         exercises = shuffleArray([
-            buildQualitativeExerciseByType('luz_e_absorcao'),
-            buildQualitativeExerciseByType('pigmentos'),
-            buildQualitativeExerciseByType('fases'),
-            buildQualitativeExerciseByType('fator_limitante'),
-            buildQualitativeExerciseByType('leitura_qualitativa')
+            buildQualitativeExercise('luz'),
+            buildQualitativeExercise('pigmento'),
+            buildQualitativeExercise('cor'),
+            buildQualitativeExercise('reagentes'),
+            buildQualitativeExercise('resultado')
         ]);
     }
 
     function generateNewExerciseOfSameType() {
         const currentType = exercises[currentExercise].type;
-        exercises[currentExercise] = buildQualitativeExerciseByType(currentType);
+        exercises[currentExercise] = buildQualitativeExercise(currentType);
     }
 
     function showCurrentExercise() {
@@ -2281,8 +2502,7 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
             serie: studentGrade,
             turma: studentClass,
             estudante: studentName,
-            simulacao: 'Fotossíntese Solar (Adaptada N2)',
-            versao_atividade: 'adaptada_n2',
+            simulacao: 'Fotossíntese Solar',
             questoes_puladas: skippedQuestions,
             acertos_erros: `${correct}/${total - correct}`,
             nota: percent + '%',
@@ -2314,8 +2534,7 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
                     const alunoData = {
                         ...dadosCompletos,
                         to_email: studentEmail,
-                        versao_atividade: 'adaptada_n2',
-                        mensagem: `Confirmação de envio - Física da Fotossíntese (Adaptada N2)\nNota: ${percent}%\nAcertos: ${correct}/${total}`
+                        mensagem: `Confirmação de envio - Física da Fotossíntese\nNota: ${percent}%\nAcertos: ${correct}/${total}`
                     };
                     return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alunoData) });
                 }
@@ -2406,19 +2625,70 @@ const studentNameStorageKey = 'studentName-fotossintese-solar';
         if (event.target === document.getElementById('theoryModal')) closeTheoryModal();
     });
 
-    window.addEventListener('load', function() {
+        window.addEventListener('load', function() {
         initSimulation();
         preloadFirstTrack();
     });
+
+    // ===== FILTRO CROMATICO SOBRE O VIDEO =====
+    function atualizarFiltro() {
+        var overlay = document.getElementById('filtroOverlay');
+        var toggle = document.getElementById('filterToggle');
+        if (!overlay || !toggle) return;
+        var cor = getPhotonColor(wavelength);
+        overlay.style.backgroundColor = cor;
+        if (toggle.checked) {
+            overlay.classList.add('ativo');
+        } else {
+            overlay.classList.remove('ativo');
+        }
+    }
+
+    // Conectar o checkbox do filtro
+    var filterToggleEl = document.getElementById('filterToggle');
+    if (filterToggleEl) {
+        filterToggleEl.addEventListener('change', atualizarFiltro);
+    }
+
+    // Atualizar filtro sempre que o comprimento de onda mudar
+    (function() {
+        var wavelengthInputEl = document.getElementById('wavelengthInput');
+        if (wavelengthInputEl) {
+            wavelengthInputEl.addEventListener('input', function() {
+                wavelength = parseFloat(this.value);
+                refreshModel();
+                atualizarFiltro();
+            });
+        }
+    })();
+
+    // Inicializa o filtro ao carregar
+    setTimeout(atualizarFiltro, 400);
+
+    // Patch no refreshModel para atualizar o filtro junto
+    (function() {
+        var originalRefresh = refreshModel;
+        if (typeof originalRefresh === 'function') {
+            refreshModel = function() {
+                originalRefresh();
+                atualizarFiltro();
+            };
+        }
+    })();
 </script>
 <script>
     window.SIMULATION_ENHANCER_CONFIG = {
-        simulationName: 'Fotossíntese Solar (Adaptada N2)',
-        storageKey: 'fotossintese-solar-adaptada-n2'
+        simulationName: 'Fotossíntese Solar',
+        storageKey: 'fotossintese-solar'
     };
 </script>
 <script src="../_shared/simulation-enhancer.js"></script>
+<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
+<<<<<<< Updated upstream
 
 
+
+=======
+>>>>>>> Stashed changes
