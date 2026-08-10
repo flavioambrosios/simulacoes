@@ -15,7 +15,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Força Magnética</title>
+    <title>Atividade Adaptada - Força Magnética</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <style>
@@ -549,7 +549,7 @@
 <body>
 <div class="container">
     <header>
-        <h1>Simulação de Força Magnética</h1>
+        <h1>Atividade Adaptada - Força Magnética</h1>
         <p class="subtitle">Prof. Flávio Ambrósio</p>
     </header>
     <div class="content">
@@ -677,10 +677,42 @@
     <div class="modal-content">
         <div class="modal-header"><h2>Exercícios Resolvidos - Força Magnética</h2><span class="close">&times;</span></div>
         <div id="solvedExercivesContainer">
-            <div class="solved-exercise"><h4>Exemplo 1: Cálculo da Força Magnética</h4><p><strong>Problema:</strong> Uma partícula com carga de 2 μC move-se com velocidade de 5×10<sup>6</sup> m/s perpendicularmente a um campo magnético de 0,5 T. Qual é a força magnética sobre a partícula?</p><div class="solution-step"><strong>Fórmula:</strong> F = q·v·B·senθ (θ = 90°, sen90° = 1)</div><div class="solution-step"><strong>Passo 1:</strong> Converter a carga para Coulombs: q = 2 μC = 2×10<sup>-6</sup> C</div><div class="solution-step"><strong>Passo 2:</strong> Substituir: F = (2×10<sup>-6</sup>) × (5×10<sup>6</sup>) × 0,5 × 1 = 5 N</div><div class="solution-step"><strong>Resposta:</strong> F = 5 N</div></div>
-            <div class="solved-exercise"><h4>Exemplo 2: Cálculo do Raio da Trajetória</h4><p><strong>Problema:</strong> Um próton (m = 1,67×10<sup>-27</sup> kg, q = 1,6×10<sup>-19</sup> C) move-se com velocidade de 3×10<sup>6</sup> m/s perpendicularmente a um campo magnético de 0,8 T. Qual o raio de sua trajetória circular?</p><div class="solution-step"><strong>Fórmula:</strong> r = m·v / (|q|·B)</div><div class="solution-step"><strong>Cálculo:</strong> r = (1,67×10<sup>-27</sup> × 3×10<sup>6</sup>) / (1,6×10<sup>-19</sup> × 0,8) = 0,03914 m</div><div class="solution-step"><strong>Resposta:</strong> r ≈ 3,91 cm</div></div>
-            <div class="solved-exercise"><h4>Exemplo 3: Direção da Força Magnética</h4><p><strong>Problema:</strong> Uma partícula com carga positiva move-se para a direita (eixo x positivo) em uma região onde o campo magnético está orientado para fora da página (eixo z positivo). Qual é a direção da força magnética?</p><div class="solution-step"><strong>Regra da mão direita:</strong> Aponte os dedos na direção da velocidade (→), dobre-os na direção do campo magnético (⊙), o polegar indica a direção da força (↑)</div><div class="solution-step"><strong>Resposta:</strong> Para cima (eixo y positivo)</div></div>
-        </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Carga parada não sente força magnética</h4>
+                <p><strong>Pense assim:</strong> A força magnética só age sobre cargas em movimento.</p>
+                <div class="solution-step">👉 Uma carga parada em um campo magnético não sente força — diferente do campo elétrico.</div>
+                <div class="solution-step">👉 A força magnética depende de velocidade × campo: sem velocidade, sem força.</div>
+                <div class="solution-step">👉 A alternativa que exige movimento da carga para haver força magnética está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: A força é sempre perpendicular ao movimento</h4>
+                <p><strong>Pense assim:</strong> A força magnética nunca aponta na mesma direção do movimento — é sempre perpendicular.</p>
+                <div class="solution-step">👉 Por isso ela não acelera nem desacelera a carga — só muda a direção.</div>
+                <div class="solution-step">👉 Uma carga em campo uniforme perpendicular ao movimento descreve um círculo.</div>
+                <div class="solution-step">👉 A alternativa que afirma que a força é perpendicular à velocidade está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Regra da mão direita — para que serve?</h4>
+                <p><strong>Pense assim:</strong> A regra da mão direita é uma ferramenta de orientação vetorial — indica a direção da força.</p>
+                <div class="solution-step">👉 Aponte os dedos na direção da velocidade e curve-os na direção do campo magnético.</div>
+                <div class="solution-step">👉 O polegar aponta na direção da força (para carga positiva).</div>
+                <div class="solution-step">👉 Para carga negativa, inverta o resultado — a força é oposta.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Campo magnético não realiza trabalho</h4>
+                <p><strong>Pense assim:</strong> Como a força magnética é sempre perpendicular ao deslocamento, o trabalho realizado é sempre zero.</p>
+                <div class="solution-step">👉 Trabalho = força × deslocamento × cos(ângulo). Com ângulo de 90°, o trabalho é zero.</div>
+                <div class="solution-step">👉 O campo magnético muda a direção do movimento, mas não a velocidade (módulo).</div>
+                <div class="solution-step">👉 A alternativa que afirma que o campo magnético não faz trabalho está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: Campo mais forte → força maior</h4>
+                <p><strong>Pense assim:</strong> A força magnética é proporcional ao campo B, à carga q e à velocidade v.</p>
+                <div class="solution-step">👉 Dobrar o campo B dobra a força — mantendo carga e velocidade constantes.</div>
+                <div class="solution-step">👉 Dobrar a velocidade também dobra a força.</div>
+                <div class="solution-step">👉 A alternativa que relaciona força maior com campo maior ou velocidade maior está correta.</div>
+            </div>
+</div>
         <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
     </div>
 </div>
@@ -1353,77 +1385,26 @@
         newSendBtn.addEventListener('click', sendResultsToSheet);
     }
 
-    function sendResultsToSheet() {
-        const studentName = document.getElementById('studentName').value;
-        const studentGrade = document.getElementById('studentGrade').value;
-        const studentClass = document.getElementById('studentClass').value;
-        const studentEmail = document.getElementById('studentEmail').value;
-        const criticism = document.getElementById('criticismInput').value;
-        const suggestion = document.getElementById('suggestionInput').value;
-        const finalConclusion = document.getElementById('finalConclusion').value;
-        const sendButton = document.getElementById('sendResults');
-        if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-            alert('Por favor, preencha todos os campos obrigatórios.');
-            return;
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Força Magnética (Adaptada N2)', versao_atividade: 'adaptada_n2', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
-        sendButton.disabled = true;
-        sendButton.textContent = 'Enviando...';
-        const total = exercises.length;
-        const correct = exerciseResults.filter(r => r.correct).length;
-        const percent = Math.round((correct / total) * 100);
-        const emailStatus = document.getElementById('emailStatus');
-        emailStatus.style.display = 'block';
-        emailStatus.textContent = 'Enviando dados...';
-        emailStatus.className = 'email-status sending';
-        const dadosCompletos = {
-            timestamp: new Date().toLocaleString('pt-BR'),
-            serie: studentGrade,
-            turma: studentClass,
-            estudante: studentName,
-            simulacao: 'Força Magnética (Adaptada N2)',
-            versao_atividade: 'adaptada_n2',
-            questoes_puladas: skippedQuestions,
-            acertos_erros: `${correct}/${total - correct}`,
-            nota: percent + '%',
-            conclusao: finalConclusion,
-            criticas: criticism,
-            sugestoes: suggestion,
-            email: studentEmail || '',
-            to_email: "flavio.ambrosio@edu.se.df.gov.br",
-            nome_aluno: studentName,
-            acertos: `${correct}/${total}`,
-            data_envio: new Date().toLocaleString('pt-BR')
-        };
-        const planilhaUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-        const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-        fetch(planilhaUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dadosCompletos) });
-            })
-            .then(() => {
-                if (studentEmail) {
-                    const alunoData = { ...dadosCompletos, to_email: studentEmail, simulacao: 'Força Magnética (Adaptada N2)', versao_atividade: 'adaptada_n2', mensagem: `Confirmação de envio - Força Magnética (Adaptada N2)\nNota: ${percent}%\nAcertos: ${correct}/${total}` };
-                    return fetch(emailUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(alunoData) });
-                }
-            })
-            .then(() => {
-                emailStatus.textContent = '✅ Dados enviados com sucesso!';
-                emailStatus.className = 'email-status sent';
-                setTimeout(() => {
-                    resetExerciseState();
-                    closeExercisesModal();
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(err => {
-                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
-                emailStatus.className = 'email-status error-status';
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
-    }
 
     function closeExercisesModal() {
         const conclusionTextarea = document.getElementById('conclusionText');

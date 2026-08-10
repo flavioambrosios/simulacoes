@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação do Efeito Fotoelétrico com Exercícios</title>
+    <title>Atividade Adaptada - Efeito Fotoelétrico</title>
     <!-- Metadados de autoria -->
     <meta name="citation_title" content="Simulação: Efeito Fotoelétrico">
     <meta name="citation_author" content="Flávio Ambrósio Campos">
@@ -605,7 +605,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação do Efeito Fotoelétrico com Exercícios</h1>
+            <h1>Atividade Adaptada - Efeito Fotoelétrico</h1>
             <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
@@ -838,31 +838,42 @@
             </div>
             
             <div id="solvedExercivesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Cálculo da Energia Cinética Máxima</h4>
-                    <p><strong>Problema:</strong> Uma luz com frequência de 7,5×10¹⁴ Hz incide sobre uma placa de sódio, cuja função trabalho é 2,28 eV. Qual é a energia cinética máxima dos elétrons emitidos?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> E<sub>cinética máxima</sub> = h·ν - φ</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular a energia do fóton: E<sub>fóton</sub> = h·ν = (4,135667662×10⁻¹⁵ eV·s) × (7,5×10¹⁴ Hz) = 3,10 eV</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Subtrair a função trabalho: E<sub>cinética</sub> = 3,10 eV - 2,28 eV = 0,82 eV</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A energia cinética máxima é 0,82 eV</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Cálculo da Voltagem de Parada</h4>
-                    <p><strong>Problema:</strong> Para o mesmo caso anterior, qual é a voltagem de parada necessária para impedir que os elétrons mais energéticos alcancem o coletor?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> e . V<sub>parada</sub> = E<sub>cinética máxima</sub> (eV)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> A energia cinética máxima é 0,82 eV. Um elétron-volt (1 eV) é a quantidade de energia que um único elétron ganha quando é acelerado por uma diferença de potencial elétrico de um volt. Por isso, a voltagem de parada é numericamente igual à energia cinética em eV.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> V<sub>parada</sub> = 0,82 V</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Frequência Limiar</h4>
-                    <p><strong>Problema:</strong> Qual é a frequência limiar para o sódio (φ = 2,28 eV)?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> ν₀ = φ / h</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> ν₀ = 2,28 eV / (4,135667662×10⁻¹⁵ eV·s) = 5,51×10¹⁴ Hz</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A frequência limiar é 5,51×10¹⁴ Hz</div>
-                </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Frequência, não intensidade, é o que importa</h4>
+                <p><strong>Pense assim:</strong> Luz muito intensa de baixa frequência não arranca elétrons; luz fraca de alta frequência pode arrancar.</p>
+                <div class="solution-step">👉 Cada fóton carrega energia proporcional à frequência — não ao número de fótons.</div>
+                <div class="solution-step">👉 Muitos fótons de baixa energia não somam para liberar um elétron.</div>
+                <div class="solution-step">👉 A alternativa que destaca a frequência como fator decisivo está correta.</div>
             </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Frequência limiar — o mínimo para o efeito acontecer</h4>
+                <p><strong>Pense assim:</strong> Cada metal tem uma frequência mínima — abaixo dela, nenhum elétron é liberado.</p>
+                <div class="solution-step">👉 Abaixo da frequência limiar: sem efeito, independente da intensidade.</div>
+                <div class="solution-step">👉 Na frequência limiar: elétrons saem, mas sem energia cinética extra.</div>
+                <div class="solution-step">👉 Acima da limiar: elétrons saem com energia cinética crescente com a frequência.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Luz vermelha não libera; luz ultravioleta libera</h4>
+                <p><strong>Pense assim:</strong> Vermelho tem frequência baixa; ultravioleta tem frequência alta — só o UV tem energia suficiente.</p>
+                <div class="solution-step">👉 Vermelho: frequência baixa → energia por fóton insuficiente → sem efeito fotoelétrico.</div>
+                <div class="solution-step">👉 Ultravioleta: frequência alta → energia suficiente → elétrons são liberados.</div>
+                <div class="solution-step">👉 A alternativa que escolhe luz de maior frequência como eficaz está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Mais intensidade → mais elétrons, não mais rápidos</h4>
+                <p><strong>Pense assim:</strong> Intensidade maior libera mais elétrons; frequência maior libera elétrons mais rápidos.</p>
+                <div class="solution-step">👉 A velocidade de cada elétron depende da frequência da luz, não da intensidade.</div>
+                <div class="solution-step">👉 A quantidade de elétrons liberados por segundo depende da intensidade (mais fótons = mais colisões).</div>
+                <div class="solution-step">👉 Escolha a alternativa que distingue quantidade (intensidade) de velocidade (frequência).</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: O efeito fotoelétrico é instantâneo</h4>
+                <p><strong>Pense assim:</strong> Assim que a luz certa é ligada, elétrons saem imediatamente — sem atraso para acumular energia.</p>
+                <div class="solution-step">👉 Se fosse onda clássica, precisaria acumular energia por algum tempo. Mas isso não acontece.</div>
+                <div class="solution-step">👉 Isso comprova que a luz se comporta como partícula (fóton) nesse contexto.</div>
+                <div class="solution-step">👉 A alternativa que descreve o efeito como imediato e dependente da frequência está correta.</div>
+            </div>
+</div>
             
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>
@@ -2493,134 +2504,16 @@
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Desabilita o botão para evitar múltiplos cliques
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-            
-            // Dados únicos que servem para AMBOS os propósitos
-            const dadosCompletos = {
-                // Para a planilha
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Efeito Fotoelétrico (Adaptada N2)',
-                versao_atividade: 'adaptada_n2',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                
-                // Para o email (campos adicionais)
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
-
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-
-            // Primeiro: enviar para a planilha
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dadosCompletos)
-            })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                
-                // Enviar email para o professor
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(dadosCompletos)
-                });
-            })
-            .then(() => {
-                // Se o aluno forneceu email, enviar cópia
-                if (studentEmail) {
-                    const emailDataAluno = {
-                        to_email: studentEmail,
-                        nome_aluno: studentName || 'Não informado',
-                        serie: studentGrade || 'Não informado',
-                        turma: studentClass || 'Não informado',
-                        nota: scorePercentage + '%' || '0%',
-                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                        questoes_puladas: skippedQuestions || 0,
-                        conclusao: finalConclusion || 'Não informado',
-                        data_envio: new Date().toLocaleString('pt-BR'),
-                        simulacao: 'Efeito Fotoelétrico (Adaptada N2)',
-                        versao_atividade: 'adaptada_n2',
-                        mensagem: `Confirmação de Envio - Simulação de Efeito Fotoelétrico (Adaptada N2)
-
-            Prezado(a) ${studentName},
-
-            Confirmamos o recebimento dos seus resultados:
-
-            📊 SEUS RESULTADOS:
-            • Nota: ${scorePercentage}%
-            • Acertos: ${correctAnswers} de ${totalExercises} questões
-            • Questões Puladas: ${skippedQuestions}
-
-            Data: ${new Date().toLocaleString('pt-BR')}
-
-            Atenciosamente,
-            Sistema de Simulações Físicas`
-                    };
-                    
-                    return fetch(emailScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(emailDataAluno)
-                    });
-                }
-            })
-            .then(() => {
-                const mensagemSucesso = studentEmail 
-                    ? '✅ Dados salvos e emails enviados!' 
-                    : '✅ Dados salvos e email enviado ao professor!';
-                
-                emailStatus.textContent = mensagemSucesso;
-                emailStatus.className = 'email-status sent';
-                
-                setTimeout(() => {
-                    closeExercisesModal();
-                    // Reativa o botão após fechar o modal
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(error => {
-                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
-                emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-                
-                // Reativa o botão em caso de erro
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Efeito Fotoelétrico (Adaptada N2)', versao_atividade: 'adaptada_n2', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
         
         

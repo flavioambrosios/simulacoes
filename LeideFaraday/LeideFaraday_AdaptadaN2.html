@@ -15,7 +15,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Geradores e Lei de Faraday</title>
+    <title>Atividade Adaptada - Lei de Faraday</title>
     <style>
         * {
             box-sizing: border-box;
@@ -520,7 +520,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação de Geradores e Lei de Faraday</h1>
+            <h1>Atividade Adaptada - Lei de Faraday</h1>
             <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
@@ -757,27 +757,42 @@
             </div>
             
             <div id="solvedExercivesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: O que faz surgir a corrente induzida?</h4>
-                    <p><strong>Ideia central:</strong> A corrente aparece quando há variação do fluxo magnético através da bobina.</p>
-                    <div class="solution-step"><strong>Raciocínio:</strong> Se a bobina gira, o fluxo magnético que atravessa ela muda.</div>
-                    <div class="solution-step"><strong>Conclusão:</strong> Essa variação produz uma fem induzida e, portanto, uma corrente elétrica.</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: O que acontece quando aumentamos o número de espiras?</h4>
-                    <p><strong>Ideia central:</strong> Mais espiras aumentam a possibilidade de indução.</p>
-                    <div class="solution-step"><strong>Raciocínio:</strong> Cada espira contribui para a tensão induzida.</div>
-                    <div class="solution-step"><strong>Conclusão:</strong> Com mais espiras, a fem induzida tende a ser maior.</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: O que significa a Lei de Lenz?</h4>
-                    <p><strong>Ideia central:</strong> A corrente induzida se opõe à variação que a criou.</p>
-                    <div class="solution-step"><strong>Raciocínio:</strong> O sentido da corrente é sempre compatível com a oposição à mudança do fluxo.</div>
-                    <div class="solution-step"><strong>Conclusão:</strong> Por isso o sinal negativo aparece na Lei de Faraday.</div>
-                </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Imã parado não induz corrente</h4>
+                <p><strong>Pense assim:</strong> Para induzir corrente, o fluxo magnético precisa variar — um imã parado não causa variação.</p>
+                <div class="solution-step">👉 Imã parado dentro de uma bobina → fluxo constante → sem corrente induzida.</div>
+                <div class="solution-step">👉 Só ao mover o imã (aproximar ou afastar), o fluxo varia e a corrente aparece.</div>
+                <div class="solution-step">👉 A alternativa que afirma "sem variação de fluxo, sem corrente" está correta.</div>
             </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Velocidade de movimento e intensidade da corrente</h4>
+                <p><strong>Pense assim:</strong> Mover o imã mais rápido causa variação de fluxo mais rápida → corrente maior.</p>
+                <div class="solution-step">👉 Taxa de variação maior → força eletromotriz maior → corrente maior.</div>
+                <div class="solution-step">👉 Mais lento → menor corrente. Parado → zero.</div>
+                <div class="solution-step">👉 A alternativa que relaciona velocidade maior com corrente maior está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Sentido do movimento inverte a corrente</h4>
+                <p><strong>Pense assim:</strong> Aproximar ou afastar o imã inverte o sentido da corrente induzida.</p>
+                <div class="solution-step">👉 Ao aproximar o polo norte: corrente cria campo que "resiste" à aproximação.</div>
+                <div class="solution-step">👉 Ao afastar: corrente no sentido oposto para "resistir" ao afastamento.</div>
+                <div class="solution-step">👉 A natureza resiste à mudança de fluxo — esse é o princípio de Lenz.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Mais espiras → maior tensão induzida</h4>
+                <p><strong>Pense assim:</strong> Cada espira contribui com uma parcela de tensão — mais espiras, maior a tensão total.</p>
+                <div class="solution-step">👉 Dobrar o número de espiras dobra a tensão induzida (com mesmo imã e mesma velocidade).</div>
+                <div class="solution-step">👉 Transformadores usam esse princípio: bobina com mais espiras tem mais tensão.</div>
+                <div class="solution-step">👉 A alternativa que relaciona mais espiras com maior tensão está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: Gerador elétrico — movimento vira eletricidade</h4>
+                <p><strong>Pense assim:</strong> Geradores convertem energia mecânica em elétrica usando a indução de Faraday.</p>
+                <div class="solution-step">👉 Uma bobina girando em campo magnético tem fluxo variando continuamente → corrente gerada.</div>
+                <div class="solution-step">👉 A velocidade de rotação determina a frequência e a amplitude da corrente gerada.</div>
+                <div class="solution-step">👉 A alternativa que identifica variação de fluxo como causa da corrente nos geradores está correta.</div>
+            </div>
+</div>
             
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>

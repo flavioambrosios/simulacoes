@@ -14,7 +14,7 @@
          Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Circuitos Elétricos DC com Exercícios</title>
+    <title>Atividade Adaptada - Circuitos Elétricos DC</title>
     <style>
         * {
             box-sizing: border-box;
@@ -471,7 +471,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação de Circuitos Elétricos DC com Exercícios</h1>
+            <h1>Atividade Adaptada - Circuitos Elétricos DC</h1>
             <p class="subtitle">Prof. Flavio Ambrosio</p>
         </header>
 
@@ -697,35 +697,42 @@
             </div>
 
             <div id="solvedExercisesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Corrente em um circuito simples</h4>
-                    <p><strong>Problema:</strong> Uma bateria de 12 V esta ligada a um resistor de 6 ohms. Qual é a corrente no circuito?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> I = V / R</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Identificar os dados: V = 12 V e R = 6 ohms.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir na Lei de Ohm: I = 12 / 6.</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: I = 2 A.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A corrente elétrica no circuito e 2 A.</div>
-                </div>
-
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Resistência equivalente em série</h4>
-                    <p><strong>Problema:</strong> Dois resistores de 4 ohms e 8 ohms estao ligados em série. Qual é a resistência equivalente?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> R<sub>eq</sub> = R<sub>1</sub> + R<sub>2</sub></div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Somar os valores: R<sub>eq</sub> = 4 + 8.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: R<sub>eq</sub> = 12 ohms.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A resistência equivalente e 12 ohms.</div>
-                </div>
-
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Potência dissipada</h4>
-                    <p><strong>Problema:</strong> Um resistor de 10 ohms esta ligado a uma bateria de 20 V. Qual é a potência dissipada?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> P = V<sup>2</sup> / R</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: P = 20<sup>2</sup> / 10.</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Elevar 20 ao quadrado: 20<sup>2</sup> = 400.</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Dividir: P = 400 / 10 = 40 W.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A potência dissipada e 40 W.</div>
-                </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Resistores em série — mesma corrente em todos</h4>
+                <p><strong>Pense assim:</strong> Em série, existe um único caminho para a corrente — ela é a mesma em todos os elementos.</p>
+                <div class="solution-step">👉 Imagine uma fila única: todo mundo passa pelo mesmo ritmo.</div>
+                <div class="solution-step">👉 A tensão total se divide entre os resistores; a corrente é a mesma em todos.</div>
+                <div class="solution-step">👉 Escolha a alternativa que afirma corrente igual nos resistores em série.</div>
             </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Resistores em paralelo — mesma tensão em todos</h4>
+                <p><strong>Pense assim:</strong> Em paralelo, cada resistor está ligado diretamente nos mesmos pontos — todos recebem a mesma tensão.</p>
+                <div class="solution-step">👉 A corrente total se divide entre os ramos; a tensão é a mesma em todos.</div>
+                <div class="solution-step">👉 Adicionar resistores em paralelo diminui a resistência total — mais caminhos para a corrente.</div>
+                <div class="solution-step">👉 Escolha a alternativa que afirma tensão igual nos resistores em paralelo.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Resistência maior → corrente menor</h4>
+                <p><strong>Pense assim:</strong> Resistência é uma barreira — quanto maior, menos corrente passa com a mesma tensão.</p>
+                <div class="solution-step">👉 Se a tensão é constante e a resistência dobra, a corrente cai para a metade.</div>
+                <div class="solution-step">👉 Pense numa mangueira com entupimento: mais entupimento = menos água por segundo.</div>
+                <div class="solution-step">👉 A alternativa que mostra corrente diminuindo quando a resistência aumenta está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Lâmpada queimada em série apaga o circuito</h4>
+                <p><strong>Pense assim:</strong> Em série, o circuito é um único caminho — se um ponto é interrompido, tudo para.</p>
+                <div class="solution-step">👉 Uma lâmpada queimada vira um "corte" no fio; nenhuma corrente passa por nenhuma outra.</div>
+                <div class="solution-step">👉 Em paralelo, cada lâmpada tem seu próprio caminho — uma queimada não apaga as demais.</div>
+                <div class="solution-step">👉 Instalações domésticas usam paralelo exatamente por isso.</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: Série aumenta resistência total; paralelo diminui</h4>
+                <p><strong>Pense assim:</strong> Em série, resistências se somam; em paralelo, a resistência total é menor que cada uma delas.</p>
+                <div class="solution-step">👉 Série: R total = R1 + R2 + ... — sempre maior que cada parte.</div>
+                <div class="solution-step">👉 Paralelo: R total é sempre menor que o menor resistor do grupo.</div>
+                <div class="solution-step">👉 A alternativa que identifica a série como a de maior resistência total está correta.</div>
+            </div>
+</div>
 
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>
@@ -1191,108 +1198,16 @@
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
-
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatorios.');
-                return;
-            }
-
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(result => result.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-
-            const dadosCompletos = {
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Circuitos Elétricos DC (Adaptada N2)',
-                versao_atividade: 'adaptada_n2',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
-
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosCompletos)
-            })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dadosCompletos)
-                });
-            })
-            .then(() => {
-                if (!studentEmail) {
-                    return null;
-                }
-
-                const emailDataAluno = {
-                    to_email: studentEmail,
-                    nome_aluno: studentName || 'Não informado',
-                    serie: studentGrade || 'Não informado',
-                    turma: studentClass || 'Não informado',
-                    nota: scorePercentage + '%' || '0%',
-                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                    questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Não informado',
-                    data_envio: new Date().toLocaleString('pt-BR'),
-                    simulacao: 'Circuitos Elétricos DC (Adaptada N2)',
-                    versao_atividade: 'adaptada_n2',
-                    mensagem: `Confirmacao de Envio - Simulação de Circuitos Elétricos DC (Adaptada N2)\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Fisicas`
-                };
-
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(emailDataAluno)
-                });
-            })
-            .then(() => {
-                emailStatus.textContent = studentEmail
-                    ? 'Dados salvos e emails enviados!'
-                    : 'Dados salvos e email enviado ao professor!';
-                emailStatus.className = 'email-status sent';
-
-                setTimeout(() => {
-                    closeExercisesModal();
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
-                emailStatus.className = 'email-status error-status';
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Circuitos Elétricos DC (Adaptada N2)', versao_atividade: 'adaptada_n2', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
 
         function openExercisesModal() {

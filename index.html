@@ -510,7 +510,7 @@
                 <label for="categorySelect">Filtrar por área</label>
                 <select id="categorySelect">
                     <option value="all">Todas as áreas</option>
-                    <option value="novidades">Novidades</option>
+                    <option value="destaques">Destaques</option>
                     <option value="eletricidade">Eletricidade e magnetismo</option>
                     <option value="termologia">Termologia e radiação</option>
                     <option value="ondas">Ondas, cor e óptica</option>
@@ -560,28 +560,28 @@
         const isLocalRuntime = location.protocol === 'file:';
 
         const simulations = [
-            { title: 'Circuitos Elétricos DC', description: 'Simulação com iframe do PhET para montar circuitos, comparar série e paralelo e praticar Lei de Ohm.', href: 'CircuitosEletricosDC/CircuitosEletricosDC.html', section: 'eletricidade', type: 'principal', accent: '#2a9d8f', badge: 'Eletricidade', isNew: true, createdAt: '2026-07-20', altLinks: [{ label: 'Versão adaptada', href: 'CircuitosEletricosDC/CircuitosEletricosDC_AdaptadaN2.html' }] },
+            { title: 'Circuitos Elétricos DC', description: 'Simulação com iframe do PhET para montar circuitos, comparar série e paralelo e praticar Lei de Ohm.', href: 'CircuitosEletricosDC/CircuitosEletricosDC.html', section: 'eletricidade', type: 'principal', accent: '#2a9d8f', badge: 'Eletricidade', isNew: true, createdAt: '2026-07-20', altLinks: [{ label: 'Atividade adaptada', href: 'CircuitosEletricosDC/CircuitosEletricosDC_AdaptadaN2.html' }] },
             { title: 'Lei de Coulomb', description: 'Exploração da força elétrica entre cargas com simulação PhET, cenários guiados e exercícios.', href: 'LeiDeCoulomb/LeiDeCoulomb.html', section: 'eletricidade', type: 'principal', accent: '#e76f51', badge: 'Eletricidade', isNew: true, createdAt: '2026-07-18', altLinks: [{ label: 'Versão adaptada', href: 'LeiDeCoulomb/LeiDeCoulomb_AdaptadaN2.html' }] },
-            { title: 'Lei de Ohm', description: 'Página dedicada ao estudo da relação entre tensão, corrente e resistência.', href: 'LeideOhm/LeideOhm.html', section: 'eletricidade', type: 'principal', accent: '#1d3557', badge: 'Eletricidade', altLinks: [{ label: 'Versão adaptada', href: 'LeideOhm/LeideOhm_AdaptadaN2.html' }] },
-            { title: 'Resistência Elétrica', description: 'Atividade focada em resistência, variação de parâmetros e interpretação de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade', altLinks: [{ label: 'Versão adaptada', href: 'Resistencia/Resistencia_AdaptadaN2.html' }] },
-            { title: 'Força Magnética', description: 'Estudo da força magnética com página principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo', altLinks: [{ label: 'Versão adaptada', href: 'ForcaMagnetica/ForcaMagnetica_AdaptadaN2.html' }] },
-            { title: 'Lei de Ampère', description: 'Exploração do campo magnético associado a correntes elétricas.', href: 'LeideAmpere/LeideAmpere.html', section: 'eletricidade', type: 'principal', accent: '#264653', badge: 'Magnetismo' },
+            { title: 'Lei de Ohm', description: 'Página dedicada ao estudo da relação entre tensão, corrente e resistência.', href: 'LeideOhm/LeideOhm.html', section: 'eletricidade', type: 'principal', accent: '#1d3557', badge: 'Eletricidade', altLinks: [{ label: 'Atividade adaptada', href: 'LeideOhm/LeideOhm_AdaptadaN2.html' }] },
+            { title: 'Resistência Elétrica', description: 'Atividade focada em resistência, variação de parâmetros e interpretação de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade', altLinks: [{ label: 'Atividade adaptada', href: 'Resistencia/Resistencia_AdaptadaN2.html' }] },
+            { title: 'Força Magnética', description: 'Estudo da força magnética com página principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo', isFeatured: true, featuredOrder: 4, altLinks: [{ label: 'Versão adaptada', href: 'ForcaMagnetica/ForcaMagnetica_AdaptadaN2.html' }] },
+            { title: 'Lei de Ampère', description: 'Exploração do campo magnético associado a correntes elétricas.', href: 'LeideAmpere/LeideAmpere.html', section: 'eletricidade', type: 'principal', accent: '#264653', badge: 'Magnetismo', altLinks: [{ label: 'Versão adaptada', href: 'LeideAmpere/LeideAmpere_AdaptadaN2.html' }] },
             { title: 'Lei de Faraday', description: 'Simulação para indução eletromagnética e interpretação da variação de fluxo.', href: 'LeideFaraday/LeideFaraday.html', section: 'eletricidade', type: 'principal', accent: '#3a5a40', badge: 'Indução', altLinks: [{ label: 'Versão adaptada', href: 'LeideFaraday/LeideFaraday_AdaptadaN2.html' }] },
-            { title: 'Solenoide', description: 'Página para explorar campo magnético em solenoides e relações associadas.', href: 'Solenoide/Solenoide.html', section: 'eletricidade', type: 'principal', accent: '#588157', badge: 'Magnetismo' },
+            { title: 'Solenoide', description: 'Página para explorar campo magnético em solenoides e relações associadas.', href: 'Solenoide/Solenoide.html', section: 'eletricidade', type: 'principal', accent: '#588157', badge: 'Magnetismo', altLinks: [{ label: 'Versão adaptada', href: 'Solenoide/Solenoide_AdaptadaN2.html' }] },
             { title: 'Transformadores', description: 'Atividade sobre transformadores e variação entre tensões e espiras.', href: 'Transformadores/Transformadores.html', section: 'eletricidade', type: 'principal', accent: '#bc6c25', badge: 'Aplicação' },
             { title: 'Radiação de Corpo Negro', description: 'Outra versão disponível do tema radiação de corpo negro.', href: 'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html', section: 'termologia', type: 'principal', accent: '#ae2012', badge: 'Radiação' },
             { title: 'Comportamento dos Gases', description: 'Simulação com o PhET para investigar as leis de Boyle, Charles e Gay-Lussac, com apoio de teoria, exercícios e leitura cinética.', href: 'ComportamentoDosGases/ComportamentoDosGases.html', section: 'termologia', type: 'principal', accent: '#f9844a', badge: 'Gases', altLinks: [{ label: 'Versão adaptada', href: 'ComportamentoDosGases/ComportamentoDosGases_AdaptadaN2.html' }] },
             { title: 'Calorimetria', description: 'Página principal para misturas térmicas, trocas de calor e exercícios.', href: 'Calorimetria/Calorimetria.html', section: 'termologia', type: 'principal', accent: '#ee9b00', badge: 'Termologia', altLinks: [{ label: 'Versão adaptada', href: 'Calorimetria/Calorimetria_AdaptadaN2.html' }] },
-            { title: 'Fluxo de Calor e Lei de Fourier', description: 'Simulação própria em canvas para estudar condução térmica em uma barra, gradiente de temperatura e Lei de Fourier.', href: 'FluxoDeCalor/FluxoDeCalor.html', section: 'termologia', type: 'principal', accent: '#f77f00', badge: 'Fourier' },
-            { title: 'Calor, Temperatura e Mudanças de Estado', description: 'Simulação interativa com gráficos, animação por partículas, teoria e exercícios sobre calor sensível, calor latente e mudanças de fase.', href: 'Termologia/Termologia.html', section: 'termologia', type: 'principal', accent: '#ff8c42', badge: 'Termologia', isNew: true, createdAt: '2026-07-12' },
-            { title: 'Experiência de Joule', description: 'Simulação da experiência de Joule para estudar o equivalente mecânico do calor e a relação 1 cal = 4,18 J.', href: 'Joule/Joule.html', section: 'termologia', type: 'principal', accent: '#f4a261', badge: 'Termologia', isNew: true, createdAt: '2026-07-11', altLinks: [{ label: 'Versão adaptada', href: 'Joule/Joule_AdaptadaN2.html' }] },
+            { title: 'Fluxo de Calor e Lei de Fourier', description: 'Simulação própria em canvas para estudar condução térmica em uma barra, gradiente de temperatura e Lei de Fourier.', href: 'FluxoDeCalor/FluxoDeCalor.html', section: 'termologia', type: 'principal', accent: '#f77f00', badge: 'Fourier', altLinks: [{ label: 'Versão adaptada', href: 'FluxoDeCalor/FluxoDeCalor_AdaptadaN2.html' }] },
+            { title: 'Calor, Temperatura e Mudanças de Estado', description: 'Simulação interativa com gráficos, animação por partículas, teoria e exercícios sobre calor sensível, calor latente e mudanças de fase.', href: 'Termologia/Termologia.html', section: 'termologia', type: 'principal', accent: '#ff8c42', badge: 'Termologia', isNew: true, createdAt: '2026-07-12', altLinks: [{ label: 'Versão adaptada', href: 'Termologia/Termologia_AdaptadaN2.html' }] },
+            { title: 'Experiência de Joule', description: 'Simulação da experiência de Joule para estudar o equivalente mecânico do calor e a relação 1 cal = 4,18 J.', href: 'Joule/Joule.html', section: 'termologia', type: 'principal', accent: '#f4a261', badge: 'Termologia', isFeatured: true, featuredOrder: 2, createdAt: '2026-07-11', altLinks: [{ label: 'Versão adaptada', href: 'Joule/Joule_AdaptadaN2.html' }] },
             { title: 'Dilatação Térmica', description: 'Estudo da variação dimensional com mudança de temperatura.', href: 'DilatacaoTermica/DilatacaoTermica.html', section: 'termologia', type: 'principal', accent: '#ca6702', badge: 'Termologia', altLinks: [{ label: 'Versão adaptada', href: 'DilatacaoTermica/DilatacaoTermica_AdaptadaN2.html' }] },
             { title: 'Escalas Termométricas', description: 'Conversões entre escalas e interpretação de medidas de temperatura.', href: 'EscalasTermom%C3%A9tricas/EscalasTermometricas.html', section: 'termologia', type: 'principal', accent: '#bb3e03', badge: 'Temperatura', altLinks: [{ label: 'Versão adaptada', href: 'EscalasTermométricas/EscalasTermometricas_AdaptadaN2.html' }] },
-            { title: 'Máquina de Carnot', description: 'Página sobre ciclo de Carnot, rendimento e máquinas térmicas.', href: 'MaquinadeCarnot/CiclodeCarnot.html', section: 'termologia', type: 'principal', accent: '#b08968', badge: 'Termodinâmica', isNew: true, createdAt: '2026-07-22', altLinks: [{ label: 'Versão adaptada', href: 'MaquinadeCarnot/CiclodeCarnot_AdaptadaN2.html' }] },
+            { title: 'Máquina de Carnot', description: 'Página sobre ciclo de Carnot, rendimento e máquinas térmicas.', href: 'MaquinadeCarnot/CiclodeCarnot.html', section: 'termologia', type: 'principal', accent: '#b08968', badge: 'Termodinâmica', isFeatured: true, featuredOrder: 1, createdAt: '2026-07-22', altLinks: [{ label: 'Versão adaptada', href: 'MaquinadeCarnot/CiclodeCarnot_AdaptadaN2.html' }] },
             { title: 'Ondas 1D', description: 'Simulação para propagação unidimensional de ondas.', href: 'Ondas/Ondas1D/Ondas1D.html', section: 'ondas', type: 'principal', accent: '#006d77', badge: 'Ondas', altLinks: [{ label: 'Versão adaptada', href: 'Ondas/Ondas1D/Ondas1D_AdaptadaN2.html' }] },
             { title: 'Ondas 2D', description: 'Visualização bidimensional de frentes de onda e propagação.', href: 'Ondas/Ondas2D/Ondas2D.html', section: 'ondas', type: 'principal', accent: '#118ab2', badge: 'Ondas', altLinks: [{ label: 'Versão adaptada', href: 'Ondas/Ondas2D/Ondas2D_AdaptadaN2.html' }] },
             { title: 'Ondas e Cores', description: 'Versão web publicada do simulador em Python para misturas de cores, ondas, Fourier e envelopes de Hilbert.', href: 'https://ondasecores.onrender.com', section: 'ondas', type: 'principal', accent: '#5c7cfa', badge: 'Ondas', isNew: true, createdAt: '2026-07-13' },
-            { title: 'Física da Fotossíntese', description: 'Atividade interativa sobre radiação solar, espectro visível, absorção da luz pelas plantas e armazenamento de energia na glicose.', href: 'FotossinteseSolar/Fotossintese.html', section: 'ondas', type: 'principal', accent: '#588157', badge: 'Ondas', isNew: true, createdAt: '2026-07-14', altLinks: [{ label: 'Versão adaptada', href: 'FotossinteseSolar/FotossinteseSolar_AdaptadaN2.html' }] },
+            { title: 'Física da Fotossíntese', description: 'Atividade interativa sobre radiação solar, espectro visível, absorção da luz pelas plantas e armazenamento de energia na glicose.', href: 'FotossinteseSolar/Fotossintese.html', section: 'ondas', type: 'principal', accent: '#588157', badge: 'Ondas', isFeatured: true, featuredOrder: 3, createdAt: '2026-07-14', altLinks: [{ label: 'Versão adaptada', href: 'FotossinteseSolar/FotossinteseSolar_AdaptadaN2.html' }] },
             { title: 'Óptica Geométrica', description: 'Atividade de óptica com conceitos de reflexão, refração e formação de imagens.', href: 'OpticaGeometrica/OpticaGeometrica.html', section: 'ondas', type: 'principal', accent: '#8338ec', badge: 'Óptica', altLinks: [{ label: 'Versão adaptada', href: 'OpticaGeometrica/OpticaGeometrica_AdaptadaN2.html' }] },
             { title: 'LED e OLED', description: 'Simulação própria para comparar LED e OLED, com salto quântico, gap interativo, cor emitida, energia do fóton, brilho e área emissora.', href: 'LEDeOLED/LEDeOLED.html', section: 'moderna', type: 'principal', accent: '#6a4c93', badge: 'Física moderna', isNew: true, createdAt: '2026-07-15' },
             { title: 'Átomo de Hidrogênio', description: 'Simulação sobre estrutura atômica e níveis de energia.', href: 'AtomodeHidrogenio/AtomodeHidrogenio.html', section: 'moderna', type: 'principal', accent: '#3d5a80', badge: 'Modelo atômico' },
@@ -592,7 +592,7 @@
         ];
 
         const sectionLabels = {
-            novidades: { title: 'Novidades', note: 'Mostra automaticamente as 4 simulações mais recentes marcadas como novidade.' },
+            destaques: { title: 'Destaques', note: 'Mostra os 4 itens selecionados para destaque pelo professor.' },
             eletricidade: { title: 'Eletricidade e Magnetismo', note: 'Cargas, circuitos, corrente, indução e campo magnético.' },
             termologia: { title: 'Termologia e Radiação', note: 'Temperatura, calor, radiação térmica e termodinâmica.' },
             ondas: { title: 'Ondas, Cor e Óptica', note: 'Propagação, cor, imagens e fenômenos ondulatórios.' },
@@ -698,7 +698,7 @@
             const level = levelSelect.value;
             const searchable = `${item.title} ${item.description} ${item.badge} ${item.type}`.toLowerCase();
             const matchesText = !term || searchable.includes(term);
-            const matchesCategory = category === 'all' || (category === 'novidades' ? !!item.isNew : item.section === category);
+            const matchesCategory = category === 'all' || (category === 'destaques' ? !!item.isFeatured : item.section === category);
             const matchesLevel = level === 'all' || item.type === level;
             return matchesText && matchesCategory && matchesLevel;
         }
@@ -731,31 +731,29 @@
 
         function render() {
             const filtered = simulations.filter(matchesFilters);
-            const novidadesItems = filtered
+            const destaquesItems = filtered
                 .filter(function(item) {
-                    return item.type === 'principal' && item.isNew;
+                    return item.type === 'principal' && item.isFeatured;
                 })
                 .sort(function(a, b) {
-                    const bDate = Date.parse(getNewsDate(b)) || 0;
-                    const aDate = Date.parse(getNewsDate(a)) || 0;
-                    return bDate - aDate;
+                    return (a.featuredOrder || 999) - (b.featuredOrder || 999);
                 })
                 .slice(0, 4);
 
             const grouped = groupBySection(filtered.filter(function(item) {
-                return categorySelect.value !== 'novidades';
+                return categorySelect.value !== 'destaques';
             }));
             sectionsRoot.innerHTML = '';
-            emptyState.style.display = (filtered.length || novidadesItems.length) ? 'none' : 'block';
+            emptyState.style.display = (filtered.length || destaquesItems.length) ? 'none' : 'block';
             updateModePill();
 
             const visibleCount = filtered.length;
             const totalCount = simulations.length;
-            summaryText.textContent = `${visibleCount} de ${totalCount} páginas exibidas. A seção Novidades destaca automaticamente as 4 simulações mais recentes.`;
+            summaryText.textContent = `${visibleCount} de ${totalCount} páginas exibidas. A seção Destaques mostra os 4 itens selecionados.`;
 
             Object.keys(sectionLabels).forEach(function(sectionKey) {
                 const sectionItems = grouped[sectionKey] || [];
-                const items = sectionKey === 'novidades' ? novidadesItems : sectionItems;
+                const items = sectionKey === 'destaques' ? destaquesItems : sectionItems;
                 if (!items.length) {
                     return;
                 }

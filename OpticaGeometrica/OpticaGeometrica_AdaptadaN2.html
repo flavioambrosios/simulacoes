@@ -14,7 +14,7 @@
          Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação de Óptica Geométrica com Exercícios</title>
+    <title>Atividade Adaptada - Óptica Geométrica</title>
     <style>
         * {
             box-sizing: border-box;
@@ -493,7 +493,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação de Óptica Geométrica com Exercícios</h1>
+            <h1>Atividade Adaptada - Óptica Geométrica</h1>
             <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
@@ -687,36 +687,42 @@
             </div>
             
             <div id="solvedExercisesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Lente Convergente</h4>
-                    <p><strong>Problema:</strong> Um objeto de 4 cm de altura está situado a 20 cm de uma lente convergente de distância focal 10 cm. Determine a posição, natureza e tamanho da imagem.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> 1/f = 1/p + 1/p'</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular p': 1/10 = 1/20 + 1/p' → 1/p' = 1/10 - 1/20 = 1/20 → p' = 20 cm</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ampliação: A = -p'/p = -20/20 = -1</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular tamanho: i = A × o = -1 × 4 = -4 cm</div>
-                    <div class="solution-step"><strong>Resposta:</strong> Imagem real, invertida, mesmo tamanho (4 cm), a 20 cm da lente</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Espelho Côncavo</h4>
-                    <p><strong>Problema:</strong> Um objeto de 2 cm de altura está a 30 cm de um espelho côncavo de 20 cm de distância focal. Determine as características da imagem.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> 1/f = 1/p + 1/p'</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular p': 1/20 = 1/30 + 1/p' → 1/p' = 1/20 - 1/30 = 1/60 → p' = 60 cm</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ampliação: A = -p'/p = -60/30 = -2</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular tamanho: i = A × o = -2 × 2 = -4 cm</div>
-                    <div class="solution-step"><strong>Resposta:</strong> Imagem real, invertida, maior (4 cm), a 60 cm do espelho</div>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Lente Divergente</h4>
-                    <p><strong>Problema:</strong> Um objeto de 3 cm está a 15 cm de uma lente divergente de 10 cm de distância focal. Encontre a imagem.</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> 1/f = 1/p + 1/p' (f negativo para lente divergente)</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular p': 1/(-10) = 1/15 + 1/p' → 1/p' = -1/10 - 1/15 = -1/6 → p' = -6 cm</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular ampliação: A = -p'/p = -(-6)/15 = 0,4</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular tamanho: i = A × o = 0,4 × 3 = 1,2 cm</div>
-                    <div class="solution-step"><strong>Resposta:</strong> Imagem virtual, direita, menor (1,2 cm), a 6 cm da lente (do mesmo lado do objeto)</div>
-                </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Lei da reflexão — ângulo de entrada = ângulo de saída</h4>
+                <p><strong>Pense assim:</strong> A luz reflete como uma bola de bilhar — ângulo de incidência igual ao de reflexão.</p>
+                <div class="solution-step">👉 Ambos os ângulos são medidos em relação à normal (linha perpendicular à superfície).</div>
+                <div class="solution-step">👉 Espelhos planos formam imagens simétricas porque todos os raios obedecem essa lei.</div>
+                <div class="solution-step">👉 A alternativa que iguala os ângulos de incidência e reflexão está correta.</div>
             </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Refração — a luz muda de direção ao mudar de meio</h4>
+                <p><strong>Pense assim:</strong> Quando a luz entra em um meio mais denso (vidro), ela desacelera e "dobra" em direção à normal.</p>
+                <div class="solution-step">👉 Ar → vidro: ângulo menor no vidro (aproxima da normal).</div>
+                <div class="solution-step">👉 Vidro → ar: ângulo maior no ar (afasta da normal).</div>
+                <div class="solution-step">👉 Por isso objetos submersos parecem mais rasos — os raios refratam ao sair da água.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Lente convergente — reúne os raios</h4>
+                <p><strong>Pense assim:</strong> Lentes convergentes (convexas) juntam raios paralelos em um ponto — o foco.</p>
+                <div class="solution-step">👉 Objeto além do foco → imagem real, invertida, do outro lado da lente.</div>
+                <div class="solution-step">👉 Objeto entre a lente e o foco → imagem virtual, direita, maior — como uma lupa.</div>
+                <div class="solution-step">👉 A alternativa que associa lente convergente a reunir raios está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Lente divergente — separa os raios</h4>
+                <p><strong>Pense assim:</strong> Lentes divergentes (côncavas) espalham raios — sempre formam imagem virtual e menor.</p>
+                <div class="solution-step">👉 A imagem é sempre virtual, direita e menor que o objeto, independente da posição.</div>
+                <div class="solution-step">👉 Óculos para miopia usam lentes divergentes para afastar o foco.</div>
+                <div class="solution-step">👉 A alternativa que descreve imagem sempre virtual para lente divergente está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: Espelho côncavo vs convexo</h4>
+                <p><strong>Pense assim:</strong> Côncavo converge (como o interior de uma tigela); convexo diverge (como o exterior).</p>
+                <div class="solution-step">👉 Espelho côncavo: pode formar imagem real e invertida (fora do foco) ou ampliada e direita (dentro do foco).</div>
+                <div class="solution-step">👉 Espelho convexo: sempre imagem virtual, direita e menor — mas amplo campo de visão.</div>
+                <div class="solution-step">👉 Retrovisor de carro é convexo — permite ver mais área com imagem menor.</div>
+            </div>
+</div>
             
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>
@@ -1205,135 +1211,16 @@
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            // Desabilita o botão para evitar múltiplos cliques
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-            
-            const totalExercises = exercises.length;
-            const correctAnswers = exerciseResults.filter(r => r.correct).length;
-            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
-            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            emailStatus.style.display = 'block';
-            
-            // Dados únicos que servem para AMBOS os propósitos
-            const dadosCompletos = {
-                // Para a planilha
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Óptica Geométrica (Adaptada N2)',
-                versao_atividade: 'adaptada_n2',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
-                nota: scorePercentage + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                
-                // Para o email (campos adicionais)
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correctAnswers}/${totalExercises}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
-
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-
-            // Primeiro: enviar para a planilha
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dadosCompletos)
-            })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                
-                // Enviar email para o professor
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(dadosCompletos)
-                });
-            })
-            .then(() => {
-                // Se o aluno forneceu email, enviar cópia
-                // Se o aluno forneceu email, enviar cópia
-            if (studentEmail) {
-                const emailDataAluno = {
-                    to_email: studentEmail,
-                    nome_aluno: studentName || 'Não informado',
-                    serie: studentGrade || 'Não informado',
-                    turma: studentClass || 'Não informado',
-                    versao_atividade: 'adaptada_n2',
-                    nota: scorePercentage + '%' || '0%',
-                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
-                    questoes_puladas: skippedQuestions || 0,
-                    conclusao: finalConclusion || 'Não informado',
-                    data_envio: new Date().toLocaleString('pt-BR'),
-                    simulacao: 'Óptica Geométrica (Adaptada N2)',
-                    mensagem: `Confirmação de Envio - Simulação de Óptica Geométrica (Adaptada N2)
-
-            Prezado(a) ${studentName},
-
-            Confirmamos o recebimento dos seus resultados:
-
-            📊 SEUS RESULTADOS:
-            • Nota: ${scorePercentage}%
-            • Acertos: ${correctAnswers} de ${totalExercises} questões
-            • Questões Puladas: ${skippedQuestions}
-
-            Data: ${new Date().toLocaleString('pt-BR')}
-
-            Atenciosamente,
-            Sistema de Simulações Físicas`
-                };
-                
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(emailDataAluno)
-                });
-            }
-            })
-            .then(() => {
-                const mensagemSucesso = studentEmail 
-                    ? '✅ Dados salvos e emails enviados!' 
-                    : '✅ Dados salvos e email enviado ao professor!';
-                
-                emailStatus.textContent = mensagemSucesso;
-                emailStatus.className = 'email-status sent';
-                
-                setTimeout(() => {
-                    closeExercisesModal();
-                    // Reativa o botão após fechar o modal
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(error => {
-                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
-                emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-                
-                // Reativa o botão em caso de erro
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Óptica Geométrica (Adaptada N2)', versao_atividade: 'adaptada_n2', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
         
         // Abrir modal de exercícios
@@ -1401,7 +1288,7 @@
     </script>
     <script>
         window.SIMULATION_ENHANCER_CONFIG = {
-            simulationName: 'Óptica Geometrica',
+            simulationName: 'Óptica Geométrica (Adaptada N2)',
             storageKey: 'optica-geometrica'
         };
     </script>

@@ -14,7 +14,7 @@
          Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulação da Lei de Ohm</title>
+    <title>Atividade Adaptada - Lei de Ohm</title>
     <style>
         * {
             box-sizing: border-box;
@@ -623,7 +623,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Simulação da Lei de Ohm</h1>
+            <h1>Atividade Adaptada - Lei de Ohm</h1>
             <p class="subtitle">Prof. Flávio Ambrósio</p>
         </header>
         
@@ -856,47 +856,42 @@
             </div>
             
             <div id="solvedExercivesContainer">
-                <div class="solved-exercise">
-                    <h4>Exemplo 1: Cálculo da Tensão</h4>
-                    <p><strong>Problema:</strong> Se uma resistência de 100 Ω é percorrida por uma corrente de 0,5 A, qual é a tensão aplicada?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> V = R × i</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: V = 100 × 0,5</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: V = 50 V</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A tensão aplicada é de 50 V</div>
-                    <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 2: Cálculo da Resistência</h4>
-                    <p><strong>Problema:</strong> Se uma tensão de 12 V produz uma corrente de 0,3 A, qual é o valor da resistência?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> R = V / i</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: R = 12 / 0,3</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: R = 40 Ω</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A resistência é de 40 Ω</div>
-                    <button class="audio-example-btn" data-example="2">🔊 Ouvir resolução</button>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 3: Cálculo da Corrente</h4>
-                    <p><strong>Problema:</strong> Se uma tensão de 24 V é aplicada a uma resistência de 60 Ω, qual é a corrente elétrica resultante?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> i = V / R</div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Substituir os valores: i = 24 / 60</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Calcular: i = 0,4 A</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A corrente elétrica é de 0,4 A</div>
-                    <button class="audio-example-btn" data-example="3">🔊 Ouvir resolução</button>
-                </div>
-                
-                <div class="solved-exercise">
-                    <h4>Exemplo 4: Cálculo da Potência</h4>
-                    <p><strong>Problema:</strong> Um resistor de 50 Ω é percorrido por uma corrente de 0,6 A. Qual é a potência dissipada?</p>
-                    <div class="solution-step"><strong>Fórmula:</strong> P = R × i<sup>2</sup></div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Calcular i<sup>2</sup>: 0,6 × 0,6 = 0,36</div>
-                    <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: P = 50 × 0,36</div>
-                    <div class="solution-step"><strong>Passo 3:</strong> Calcular: P = 18 W</div>
-                    <div class="solution-step"><strong>Resposta:</strong> A potência dissipada é de 18 W</div>
-                    <button class="audio-example-btn" data-example="4">🔊 Ouvir resolução</button>
-                </div>
+            <div class="solved-exercise" id="ex1">
+                <h4>Exemplo 1: Resistência maior → corrente menor</h4>
+                <p><strong>Pense assim:</strong> Resistência é uma barreira — quanto maior, menos corrente passa com a mesma tensão.</p>
+                <div class="solution-step">👉 Se a tensão é constante e a resistência dobra, a corrente cai para a metade.</div>
+                <div class="solution-step">👉 Pense numa mangueira entupida: mais entupimento = menos água por segundo.</div>
+                <div class="solution-step">👉 A alternativa que mostra corrente diminuindo quando a resistência aumenta está correta.</div>
             </div>
+            <div class="solved-exercise" id="ex2">
+                <h4>Exemplo 2: Tensão maior → corrente maior</h4>
+                <p><strong>Pense assim:</strong> Com a mesma resistência, mais tensão "empurra" mais corrente pelo circuito.</p>
+                <div class="solution-step">👉 Se a resistência é constante e a tensão dobra, a corrente também dobra.</div>
+                <div class="solution-step">👉 É como aumentar a pressão da torneira: mais pressão → mais vazão.</div>
+                <div class="solution-step">👉 A alternativa que mostra corrente aumentando com a tensão está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex3">
+                <h4>Exemplo 3: Resistores em série aumentam a resistência total</h4>
+                <p><strong>Pense assim:</strong> Em série, as resistências se somam — a corrente total diminui.</p>
+                <div class="solution-step">👉 Adicionar resistores em série aumenta a resistência total do circuito.</div>
+                <div class="solution-step">👉 Com tensão constante e resistência maior, a corrente cai.</div>
+                <div class="solution-step">👉 A alternativa que mostra corrente diminuindo ao adicionar resistores em série está correta.</div>
+            </div>
+            <div class="solved-exercise" id="ex4">
+                <h4>Exemplo 4: Fios grossos têm menor resistência</h4>
+                <p><strong>Pense assim:</strong> Seção maior = mais caminhos para os elétrons = menos resistência.</p>
+                <div class="solution-step">👉 Fio fino = corredor estreito = mais resistência ao fluxo de elétrons.</div>
+                <div class="solution-step">👉 Fio grosso = corredor largo = menos resistência = mais corrente com mesma tensão.</div>
+                <div class="solution-step">👉 Fios de alta tensão são grossos — precisam conduzir muita corrente com pouca resistência.</div>
+            </div>
+            <div class="solved-exercise" id="ex5">
+                <h4>Exemplo 5: Temperatura aumenta a resistência de metais</h4>
+                <p><strong>Pense assim:</strong> Em metais, aquecimento aumenta a resistência — os elétrons colidem mais com os átomos vibrados.</p>
+                <div class="solution-step">👉 Temperatura maior → átomos vibram mais → mais obstáculos para os elétrons.</div>
+                <div class="solution-step">👉 Lâmpadas incandescentes têm resistência maior quando acesas do que quando frias.</div>
+                <div class="solution-step">👉 A alternativa que relaciona temperatura maior com resistência maior (em metais) está correta.</div>
+            </div>
+</div>
             
             <div class="buttons-container">
                 <button id="closeSolvedExercises" class="check-btn">Fechar</button>
@@ -1754,10 +1749,6 @@
         }
 
         function sendResultsToSheet() {
-            if (typeof window.__simulationEnhancerSendResults === 'function') {
-                return window.__simulationEnhancerSendResults();
-            }
-
             const studentName = document.getElementById('studentName').value;
             const studentGrade = document.getElementById('studentGrade').value;
             const studentClass = document.getElementById('studentClass').value;
@@ -1766,104 +1757,16 @@
             const suggestion = document.getElementById('suggestionInput').value;
             const finalConclusion = document.getElementById('finalConclusion').value;
             const sendButton = document.getElementById('sendResults');
-            
-            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-            
-            sendButton.disabled = true;
-            sendButton.textContent = 'Enviando...';
-            
-            const total = exercises.length;
-            const correct = exerciseResults.filter(r => r.correct).length;
-            const percent = Math.round((correct / total) * 100);
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
             const emailStatus = document.getElementById('emailStatus');
-            emailStatus.style.display = 'block';
-            emailStatus.textContent = 'Enviando dados...';
-            emailStatus.className = 'email-status sending';
-            
-            const dadosCompletos = {
-                timestamp: new Date().toLocaleString('pt-BR'),
-                serie: studentGrade,
-                turma: studentClass,
-                estudante: studentName,
-                simulacao: 'Lei de Ohm (Adaptada N2)',
-                versao_atividade: 'adaptada_n2',
-                questoes_puladas: skippedQuestions,
-                acertos_erros: `${correct}/${total - correct}`,
-                nota: percent + '%',
-                conclusao: finalConclusion,
-                criticas: criticism,
-                sugestoes: suggestion,
-                email: studentEmail || '',
-                to_email: "flavio.ambrosio@edu.se.df.gov.br",
-                nome_aluno: studentName,
-                acertos: `${correct}/${total}`,
-                data_envio: new Date().toLocaleString('pt-BR')
-            };
-
-            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
-            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
-
-            fetch(planilhaScriptUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dadosCompletos)
-            })
-            .then(() => {
-                emailStatus.textContent = 'Dados salvos! Enviando email...';
-                return fetch(emailScriptUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dadosCompletos)
-                });
-            })
-            .then(() => {
-                if (studentEmail) {
-                    const emailDataAluno = {
-                        to_email: studentEmail,
-                        nome_aluno: studentName,
-                        serie: studentGrade,
-                        turma: studentClass,
-                        nota: percent + '%',
-                        acertos: `${correct}/${total}`,
-                        questoes_puladas: skippedQuestions,
-                        conclusao: finalConclusion,
-                        data_envio: new Date().toLocaleString('pt-BR'),
-                        simulacao: 'Lei de Ohm (Adaptada N2)',
-                        versao_atividade: 'adaptada_n2',
-                        mensagem: `Confirmação de Envio - Simulação da Lei de Ohm (Adaptada N2)\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\n📊 SEUS RESULTADOS:\n• Nota: ${percent}%\n• Acertos: ${correct} de ${total} questões\n• Questões Puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
-                    };
-                    return fetch(emailScriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(emailDataAluno)
-                    });
-                }
-            })
-            .then(() => {
-                const mensagemSucesso = studentEmail ? '✅ Dados e e-mails enviados!' : '✅ Dados enviados ao professor!';
-                emailStatus.textContent = mensagemSucesso;
-                emailStatus.className = 'email-status sent';
-                setTimeout(() => {
-                    clearExerciseState();
-                    resetExerciseState();
-                    closeExercisesModal(false);
-                    sendButton.disabled = false;
-                    sendButton.textContent = 'Enviar Resultados';
-                }, 3000);
-            })
-            .catch(error => {
-                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
-                emailStatus.className = 'email-status error-status';
-                console.error('Erro:', error);
-                sendButton.disabled = false;
-                sendButton.textContent = 'Enviar Resultados';
-            });
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Lei de Ohm (Adaptada N2)', versao_atividade: 'adaptada_n2', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
         }
 
         // ========== RESET E PERSISTÊNCIA ==========
@@ -2011,7 +1914,7 @@
     </script>
     <script>
         window.SIMULATION_ENHANCER_CONFIG = {
-            simulationName: 'Lei de Ohm',
+            simulationName: 'Lei de Ohm (Adaptada N2)',
             storageKey: 'lei-de-ohm'
         };
     </script>
