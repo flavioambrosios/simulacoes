@@ -521,7 +521,7 @@
                 </div>
 
                 <div class="scenario-note" id="scenarioDescription">
-                    Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.
+                    Duas cargas de sinais opostos, 2 μC e -3 μC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.
                 </div>
 
                 <div class="fórmula-box">
@@ -563,11 +563,11 @@
                 <div class="measurement-grid">
                     <div class="measurement-item">
                         <div class="measurement-label">Carga 1</div>
-                        <div class="measurement-value" id="charge1Display">+2 uC</div>
+                        <div class="measurement-value" id="charge1Display">+2 μC</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Carga 2</div>
-                        <div class="measurement-value" id="charge2Display">-3 uC</div>
+                        <div class="measurement-value" id="charge2Display">-3 μC</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Distancia</div>
@@ -703,9 +703,9 @@
             <div id="solvedExercisesContainer">
                 <div class="solved-exercise">
                     <h4>Exemplo 1: Cálculo da força entre duas cargas</h4>
-                    <p><strong>Problema:</strong> Duas cargas puntiformes de 2 uC e 3 uC estão separadas por 1 m. Qual é a intensidade da força eletrostática entre elas?</p>
+                    <p><strong>Problema:</strong> Duas cargas puntiformes de 2 μC e 3 μC estão separadas por 1 m. Qual é a intensidade da força eletrostática entre elas?</p>
                     <div class="solution-step"><strong>Fórmula:</strong> F = k . |q<sub>1</sub> . q<sub>2</sub>| / r<sup>2</sup></div>
-                    <div class="solution-step"><strong>Passo 1:</strong> Converter as cargas: 2 uC = 2 . 10⁻⁶ C e 3 uC = 3 . 10⁻⁶ C.</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Converter as cargas: 2 μC = 2 . 10⁻⁶ C e 3 μC = 3 . 10⁻⁶ C.</div>
                     <div class="solution-step"><strong>Passo 2:</strong> Substituir na fórmula: F = 9 . 10<sup>9</sup> . (2 . 10<sup>-6</sup> . 3 . 10<sup>-6</sup>) / 1<sup>2</sup>.</div>
                     <div class="solution-step"><strong>Passo 3:</strong> Calcular: F = 0,054 N.</div>
                     <div class="solution-step"><strong>Resposta:</strong> A intensidade da força eletrostática e 0,054 N.</div>
@@ -814,40 +814,40 @@
 
         const scenarios = {
             atração: {
-                charge1: '+2 uC',
-                charge2: '-3 uC',
+                charge1: '+2 μC',
+                charge2: '-3 μC',
                 distance: '1,0 m',
                 force: '0,054 N',
                 interaction: 'Atração',
                 focus: 'Lei de Coulomb',
-                description: 'Duas cargas de sinais opostos, 2 uC e -3 uC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.'
+                description: 'Duas cargas de sinais opostos, 2 μC e -3 μC, separadas por 1 m, interagem com força de 0,054 N. A interação é de atração.'
             },
             repulsão: {
-                charge1: '+4 uC',
-                charge2: '+4 uC',
+                charge1: '+4 μC',
+                charge2: '+4 μC',
                 distance: '2,0 m',
                 force: '0,036 N',
                 interaction: 'Repulsão',
                 focus: 'Sinal das cargas',
-                description: 'Duas cargas positivas de 4 uC, separadas por 2 m, interagem com força de 0,036 N. Como os sinais sao iguais, a interação é de repulsão.'
+                description: 'Duas cargas positivas de 4 μC, separadas por 2 m, interagem com força de 0,036 N. Como os sinais sao iguais, a interação é de repulsão.'
             },
             distancia: {
-                charge1: '+3 uC',
-                charge2: '-3 uC',
+                charge1: '+3 μC',
+                charge2: '-3 μC',
                 distance: '1,0 m -> 2,0 m',
                 force: '0,081 N -> 0,020 N',
                 interaction: 'Atração menor',
                 focus: 'Inverso do quadrado da distancia',
-                description: 'Ao dobrar a distancia entre duas cargas de 3 uC e -3 uC, a força cai de aproximadamente 0,081 N para cerca de 0,020 N, isto e, para um quarto do valor inicial.'
+                description: 'Ao dobrar a distancia entre duas cargas de 3 μC e -3 μC, a força cai de aproximadamente 0,081 N para cerca de 0,020 N, isto e, para um quarto do valor inicial.'
             },
             carga: {
-                charge1: '+2 uC -> +4 uC',
-                charge2: '-5 uC',
+                charge1: '+2 μC -> +4 μC',
+                charge2: '-5 μC',
                 distance: '1,0 m',
                 force: '0,090 N -> 0,180 N',
                 interaction: 'Atração mais intensa',
                 focus: 'Proporcionalidade com a carga',
-                description: 'Se a carga 1 dobra de 2 uC para 4 uC, mantendo a distancia e a outra carga constantes, a intensidade da força também dobra.'
+                description: 'Se a carga 1 dobra de 2 μC para 4 μC, mantendo a distancia e a outra carga constantes, a intensidade da força também dobra.'
             }
         };
 
@@ -970,7 +970,7 @@
             var force = calculateForceMicro(q1, q2, distance);
             return {
                 type: 'forca',
-                question: 'Duas cargas puntiformes de ' + q1 + ' uC e ' + q2 + ' uC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Qual é a intensidade da força elétrica entre elas?',
+                question: 'Duas cargas puntiformes de ' + q1 + ' μC e ' + q2 + ' μC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Qual é a intensidade da força elétrica entre elas?',
                 answer: formatForce(force),
                 options: generateOptions(force, formatForce, function(correctValue, attempts) {
                     if (attempts % 4 === 0) return correctValue * 2;
@@ -1042,7 +1042,7 @@
             var q2Str = q2 > 0 ? '' + q2 : '-' + absQ2;
             return {
                 type: 'misto',
-                question: 'Duas cargas puntiformes de ' + q1Str + ' uC e ' + q2Str + ' uC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Calcule a intensidade da força elétrica e determine o tipo de interação (atração ou repulsão).',
+                question: 'Duas cargas puntiformes de ' + q1Str + ' μC e ' + q2Str + ' μC estão separadas por ' + distance.toFixed(1).replace('.', ',') + ' m. Calcule a intensidade da força elétrica e determine o tipo de interação (atração ou repulsão).',
                 answer: formatForce(force) + ' - ' + tipo,
                 options: shuffleArray([
                     formatForce(force) + ' - ' + tipo,
