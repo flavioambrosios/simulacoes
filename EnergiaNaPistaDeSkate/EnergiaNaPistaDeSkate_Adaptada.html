@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação Adaptada: Energia na Pista de Skate">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737877">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/EnergiaNaPistaDeSkate/EnergiaNaPistaDeSkate_Adaptada.html">
+    <meta name="description" content="Simulação didática sobre conservação da energia mecânica em uma pista de skate, utilizando uma simulação interativa do PhET.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energia na Pista de Skate - Simulação Adaptada</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #13293d, #1b4965, #f4a261);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .subtitle {
+            color: #ffd166;
+            font-weight: bold;
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #07131d;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .simulation-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .legend {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            line-height: 1.6;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd166;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.92);
+            border: none;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffd166;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffe29a;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0 0;
+            justify-content: center;
+        }
+        .fórmula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .scenario-note {
+            background: rgba(255, 255, 255, 0.08);
+            border-left: 4px solid #ffd166;
+            padding: 12px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffd166;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .exercise-btn {
+            padding: 12px;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.82);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #16324f, #355070);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 820px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffd166;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffd166;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 209, 102, 0.3);
+            border: 1px solid #ffd166;
+        }
+        .correct {
+            background: rgba(0, 255, 153, 0.2);
+            border: 1px solid #00ff99;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff6b6b;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.75;
+        }
+        .check-btn, .skip-btn, .try-again-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn {
+            background: #ffd166;
+            color: #000;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            background: #6c757d;
+            color: white;
+        }
+        .try-again-btn {
+            background: #13293d;
+            color: white;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 153, 0.2);
+            color: #c3ffe8;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffd3d3;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 4px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        .progress-item.active {
+            background: rgba(255, 209, 102, 0.35);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 153, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffd166;
+        }
+        .required::after {
+            content: " *";
+            color: #ff5a5a;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.92);
+            font-size: 16px;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 209, 102, 0.3);
+            color: #fff0c2;
+        }
+        .sent {
+            background: rgba(0, 255, 153, 0.2);
+            color: #c3ffe8;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffd3d3;
+        }
+        .solved-exercise,
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4,
+        .theory-section h3 {
+            color: #ffd166;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffd166;
+            line-height: 1.5;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .theory-content {
+            line-height: 1.65;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 209, 102, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-fórmula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.15rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel,
+            .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+            .simulation-container {
+                height: 380px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Energia na Pista de Skate - Simulação Adaptada</h1>
+            <p class="subtitle">Prof. Flavio Ambrosio</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+            <h2 class="panel-title">Laboratório Virtual - PhET</h2>
+            <div class="simulation-container">
+                <iframe src="https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_pt_BR.html"
+                                allowfullscreen>
+                </iframe>
+            </div>
+                    
+            <!-- CRÉDITO OBRIGATÓRIO DO PHET -->
+            <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                <strong>Simulação interativa:</strong> 
+                <a href="https://phet.colorado.edu" target="_blank" style="color: #ffcc00;">
+                    PhET Interactive Simulations
+                </a>, University of Colorado Boulder – Licenciado sob 
+                <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" style="color: #ffcc00;">
+                    CC BY 4.0
+                </a>.
+            </p>                    
+            <div class="visualization-toggle">
+                <button id="helpBtn">Ajuda</button>
+            </div>
+                
+        
+            <div class="legend">
+                <p><strong>Roteiro rápido:</strong> coloque o skatista em diferentes alturas, solte-o e observe as transformações entre energia potencial gravitacional, energia cinética e energia térmica. Compare o movimento com a conservação da energia.</p>
+            </div>
+        </div>
+
+            <div class="controls-panel">
+                <h2 class="panel-title">Conceitos Fundamentais</h2>
+
+                <div class="control-group">
+                    <label for="scenarioSelect">Cenario de Estudo:</label>
+                    <select id="scenarioSelect">
+                        <option value="altura">Maior altura inicial</option>
+                        <option value="velocidade">Maior velocidade no ponto baixo</option>
+                        <option value="atrito">Efeito do atrito</option>
+                        <option value="conservacao">Energia total conservada</option>
+                    </select>
+                </div>
+
+                <div class="scenario-note" id="scenarioDescription">
+                    Ao aumentar a altura inicial do skatista, a energia potencial gravitacional aumenta. Ao descer, essa energia se transforma principalmente em energia cinética.
+                </div>
+
+                <div class="fórmula-box">
+                    <h3>Energia mecânica</h3>
+                    <p>E<sub>m</sub> = E<sub>p</sub> + E<sub>c</sub></p>
+                    <p>E<sub>p</sub> = m . g . h</p>
+                    <p>E<sub>c</sub> = m . v<sup>2</sup> / 2</p>
+                    <p>Sem atrito, E<sub>m</sub> permanece constante.</p>
+                </div>
+
+                <div class="fórmula-box">
+                    <h3>Transformações de energia</h3>
+                    <p>Descida: potencial gravitacional -> cinética</p>
+                    <p>Subida: cinética -> potencial gravitacional</p>
+                </div>
+
+                <div class="fórmula-box">
+                    <h3>Altura e velocidade</h3>
+                    <p>Maior h significa maior energia potencial.</p>
+                    <p>Maior energia cinética significa maior velocidade.</p>
+                </div>
+
+                <div class="fórmula-box">
+                    <h3>Energia térmica</h3>
+                    <p>O atrito transforma parte da energia mecânica em energia térmica.</p>
+                    <p>Com atrito, a energia mecânica diminui.</p>
+                </div>
+
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados Esperados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Altura inicial</div>
+                        <div class="measurement-value" id="charge1Display">6,0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Massa do skatista</div>
+                        <div class="measurement-value" id="charge2Display">60 kg</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Velocidade no ponto baixo</div>
+                        <div class="measurement-value" id="distanceDisplay">10,8 m/s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Energia potencial inicial</div>
+                        <div class="measurement-value" id="forceDisplay">3.528 J</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Energia cinética</div>
+                        <div class="measurement-value" id="interactionDisplay">3.528 J</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Foco Didático</div>
+                        <div class="measurement-value" id="focusDisplay">Conservação da energia</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Energia na Pista de Skate</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="progress" id="progressBar">
+                <div class="progress-item" id="progress1">1</div>
+                <div class="progress-item" id="progress2">2</div>
+                <div class="progress-item" id="progress3">3</div>
+                <div class="progress-item" id="progress4">4</div>
+                <div class="progress-item" id="progress5">5</div>
+                <div class="progress-item" id="progress6">6</div>
+            </div>
+
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo o que você percebeu sobre as transformações e a conservação da energia durante o movimento.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..."
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados.</p>
+
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1º ano">1º ano</option>
+                            <option value="2º ano">2º ano</option>
+                            <option value="3º ano">3º ano</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para copia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercicio:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+
+                    <div id="emailStatus" class="email-status"></div>
+
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Energia na Pista</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div id="solvedExercisesContainer">
+                <div class="solved-exercise" id="ex1">
+                    <h4>Exemplo 1: Transformação de energia</h4>
+                    <p><strong>Pense assim:</strong> Durante a descida, a energia potencial gravitacional transforma-se principalmente em energia cinética.</p>
+                    <div class="solution-step">A altura diminui e a velocidade aumenta.</div>
+                    <div class="solution-step">A energia não desaparece: muda de forma.</div>
+                    <div class="solution-step">A resposta qualitativa correta relaciona descida com aumento da energia cinética.</div>
+                </div>
+
+                <div class="solved-exercise" id="ex2">
+                    <h4>Exemplo 2: Altura inicial</h4>
+                    <p><strong>Pense assim:</strong> Um skatista solto de uma altura maior possui mais energia potencial gravitacional.</p>
+                    <div class="solution-step">Mais altura significa mais energia disponível.</div>
+                    <div class="solution-step">Sem atrito, isso produz maior velocidade no ponto baixo.</div>
+                    <div class="solution-step">A alternativa correta relaciona maior altura com maior energia.</div>
+                </div>
+
+                <div class="solved-exercise" id="ex3">
+                    <h4>Exemplo 3: Perda por atrito</h4>
+                    <p><strong>Pense assim:</strong> O atrito transforma parte da energia mecânica em energia térmica.</p>
+                    <div class="solution-step">A energia mecânica final fica menor.</div>
+                    <div class="solution-step">O skatista não retorna à mesma altura.</div>
+                    <div class="solution-step">A alternativa correta identifica o aumento da energia térmica.</div>
+                </div>
+
+                <div class="solved-exercise" id="ex4">
+                    <h4>Exemplo 4: Movimento no loop</h4>
+                    <p><strong>Pense assim:</strong> Para completar um loop, o skatista precisa chegar ao topo com velocidade suficiente.</p>
+                    <div class="solution-step">A altura inicial deve ser maior que a altura do topo.</div>
+                    <div class="solution-step">A energia potencial inicial fornece energia para a subida.</div>
+                    <div class="solution-step">A alternativa correta considera a condição de contato no topo.</div>
+                </div>
+
+                <div class="solved-exercise" id="ex5">
+                    <h4>Exemplo 5: Massa do skatista</h4>
+                    <p><strong>Pense assim:</strong> A massa altera os valores de energia, mas não muda a ideia da transformação.</p>
+                    <div class="solution-step">Maior massa significa maior energia potencial na mesma altura.</div>
+                    <div class="solution-step">Sem atrito, a energia mecânica continua sendo conservada.</div>
+                    <div class="solution-step">A alternativa correta relaciona massa e quantidade de energia.</div>
+                </div>
+
+                <div class="solved-exercise" id="ex6">
+                    <h4>Exemplo 6: Conservação da energia</h4>
+                    <p><strong>Pense assim:</strong> Em uma pista sem atrito, a soma das energias potencial e cinética permanece constante.</p>
+                    <div class="solution-step">No alto, predomina a energia potencial.</div>
+                    <div class="solution-step">No ponto baixo, predomina a energia cinética.</div>
+                    <div class="solution-step">A alternativa correta afirma que a energia mecânica é constante.</div>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Energia na Pista de Skate</h2>
+                <span class="close">&times;</span>
+            </div>
+
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>O que a simulação estuda?</h3>
+                    <p>A simulação mostra como a energia se transforma enquanto o skatista percorre a pista. Ao subir, ele ganha energia potencial gravitacional; ao descer, essa energia se converte em energia cinética.</p>
+                    <p>Você pode alterar a pista, a posição inicial, a massa e o atrito para comparar previsões com o movimento observado.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Energia potencial e cinética</h3>
+                    <p>A energia mecânica é a soma das energias potencial e cinética:</p>
+                    <div class="theory-fórmula">E<sub>m</sub> = E<sub>p</sub> + E<sub>c</sub></div>
+                    <ul>
+                        <li><span class="highlight">E<sub>p</sub> = m . g . h</span> é a energia potencial gravitacional.</li>
+                        <li><span class="highlight">E<sub>c</sub> = m . v<sup>2</sup> / 2</span> é a energia cinética.</li>
+                        <li><span class="highlight">m</span> é a massa, <span class="highlight">g</span> é a aceleração da gravidade e <span class="highlight">h</span> é a altura.</li>
+                        <li>A unidade de energia no Sistema Internacional é o joule (J).</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Conservação da energia</h3>
+                    <p>Em uma pista ideal, sem atrito, a energia mecânica total permanece constante:</p>
+                    <ul>
+                        <li>No alto, predomina a energia potencial.</li>
+                        <li>No ponto baixo, predomina a energia cinética.</li>
+                    </ul>
+                    <p>A energia não desaparece: ela muda de forma.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>O papel do atrito</h3>
+                    <p>O atrito transforma parte da energia mecânica em energia térmica. Por isso, com atrito, a energia mecânica não permanece constante e o skatista não alcança a mesma altura do outro lado.</p>
+                    <div class="theory-fórmula">E<sub>m,inicial</sub> = E<sub>m,final</sub> + E<sub>térmica</sub></div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>O que observar no PhET</h3>
+                    <p>Observe as barras de energia e compare a altura do skatista com sua velocidade. Teste a mesma pista com e sem atrito.</p>
+                </div>
+
+                <div class="theory-section">
+                    <ul>
+                        <li>Aumente a altura inicial e compare a velocidade no ponto baixo.</li>
+                        <li>Altere a massa e verifique como as energias mudam.</li>
+                        <li>Ligue o atrito e identifique a energia térmica.</li>
+                        <li>Use a simulação para verificar previsões feitas antes do experimento.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+
+        const gravitationalAcceleration = 9.8;
+
+        const scenarios = {
+            altura: {
+                charge1: '6,0 m',
+                charge2: '60 kg',
+                distance: '10,8 m/s',
+                force: '3.528 J',
+                interaction: '3.528 J',
+                focus: 'Energia potencial gravitacional',
+                description: 'Com massa de 60 kg e altura de 6 m, a energia potencial gravitacional inicial é E_p = m.g.h = 3.528 J. Sem atrito, ela pode transformar-se em energia cinética.'
+            },
+            velocidade: {
+                charge1: '4,0 m',
+                charge2: '60 kg',
+                distance: '8,9 m/s',
+                force: '2.352 J',
+                interaction: '2.352 J',
+                focus: 'Energia cinética',
+                description: 'Ao descer de uma altura de 4 m sem atrito, a energia potencial inicial de 2.352 J transforma-se em energia cinética no ponto mais baixo.'
+            },
+            atrito: {
+                charge1: '4,0 m',
+                charge2: '60 kg',
+                distance: 'menor que 8,9 m/s',
+                force: 'E_m diminui',
+                interaction: 'Parte vira calor',
+                focus: 'Dissipação por atrito',
+                description: 'Com atrito, parte da energia mecânica é transformada em energia térmica. Por isso, o skatista chega ao ponto baixo com velocidade menor.'
+            },
+            conservacao: {
+                charge1: 'varia',
+                charge2: '60 kg',
+                distance: 'varia',
+                force: 'constante',
+                interaction: 'E_m = E_p + E_c',
+                focus: 'Conservação da energia',
+                description: 'Em uma pista sem atrito, a soma da energia potencial gravitacional com a energia cinética permanece constante ao longo do percurso.'
+            }
+        };
+
+        function setupEventListeners() {
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert('Como usar a simulação:\n\n• Escolha uma pista e posicione o skatista em uma altura inicial.\n• Solte o skatista e observe as barras de energia.\n• Compare a energia potencial no alto com a energia cinética no ponto baixo.\n• Ative o atrito e observe a energia térmica.\n• Faça uma previsão antes de mudar cada condição.');
+            });
+
+            document.getElementById('scenarioSelect').addEventListener('change', updateScenarioPanel);
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target === document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target === document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+
+        function updateScenarioPanel() {
+            const scenario = scenarios[document.getElementById('scenarioSelect').value];
+            document.getElementById('scenarioDescription').textContent = scenario.description;
+            document.getElementById('charge1Display').textContent = scenario.charge1;
+            document.getElementById('charge2Display').textContent = scenario.charge2;
+            document.getElementById('distanceDisplay').textContent = scenario.distance;
+            document.getElementById('forceDisplay').textContent = scenario.force;
+            document.getElementById('interactionDisplay').textContent = scenario.interaction;
+            document.getElementById('focusDisplay').textContent = scenario.focus;
+        }
+
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            document.getElementById('exerciseContainer').innerHTML = '';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('conclusionText').value = '';
+            document.getElementById('resultsSummary').innerHTML = '';
+        }
+
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+
+        function calculatePotentialEnergy(mass, height) {
+            return mass * gravitationalAcceleration * height;
+        }
+
+        function formatEnergy(value) {
+            return `${value.toFixed(0).replace('.', ',')} J`;
+        }
+
+        function formatSpeed(value) {
+            return `${value.toFixed(1).replace('.', ',')} m/s`;
+        }
+
+        function generateOptions(correctValue, formatter, variations) {
+            const options = [formatter(correctValue)];
+            let attempts = 0;
+
+            while (options.length < 5 && attempts < 40) {
+                const candidate = variations(correctValue, attempts);
+                if (candidate <= 0) {
+                    attempts++;
+                    continue;
+                }
+                const formatted = formatter(candidate);
+                if (!options.includes(formatted)) {
+                    options.push(formatted);
+                }
+                attempts++;
+            }
+
+            return shuffleArray(options);
+        }
+
+        function shuffleArray(array) {
+            const copy = [...array];
+            for (let index = copy.length - 1; index > 0; index--) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+            }
+            return copy;
+        }
+
+        function createForceExercise(index) {
+            var mass = [40, 50, 60, 70][index % 4];
+            var height = [2, 4, 6, 8][Math.floor(index / 4)];
+            var energy = calculatePotentialEnergy(mass, height);
+            return {
+                type: 'energia',
+                question: 'Um skatista de ' + mass + ' kg parte de uma altura de ' + height + ' m. Qual é sua energia potencial gravitacional inicial? (Use g = 9,8 m/s².)',
+                answer: formatEnergy(energy),
+                options: generateOptions(energy, formatEnergy, function(correctValue, attempts) {
+                    if (attempts % 4 === 0) return correctValue * 2;
+                    if (attempts % 4 === 1) return correctValue / 2;
+                    if (attempts % 4 === 2) return correctValue + 500;
+                    return correctValue - 300;
+                })
+            };
+        }
+
+        function createDistanceExercise(index) {
+            var height = [2, 4, 5, 8][index % 4];
+            var speed = Math.sqrt(2 * gravitationalAcceleration * height);
+            return {
+                type: 'velocidade',
+                question: 'Sem atrito, um skatista parte do repouso de uma altura de ' + height + ' m. Qual velocidade aproximada ele terá no ponto mais baixo?',
+                answer: formatSpeed(speed),
+                options: shuffleArray([
+                    formatSpeed(speed),
+                    formatSpeed(speed / 2),
+                    formatSpeed(speed * 2),
+                    formatSpeed(speed + 3),
+                    formatSpeed(Math.max(1, speed - 3))
+                ])
+            };
+        }
+
+        function createInteractionExercise(index) {
+            const answers = ['Permanece constante', 'Permanece constante', 'Permanece constante', 'Permanece constante'];
+            return {
+                type: 'conservacao',
+                question: 'Em uma pista sem atrito, o que acontece com a energia mecânica do skatista durante o movimento ' + (index + 1) + '?',
+                answer: answers[index % answers.length],
+                options: shuffleArray(['Permanece constante', 'Desaparece no ponto baixo', 'Aumenta sem limite', 'Vira apenas energia térmica', 'Fica sempre igual à energia cinética'])
+            };
+        }
+
+        function createFrictionExercise(index) {
+            const height = [4, 5, 6, 7][index % 4];
+            const initialEnergy = calculatePotentialEnergy(50, height);
+            const thermalEnergy = [196, 294, 392, 490][index % 4];
+            const remainingEnergy = initialEnergy - thermalEnergy;
+            return {
+                type: 'atrito',
+                question: 'Um skatista de 50 kg parte de ' + height + ' m. O atrito transforma ' + thermalEnergy + ' J em energia térmica. Qual energia mecânica resta?',
+                answer: formatEnergy(remainingEnergy),
+                options: shuffleArray([formatEnergy(remainingEnergy), formatEnergy(initialEnergy), formatEnergy(thermalEnergy), formatEnergy(remainingEnergy + thermalEnergy), formatEnergy(Math.max(0, remainingEnergy - 196))])
+            };
+        }
+
+        function createLoopExercise(index) {
+            const radius = [2, 3, 4, 5][index % 4];
+            const minimumHeight = 2.5 * radius;
+            return {
+                type: 'loop',
+                question: 'Para completar um loop vertical de raio ' + radius + ' m sem perder o contato no topo, qual altura inicial mínima aproximada é necessária? Use h = 2,5R.',
+                answer: `${minimumHeight.toFixed(1).replace('.', ',')} m`,
+                options: shuffleArray([`${minimumHeight.toFixed(1).replace('.', ',')} m`, `${(radius * 2).toFixed(1).replace('.', ',')} m`, `${(radius * 3).toFixed(1).replace('.', ',')} m`, `${(radius * 1.5).toFixed(1).replace('.', ',')} m`, `${(radius / 2).toFixed(1).replace('.', ',')} m`])
+            };
+        }
+
+        function buildQualitativeExercise(type) {
+            const exercisesByType = {
+                transformacao: {
+                    question: 'Quando o skatista desce uma pista sem atrito, qual transformação predomina?',
+                    answer: 'Energia potencial em cinética',
+                    options: ['Energia potencial em cinética', 'Cinética em térmica', 'Térmica em potencial']
+                },
+                altura: {
+                    question: 'Se o skatista começa de uma altura maior, o que tende a acontecer?',
+                    answer: 'A energia potencial inicial aumenta',
+                    options: ['A energia potencial inicial aumenta', 'A energia desaparece', 'A massa deixa de importar']
+                },
+                atrito: {
+                    question: 'Quando o atrito está ligado, para onde vai parte da energia mecânica?',
+                    answer: 'Transforma-se em energia térmica',
+                    options: ['Transforma-se em energia térmica', 'Transforma-se em massa', 'Fica toda como energia potencial']
+                },
+                loop: {
+                    question: 'Para completar um loop, por que o skatista precisa de velocidade no topo?',
+                    answer: 'Para manter o contato com a pista',
+                    options: ['Para manter o contato com a pista', 'Para eliminar a gravidade', 'Para produzir energia térmica']
+                },
+                massa: {
+                    question: 'Mantendo a mesma altura, o que muda quando a massa do skatista aumenta?',
+                    answer: 'As energias calculadas aumentam',
+                    options: ['As energias calculadas aumentam', 'A gravidade deixa de agir', 'A pista fica automaticamente sem atrito']
+                },
+                conservacao: {
+                    question: 'Em uma pista sem atrito, qual afirmação descreve a energia mecânica?',
+                    answer: 'Permanece constante',
+                    options: ['Permanece constante', 'Diminui continuamente', 'Existe apenas no ponto mais baixo']
+                }
+            };
+            return { type, ...exercisesByType[type], options: shuffleArray(exercisesByType[type].options) };
+        }
+
+        function generateExercises() {
+            exercises = shuffleArray([
+                buildQualitativeExercise('transformacao'),
+                buildQualitativeExercise('altura'),
+                buildQualitativeExercise('atrito'),
+                buildQualitativeExercise('loop'),
+                buildQualitativeExercise('massa'),
+                buildQualitativeExercise('conservacao')
+            ]);
+        }
+
+        function createMistoExercise(index) {
+            var height = [3, 5, 7, 9][index % 4];
+            var mass = [40, 50, 60, 70][index % 4];
+            var energy = calculatePotentialEnergy(mass, height);
+            return {
+                type: 'misto',
+                question: 'Um skatista de ' + mass + ' kg desce sem atrito a partir de ' + height + ' m. Qual é a energia cinética aproximada no ponto mais baixo?',
+                answer: formatEnergy(energy),
+                options: shuffleArray([
+                    formatEnergy(energy),
+                    formatEnergy(energy * 2),
+                    formatEnergy(energy / 2),
+                    formatEnergy(energy + 490),
+                    formatEnergy(Math.max(0, energy - 490))
+                ])
+            };
+        }
+
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercicio ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map(option => `<div class="option" data-value="${option}">${option}</div>`).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+
+            container.querySelectorAll('.option').forEach(option => {
+                option.addEventListener('click', function() {
+                    container.querySelectorAll('.option').forEach(item => item.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecioné uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+
+            options.forEach(opt => opt.classList.add('disabled'));
+            checkButton.disabled = true;
+
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: true,
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1200);
+                return;
+            }
+
+            currentExerciseAttempts++;
+            selectedOption.classList.add('incorrect');
+            resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente ou pule o exercicio.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercicio</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+            `;
+
+            document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+            document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                generateNewExerciseOfSameType();
+                showCurrentExercise();
+            });
+        }
+
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            exercises[currentExercise] = buildQualitativeExercise(currentType);
+        }
+
+        function skipExercise() {
+            if (!confirm('Deseja pular este exercicio? Um erro sera registrado em seu relatorio.')) {
+                return;
+            }
+
+            exerciseResults.push({
+                exercise: currentExercise,
+                correct: false,
+                skipped: true,
+                attempts: currentExerciseAttempts
+            });
+            skippedQuestions++;
+            currentExerciseAttempts = 0;
+            currentExercise++;
+
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function nextExercise() {
+            currentExercise++;
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+
+        function updateProgressBar() {
+            for (let index = 0; index < 6; index++) {
+                const progressItem = document.getElementById(`progress${index + 1}`);
+                progressItem.classList.remove('active', 'completed');
+
+                if (index === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (index < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+
+            const submitButton = document.getElementById('submitConclusion');
+            submitButton.onclick = function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                showResults(conclusionText);
+            };
+        }
+
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(result => result.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+
+            document.getElementById('finalConclusion').value = conclusion;
+            document.getElementById('sendResults').onclick = sendResultsToSheet;
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatorios.');
+                return;
+            }
+
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(result => result.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+
+            const dadosCompletos = {
+                timestamp: new Date().toLocaleString('pt-BR'),
+                série: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulação: 'Energia na Pista de Skate',
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusão: finalConclusion,
+                críticas: criticism,
+                sugestões: suggestion,
+                email: studentEmail || '',
+                to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                if (!studentEmail) {
+                    return null;
+                }
+
+                const emailDataAluno = {
+                    to_email: studentEmail,
+                    nome_aluno: studentName || 'Não informado',
+                    série: studentGrade || 'Não informado',
+                    turma: studentClass || 'Não informado',
+                    nota: scorePercentage + '%' || '0%',
+                    acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                    questoes_puladas: skippedQuestions || 0,
+                    conclusão: finalConclusion || 'Não informado',
+                    data_envio: new Date().toLocaleString('pt-BR'),
+                    simulação: 'Energia na Pista de Skate',
+                    mensagem: `Confirmação de Envio - Simulação Energia na Pista de Skate\n\nPrezado(a) ${studentName},\n\nConfirmamos o recebimento dos seus resultados:\n\nResultados:\n- Nota: ${scorePercentage}%\n- Acertos: ${correctAnswers} de ${totalExercises} questoes\n- Questoes puladas: ${skippedQuestions}\n\nData: ${new Date().toLocaleString('pt-BR')}\n\nAtenciosamente,\nSistema de Simulações Físicas`
+                };
+
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailDataAluno)
+                });
+            })
+            .then(() => {
+                emailStatus.textContent = studentEmail
+                    ? 'Dados salvos e emails enviados!'
+                    : 'Dados salvos e email enviado ao professor!';
+                emailStatus.className = 'email-status sent';
+
+                setTimeout(() => {
+                    closeExercisesModal();
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+
+        function openExercisesModal() {
+            generateExercises();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        window.addEventListener('load', function() {
+            setupEventListeners();
+            updateScenarioPanel();
+        });
+    </script>
+    <script>
+        let studentNameEnergiaSkate = localStorage.getItem('studentNameEnergiaSkate') || '';
+
+        function ensureStudentNameEnergiaSkate() {
+            if (!studentNameEnergiaSkate) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('Qual é o seu nome? Vou usar isso nos audios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameEnergiaSkate = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameEnergiaSkate', studentNameEnergiaSkate);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameEnergiaSkate();
+                return `Ola, ${studentNameEnergiaSkate}. Esta página usa a simulação do PhET para estudar energia mecânica. O objetivo e observar como energia potencial, cinética e térmica se transformam na pista.`;
+            },
+            function () {
+                return 'A energia potencial gravitacional depende da massa, da gravidade e da altura. Quanto maior for a altura inicial, maior sera a energia disponível para o movimento.';
+            },
+            function () {
+                return 'Ao descer, a energia potencial se transforma em energia cinética. Por isso, a velocidade tende a ser maior nas regiões mais baixas da pista.';
+            },
+            function () {
+                return 'Sem atrito, a energia mecânica permanece constante. Com atrito, parte dela se transforma em energia térmica e o skatista perde velocidade.';
+            },
+            function () {
+                return 'No painel lateral desta página, você encontra cenários de estudo com valores esperados. A ideia e prever o resultado, testar no PhET e depois comparar a observação com o cálculo teórico.';
+            },
+            function () {
+                return 'As barras de energia permitem acompanhar a transformação entre energia potencial, cinética e térmica. Observe como a soma se comporta com e sem atrito.';
+            },
+            function () {
+                return 'Depois da exploração, resolva os exercícios e tente justificar cada resposta. Mais importante do que acertar um número e saber por que a energia aumentou, diminuiu ou mudou de forma.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, a descida transforma energia potencial gravitacional em energia cinética. A altura diminui enquanto a velocidade aumenta.',
+            '2': 'No segundo exemplo, começar de uma altura maior significa armazenar mais energia potencial gravitacional. Sem atrito, isso pode resultar em maior velocidade.',
+            '3': 'No terceiro exemplo, o atrito transforma parte da energia mecânica em energia térmica. Por isso, a energia mecânica final fica menor.',
+            '4': 'No quarto exemplo, o loop exige velocidade no topo para que o skatista mantenha o contato com a pista. A altura inicial fornece a energia necessária.',
+            '5': 'No quinto exemplo, aumentar a massa aumenta as energias calculadas para a mesma altura e velocidade. A transformação entre as formas de energia continua acontecendo.',
+            '6': 'No sexto exemplo, em uma pista sem atrito, a soma da energia potencial com a energia cinética permanece constante. A energia apenas muda de forma.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Energia na Pista de Skate (Adaptada)',
+            storageKey: 'energia-na-pista-de-skate-adaptada'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+<footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+</body>
+</html>
