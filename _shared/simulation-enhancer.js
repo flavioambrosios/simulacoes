@@ -146,6 +146,13 @@
             .toLowerCase();
     }
 
+    function normalizeSheetLabel(sheetName) {
+        return String(sheetName || '')
+            .replace(/(\d)[º°]/g, '$1o')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
     function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
     }
@@ -846,7 +853,7 @@
     }
 
     function getSheetMetadata(sheetName) {
-        const normalizedSheetName = String(sheetName || '').trim();
+        const normalizedSheetName = normalizeSheetLabel(sheetName);
         if (!normalizedSheetName) {
             return {
                 sheetName: '',
@@ -925,7 +932,12 @@
     }
 
     function buildRosterCacheKey(filters) {
-        return [filters.sheetName || '', filters.serie || '', filters.turma || '', filters.trilha || ''].join('|');
+        return [
+            normalizeSheetLabel(filters.sheetName),
+            normalizeSheetLabel(filters.serie),
+            String(filters.turma || '').trim().toUpperCase(),
+            normalizeSheetLabel(filters.trilha)
+        ].join('|');
     }
 
     function clearRosterApiCache() {
@@ -991,8 +1003,9 @@
                     : (Array.isArray(payload.sheets) ? payload.sheets : []);
 
                 const normalized = rawSheets
-                    .map(function (name) { return String(name || '').trim(); })
+                    .map(function (name) { return normalizeSheetLabel(name); })
                     .filter(function (name) { return !!name; })
+                    .filter(function (name, index, values) { return values.indexOf(name) === index; })
                     .sort(function (first, second) { return first.localeCompare(second, 'pt-BR'); });
 
                 rosterSheetsCache = {
@@ -1244,7 +1257,7 @@
             return;
         }
 
-        const sheetName = getFieldValue('studentSheet');
+        const sheetName = normalizeSheetLabel(getFieldValue('studentSheet'));
         const serie = getFieldValue('studentGrade');
         const turma = getFieldValue('studentClass');
         const trilha = getFieldValue('studentTrail');
@@ -1258,7 +1271,7 @@
         studentNameSelect.innerHTML = '<option value="">Carregando nomes...</option><option value="__OTHER__">Meu nome não está na lista</option>';
 
         getStudentNamesHybrid({ sheetName: sheetName, serie: serie, turma: turma, trilha: trilha }).then(function (names) {
-            if (requestToken !== studentOptionsRequestToken) {
+            if (requestToken !== studentOptionsRequestToken || normalizeSheetLabel(getFieldValue('studentSheet')) !== sheetName) {
                 return;
             }
 
