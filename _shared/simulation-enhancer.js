@@ -122,6 +122,14 @@
         return heading ? heading.textContent.trim() : document.title.trim();
     }
 
+    function getExercisesModal() {
+        return document.getElementById('exercisesModal') || document.getElementById('exerciseModal');
+    }
+
+    function getSolvedExercisesModal() {
+        return document.getElementById('solvedExercisesModal') || document.getElementById('solvedModal');
+    }
+
     function slugify(text) {
         return String(text || '')
             .normalize('NFD')
@@ -240,7 +248,8 @@
     }
 
     function ensureStudyNotesPanel() {
-        const modalContent = document.querySelector('#exercisesModal .modal-content');
+        const exercisesModal = getExercisesModal();
+        const modalContent = exercisesModal ? exercisesModal.querySelector('.modal-content') : null;
         const exerciseContainer = document.getElementById('exerciseContainer');
         if (!modalContent || !exerciseContainer || document.getElementById('enhancerStudyNotesCard')) {
             return;
@@ -1308,7 +1317,8 @@
         bindStudyNotesEvents();
         updateStudyNotesCounter();
 
-        const modalHeader = document.querySelector('#exercisesModal .modal-header');
+        const exercisesModal = getExercisesModal();
+        const modalHeader = exercisesModal ? exercisesModal.querySelector('.modal-header') : null;
         if (!modalHeader || modalHeader.querySelector('.enhancer-modal-actions')) {
             updateExerciseLauncherState();
             updateResumeBadge();
@@ -1353,7 +1363,7 @@
             window.generateExercises();
         }
 
-        const modal = document.getElementById('exercisesModal');
+        const modal = getExercisesModal();
         const exerciseContainer = document.getElementById('exerciseContainer');
         const conclusionContainer = document.getElementById('conclusionContainer');
         const resultsContainer = document.getElementById('resultsContainer');
@@ -1502,8 +1512,8 @@
     }
 
     function ensureSolvedExerciseAudioButtons() {
-        const solvedModal = document.getElementById('solvedExercisesModal');
-        if (!solvedModal || solvedModal.querySelector('.audio-example-btn')) {
+        const solvedModal = getSolvedExercisesModal();
+        if (!solvedModal || solvedModal.querySelector('.enhancer-example-audio-btn')) {
             return;
         }
 
@@ -2080,7 +2090,7 @@
                     }
                 }
 
-                const modal = document.getElementById('exercisesModal');
+                const modal = getExercisesModal();
                 if (modal) {
                     modal.style.display = 'flex';
                 }
@@ -3036,7 +3046,7 @@
             if (typeof window.closeExercisesModal === 'function') {
                 window.closeExercisesModal();
             } else {
-                const exercisesModal = document.getElementById('exercisesModal');
+                const exercisesModal = getExercisesModal();
                 if (exercisesModal) {
                     exercisesModal.style.display = 'none';
                 }
