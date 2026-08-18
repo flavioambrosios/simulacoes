@@ -1151,15 +1151,22 @@
             ? window.setTimeout(function () { controller.abort(); }, timeoutMs)
             : null;
 
+        // When the student chose a sheet explicitly, it is the authoritative
+        // class identifier. Avoid sending redundant filters that legacy APIs
+        // may combine with names from another class with the same letter.
+        const requestFilters = filters.sheetName
+            ? { sheetName: normalizeSheetLabel(filters.sheetName), serie: '', turma: '', trilha: '' }
+            : filters;
+
         return fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({
                 action: 'getStudentNames',
-                sheetName: filters.sheetName || '',
-                serie: filters.serie || '',
-                turma: filters.turma || '',
-                trilha: filters.trilha || '',
+                sheetName: requestFilters.sheetName || '',
+                serie: requestFilters.serie || '',
+                turma: requestFilters.turma || '',
+                trilha: requestFilters.trilha || '',
                 accessToken: token
             }),
             signal: controller ? controller.signal : undefined
@@ -1171,10 +1178,10 @@
                         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                         body: JSON.stringify({
                             action: 'getStudentNames',
-                            sheetName: filters.sheetName || '',
-                            serie: filters.serie || '',
-                            turma: filters.turma || '',
-                            trilha: filters.trilha || '',
+                            sheetName: requestFilters.sheetName || '',
+                            serie: requestFilters.serie || '',
+                            turma: requestFilters.turma || '',
+                            trilha: requestFilters.trilha || '',
                             accessToken: token
                         })
                     });
