@@ -529,12 +529,12 @@
                 <h2 class="panel-title">Simulação de Gerador Elétrico</h2>
                 <div class="simulation-container">
                     <iframe src="https://phet.colorado.edu/sims/html/generator/latest/generator_all.html?locale=pt_BR"
-                                width="100%"
-                                height="100%"
-                                style="border: none;"
-                                allowfullscreen>
+                            title="Simulador PhET de gerador elétrico"
+                            width="100%"
+                            height="100%"
+                            style="border: none;"
+                            allowfullscreen>
                     </iframe>
-                    
                 </div>
                     <!-- CRÉDITO OBRIGATÓRIO DO PHET -->
                     <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
@@ -579,7 +579,7 @@
                 <div class="control-group">
                     <label for="fieldInput">Intensidade do Campo Magnético (B):</label>
                     <input type="range" id="fieldInput" min="1" max="100" value="50" step="1">
-                    <div class="value-display"><span id="fieldValue">50</span> T</div>
+                    <div class="value-display"><span id="fieldValue">50</span> mT</div>
                 </div>
                 
                 <div class="control-group">
@@ -596,7 +596,7 @@
                 
                 <div class="control-group">
                     <label for="emfDisplay">Força Eletromotriz Induzida (ε):</label>
-                    <div class="value-display"><span id="emfValue">2.5</span> V</div>
+                    <div class="value-display"><span id="emfValue">0.25</span> V</div>
                 </div>
                 
                 <div class="fórmula-box">
@@ -607,6 +607,7 @@
                     <p>N = Número de espiras</p>
                     <p>ΔΦ/Δt = Variação do fluxo magnético no tempo</p>
                     <p>Para uma bobina girando: ε = N·B·A·ω·sen(ωt)</p>
+                    <p>Use B em tesla na fórmula: 1 T = 1000 mT.</p>
                 </div>
                 
                 <div class="exercise-buttons">
@@ -621,7 +622,7 @@
                 <div class="measurement-grid">
                     <div class="measurement-item">
                         <div class="measurement-label">Campo Magnético (B)</div>
-                        <div class="measurement-value" id="fieldDisplay">50 T</div>
+                        <div class="measurement-value" id="fieldDisplay">50 mT</div>
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">Velocidade Angular (ω)</div>
@@ -633,7 +634,7 @@
                     </div>
                     <div class="measurement-item">
                         <div class="measurement-label">FEM Induzida (ε)</div>
-                        <div class="measurement-value" id="emfDisplay">2.5 V</div>
+                        <div class="measurement-value" id="emfDisplay">0.25 V</div>
                     </div>
                 </div>
             </div>
@@ -937,7 +938,7 @@
                 fieldInput = parseFloat(this.value);
                 document.getElementById('fieldValue').textContent = fieldInput;
                 updateMeasurements();
-                addDebugInfo(`Campo magnético alterado para: ${fieldInput} T`);
+                addDebugInfo(`Campo magnético alterado para: ${fieldInput} mT`);
             });
             
             document.getElementById('speedInput').addEventListener('input', function() {
@@ -1048,8 +1049,9 @@
         function updateMeasurements() {
             try {
                 const area = 0.001;
-                emfValue = (loopsInput * fieldInput * speedInput * area) / 100;
-                document.getElementById('fieldDisplay').textContent = fieldInput.toFixed(0) + ' T';
+                const fieldTesla = fieldInput / 1000;
+                emfValue = loopsInput * fieldTesla * speedInput * area;
+                document.getElementById('fieldDisplay').textContent = fieldInput.toFixed(0) + ' mT';
                 document.getElementById('speedDisplay').textContent = speedInput.toFixed(0) + ' rad/s';
                 document.getElementById('loopsDisplay').textContent = loopsInput.toFixed(0);
                 document.getElementById('emfDisplay').textContent = emfValue.toFixed(2) + ' V';
@@ -1123,6 +1125,7 @@
         function generateOptions(correctValue, unit) {
             const optionsSet = new Set();
             let correctDisplay;
+            let integerOffset = 1;
             if (unit === 'espiras') {
                 correctDisplay = Math.round(correctValue) + ' ' + unit;
             } else {
@@ -1132,11 +1135,8 @@
             while (optionsSet.size < 5) {
                 let optionDisplay;
                 if (unit === 'espiras') {
-                    let factor = 0.5 + Math.random() * 1.5;
-                    if (Math.abs(factor - 1.0) < 0.05) continue;
-                    let rawValue = correctValue * factor;
-                    let optionValue = Math.round(rawValue);
-                    if (optionValue <= 0) optionValue = correctValue + Math.floor(Math.random() * 20) + 1;
+                    const optionValue = Math.round(correctValue) + integerOffset;
+                    integerOffset++;
                     optionDisplay = optionValue + ' ' + unit;
                 } else {
                     let factor;
@@ -1559,7 +1559,3 @@
     <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
