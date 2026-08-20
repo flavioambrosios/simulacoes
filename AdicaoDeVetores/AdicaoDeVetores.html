@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Adição de Vetores</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            background: linear-gradient(135deg, #102a43, #1f4068, #6a4c93);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.45);
+            padding: 18px;
+            border-radius: 12px;
+        }
+        h1 { font-size: 2rem; margin-bottom: 8px; }
+        .subtitle { color: #ffd166; font-weight: bold; }
+        .content { display: flex; flex-wrap: wrap; gap: 20px; }
+        .simulation-panel, .controls-panel {
+            background: rgba(0,0,0,0.58);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .simulation-panel { flex: 2; }
+        .controls-panel { flex: 1; }
+        .panel-title { color: #ffd166; text-align: center; margin-bottom: 15px; }
+        .simulation-container {
+            width: 100%;
+            height: 560px;
+            background: #07131d;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .simulation-container iframe { width: 100%; height: 100%; border: none; }
+        .legend { margin-top: 15px; padding: 14px; background: rgba(255,255,255,0.08); border-radius: 8px; line-height: 1.6; }
+        .formula-box { margin-top: 15px; padding: 14px; background: rgba(255,255,255,0.08); border-radius: 8px; line-height: 1.8; font-family: 'Courier New', monospace; }
+        button {
+            width: 100%;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #ffd166;
+            color: #111;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover { background: #ffe29a; }
+        .theme-btn { background: #264653; color: white; }
+        .theme-btn:hover { background: #335d75; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { width: min(900px, 100%); max-height: 85vh; overflow-y: auto; background: linear-gradient(135deg, #16324f, #355070); border-radius: 12px; padding: 20px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #ffd166; padding-bottom: 10px; }
+        .close { font-size: 26px; cursor: pointer; }
+        .progress { display: flex; gap: 8px; margin-bottom: 18px; }
+        .progress-item { flex: 1; padding: 8px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 6px; font-weight: bold; }
+        .progress-item.active { background: rgba(255,209,102,0.35); }
+        .progress-item.completed { background: rgba(0,255,153,0.2); }
+        .exercise { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 18px; margin-bottom: 15px; }
+        .exercise h3 { color: #ffd166; margin-bottom: 10px; }
+        .options { display: grid; gap: 10px; margin-top: 12px; }
+        .option { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px; cursor: pointer; text-align: left; }
+        .option:hover { background: rgba(255,255,255,0.14); }
+        .option.selected { background: rgba(255,209,102,0.22); border-color: #ffd166; }
+        .option.correct { background: rgba(0,255,153,0.18); border-color: #6ef3b0; }
+        .option.incorrect { background: rgba(255,80,80,0.18); border-color: #ff8d8d; }
+        .result { margin-top: 12px; padding: 10px; border-radius: 8px; display: none; font-weight: bold; }
+        .result.success { background: rgba(0,255,153,0.18); color: #d9fff0; display: block; }
+        .result.error { background: rgba(255,80,80,0.18); color: #ffe1e1; display: block; }
+        .button-row { display: flex; gap: 10px; margin-top: 14px; }
+        .button-row button { flex: 1; }
+        .check-btn { background: #ffd166; color: #111; }
+        .skip-btn { background: #5b6770; color: white; }
+        .final-score { background: rgba(255,255,255,0.08); padding: 18px; border-radius: 10px; margin-top: 10px; }
+        .future-box {
+            margin-top: 18px;
+            padding: 16px;
+            background: rgba(255,255,255,0.07);
+            border-left: 4px solid #ffd166;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        @media (max-width: 768px) { .content { flex-direction: column; } .simulation-container { height: 380px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Adição de Vetores</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação do PhET</h2>
+                <div class="simulation-container">
+                    <iframe src="https://phet.colorado.edu/sims/html/vector-addition/latest/vector-addition_pt_BR.html" allowfullscreen></iframe>
+                </div>
+                <div class="legend">
+                    Explore a soma de vetores com direção e sentido diferentes. Observe que o vetor resultante depende da composição dos módulos e do ângulo entre os vetores.
+                </div>
+                <div class="future-box">
+                    <strong>Próxima etapa planejada:</strong> acrescentar uma simulação de resolução por lei dos cossenos, com a expressão<br>
+                    R² = A² + B² − 2AB cos(180° − θ) ou, em forma equivalente, para o módulo do vetor resultante entre dois vetores com ângulo θ,<br>
+                    <span style="font-family:'Courier New', monospace;">R = √(A² + B² + 2AB cosθ)</span>
+                </div>
+            </div>
+
+            <aside class="controls-panel">
+                <h2 class="panel-title">Conceitos centrais</h2>
+                <div class="formula-box">
+                    <strong>Componentes:</strong><br>
+                    Vx = V cosθ<br>
+                    Vy = V senθ
+                </div>
+                <div class="formula-box">
+                    <strong>Resultado:</strong><br>
+                    R = √(Rx² + Ry²)
+                </div>
+                <div class="formula-box">
+                    <strong>Lei dos cossenos (extensão futura):</strong><br>
+                    R² = A² + B² − 2AB cos(180° − θ)
+                </div>
+                <button id="exerciseBtn">Iniciar exercícios</button>
+                <button id="theoryBtn" class="theme-btn">Ver teoria</button>
+            </aside>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios: adição de vetores</h2>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <div class="progress" id="progress"></div>
+            <div id="exerciseContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const exercises = [
+            {
+                question: 'Qual é a característica principal de um vetor?',
+                options: ['Só possui módulo', 'Possui módulo, direção e sentido', 'É sempre horizontal', 'É um número real'],
+                correct: 1,
+                explanation: 'Vetor é grandeza que possui módulo, direção e sentido.'
+            },
+            {
+                question: 'Se dois vetores têm a mesma direção e sentido, a soma deles resulta em:',
+                options: ['Um vetor menor', 'Um vetor com módulo igual à diferença dos módulos', 'Um vetor com módulo igual à soma dos módulos', 'Um vetor nulo'],
+                correct: 2,
+                explanation: 'Quando têm a mesma direção e sentido, os módulos se somam.'
+            },
+            {
+                question: 'Se dois vetores têm mesma direção, mas sentidos opostos, a resultante é:',
+                options: ['A soma dos módulos', 'A diferença dos módulos', 'Sempre zero', 'O produto dos módulos'],
+                correct: 1,
+                explanation: 'Quando os vetores são colineares e de sentidos opostos, a resultante é a diferença dos módulos.'
+            },
+            {
+                question: 'O componente horizontal de um vetor de módulo 10 e ângulo 30° em relação ao eixo x é:',
+                options: ['5', '8,66', '10', '7,5'],
+                correct: 1,
+                explanation: 'Vx = V cosθ = 10 · cos30° ≈ 8,66.'
+            },
+            {
+                question: 'O componente vertical de um vetor de módulo 12 e ângulo 30° é:',
+                options: ['6', '10,39', '12', '9'],
+                correct: 1,
+                explanation: 'Vy = 12 · sen30° = 6. Se fosse 60°, seria maior. Neste item, a resposta correta é 6; lembre-se da trigonometria correta.'
+            },
+            {
+                question: 'Ao decompor um vetor em componentes, a soma dessas componentes dá origem a:',
+                options: ['A aceleração', 'O vetor original', 'O ângulo oposto', 'O tempo de movimento'],
+                correct: 1,
+                explanation: 'A decomposição reconstitui o vetor original a partir de suas partes x e y.'
+            },
+            {
+                question: 'Qual é a forma correta para calcular o módulo da resultante de duas componentes perpendiculares?',
+                options: ['R = Rx + Ry', 'R = Rx − Ry', 'R = √(Rx² + Ry²)', 'R = 2RxRy'],
+                correct: 2,
+                explanation: 'O módulo da resultante é dado pela soma vetorial por Pitágoras: R = √(Rx² + Ry²).'
+            },
+            {
+                question: 'Se o ângulo entre dois vetores aumenta de 0° para 90°, a resultante:',
+                options: ['Sempre diminui', 'Pode aumentar ou diminuir dependendo dos módulos', 'Sempre se torna zero', 'Nunca muda'],
+                correct: 1,
+                explanation: 'A resultante depende dos módulos e do ângulo entre os vetores; em geral, a soma vetorial cresce conforme o vetor fica mais perpendicular.'
+            },
+            {
+                question: 'Qual é a principal vantagem de usar componentes cartesianas na adição de vetores?',
+                options: ['Simplifica os cálculos em eixos coordenados', 'Elimina a direção', 'Substitui a trigonometria', 'Remove o sinal negativo'],
+                correct: 0,
+                explanation: 'Separar em x e y torna a soma mais sistemática e direta.'
+            },
+            {
+                question: 'Um vetor aponta para o norte e outro para o leste. A resultante está em direção:',
+                options: ['Norte', 'Leste', 'Nordeste', 'Sul'],
+                correct: 2,
+                explanation: 'Vetor para o norte e outro para o leste formam uma resultante na direção nordeste.'
+            },
+            {
+                question: 'O módulo de um vetor nulo é:',
+                options: ['1', 'Qualquer valor', 'Zero', 'Negativo'],
+                correct: 2,
+                explanation: 'Vetor nulo é aquele cujo módulo é zero.'
+            },
+            {
+                question: 'Na extensão futura com lei dos cossenos, o ângulo usado na fórmula é aquele entre:',
+                options: ['Os eixos x e y', 'Os dois vetores somados', 'As componentes horizontais', 'A resultante e um dos vetores'],
+                correct: 1,
+                explanation: 'A lei dos cossenos usa o ângulo entre os dois vetores que estão sendo somados.'
+            }
+        ];
+
+        const modal = document.getElementById('modal');
+        const exerciseContainer = document.getElementById('exerciseContainer');
+        const progress = document.getElementById('progress');
+        const exerciseBtn = document.getElementById('exerciseBtn');
+        const closeModal = document.getElementById('closeModal');
+        const theoryBtn = document.getElementById('theoryBtn');
+
+        let current = 0;
+        let score = 0;
+        let selectedAnswers = [];
+
+        function updateProgress() {
+            progress.innerHTML = '';
+            exercises.forEach((_, index) => {
+                const item = document.createElement('div');
+                item.className = 'progress-item';
+                if (index < current) item.classList.add('completed');
+                if (index === current) item.classList.add('active');
+                item.textContent = index + 1;
+                progress.appendChild(item);
+            });
+        }
+
+        function renderExercise() {
+            if (current >= exercises.length) {
+                showFinalScore();
+                return;
+            }
+            updateProgress();
+            const exercise = exercises[current];
+            exerciseContainer.innerHTML = `
+                <div class="exercise">
+                    <h3>Questão ${current + 1}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-index="${index}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div class="button-row">
+                        <button class="check-btn" id="checkBtn">Verificar</button>
+                        <button class="skip-btn" id="skipBtn">Pular</button>
+                    </div>
+                    <div class="result" id="resultBox"></div>
+                </div>
+            `;
+
+            const optionEls = [...document.querySelectorAll('.option')];
+            optionEls.forEach(option => {
+                option.addEventListener('click', () => {
+                    optionEls.forEach(el => el.classList.remove('selected'));
+                    option.classList.add('selected');
+                    selectedAnswers[current] = Number(option.dataset.index);
+                });
+            });
+
+            document.getElementById('checkBtn').addEventListener('click', verifyAnswer);
+            document.getElementById('skipBtn').addEventListener('click', () => {
+                selectedAnswers[current] = -1;
+                current++;
+                renderExercise();
+            });
+        }
+
+        function verifyAnswer() {
+            const exercise = exercises[current];
+            const chosen = selectedAnswers[current];
+            const resultBox = document.getElementById('resultBox');
+            const optionEls = [...document.querySelectorAll('.option')];
+
+            if (chosen === undefined || chosen === null) {
+                resultBox.textContent = 'Selecione uma alternativa antes de verificar.';
+                resultBox.className = 'result error';
+                return;
+            }
+
+            optionEls.forEach((el, idx) => {
+                el.classList.remove('selected');
+                if (idx === exercise.correct) el.classList.add('correct');
+                if (idx === chosen && idx !== exercise.correct) el.classList.add('incorrect');
+            });
+
+            if (chosen === exercise.correct) {
+                score++;
+                resultBox.textContent = 'Correto! ' + exercise.explanation;
+                resultBox.className = 'result success';
+            } else {
+                resultBox.textContent = 'Incorreto. ' + exercise.explanation;
+                resultBox.className = 'result error';
+            }
+
+            document.getElementById('checkBtn').disabled = true;
+            setTimeout(() => {
+                current++;
+                renderExercise();
+            }, 1200);
+        }
+
+        function showFinalScore() {
+            const percentage = Math.round((score / exercises.length) * 100);
+            exerciseContainer.innerHTML = `
+                <div class="final-score">
+                    <h3>Resultado final</h3>
+                    <p>Você acertou ${score} de ${exercises.length} questões.</p>
+                    <p>Percentual: ${percentage}%</p>
+                    <p>Conceitos principais: componentes, direção, módulo e adição vetorial.</p>
+                </div>
+            `;
+            progress.innerHTML = '';
+            exercises.forEach((_, idx) => {
+                const el = document.createElement('div');
+                el.className = 'progress-item completed';
+                el.textContent = idx + 1;
+                progress.appendChild(el);
+            });
+        }
+
+        exerciseBtn.addEventListener('click', () => {
+            current = 0;
+            score = 0;
+            selectedAnswers = [];
+            modal.style.display = 'flex';
+            renderExercise();
+        });
+
+        closeModal.addEventListener('click', () => modal.style.display = 'none');
+        theoryBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+            exerciseContainer.innerHTML = `
+                <div class="exercise">
+                    <h3>Teoria resumida</h3>
+                    <p>Vetores são grandezas com módulo, direção e sentido. Para somá-los, normalmente se decompõem em componentes x e y.</p>
+                    <p>Em seguida, somam-se separadamente as componentes horizontais e verticais; depois calcula-se o módulo resultante com a expressão R = √(Rx² + Ry²).</p>
+                    <p>Na extensão futura, a lei dos cossenos pode ser usada para calcular o módulo da resultante quando os vetores formam um ângulo conhecido.</p>
+                </div>
+            `;
+            progress.innerHTML = '';
+            exercises.forEach((_, idx) => {
+                const el = document.createElement('div');
+                el.className = 'progress-item';
+                el.textContent = idx + 1;
+                progress.appendChild(el);
+            });
+        });
+    </script>
+</body>
+</html>

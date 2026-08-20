@@ -1,0 +1,3044 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Ondas 1D">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulações/Ondas/Ondas1D/">
+    <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisão humana. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação de Ondas Unidimensionais</title>
+    <style>
+        /* Estilos mantidos do código original */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 400px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        #waveCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .fórmula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .cyan { background: #00ffff; }
+        
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Estilos para o modal de exercícios */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Estilos para formulário de e-mail */
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        
+        /* Novos estilos para exercícios resolvidos */
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        
+        /* Estilos para a seção de teoria */
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .theory-content {
+            line-height: 1.6;
+        }
+        
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .theory-fórmula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .context-note {
+            margin-top: 8px;
+            padding: 8px;
+            border-left: 3px solid #ffcc00;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .grid-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .grid-toggle-row input {
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            .simulation-panel, .controls-panel {
+                flex: 1;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação de Ondas Unidimensionais</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Simulação 2D - Onda Harmônica Unidimensional</h2>
+                <div class="simulation-container">
+                    <canvas id="waveCanvas"></canvas>
+                </div>
+                
+                <div class="visualization-toggle">
+                    <button id="startBtn">Iniciar</button>
+                    <button id="pauseBtn">Pausar</button>
+                    <button id="resetBtn">Reiniciar</button>
+                    <button id="helpBtn">Ajuda</button>
+                </div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color cyan"></div>
+                        <span>Onda y(x,t)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+
+                <div class="control-group">
+                    <label for="contextSelect">Contexto de Estudo:</label>
+                    <select id="contextSelect">
+                        <option value="classica">Onda Harmônica (padrão)</option>
+                        <option value="agua">Ondas na Água</option>
+                        <option value="surfe">Surfe</option>
+                        <option value="tsunami">Tsunami</option>
+                    </select>
+                    <div class="context-note" id="contextDescription">
+                        Contexto padrão: análise matemática da onda harmônica em 1D.
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="directionSelect">Direção da Onda:</label>
+                    <select id="directionSelect">
+                        <option value="positive">Sentido Positivo (→)</option>
+                        <option value="negative">Sentido Negativo (←)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="amplitudeInput">Amplitude (A):</label>
+                    <input type="range" id="amplitudeInput" min="0" max="5" value="2" step="0.1">
+                    <div class="value-display"><span id="amplitudeValue">2.0</span> m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="wavelengthInput">Comprimento de Onda (λ):</label>
+                    <input type="range" id="wavelengthInput" min="1" max="20" value="8" step="0.5">
+                    <div class="value-display"><span id="wavelengthValue">8.0</span> m</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="frequencyInput">Frequência (f):</label>
+                    <input type="range" id="frequencyInput" min="0.1" max="2" value="0.5" step="0.05">
+                    <div class="value-display"><span id="frequencyValue">0.5</span> Hz</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="velocityInput">Velocidade (v):</label>
+                    <input type="range" id="velocityInput" min="-10" max="10" value="4" step="0.1">
+                    <div class="value-display"><span id="velocityValue">4.0</span> m/s</div>
+                </div>
+                
+                <div class="control-group" id="phaseControlGroup">
+                    <label for="phaseInput">Fase Inicial (φ):</label>
+                    <input type="range" id="phaseInput" min="0" max="6.28" value="0" step="0.1">
+                    <div class="value-display"><span id="phaseValue">0.0</span> rad</div>
+                </div>
+
+                <div class="control-group">
+                    <div class="grid-toggle-row">
+                        <input type="checkbox" id="gridToggle">
+                        <label for="gridToggle" style="margin: 0;">Mostrar grade de análise</label>
+                    </div>
+                </div>
+
+                <div class="control-group" id="asymmetryControlGroup">
+                    <label for="asymmetryInput">Assimetria da Quebra (σ):</label>
+                    <input type="range" id="asymmetryInput" min="0.05" max="1.0" value="1.0" step="0.05">
+                    <div class="value-display"><span id="asymmetryValue">1.00</span></div>
+                </div>
+
+                <div class="control-group" id="shorelineControlGroup" style="display:none;">
+                    <label for="shorelineInput">Linha de Costa (x onde h = 0):</label>
+                    <input type="range" id="shorelineInput" min="8" max="26" value="12" step="0.1">
+                    <div class="value-display"><span id="shorelineValue">12.0</span> m</div>
+                </div>
+
+                <div class="control-group" id="breakPointControlGroup" style="display:none;">
+                    <label for="breakPointInput">Ponto de Quebra/Bolha (x):</label>
+                    <input type="range" id="breakPointInput" min="4" max="22" value="9" step="0.1">
+                    <div class="value-display"><span id="breakPointValue">9.0</span> m</div>
+                </div>
+
+                <div class="control-group" id="asymmetryStartControlGroup" style="display:none;">
+                    <label for="asymmetryStartInput">Início da Assimetria (x):</label>
+                    <input type="range" id="asymmetryStartInput" min="-7" max="20" value="7.5" step="0.1">
+                    <div class="value-display"><span id="asymmetryStartValue">7.5</span> m</div>
+                </div>
+                
+                <div class="fórmula-box">
+                    <h3 id="equationTitle">Equação da Onda</h3>
+                    <p id="equationMain">y(x,t) = A·cos(kx - ωt + φ)</p>
+                    <p id="equationContextLine">Modelo padrão em 1D.</p>
+                    <div id="equationDetails">
+                        <p>y = Deslocamento (metros)</p>
+                        <p>A = Amplitude (m)</p>
+                        <p>k = Número de onda = ±2π/λ (rad/m)</p>
+                        <p>ω = Frequência angular = 2πf (rad/s)</p>
+                        <p>φ = Fase inicial (rad)</p>
+                        <p>± = Sinal depende da direção</p>
+                    </div>
+                </div>
+                
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições e Resultados</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item">
+                        <div class="measurement-label">Direção</div>
+                        <div class="measurement-value" id="directionDisplay">Positiva (→)</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Amplitude (A)</div>
+                        <div class="measurement-value" id="amplitudeDisplay">2.0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Comprimento de Onda (λ)</div>
+                        <div class="measurement-value" id="wavelengthDisplay">8.0 m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Frequência (f)</div>
+                        <div class="measurement-value" id="frequencyDisplay">0.5 Hz</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Período (T)</div>
+                        <div class="measurement-value" id="periodDisplay">2.0 s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Velocidade (v)</div>
+                        <div class="measurement-value" id="velocityDisplay">4.0 m/s</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Número de Onda (k)</div>
+                        <div class="measurement-value" id="waveNumberDisplay">0.79 rad/m</div>
+                    </div>
+                    <div class="measurement-item">
+                        <div class="measurement-label">Frequência Angular (ω)</div>
+                        <div class="measurement-value" id="angularFrequencyDisplay">3.14 rad/s</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="progress" id="progressBar"></div>
+            
+            <div id="exerciseContainer">
+                <!-- Conteúdo dos exercícios será inserido aqui via JavaScript -->
+            </div>
+            
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." 
+                        style="width: 100%; min-width: 100%; height: 150px; resize: both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                
+                <div class="email-form">
+                    <div class="form-row">
+                        <label for="studentName" class="required">Nome Completo:</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentGrade" class="required">Série:</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione sua série</option>
+                            <option value="1o ano">1º ano</option>
+                            <option value="2o ano">2º ano</option>
+                            <option value="3o ano">3º ano</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentClass" class="required">Turma:</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione sua turma</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="H">H</option>
+                            <option value="I">I</option>
+                            <option value="J">J</option>
+                            <option value="K">K</option>
+                            <option value="L">L</option>
+                            <option value="M">M</option>
+                            <option value="N">N</option>
+                            <option value="O">O</option>
+                            <option value="P">P</option>
+                            <option value="Q">Q</option>
+                            <option value="R">R</option>
+                            <option value="S">S</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="studentEmail">E-mail para cópia:</label>
+                        <input type="email" id="studentEmail" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="criticismInput">Críticas:</label>
+                        <textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="suggestionInput">Sugestões:</label>
+                        <textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <label for="finalConclusion" class="required">Conclusão sobre o exercício:</label>
+                        <textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea>
+                    </div>
+                    
+                    <div id="emailStatus" class="email-status"></div>
+                    
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios Resolvidos - Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise">
+                    <h4>Exemplo 1: Cálculo de Parâmetros da Onda</h4>
+                    <p><strong>Problema:</strong> Uma onda harmônica tem amplitude de 0,5 m, comprimento de onda de 2 m e frequência de 4 Hz. Escreva a equação da onda.</p>
+                    <div class="solution-step"><strong>Dados:</strong> A = 0,5 m; λ = 2 m; f = 4 Hz</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular número de onda: k = 2π/λ = 2π/2 = π rad/m</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular frequência angular: ω = 2πf = 2π×4 = 8π rad/s</div>
+                    <div class="solution-step"><strong>Passo 3:</strong> Escrever equação: y(x,t) = 0,5·cos(πx - 8πt)</div>
+                    <div class="solution-step"><strong>Resposta:</strong> y(x,t) = 0,5·cos(πx - 8πt)</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 2: Velocidade da Onda</h4>
+                    <p><strong>Problema:</strong> Uma onda tem comprimento de onda de 3 m e período de 0,5 s. Qual é a velocidade de propagação?</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> v = λ/T = λ·f</div>
+                    <div class="solution-step"><strong>Passo 1:</strong> Calcular frequência: f = 1/T = 1/0,5 = 2 Hz</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Calcular velocidade: v = λ·f = 3×2 = 6 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v = 6 m/s</div>
+                </div>
+                
+                <div class="solved-exercise">
+                    <h4>Exemplo 3: Velocidade usando ω e k</h4>
+                    <p><strong>Problema:</strong> Dada a equação y(x,t) = 2·cos(0,5x - 4t), qual é a velocidade de propagação da onda?</p>
+                    <div class="solution-step"><strong>Passo 1:</strong> Identificar k e ω: k = 0,5 rad/m; ω = 4 rad/s</div>
+                    <div class="solution-step"><strong>Passo 2:</strong> Aplicar fórmula: v = ω/k = 4 / 0,5 = 8 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v = 8 m/s</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 4: Ondas na Água - Velocidade</h4>
+                    <p><strong>Problema:</strong> Uma onda na água possui comprimento de onda λ = 12 m e frequência f = 0,25 Hz. Determine a velocidade.</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> v = λ·f</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> v = 12 × 0,25 = 3,0 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> v = 3,0 m/s</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 5: Surfe - Velocidade em Água Rasa</h4>
+                    <p><strong>Problema:</strong> Em uma região de surfe com profundidade h = 4 m, estime a velocidade da onda usando c ≈ √(g·h), com g = 9,8 m/s².</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> c ≈ √(g·h)</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> c ≈ √(9,8 × 4) = √39,2 ≈ 6,26 m/s</div>
+                    <div class="solution-step"><strong>Resposta:</strong> c ≈ 6,26 m/s</div>
+                </div>
+
+                <div class="solved-exercise">
+                    <h4>Exemplo 6: Tsunami - Amplificação Próxima da Costa</h4>
+                    <p><strong>Problema:</strong> Um tsunami sai de uma região com profundidade de 3600 m e chega à costa com 25 m. Estime o fator A_costa/A_oceano ≈ √(h_oceano/h_costa).</p>
+                    <div class="solution-step"><strong>Fórmula:</strong> A_costa/A_oceano ≈ √(h_oceano/h_costa)</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> √(3600/25) = √144 = 12</div>
+                    <div class="solution-step"><strong>Resposta:</strong> A altura pode aumentar aproximadamente 12 vezes.</div>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeSolvedExercises" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria - Ondas Unidimensionais</h2>
+                <span class="close">&times;</span>
+            </div>
+            
+            <div class="theory-content">
+                <div class="theory-section">
+                    <h3>Ondas Harmônicas Unidimensionais</h3>
+                    <p>Uma onda harmônica unidimensional é descrita pela função:</p>
+                    
+                    <div class="theory-fórmula">y(x,t) = A·cos(kx - ωt + φ)</div>
+                    
+                    <p>Onde:</p>
+                    <ul>
+                        <li><span class="highlight">y(x,t)</span> = Deslocamento da onda na posição x e tempo t (metros)</li>
+                        <li><span class="highlight">A</span> = Amplitude (m)</li>
+                        <li><span class="highlight">k</span> = Número de onda = ±2π/λ (rad/m) - o sinal define a direção</li>
+                        <li><span class="highlight">ω</span> = Frequência angular = 2πf (rad/s) - sempre positiva</li>
+                        <li><span class="highlight">φ</span> = Fase inicial (rad)</li>
+                    </ul>
+                    
+                    <p>O sinal do número de onda k determina a direção de propagação:</p>
+                    <ul>
+                        <li>k positivo: onda se propaga no sentido positivo do eixo x</li>
+                        <li>k negativo: onda se propaga no sentido negativo do eixo x</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Parâmetros da Onda</h3>
+                    <p>As principais características de uma onda são:</p>
+                    
+                    <ul>
+                        <li><span class="highlight">Amplitude (A):</span> Máximo deslocamento da onda em relação à posição de equilíbrio</li>
+                        <li><span class="highlight">Comprimento de onda (λ):</span> Distância entre dois pontos consecutivos em fase</li>
+                        <li><span class="highlight">Período (T):</span> Tempo necessário para completar um ciclo</li>
+                        <li><span class="highlight">Frequência (f):</span> Número de ciclos por unidade de tempo (f = 1/T) - sempre positiva</li>
+                        <li><span class="highlight">Velocidade de propagação (v):</span> v = λ/T = λ·f - pode ser positiva ou negativa</li>
+                    </ul>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Relações entre Parâmetros</h3>
+                    <p>Os parâmetros da onda estão relacionados pelas seguintes equações:</p>
+                    
+                    <div class="theory-fórmula">k = ±2π/λ</div>
+                    <div class="theory-fórmula">ω = 2πf = 2π/T</div>
+                    <div class="theory-fórmula">v = ω/k = λ·f</div>
+                    
+                    <p>Estas relações permitem converter entre diferentes representações dos parâmetros da onda.</p>
+                </div>
+                
+                <div class="theory-section">
+                    <h3>Aplicações Práticas</h3>
+                    <p>O estudo de ondas unidimensionais é fundamental para:</p>
+                    
+                    <ul>
+                        <li>Compreensão de ondas sonoras em tubos</li>
+                        <li>Análise de ondas em cordas vibrantes</li>
+                        <li>Estudo de ondas eletromagnéticas em guias de onda</li>
+                        <li>Modelagem de ondas sísmicas</li>
+                        <li>Análise de sinais em telecomunicações</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Contexto 1: Ondas na Água</h3>
+                    <p>Para ondas de superfície na água, mantemos a descrição periódica, mas interpretamos o deslocamento como altura da superfície:</p>
+                    <div class="theory-fórmula">η(x,t) = A·cos(kx - ωt + φ)</div>
+                    <div class="theory-fórmula">v = λ·f</div>
+                    <p>Energia média transportada pela onda cresce com a amplitude:</p>
+                    <div class="theory-fórmula">E ∝ A²</div>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Contexto 2: Surfe</h3>
+                    <p>No surfe, ao se aproximar de águas rasas, a velocidade da onda depende da profundidade local:</p>
+                    <div class="theory-fórmula">c ≈ √(g·h)</div>
+                    <div class="theory-fórmula">T = λ/c</div>
+                    <p>Isso ajuda a entender por que a onda desacelera e tende a "levantar" perto da praia.</p>
+                    <p>Em mar mais profundo, a onda transporta principalmente energia; próximo da arrebentação, a forma deixa de ser bem senoidal e o transporte de matéria (como o surfista) fica mais evidente.</p>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Contexto 3: Tsunami</h3>
+                    <p>Para tsunamis em águas rasas (modelo simplificado), a velocidade pode ser aproximada por:</p>
+                    <div class="theory-fórmula">c ≈ √(g·h)</div>
+                    <p>Ao chegar a regiões rasas, a altura pode aumentar significativamente:</p>
+                    <div class="theory-fórmula">A<sub>costa</sub> ≈ A<sub>oceano</sub>·√(h<sub>oceano</sub>/h<sub>costa</sub>)</div>
+                    <p>Na simulação, esse efeito é representado didaticamente por aumento gradual de amplitude próximo da costa.</p>
+                </div>
+            </div>
+            
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais para a simulação de ondas
+        let canvas, ctx;
+        
+        // Parâmetros da onda
+        let direction = 'positive'; // 'positive' ou 'negative'
+        let amplitude = 2.0;       // metros
+        let wavelength = 8.0;      // metros
+        let frequency = 0.5;       // Hz (sempre positiva)
+        let velocity = 4.0;        // m/s (pode ser positiva ou negativa)
+        let phase = 0.0;           // radianos
+        
+        // Cálculos derivados
+        let waveNumber = 0;        // k = ±2π/λ (rad/m) - o sinal define a direção
+        let angularFrequency = 0;  // ω = 2πf (rad/s) - sempre positiva
+        let period = 0;            // T = 1/f
+        
+        let isRunning = false;
+        let simulationTime = 0;
+        let animationId = null;
+        
+        // Sistema de exercícios
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let waveContext = 'classica';
+        let showGrid = false;
+        let asymmetrySigma = 1.0;
+        let shorelineX = 12.0;
+        let breakPointX = 9.0;
+        let asymmetryStartX = 7.5;
+        let surferSpawnOffset = 70;
+
+        const contextControls = {
+            classica: {
+                amplitude: { min: 0, max: 5, step: 0.1, value: 2.0 },
+                wavelength: { min: 1, max: 20, step: 0.5, value: 8.0 },
+                frequency: { min: 0.1, max: 2, step: 0.05, value: 0.5 },
+                velocity: { min: -10, max: 10, step: 0.1 }
+            },
+            agua: {
+                amplitude: { min: 0, max: 4.5, step: 0.1, value: 1.4 },
+                wavelength: { min: 2, max: 40, step: 0.5, value: 14.0 },
+                frequency: { min: 0.05, max: 1.2, step: 0.05, value: 0.35 },
+                velocity: { min: -20, max: 20, step: 0.1 }
+            },
+            surfe: {
+                amplitude: { min: 0, max: 3, step: 0.1, value: 1.2 },
+                wavelength: { min: 5, max: 60, step: 0.5, value: 22.0 },
+                frequency: { min: 0.05, max: 1, step: 0.05, value: 0.25 },
+                velocity: { min: -25, max: 25, step: 0.1 }
+            },
+            tsunami: {
+                amplitude: { min: 0, max: 6, step: 0.1, value: 0.5 },
+                wavelength: { min: 10000, max: 200000, step: 1000, value: 100000 },
+                frequency: { min: 0.0005, max: 0.02, step: 0.0005, value: 0.002 },
+                velocity: { min: -5000, max: 5000, step: 1 }
+            }
+        };
+
+        const contextInfo = {
+            classica: {
+                label: 'Onda Harmônica (padrão)',
+                description: 'Contexto padrão: análise matemática da onda harmônica em 1D.',
+                equationTitle: 'Equação da Onda Harmônica',
+                equationMain: 'y(x,t) = A·cos(kx - ωt + φ)',
+                equationLine: 'Modelo ideal para propagação em uma dimensão.',
+                details: [
+                    'y = Deslocamento (metros)',
+                    'A = Amplitude (m)',
+                    'k = Número de onda = ±2π/λ (rad/m)',
+                    'ω = Frequência angular = 2πf (rad/s)',
+                    'φ = Fase inicial (rad)'
+                ]
+            },
+            agua: {
+                label: 'Ondas na Água',
+                description: 'Ondas de superfície com boias para observar cristas e vales.',
+                equationTitle: 'Equações para Ondas na Água',
+                equationMain: 'η(x,t) = A·cos(kx - ωt + φ)',
+                equationLine: 'η representa a elevação da superfície da água.',
+                details: [
+                    'v = λ·f',
+                    'k = ±2π/λ',
+                    'ω = 2πf',
+                    'Energia transportada: E ∝ A²'
+                ]
+            },
+            surfe: {
+                label: 'Surfe',
+                description: 'Onda se aproximando da praia; velocidade em água rasa ligada à profundidade.',
+                equationTitle: 'Equações no Contexto do Surfe',
+                equationMain: 'c ≈ √(g·h)',
+                equationLine: 'Em água rasa, a velocidade depende principalmente da profundidade h.',
+                details: [
+                    'T = λ/c',
+                    'f = 1/T',
+                    'y(x,t) = A·cos(kx - ωt + φ)',
+                    'Quanto menor h perto da praia, menor c.'
+                ]
+            },
+            tsunami: {
+                label: 'Tsunami',
+                description: 'Propagação com amplificação próxima da costa (modelo didático).',
+                equationTitle: 'Equações no Contexto de Tsunami',
+                equationMain: 'c ≈ √(g·h)',
+                equationLine: 'A velocidade em mar raso depende da profundidade local.',
+                details: [
+                    'A_costa ≈ A_oceano·√(h_oceano/h_costa)',
+                    'η(x,t) = A(x)·cos(kx - ωt + φ)',
+                    'v = λ·f',
+                    'A(x) aumenta quando h(x) diminui perto da costa.'
+                ]
+            }
+        };
+
+        function updateContextContent() {
+            const info = contextInfo[waveContext] || contextInfo.classica;
+            document.getElementById('contextDescription').textContent = info.description;
+            document.getElementById('equationTitle').textContent = info.equationTitle;
+            document.getElementById('equationMain').textContent = info.equationMain;
+            document.getElementById('equationContextLine').textContent = info.equationLine;
+            document.getElementById('equationDetails').innerHTML = info.details.map(item => `<p>${item}</p>`).join('');
+        }
+
+        function updateControlVisibilityByContext() {
+            const phaseGroup = document.getElementById('phaseControlGroup');
+            const asymmetryGroup = document.getElementById('asymmetryControlGroup');
+            const shorelineGroup = document.getElementById('shorelineControlGroup');
+            const breakPointGroup = document.getElementById('breakPointControlGroup');
+            const asymmetryStartGroup = document.getElementById('asymmetryStartControlGroup');
+
+            // Nesta simulacao de onda progressiva, fase inicial fica fixa em zero.
+            phaseGroup.style.display = 'none';
+            phase = 0;
+            document.getElementById('phaseInput').value = phase;
+            document.getElementById('phaseValue').textContent = phase.toFixed(2);
+
+            const isBreakingContext = waveContext === 'surfe' || waveContext === 'tsunami';
+            asymmetryGroup.style.display = isBreakingContext ? 'block' : 'none';
+            shorelineGroup.style.display = waveContext === 'surfe' ? 'block' : 'none';
+            breakPointGroup.style.display = waveContext === 'surfe' ? 'block' : 'none';
+            asymmetryStartGroup.style.display = waveContext === 'surfe' ? 'block' : 'none';
+
+            if (!isBreakingContext) {
+                asymmetrySigma = 1.0;
+                document.getElementById('asymmetryInput').value = asymmetrySigma;
+                document.getElementById('asymmetryValue').textContent = asymmetrySigma.toFixed(2);
+            }
+
+            if (waveContext === 'surfe') {
+                const shorelineInput = document.getElementById('shorelineInput');
+                const minX = parseFloat(shorelineInput.min);
+                const maxX = parseFloat(shorelineInput.max);
+                shorelineX = Math.max(minX, Math.min(maxX, shorelineX));
+
+                const breakInput = document.getElementById('breakPointInput');
+                const breakMin = parseFloat(breakInput.min);
+                const breakMaxByShore = Math.min(parseFloat(breakInput.max), shorelineX - 0.4);
+                breakPointX = Math.max(breakMin, Math.min(breakMaxByShore, breakPointX));
+
+                const asymStartInput = document.getElementById('asymmetryStartInput');
+                const asymStartMin = parseFloat(asymStartInput.min);
+                const asymStartMaxByBreak = Math.min(parseFloat(asymStartInput.max), breakPointX - 0.3);
+                asymmetryStartX = Math.max(asymStartMin, Math.min(asymStartMaxByBreak, asymmetryStartX));
+
+                document.getElementById('shorelineInput').value = shorelineX;
+                document.getElementById('shorelineValue').textContent = shorelineX.toFixed(1);
+                document.getElementById('breakPointInput').max = breakMaxByShore.toFixed(1);
+                document.getElementById('breakPointInput').value = breakPointX;
+                document.getElementById('breakPointValue').textContent = breakPointX.toFixed(1);
+                document.getElementById('asymmetryStartInput').max = asymStartMaxByBreak.toFixed(1);
+                document.getElementById('asymmetryStartInput').value = asymmetryStartX;
+                document.getElementById('asymmetryStartValue').textContent = asymmetryStartX.toFixed(1);
+            }
+        }
+
+        function getContextPlotProfile() {
+            if (waveContext === 'tsunami') {
+                return {
+                    xRange: 120000,
+                    xTick: 20000,
+                    xLabel: 'x (km)',
+                    xUnit: 'km',
+                    yScale: 26,
+                    depthScale: 2.6,
+                    deepDepth: 100,
+                    depthMode: 'shore',
+                    shallowStart: 0.58,
+                    maxAmplification: 4.8,
+                    amplificationPower: 2.4,
+                    wavelengthCompression: 0.86,
+                    harmonicBoost: 0.5,
+                    breakerOnset: 0.65,
+                    depthTaperPower: 1.45,
+                    viewCenterRatio: 0.82,
+                    timeScale: 40
+                };
+            }
+
+            if (waveContext === 'surfe') {
+                return {
+                    xRange: 34,
+                    xTick: 5,
+                    xLabel: 'x (m)',
+                    xUnit: 'm',
+                    yScale: 42,
+                    depthScale: 16,
+                    deepDepth: 10,
+                    depthMode: 'shore',
+                    shallowStart: 0.52,
+                    maxAmplification: 1.4,
+                    amplificationPower: 2.0,
+                    wavelengthCompression: 0.55,
+                    harmonicBoost: 0.35,
+                    breakerOnset: 0.68,
+                    depthTaperPower: 1.55,
+                    viewCenterRatio: 0.8,
+                    shorelineX,
+                    timeScale: 1.5
+                };
+            }
+
+            if (waveContext === 'agua') {
+                return {
+                    xRange: 24,
+                    xTick: 5,
+                    xLabel: 'x (m)',
+                    xUnit: 'm',
+                    yScale: 40,
+                    depthScale: 16,
+                    deepDepth: 10,
+                    depthMode: 'constant',
+                    shallowStart: 0.75,
+                    maxAmplification: 0,
+                    amplificationPower: 1.8,
+                    wavelengthCompression: 0,
+                    harmonicBoost: 0.12,
+                    breakerOnset: 0.72,
+                    depthTaperPower: 1.15,
+                    viewCenterRatio: 0.5,
+                    timeScale: 1
+                };
+            }
+
+            return {
+                xRange: 20,
+                xTick: 2,
+                xLabel: 'x (m)',
+                xUnit: 'm',
+                yScale: 40,
+                depthScale: 0,
+                deepDepth: null,
+                depthMode: 'none',
+                shallowStart: 1,
+                maxAmplification: 0,
+                amplificationPower: 1,
+                wavelengthCompression: 0,
+                harmonicBoost: 0,
+                breakerOnset: 1,
+                depthTaperPower: 1,
+                viewCenterRatio: 0.5,
+                timeScale: 1
+            };
+        }
+
+        function getLocalDepthMeters(ratio, profile) {
+            if (!profile.deepDepth) {
+                return Number.POSITIVE_INFINITY;
+            }
+            const safeRatio = Math.max(0, Math.min(1, ratio));
+
+            if (waveContext === 'surfe' && Number.isFinite(profile.shorelineX)) {
+                const centerRatio = profile.viewCenterRatio == null ? 0.5 : profile.viewCenterRatio;
+                const centerXCoord = (centerRatio - 0.5) * profile.xRange;
+                const x = safeRatio * profile.xRange - profile.xRange / 2 + centerXCoord;
+                const xMin = -profile.xRange / 2 + centerXCoord;
+                const shorelineX = profile.shorelineX;
+                const denom = Math.max(1e-6, shorelineX - xMin);
+                const depthNorm = Math.max(0, Math.min(1, (shorelineX - x) / denom));
+                return profile.deepDepth * Math.pow(depthNorm, profile.depthTaperPower || 1);
+            }
+
+            if (profile.depthMode === 'constant') {
+                return profile.deepDepth;
+            }
+
+            if (profile.depthMode === 'shore') {
+                const smoothRatio = safeRatio * safeRatio * (3 - 2 * safeRatio);
+                return profile.deepDepth * Math.pow(1 - smoothRatio, profile.depthTaperPower || 1);
+            }
+
+            return Number.POSITIVE_INFINITY;
+        }
+
+        function getSeabedPixelY(ratio, profile, centerY, scaleY) {
+            const depth = getLocalDepthMeters(ratio, profile);
+            if (!Number.isFinite(depth)) {
+                return canvas.height;
+            }
+            const depthScale = getEffectiveDepthScale(profile, centerY);
+            const y = centerY + depth * depthScale;
+            return Math.min(canvas.height, y);
+        }
+
+        function getEffectiveDepthScale(profile, centerY) {
+            const configuredScale = profile.depthScale || profile.yScale;
+            if (!Number.isFinite(profile.deepDepth) || profile.deepDepth <= 0) {
+                return configuredScale;
+            }
+
+            // Ajuste de escala do grafico: preserva a profundidade fisica e garante o fundo visivel.
+            const maxDepthPixels = Math.max(10, canvas.height - centerY - 14);
+            const fitScale = maxDepthPixels / profile.deepDepth;
+            return Math.min(configuredScale, fitScale);
+        }
+
+        function sech2(value) {
+            const c = Math.cosh(value);
+            return 1 / (c * c);
+        }
+
+        function smoothWavePoints(points, passes = 2) {
+            if (!points || points.length < 3) {
+                return points;
+            }
+
+            let smoothed = points.map(p => ({ pixelX: p.pixelX, pixelY: p.pixelY, xCoord: p.xCoord }));
+
+            for (let pass = 0; pass < passes; pass++) {
+                const next = smoothed.map(p => ({ pixelX: p.pixelX, pixelY: p.pixelY, xCoord: p.xCoord }));
+                for (let i = 1; i < smoothed.length - 1; i++) {
+                    next[i].pixelY = (
+                        smoothed[i - 1].pixelY +
+                        2 * smoothed[i].pixelY +
+                        smoothed[i + 1].pixelY
+                    ) / 4;
+                }
+                smoothed = next;
+            }
+
+            return smoothed;
+        }
+
+        function smoothstep(edge0, edge1, value) {
+            const t = Math.max(0, Math.min(1, (value - edge0) / Math.max(1e-6, edge1 - edge0)));
+            return t * t * (3 - 2 * t);
+        }
+
+        function applyContextControlPreset(resetValues) {
+            const preset = contextControls[waveContext] || contextControls.classica;
+            const amplitudeInput = document.getElementById('amplitudeInput');
+            const wavelengthInput = document.getElementById('wavelengthInput');
+            const frequencyInput = document.getElementById('frequencyInput');
+            const velocityInput = document.getElementById('velocityInput');
+
+            amplitudeInput.min = preset.amplitude.min;
+            amplitudeInput.max = preset.amplitude.max;
+            amplitudeInput.step = preset.amplitude.step;
+
+            wavelengthInput.min = preset.wavelength.min;
+            wavelengthInput.max = preset.wavelength.max;
+            wavelengthInput.step = preset.wavelength.step;
+
+            frequencyInput.min = preset.frequency.min;
+            frequencyInput.max = preset.frequency.max;
+            frequencyInput.step = preset.frequency.step;
+
+            velocityInput.min = preset.velocity.min;
+            velocityInput.max = preset.velocity.max;
+            velocityInput.step = preset.velocity.step;
+
+            if (resetValues) {
+                amplitude = preset.amplitude.value;
+                wavelength = preset.wavelength.value;
+                frequency = preset.frequency.value;
+                phase = 0;
+                direction = 'positive';
+
+                amplitudeInput.value = amplitude;
+                wavelengthInput.value = wavelength;
+                frequencyInput.value = frequency;
+                document.getElementById('phaseInput').value = phase;
+                document.getElementById('directionSelect').value = direction;
+            }
+        }
+
+        function getWaveValueAt(x, ratio, profile) {
+            const sign = direction === 'positive' ? 1 : -1;
+            const timeScale = profile.timeScale || 1;
+            const phaseTerm = sign * angularFrequency * simulationTime * timeScale;
+
+            const baseShoreRatio = Math.max(0, Math.min(1, (ratio - profile.shallowStart) / Math.max(1e-6, (1 - profile.shallowStart))));
+            const surfBreakStart = waveContext === 'surfe' ? breakPointX : null;
+            const surfAsymStart = waveContext === 'surfe' ? asymmetryStartX : null;
+            const surfShoreEnd = waveContext === 'surfe'
+                ? (Number.isFinite(profile.shorelineX) ? profile.shorelineX : shorelineX)
+                : null;
+            const surfSpan = waveContext === 'surfe' ? Math.max(0.4, surfShoreEnd - surfBreakStart) : 1;
+            const surfAsymSpan = waveContext === 'surfe' ? Math.max(0.4, surfShoreEnd - surfAsymStart) : 1;
+            const surfShoreRatio = waveContext === 'surfe'
+                ? Math.max(0, Math.min(1, (x - surfBreakStart) / surfSpan))
+                : 0;
+            const surfAsymRatio = waveContext === 'surfe'
+                ? Math.max(0, Math.min(1, (x - surfAsymStart) / surfAsymSpan))
+                : 0;
+            const surfAsymGate = waveContext === 'surfe'
+                ? smoothstep(surfAsymStart, surfAsymStart + 1.2, x)
+                : 1;
+            const shoreRatio = waveContext === 'surfe' ? surfShoreRatio : baseShoreRatio;
+            let localAmplification = 1 + profile.maxAmplification * Math.pow(shoreRatio, profile.amplificationPower);
+            const isBreakingContext = waveContext === 'surfe' || waveContext === 'tsunami';
+            const sigmaControl = Math.max(0.05, Math.min(1.0, asymmetrySigma));
+            // Inverte o sinal para manter a assimetria no sentido esperado da face de quebra.
+            const asymGain = 1 - sigmaControl;
+
+            if (isBreakingContext) {
+                localAmplification *= 1 + 0.35 * Math.pow(shoreRatio, 1.8);
+            }
+
+            const localWavelength = wavelength * (1 - profile.wavelengthCompression * Math.pow(shoreRatio, 1.35));
+            const effectiveLambda = Math.max(localWavelength, 0.05);
+            const localWaveNumber = sign * (2 * Math.PI / effectiveLambda);
+
+            const localDepth = getLocalDepthMeters(ratio, profile);
+
+            const theta = localWaveNumber * x - phaseTerm + phase;
+            const thetaWrapped = Math.atan2(Math.sin(theta), Math.cos(theta));
+
+            let thetaShape = theta;
+            const applyAsymmetry = isBreakingContext && (waveContext === 'surfe' ? surfAsymGate > 0.001 : shoreRatio > 0);
+            if (applyAsymmetry) {
+                const asymSpatial = waveContext === 'surfe'
+                    ? (0.45 + 0.55 * ratio) * surfAsymGate
+                    : shoreRatio;
+                // Em sigma baixo, reduz a agressividade da deformacao para evitar "dentes".
+                const sigmaSmoothFactor = waveContext === 'surfe'
+                    ? Math.max(0.35, Math.min(1, sigmaControl / 0.65))
+                    : 1;
+                const asymStrength = Math.min(0.85, Math.abs(asymGain) * asymSpatial * sigmaSmoothFactor);
+                const frontCompression = asymGain >= 0
+                    ? Math.max(0.22, 1 - 0.72 * asymStrength)
+                    : 1 + 0.75 * asymStrength;
+                const backStretch = asymGain >= 0
+                    ? 1 + 0.65 * asymStrength
+                    : Math.max(0.28, 1 - 0.55 * asymStrength);
+
+                // Praia: compressao da face frontal; oceano: alongamento/relaxamento do dorso.
+                if (thetaWrapped >= 0) {
+                    thetaShape = thetaWrapped / frontCompression;
+                } else {
+                    thetaShape = thetaWrapped / backStretch;
+                }
+
+                thetaShape += 0.12 * asymGain * asymSpatial * sigmaSmoothFactor * Math.sin(thetaWrapped);
+            }
+
+            const fundamental = Math.cos(thetaShape);
+            const h2 = profile.harmonicBoost * shoreRatio * Math.cos((2.2 * thetaShape) + 0.5);
+            const h3 = 0.12 * profile.harmonicBoost * shoreRatio * Math.cos((3.3 * thetaShape) + 1.1);
+
+            const localAmplitude = amplitude * localAmplification;
+            let waveShape = (fundamental + h2 + h3);
+
+            if (isBreakingContext && (waveContext === 'surfe' || shoreRatio > 0)) {
+                // Assimetria pre-quebra: atua na face para a praia mesmo antes da arrebentacao forte.
+                const sigmaPre = Math.max(0.12, 0.85 + 0.45 * (1 - sigmaControl));
+                const envelopePre = 1 / (1 + Math.exp(thetaShape / sigmaPre));
+                const curvaturePre = Math.cos((Math.PI * thetaShape) / (2 * 2.8));
+                const preBreakShape = envelopePre * curvaturePre;
+                const shoreForMix = waveContext === 'surfe'
+                    ? Math.max(0, Math.min(1, surfAsymGate * (0.35 + 0.65 * surfAsymRatio)))
+                    : shoreRatio;
+                const preMix = Math.max(0, Math.min(0.82, 0.18 * shoreForMix + 0.62 * shoreForMix * Math.abs(asymGain)));
+                waveShape = (1 - preMix) * waveShape + preMix * preBreakShape;
+            }
+
+            if (Number.isFinite(localDepth) && localAmplitude > 0) {
+                const depthRatio = localAmplitude / Math.max(localDepth, 0.001);
+                const threshold = 0.68;
+                const breakStrength = Math.max(0, Math.min(1, (depthRatio - threshold) / Math.max(0.05, (1 - threshold))));
+
+                if (breakStrength > 0) {
+                    const sigmaBreak = Math.max(0.2, (1.0 - 0.45 * breakStrength) * asymmetrySigma);
+                    const betaBreak = 0.05 + 0.42 * breakStrength;
+                    const Lphase = 2.6;
+
+                    // Base inspirada no perfil que voce compartilhou: envelope sigmoidal + curvatura.
+                    const envelope = 1 / (1 + Math.exp(thetaShape / sigmaBreak));
+                    const curvature = Math.cos((Math.PI * thetaShape) / (2 * Lphase));
+                    const breakerBase = envelope * curvature;
+
+                    // Lip do tubo com sech^2 concentrado no lado da praia (aguas rasas).
+                    const lipArg = (thetaShape - 0.65) / Math.max(0.26, 0.55 - 0.18 * breakStrength);
+                    const lip = sech2(lipArg);
+
+                    // Blend espacial: parte rasa (praia) fica mais concava; parte funda permanece mais convexa.
+                    const spatialBlend = breakStrength * shoreRatio;
+                    const deepSideSupport = 0.18 * Math.max(0, Math.cos(thetaShape + 1.2));
+                    const breakerShape = breakerBase + betaBreak * lip + deepSideSupport;
+
+                    waveShape = (1 - 0.45 * spatialBlend) * waveShape + (0.75 * spatialBlend) * breakerShape;
+                }
+            }
+
+            let y = localAmplitude * waveShape;
+
+            if (waveContext === 'surfe') {
+                // A onda termina quando a profundidade chega a zero (linha de costa).
+                const endX = Number.isFinite(profile.shorelineX) ? profile.shorelineX : 12.0;
+                const endStart = endX - 0.9;
+
+                if (x >= endStart) {
+                    const keep = 1 - smoothstep(endStart, endX, x);
+                    y *= Math.max(0, keep);
+                }
+                if (x >= endX || localDepth <= 0) {
+                    y = 0;
+                }
+            }
+
+            // A onda perde altura ao atingir a faixa final de praia (profundidade muito rasa).
+            if (isBreakingContext && Number.isFinite(localDepth)) {
+                const shoreFadeDepth = waveContext === 'tsunami' ? 2.0 : 0.35;
+                const fade = Math.max(0, Math.min(1, localDepth / shoreFadeDepth));
+                y *= fade;
+            }
+
+            if (Number.isFinite(localDepth)) {
+                const effectiveDepthScale = getEffectiveDepthScale(profile, canvas.height / 2);
+                const depthToWaveFactor = effectiveDepthScale / profile.yScale;
+                const minY = -localDepth * depthToWaveFactor;
+                if (y < minY) {
+                    y = minY;
+                }
+
+                // Protecao extra para evitar cruzamento visual do vale com o fundo.
+                const margin = Math.max(0.02, 0.08 * (1 - Math.min(1, localDepth / Math.max(1, profile.deepDepth || 1))));
+                if (y < minY + margin) {
+                    y = minY + margin;
+                }
+            }
+
+            return y;
+        }
+
+        function getWaveYAtPixel(pixelX, profile) {
+            const ratio = pixelX / canvas.width;
+            const centerRatio = profile.viewCenterRatio == null ? 0.5 : profile.viewCenterRatio;
+            const centerXCoord = (centerRatio - 0.5) * profile.xRange;
+            const x = ratio * profile.xRange - profile.xRange / 2 + centerXCoord;
+            return getWaveValueAt(x, ratio, profile);
+        }
+
+        function drawContextBackground() {
+            if (waveContext === 'agua' || waveContext === 'surfe' || waveContext === 'tsunami') {
+                const sky = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.55);
+                sky.addColorStop(0, 'rgba(132, 196, 247, 0.35)');
+                sky.addColorStop(1, 'rgba(102, 173, 230, 0.12)');
+                ctx.fillStyle = sky;
+                ctx.fillRect(0, 0, canvas.width, canvas.height * 0.55);
+
+                const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                grad.addColorStop(0, 'rgba(35, 108, 166, 0.22)');
+                grad.addColorStop(1, 'rgba(4, 39, 77, 0.45)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath();
+                ctx.ellipse(canvas.width * 0.14, canvas.height * 0.16, 46, 16, 0, 0, 2 * Math.PI);
+                ctx.ellipse(canvas.width * 0.22, canvas.height * 0.14, 36, 12, 0, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+        }
+
+        function drawContextExtras(centerY, scaleY, profile) {
+            if (waveContext === 'agua') {
+                const buoyPositions = [0.25, 0.65];
+                buoyPositions.forEach((pos, idx) => {
+                    const px = canvas.width * pos;
+                    const py = centerY - getWaveYAtPixel(px, profile) * scaleY;
+                    ctx.beginPath();
+                    ctx.arc(px, py - 12, 8, 0, 2 * Math.PI);
+                    ctx.fillStyle = idx === 0 ? '#ffe066' : '#ff7b7b';
+                    ctx.fill();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    ctx.fillRect(px - 1.5, py - 30, 3, 18);
+                });
+            }
+
+            if (waveContext === 'surfe') {
+                const sigmaSafe = Math.max(0.05, asymmetrySigma);
+                const asymLevel = Math.max(0, 1 - sigmaSafe);
+                const startsSurfing = asymLevel > 0.08;
+                const paddleSpeed = amplitude <= 0 ? 0 : 18;
+                const rideSpeed = amplitude <= 0 ? 0 : (30 + 90 * asymLevel * Math.max(0, amplitude / 3));
+                const requestedSpeed = startsSurfing ? rideSpeed : paddleSpeed;
+                const pixelsPerMeter = canvas.width / Math.max(1e-6, profile.xRange);
+                const waveSpeedPx = Math.abs(velocity) * (profile.timeScale || 1) * pixelsPerMeter;
+                const movingSpeed = Math.min(requestedSpeed, waveSpeedPx);
+                const px = ((simulationTime * movingSpeed) % (canvas.width + surferSpawnOffset)) - surferSpawnOffset;
+                const waveY = getWaveYAtPixel(px, profile);
+
+                let py;
+                if (!startsSurfing) {
+                    // Onda quase senoidal: remada horizontal acompanhando a superficie local.
+                    py = centerY - waveY * scaleY;
+                } else {
+                    // Quando perde simetria, o surfista "entra" e desce a face da onda.
+                    const aheadX = Math.min(canvas.width, px + 18);
+                    const waveYAhead = getWaveYAtPixel(aheadX, profile);
+                    const dropMix = Math.max(0.2, Math.min(0.92, 0.25 + 0.65 * asymLevel));
+                    const rideY = (1 - dropMix) * waveY + dropMix * waveYAhead;
+                    py = centerY - rideY * scaleY;
+                }
+
+                ctx.fillStyle = '#101010';
+                ctx.fillRect(px - 2, py - 28, 4, 14);
+                ctx.beginPath();
+                ctx.arc(px, py - 34, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = '#f4d19b';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(px, py - 8, 17, 4, 0, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ff9f1c';
+                ctx.fill();
+
+                ctx.fillStyle = 'rgba(255,255,255,0.7)';
+                ctx.font = '12px Segoe UI';
+                ctx.textAlign = 'left';
+                if (startsSurfing) {
+                    ctx.fillText('Perda de simetria: surfista dropa e desce a face', 10, 18);
+                } else {
+                    ctx.fillText('Onda quase senoidal: surfista apenas rema', 10, 18);
+                }
+                ctx.fillText(`v_surfista ~ ${movingSpeed.toFixed(1)} px/s`, 10, 36);
+            }
+
+            if (waveContext === 'tsunami') {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.font = 'bold 14px Segoe UI';
+                ctx.textAlign = 'left';
+                ctx.fillText('Zona costeira', canvas.width * 0.86, 24);
+                ctx.fillStyle = 'rgba(255, 75, 75, 0.9)';
+                ctx.font = 'bold 16px Segoe UI';
+                ctx.fillText('ALERTA', canvas.width * 0.86, 48);
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.font = '12px Segoe UI';
+                ctx.fillText('Mar profundo: λ ~ 100 km, A ~ 0,5 m', 12, 22);
+                ctx.fillText('Perto da praia: v e λ diminuem, A aumenta', 12, 40);
+                ctx.fillText('Animação acelerada para visualização didática', 12, 58);
+            }
+        }
+
+        function drawGrid(profile) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+            ctx.lineWidth = 1;
+
+            for (let i = 1; i < 10; i++) {
+                const x = (canvas.width / 10) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+
+            const yStepPixels = profile.yScale;
+            for (let y = centerY + yStepPixels; y < canvas.height; y += yStepPixels) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            for (let y = centerY - yStepPixels; y > 0; y -= yStepPixels) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+        
+        // Inicializar a simulação
+        function init() {
+            // Configurar o canvas
+            canvas = document.getElementById('waveCanvas');
+            ctx = canvas.getContext('2d');
+
+            applyContextControlPreset(true);
+            document.getElementById('gridToggle').checked = false;
+            showGrid = false;
+            
+            // Ajustar tamanho do canvas
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Atualizar parâmetros calculados
+            updateCalculatedParameters();
+
+            // Atualizar equações e descrições por contexto
+            updateContextContent();
+            updateControlVisibilityByContext();
+            
+            // Desenhar a onda inicial
+            drawWave();
+            
+            // Atualizar medições iniciais
+            updateMeasurements();
+            
+            // Configurar eventos dos controles
+            setupEventListeners();
+            
+            // Configurar eventos dos botões de exercícios
+            setupExerciseEventListeners();
+        }
+        
+        // Ajustar tamanho do canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            drawWave(); // Redesenhar a onda com o novo tamanho
+        }
+        
+        // Desenhar a onda no canvas
+        function drawWave() {
+            // Limpar o canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawContextBackground();
+
+            const profile = getContextPlotProfile();
+
+            if (showGrid) {
+                drawGrid(profile);
+            }
+            
+            // Desenhar eixos
+            drawAxes(profile);
+            
+            // Desenhar a onda
+            ctx.beginPath();
+            
+            const centerY = canvas.height / 2;
+            const scaleY = profile.yScale;
+            const points = [];
+            const seabedPoints = [];
+            
+            // Desenhar a onda ponto a ponto
+            for (let i = 0; i <= canvas.width; i++) {
+                const ratio = i / canvas.width;
+                const centerRatio = profile.viewCenterRatio == null ? 0.5 : profile.viewCenterRatio;
+                const centerXCoord = (centerRatio - 0.5) * profile.xRange;
+                const x = ratio * profile.xRange - profile.xRange / 2 + centerXCoord;
+                const y = getWaveValueAt(x, ratio, profile);
+                
+                const pixelX = i;
+                const localDepth = getLocalDepthMeters(ratio, profile);
+                const seabedPixelY = getSeabedPixelY(ratio, profile, centerY, scaleY);
+                const unclampedPixelY = centerY - y * scaleY;
+                const pixelY = Math.min(unclampedPixelY, seabedPixelY);
+                points.push({ pixelX, pixelY, xCoord: x });
+                seabedPoints.push({ pixelX, pixelY: seabedPixelY, depth: localDepth });
+                
+                if (i === 0) {
+                    ctx.moveTo(pixelX, pixelY);
+                } else {
+                    ctx.lineTo(pixelX, pixelY);
+                }
+            }
+
+            let smoothingPasses = 0;
+            if (waveContext === 'surfe') {
+                // Quanto menor sigma, mais suavizacao para remover dentes.
+                smoothingPasses = asymmetrySigma <= 0.3 ? 5 : (asymmetrySigma <= 0.6 ? 4 : 3);
+            } else if (waveContext === 'agua' || waveContext === 'tsunami') {
+                smoothingPasses = 2;
+            }
+
+            const drawPoints = smoothingPasses > 0 ? smoothWavePoints(points, smoothingPasses) : points;
+
+            if (waveContext === 'agua' || waveContext === 'surfe' || waveContext === 'tsunami') {
+                // Desenha o fundo (batimetria) e área sólida abaixo dele.
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(seabedPoints[0].pixelX, seabedPoints[0].pixelY);
+                seabedPoints.forEach((p, idx) => {
+                    if (idx > 0) {
+                        ctx.lineTo(p.pixelX, p.pixelY);
+                    }
+                });
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height);
+                ctx.closePath();
+                const sandFill = ctx.createLinearGradient(0, centerY, 0, canvas.height);
+                sandFill.addColorStop(0, 'rgba(220, 192, 130, 0.65)');
+                sandFill.addColorStop(1, 'rgba(180, 145, 90, 0.85)');
+                ctx.fillStyle = sandFill;
+                ctx.fill();
+                ctx.restore();
+
+                // Preenche apenas a massa de água entre a superfície e o fundo.
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(drawPoints[0].pixelX, drawPoints[0].pixelY);
+                drawPoints.forEach((p, idx) => {
+                    if (idx > 0) {
+                        ctx.lineTo(p.pixelX, p.pixelY);
+                    }
+                });
+                for (let i = seabedPoints.length - 1; i >= 0; i--) {
+                    ctx.lineTo(seabedPoints[i].pixelX, seabedPoints[i].pixelY);
+                }
+                ctx.closePath();
+                const waterFill = ctx.createLinearGradient(0, centerY, 0, canvas.height);
+                waterFill.addColorStop(0, 'rgba(59, 176, 255, 0.22)');
+                waterFill.addColorStop(1, 'rgba(10, 47, 94, 0.6)');
+                ctx.fillStyle = waterFill;
+                ctx.fill();
+                ctx.restore();
+
+                ctx.beginPath();
+                drawPoints.forEach((p, idx) => {
+                    if (idx === 0) {
+                        ctx.moveTo(p.pixelX, p.pixelY);
+                    } else {
+                        ctx.lineTo(p.pixelX, p.pixelY);
+                    }
+                });
+
+                // Linha do fundo para referência de profundidade.
+                ctx.beginPath();
+                ctx.moveTo(seabedPoints[0].pixelX, seabedPoints[0].pixelY);
+                for (let i = 1; i < seabedPoints.length; i++) {
+                    ctx.lineTo(seabedPoints[i].pixelX, seabedPoints[i].pixelY);
+                }
+                ctx.strokeStyle = 'rgba(120, 85, 40, 0.95)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                const depthStart = profile.deepDepth;
+                const depthLabelUnit = 'm';
+                ctx.fillStyle = 'rgba(255,255,255,0.88)';
+                ctx.font = '12px Segoe UI';
+                ctx.textAlign = 'left';
+                if (profile.depthMode === 'constant') {
+                    ctx.fillText(`Fundo: ${depthStart}${depthLabelUnit} constante`, 12, canvas.height - 18);
+                } else {
+                    ctx.fillText(`Fundo: ${depthStart}${depthLabelUnit} → 0${depthLabelUnit}`, 12, canvas.height - 18);
+                }
+
+                // Quando a profundidade tende a zero, representa espuma na arrebentação.
+                if (waveContext === 'surfe' || waveContext === 'tsunami') {
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(255,255,255,0.65)';
+                    for (let i = 0; i < seabedPoints.length; i += 7) {
+                        const p = drawPoints[i];
+                        const b = seabedPoints[i];
+                        if (!p || !b) continue;
+                        if (!Number.isFinite(b.depth)) continue;
+                        if (b.depth > 0.45) continue;
+
+                        const foamPhase = Math.sin(simulationTime * 5 + i * 0.12);
+                        const radius = 1.5 + Math.max(0, foamPhase) * 2.2;
+                        const foamY = Math.min(b.pixelY - 1, p.pixelY + 2);
+
+                        ctx.beginPath();
+                        ctx.arc(p.pixelX, foamY, radius, 0, 2 * Math.PI);
+                        ctx.fill();
+                    }
+
+                    if (waveContext === 'surfe') {
+                        // Bolo de espuma apos a linha de costa (profundidade zero).
+                        const shorelineX = Number.isFinite(profile.shorelineX) ? profile.shorelineX : 12.0;
+                        const foamStartX = Math.min(shorelineX, breakPointX);
+                        ctx.fillStyle = 'rgba(255,255,255,0.88)';
+                        for (let i = 0; i < drawPoints.length; i += 4) {
+                            const p = drawPoints[i];
+                            const b = seabedPoints[i];
+                            if (!p || !b) continue;
+                            if (!(p.xCoord >= foamStartX)) continue;
+
+                            const phase = Math.sin(simulationTime * 4 + i * 0.08);
+                            const radius = 2.5 + 2.5 * Math.max(0, phase);
+                            const foamY = Math.min(b.pixelY - 2, p.pixelY + 1);
+
+                            ctx.beginPath();
+                            ctx.arc(p.pixelX, foamY, radius, 0, 2 * Math.PI);
+                            ctx.fill();
+                        }
+                    }
+                    ctx.restore();
+                }
+            }
+
+            if (!(waveContext === 'agua' || waveContext === 'surfe' || waveContext === 'tsunami')) {
+                ctx.beginPath();
+                drawPoints.forEach((p, idx) => {
+                    if (idx === 0) {
+                        ctx.moveTo(p.pixelX, p.pixelY);
+                    } else {
+                        ctx.lineTo(p.pixelX, p.pixelY);
+                    }
+                });
+            }
+            
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            drawContextExtras(centerY, scaleY, profile);
+        }
+        
+        // Desenhar eixos de coordenadas
+        function drawAxes(profile) {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            ctx.beginPath();
+            
+            // Eixo x
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            
+            // Eixo y
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            
+            ctx.strokeStyle = '#666666';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            // Marcações no eixo x
+            ctx.font = '12px Arial';
+            ctx.fillStyle = '#cccccc';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            const xRange = profile.xRange;
+            const step = profile.xTick;
+            const centerRatio = profile.viewCenterRatio == null ? 0.5 : profile.viewCenterRatio;
+            const centerXCoord = (centerRatio - 0.5) * xRange;
+            const xMin = -xRange / 2 + centerXCoord;
+            const xMax = xRange / 2 + centerXCoord;
+            const firstTick = Math.ceil(xMin / step) * step;
+
+            for (let x = firstTick; x <= xMax + 1e-9; x += step) {
+                const pixelX = centerX + ((x - centerXCoord) / xRange) * canvas.width;
+                ctx.beginPath();
+                ctx.moveTo(pixelX, centerY - 5);
+                ctx.lineTo(pixelX, centerY + 5);
+                ctx.stroke();
+
+                let labelValue = x;
+                if (profile.xUnit === 'km') {
+                    labelValue = (x / 1000).toFixed(1);
+                } else {
+                    labelValue = Math.abs(x) < 1e-9 ? '0' : x.toFixed(1);
+                }
+                ctx.fillText(labelValue + ' ' + profile.xUnit, pixelX, centerY + 10);
+            }
+            
+            // Marcações no eixo y
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const yRange = 10;
+            for (let y = -yRange/2; y <= yRange/2; y += 1) {
+                if (y === 0) continue;
+                
+                const pixelY = centerY - y * profile.yScale;
+                ctx.beginPath();
+                ctx.moveTo(centerX - 5, pixelY);
+                ctx.lineTo(centerX + 5, pixelY);
+                ctx.stroke();
+                
+                ctx.fillText(y + ' m', centerX - 10, pixelY);
+            }
+            
+            // Rótulos dos eixos
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'top';
+            ctx.fillText(profile.xLabel, canvas.width - 10, centerY + 10);
+            
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(waveContext === 'tsunami' ? 'η (m)' : 'y (m)', centerX, 20);
+        }
+        
+        // Atualizar parâmetros calculados
+        function updateCalculatedParameters() {
+            // Calcular número de onda com sinal baseado na direção
+            waveNumber = (direction === 'positive') ? 
+                (2 * Math.PI / wavelength) : 
+                (-2 * Math.PI / wavelength);
+                
+            // Frequência angular sempre positiva
+            angularFrequency = 2 * Math.PI * frequency;
+            
+            // Período sempre positivo
+            period = 1 / frequency;
+            
+            // Velocidade pode ser positiva ou negativa
+            velocity = wavelength * frequency * (direction === 'positive' ? 1 : -1);
+            
+            // Atualizar o controle de velocidade
+            document.getElementById('velocityInput').value = velocity;
+            document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+        }
+        
+        // Atualizar a animação
+        function animate() {
+            if (isRunning) {
+                // Atualizar o tempo da simulação
+                simulationTime += 0.016; // Aproximadamente 60 FPS
+                
+                // Atualizar a forma da onda
+                drawWave();
+                
+                // Atualizar medições
+                updateMeasurements();
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Atualizar as medições exibidas
+        function updateMeasurements() {
+            const isTsunami = waveContext === 'tsunami';
+            const wavelengthUnit = isTsunami ? ' km' : ' m';
+            const wavelengthValueForDisplay = isTsunami ? (wavelength / 1000).toFixed(1) : wavelength.toFixed(1);
+
+            document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+            document.getElementById('wavelengthValue').textContent = wavelengthValueForDisplay;
+            document.getElementById('frequencyValue').textContent = frequency < 0.05 ? frequency.toFixed(4) : frequency.toFixed(2);
+            document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+            document.getElementById('phaseValue').textContent = phase.toFixed(2);
+            
+            document.getElementById('directionDisplay').textContent = direction === 'positive' ? 'Positiva (→)' : 'Negativa (←)';
+            document.getElementById('amplitudeDisplay').textContent = amplitude.toFixed(1) + ' m';
+            document.getElementById('wavelengthDisplay').textContent = wavelengthValueForDisplay + wavelengthUnit;
+            document.getElementById('frequencyDisplay').textContent = (frequency < 0.05 ? frequency.toFixed(4) : frequency.toFixed(2)) + ' Hz';
+            document.getElementById('periodDisplay').textContent = (period > 99 ? period.toFixed(1) : period.toFixed(2)) + ' s';
+            document.getElementById('velocityDisplay').textContent = velocity.toFixed(1) + ' m/s';
+            document.getElementById('waveNumberDisplay').textContent = waveNumber.toFixed(2) + ' rad/m';
+            document.getElementById('angularFrequencyDisplay').textContent = angularFrequency.toFixed(2) + ' rad/s';
+            document.getElementById('asymmetryValue').textContent = asymmetrySigma.toFixed(2);
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Controle de contexto
+            document.getElementById('contextSelect').addEventListener('change', function() {
+                waveContext = this.value;
+                applyContextControlPreset(true);
+                updateCalculatedParameters();
+                updateContextContent();
+                updateControlVisibilityByContext();
+                drawWave();
+                updateMeasurements();
+            });
+
+            document.getElementById('gridToggle').addEventListener('change', function() {
+                showGrid = this.checked;
+                drawWave();
+            });
+
+            document.getElementById('asymmetryInput').addEventListener('input', function() {
+                asymmetrySigma = parseFloat(this.value);
+                document.getElementById('asymmetryValue').textContent = asymmetrySigma.toFixed(2);
+                drawWave();
+            });
+
+            document.getElementById('shorelineInput').addEventListener('input', function() {
+                shorelineX = parseFloat(this.value);
+                const breakInput = document.getElementById('breakPointInput');
+                breakInput.max = (shorelineX - 0.4).toFixed(1);
+                breakPointX = Math.min(breakPointX, parseFloat(breakInput.max));
+                breakInput.value = breakPointX;
+                document.getElementById('breakPointValue').textContent = breakPointX.toFixed(1);
+
+                const asymStartInput = document.getElementById('asymmetryStartInput');
+                asymStartInput.max = (breakPointX - 0.3).toFixed(1);
+                asymmetryStartX = Math.min(asymmetryStartX, parseFloat(asymStartInput.max));
+                asymStartInput.value = asymmetryStartX;
+                document.getElementById('asymmetryStartValue').textContent = asymmetryStartX.toFixed(1);
+
+                document.getElementById('shorelineValue').textContent = shorelineX.toFixed(1);
+                drawWave();
+            });
+
+            document.getElementById('breakPointInput').addEventListener('input', function() {
+                breakPointX = parseFloat(this.value);
+                const asymStartInput = document.getElementById('asymmetryStartInput');
+                asymStartInput.max = (breakPointX - 0.3).toFixed(1);
+                asymmetryStartX = Math.min(asymmetryStartX, parseFloat(asymStartInput.max));
+                asymStartInput.value = asymmetryStartX;
+                document.getElementById('asymmetryStartValue').textContent = asymmetryStartX.toFixed(1);
+                document.getElementById('breakPointValue').textContent = breakPointX.toFixed(1);
+                drawWave();
+            });
+
+            document.getElementById('asymmetryStartInput').addEventListener('input', function() {
+                asymmetryStartX = parseFloat(this.value);
+                document.getElementById('asymmetryStartValue').textContent = asymmetryStartX.toFixed(1);
+                drawWave();
+            });
+
+            // Controle de direção
+            document.getElementById('directionSelect').addEventListener('change', function() {
+                direction = this.value;
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de amplitude
+            document.getElementById('amplitudeInput').addEventListener('input', function() {
+                amplitude = parseFloat(this.value);
+                document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de comprimento de onda
+            document.getElementById('wavelengthInput').addEventListener('input', function() {
+                wavelength = parseFloat(this.value);
+                document.getElementById('wavelengthValue').textContent = waveContext === 'tsunami' ? (wavelength / 1000).toFixed(1) : wavelength.toFixed(1);
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de frequência
+            document.getElementById('frequencyInput').addEventListener('input', function() {
+                frequency = parseFloat(this.value);
+                document.getElementById('frequencyValue').textContent = frequency < 0.05 ? frequency.toFixed(4) : frequency.toFixed(2);
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de velocidade
+            document.getElementById('velocityInput').addEventListener('input', function() {
+                velocity = parseFloat(this.value);
+                document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+                
+                // Atualizar a direção baseada no sinal da velocidade
+                direction = velocity >= 0 ? 'positive' : 'negative';
+                document.getElementById('directionSelect').value = direction;
+                
+                // Atualizar a frequência baseada na velocidade e comprimento de onda
+                frequency = Math.abs(velocity) / wavelength;
+                document.getElementById('frequencyInput').value = frequency;
+                document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+                
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Controle de fase
+            document.getElementById('phaseInput').addEventListener('input', function() {
+                phase = 0;
+                document.getElementById('phaseValue').textContent = phase.toFixed(2);
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Botões de controle
+            document.getElementById('startBtn').addEventListener('click', function() {
+                isRunning = true;
+                if (!animationId) {
+                    animate();
+                }
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', function() {
+                isRunning = false;
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                isRunning = false;
+                simulationTime = 0;
+                
+                // Resetar parâmetros
+                waveContext = 'classica';
+                showGrid = false;
+                asymmetrySigma = 1.0;
+                shorelineX = 12.0;
+                breakPointX = 9.0;
+                asymmetryStartX = 7.5;
+                applyContextControlPreset(true);
+                
+                // Atualizar controles
+                document.getElementById('contextSelect').value = waveContext;
+                document.getElementById('gridToggle').checked = showGrid;
+                document.getElementById('asymmetryInput').value = asymmetrySigma;
+                document.getElementById('shorelineInput').value = shorelineX;
+                document.getElementById('breakPointInput').value = breakPointX;
+                document.getElementById('asymmetryStartInput').value = asymmetryStartX;
+                updateControlVisibilityByContext();
+                
+                document.getElementById('amplitudeValue').textContent = amplitude.toFixed(1);
+                document.getElementById('wavelengthValue').textContent = wavelength.toFixed(1);
+                document.getElementById('frequencyValue').textContent = frequency.toFixed(2);
+                document.getElementById('velocityValue').textContent = velocity.toFixed(1);
+                document.getElementById('phaseValue').textContent = phase.toFixed(2);
+                document.getElementById('asymmetryValue').textContent = asymmetrySigma.toFixed(2);
+                document.getElementById('shorelineValue').textContent = shorelineX.toFixed(1);
+                document.getElementById('breakPointValue').textContent = breakPointX.toFixed(1);
+                document.getElementById('asymmetryStartValue').textContent = asymmetryStartX.toFixed(1);
+                
+                // Atualizar visualização
+                updateContextContent();
+                updateCalculatedParameters();
+                drawWave();
+                updateMeasurements();
+            });
+            
+            // Botão de ajuda
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                alert("Como usar:\n\n• Selecione o contexto de estudo (padrão, água, surfe ou tsunami)\n• Ative a grade opcional para analisar cristas, vales e deslocamentos\n• Ajuste amplitude, comprimento de onda, frequência, velocidade e fase\n• No contexto de surfe, o surfista é transportado perto da zona rasa, onde a onda deixa de ser aproximadamente senoidal\n• No contexto de tsunami, observe mar profundo com λ grande e A pequena, e próximo à costa com redução de v e λ e aumento de A\n\nNOTA: A frequência é sempre positiva. O sinal da direção é incorporado no número de onda (k).");
+            });
+        }
+        
+        // Configurar eventos dos botões de exercícios
+        function setupExerciseEventListeners() {
+            // Botões de exercícios
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', openSolvedExercisesModal);
+            document.getElementById('theoryBtn').addEventListener('click', openTheoryModal);
+            
+            // Fechar modais
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', closeSolvedExercisesModal);
+            document.querySelector('#theoryModal .close').addEventListener('click', closeTheoryModal);
+            document.getElementById('closeSolvedExercises').addEventListener('click', closeSolvedExercisesModal);
+            document.getElementById('closeTheory').addEventListener('click', closeTheoryModal);
+            
+            // Clique fora do modal para fechar
+            window.addEventListener('click', function(event) {
+                if (event.target == document.getElementById('exercisesModal')) {
+                    closeExercisesModal();
+                } else if (event.target == document.getElementById('solvedExercisesModal')) {
+                    closeSolvedExercisesModal();
+                } else if (event.target == document.getElementById('theoryModal')) {
+                    closeTheoryModal();
+                }
+            });
+        }
+        
+        // Fechar modal de exercícios
+        function closeExercisesModal() {
+            document.getElementById('exercisesModal').style.display = 'none';
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+        }
+        
+        // Fechar modal de exercícios resolvidos
+        function closeSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'none';
+        }
+        
+        // Fechar modal de teoria
+        function closeTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'none';
+        }
+        
+        // Abrir modal de exercícios resolvidos
+        function openSolvedExercisesModal() {
+            document.getElementById('solvedExercisesModal').style.display = 'flex';
+        }
+        
+        // Abrir modal de teoria
+        function openTheoryModal() {
+            document.getElementById('theoryModal').style.display = 'flex';
+        }
+        
+        // ========== SISTEMA DE EXERCÍCIOS ==========
+        
+        // Gerar exercícios sobre Ondas Unidimensionais
+        function generateExercises() {
+            const exerciseTypesByContext = {
+                classica: [
+                    'calcular_parametros',
+                    'calcular_velocidade',
+                    'calcular_velocidade_fase',
+                    'geral_periodo'
+                ],
+                agua: [
+                    'agua_velocidade',
+                    'agua_periodo',
+                    'agua_energia',
+                    'agua_numero_onda'
+                ],
+                surfe: [
+                    'surfe_velocidade_rasa',
+                    'surfe_periodo',
+                    'surfe_comprimento',
+                    'surfe_tempo_ate_praia'
+                ],
+                tsunami: [
+                    'tsunami_velocidade_rasa',
+                    'tsunami_amplificacao',
+                    'tsunami_tempo_chegada',
+                    'tsunami_comprimento'
+                ]
+            };
+
+            const allTypes = [];
+            Object.keys(exerciseTypesByContext).forEach(contextKey => {
+                exerciseTypesByContext[contextKey].forEach(type => {
+                    allTypes.push({ type, contextKey });
+                });
+            });
+
+            exercises = allTypes.map(item => createExerciseByType(item.type, item.contextKey));
+            exercises = shuffleArray(exercises);
+        }
+
+        function createExerciseByType(type, contextKey) {
+            const g = 9.8;
+
+            function withContextText(text) {
+                const names = {
+                    classica: 'Contexto Geral',
+                    agua: 'Contexto Ondas na Água',
+                    surfe: 'Contexto Surfe',
+                    tsunami: 'Contexto Tsunami'
+                };
+                return `[${names[contextKey] || 'Contexto Geral'}] ${text}`;
+            }
+
+            if (type === 'calcular_parametros') {
+                const A = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                const lambda = (Math.floor(Math.random() * 10) + 1) * 0.5;
+                const f = (Math.floor(Math.random() * 10) + 1) * 0.1;
+                const k = (2 * Math.PI / lambda).toFixed(2);
+                const omega = (2 * Math.PI * f).toFixed(2);
+
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma onda harmônica tem amplitude de ${A} m, comprimento de onda de ${lambda} m e frequência de ${f} Hz. Qual é o número de onda (k) e a frequência angular (ω)?`),
+                    answer: `k = ${k} rad/m, ω = ${omega} rad/s`,
+                    options: generateWaveParameterOptions(k, omega)
+                };
+            }
+
+            if (type === 'calcular_velocidade') {
+                const lambda = (Math.floor(Math.random() * 8) + 2);
+                const T = (Math.floor(Math.random() * 5) + 1) * 0.5;
+                const v = (lambda / T).toFixed(2);
+
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma onda tem comprimento de onda de ${lambda} m e período de ${T} s. Qual é a velocidade de propagação da onda?`),
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
+                };
+            }
+
+            if (type === 'calcular_velocidade_fase') {
+                const k = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
+                const omega = ((Math.floor(Math.random() * 5) + 1) * 0.5).toFixed(1);
+                const v = (omega / k).toFixed(2);
+
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Dada a equação y(x,t) = A·cos(${k}x - ${omega}t), qual é a velocidade de propagação da onda?`),
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
+                };
+            }
+
+            if (type === 'geral_periodo') {
+                const f = ((Math.floor(Math.random() * 8) + 2) * 0.1).toFixed(1);
+                const T = (1 / parseFloat(f)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma onda tem frequência de ${f} Hz. Qual é o período dessa onda?`),
+                    answer: `${T} s`,
+                    options: generateOptions(parseFloat(T), 's')
+                };
+            }
+
+            if (type === 'agua_velocidade') {
+                const lambda = (Math.floor(Math.random() * 12) + 8);
+                const f = ((Math.floor(Math.random() * 7) + 2) * 0.1).toFixed(1);
+                const v = (lambda * parseFloat(f)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Em uma onda na água, λ = ${lambda} m e f = ${f} Hz. Qual é a velocidade da onda?`),
+                    answer: `${v} m/s`,
+                    options: generateOptions(parseFloat(v), 'm/s')
+                };
+            }
+
+            if (type === 'agua_periodo') {
+                const f = ((Math.floor(Math.random() * 7) + 2) * 0.1).toFixed(1);
+                const T = (1 / parseFloat(f)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma boia oscila com frequência de ${f} Hz em uma onda na água. Qual é o período da oscilação?`),
+                    answer: `${T} s`,
+                    options: generateOptions(parseFloat(T), 's')
+                };
+            }
+
+            if (type === 'agua_energia') {
+                const A1 = ((Math.floor(Math.random() * 4) + 2) * 0.5).toFixed(1);
+                const fator = [1.5, 2, 2.5, 3][Math.floor(Math.random() * 4)];
+                const A2 = (parseFloat(A1) * fator).toFixed(1);
+                const energiaFator = (Math.pow(parseFloat(A2), 2) / Math.pow(parseFloat(A1), 2)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Se a amplitude de uma onda na água passa de ${A1} m para ${A2} m, de quantas vezes aumenta a energia (E ∝ A²)?`),
+                    answer: `${energiaFator} vezes`,
+                    options: generateOptions(parseFloat(energiaFator), 'vezes')
+                };
+            }
+
+            if (type === 'agua_numero_onda') {
+                const lambda = (Math.floor(Math.random() * 16) + 8);
+                const k = (2 * Math.PI / lambda).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma onda de superfície na água apresenta λ = ${lambda} m. Qual é o número de onda k = 2π/λ?`),
+                    answer: `${k} rad/m`,
+                    options: generateOptions(parseFloat(k), 'rad/m')
+                };
+            }
+
+            if (type === 'surfe_velocidade_rasa') {
+                const h = Math.floor(Math.random() * 8) + 1;
+                const c = Math.sqrt(g * h).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`No surfe, em água rasa com profundidade h = ${h} m, estime a velocidade da onda usando c ≈ √(g·h), com g = 9,8 m/s².`),
+                    answer: `${c} m/s`,
+                    options: generateOptions(parseFloat(c), 'm/s')
+                };
+            }
+
+            if (type === 'surfe_periodo') {
+                const lambda = Math.floor(Math.random() * 10) + 10;
+                const c = (Math.floor(Math.random() * 6) + 6).toFixed(1);
+                const T = (lambda / parseFloat(c)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Uma onda de surfe tem λ = ${lambda} m e velocidade c = ${c} m/s. Qual é o período T?`),
+                    answer: `${T} s`,
+                    options: generateOptions(parseFloat(T), 's')
+                };
+            }
+
+            if (type === 'surfe_comprimento') {
+                const c = (Math.floor(Math.random() * 7) + 5).toFixed(1);
+                const T = ((Math.floor(Math.random() * 8) + 4) * 0.2).toFixed(1);
+                const lambda = (parseFloat(c) * parseFloat(T)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Na arrebentação, uma onda tem velocidade c = ${c} m/s e período T = ${T} s. Qual é o comprimento de onda λ?`),
+                    answer: `${lambda} m`,
+                    options: generateOptions(parseFloat(lambda), 'm')
+                };
+            }
+
+            if (type === 'surfe_tempo_ate_praia') {
+                const d = Math.floor(Math.random() * 120) + 80;
+                const c = (Math.floor(Math.random() * 7) + 5).toFixed(1);
+                const t = (d / parseFloat(c)).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Um surfista observa uma crista a ${d} m da praia. Se a onda se propaga com c = ${c} m/s, em quanto tempo ela chega?`),
+                    answer: `${t} s`,
+                    options: generateOptions(parseFloat(t), 's')
+                };
+            }
+
+            if (type === 'tsunami_velocidade_rasa') {
+                const h = Math.floor(Math.random() * 4000) + 1000;
+                const c = Math.sqrt(g * h).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Considere um tsunami no oceano com profundidade média h = ${h} m. Usando c ≈ √(g·h), qual é a velocidade estimada?`),
+                    answer: `${c} m/s`,
+                    options: generateOptions(parseFloat(c), 'm/s')
+                };
+            }
+
+            if (type === 'tsunami_amplificacao') {
+                const hOceano = [3000, 3500, 4000, 4500][Math.floor(Math.random() * 4)];
+                const hCosta = [15, 20, 25, 30][Math.floor(Math.random() * 4)];
+                const fator = Math.sqrt(hOceano / hCosta).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Se um tsunami sai de h = ${hOceano} m e chega a uma costa com h = ${hCosta} m, calcule o fator de amplificação da altura A_costa/A_oceano ≈ √(h_oceano/h_costa).`),
+                    answer: `${fator} vezes`,
+                    options: generateOptions(parseFloat(fator), 'vezes')
+                };
+            }
+
+            if (type === 'tsunami_tempo_chegada') {
+                const d = [120000, 180000, 240000][Math.floor(Math.random() * 3)];
+                const c = [180, 200, 220][Math.floor(Math.random() * 3)];
+                const t = (d / c / 60).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Um tsunami percorre ${d / 1000} km com velocidade média de ${c} m/s. Qual o tempo aproximado de chegada em minutos?`),
+                    answer: `${t} min`,
+                    options: generateOptions(parseFloat(t), 'min')
+                };
+            }
+
+            if (type === 'tsunami_comprimento') {
+                const c = [160, 180, 200, 220][Math.floor(Math.random() * 4)];
+                const T = [300, 420, 540, 600][Math.floor(Math.random() * 4)];
+                const lambda = (c * T).toFixed(2);
+                return {
+                    type,
+                    contextKey,
+                    question: withContextText(`Para um tsunami com c = ${c} m/s e período T = ${T} s, qual é o comprimento de onda λ?`),
+                    answer: `${lambda} m`,
+                    options: generateOptions(parseFloat(lambda), 'm')
+                };
+            }
+
+            return createExerciseByType('calcular_velocidade', 'classica');
+        }
+        
+        // Gerar opções para parâmetros de onda
+        function generateWaveParameterOptions(k, ω) {
+            const options = [];
+            
+            // Opção correta
+            options.push(`k = ${k} rad/m, ω = ${ω} rad/s`);
+            
+            // Gerar opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let kOption, ωOption;
+                
+                // Variações de k
+                if (Math.random() < 0.5) {
+                    kOption = (parseFloat(k) * (Math.random() * 0.4 + 0.8)).toFixed(2);
+                } else {
+                    kOption = (parseFloat(k) / (Math.random() * 0.4 + 0.8)).toFixed(2);
+                }
+                
+                // Variações de ω
+                if (Math.random() < 0.5) {
+                    ωOption = (parseFloat(ω) * (Math.random() * 0.4 + 0.8)).toFixed(2);
+                } else {
+                    ωOption = (parseFloat(ω) / (Math.random() * 0.4 + 0.8)).toFixed(2);
+                }
+                
+                options.push(`k = ${kOption} rad/m, ω = ${ωOption} rad/s`);
+            }
+            
+            // Remover duplicatas
+            const uniqueOptions = [...new Set(options)];
+            
+            // Se não temos 5 opções únicas, gerar mais
+            while (uniqueOptions.length < 5) {
+                let kOption = (parseFloat(k) * (Math.random() * 0.6 + 0.7)).toFixed(2);
+                let ωOption = (parseFloat(ω) * (Math.random() * 0.6 + 0.7)).toFixed(2);
+                uniqueOptions.push(`k = ${kOption} rad/m, ω = ${ωOption} rad/s`);
+            }
+            
+            return shuffleArray(uniqueOptions);
+        }
+        
+        // Gerar opções de resposta
+        function generateOptions(correctValue, unit) {
+            const options = [];
+            let attempts = 0;
+            const maxAttempts = 15;
+            
+            // Formatar o valor correto
+            let formattedCorrectValue = correctValue.toFixed(2) + ' ' + unit;
+            options.push(formattedCorrectValue);
+            
+            // Gerar 4 opções incorretas
+            for (let i = 0; i < 4; i++) {
+                let optionValue;
+                let formattedOption;
+                let unique = false;
+                
+                attempts = 0;
+                do {
+                    const variationType = Math.random();
+                    if (variationType < 0.3) {
+                        optionValue = correctValue * (Math.random() * 0.7 + 0.6);
+                    } else if (variationType < 0.6) {
+                        optionValue = correctValue / (Math.random() * 0.7 + 0.6);
+                    } else {
+                        const percentChange = (Math.random() * 40 + 10) / 100;
+                        optionValue = correctValue * (1 + (Math.random() > 0.5 ? percentChange : -percentChange));
+                    }
+                    
+                    formattedOption = optionValue.toFixed(2) + ' ' + unit;
+                    unique = !options.includes(formattedOption);
+                    attempts++;
+                    
+                    if (attempts > maxAttempts) {
+                        formattedOption = formattedOption + " (opção " + (i + 1) + ")";
+                        unique = true;
+                    }
+                } while (!unique);
+                
+                options.push(formattedOption);
+            }
+            
+            return shuffleArray(options);
+        }
+        
+        // Embaralhar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // Mostrar exercício atual
+        function showCurrentExercise() {
+            const exercise = exercises[currentExercise];
+            const container = document.getElementById('exerciseContainer');
+            
+            container.innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3>
+                    <p>${exercise.question}</p>
+                    <div class="options">
+                        ${exercise.options.map((option, index) => `
+                            <div class="option" data-value="${option}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            
+            // Adicionar event listeners usando delegação
+            container.onclick = function(e) {
+                if (e.target.classList.contains('option')) {
+                    container.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                }
+            };
+            
+            // Listener específico para o botão de verificação
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            
+            // Atualizar barra de progresso
+            updateProgressBar();
+        }
+        
+        // Verificar resposta
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selectedOption = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            const checkButton = document.getElementById('checkAnswerBtn');
+            const options = container.querySelectorAll('.option');
+            
+            if (!selectedOption) {
+                resultDiv.textContent = 'Por favor, selecione uma opção.';
+                resultDiv.className = 'result error';
+                return;
+            }
+            
+            // Desabilitar opções e botão de verificação
+            options.forEach(opt => {
+                opt.classList.add('disabled');
+            });
+            checkButton.disabled = true;
+            
+            const isCorrect = selectedOption.dataset.value === exercises[currentExercise].answer;
+            
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!';
+                resultDiv.className = 'result success';
+                selectedOption.classList.add('correct');
+                
+                // Registrar resultado e avançar após delay
+                exerciseResults.push({ 
+                    exercise: currentExercise, 
+                    correct: true, 
+                    skipped: false,
+                    attempts: currentExerciseAttempts + 1
+                });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `
+                <div class="error">Incorreto. Tente novamente.</div>
+                <div class="button-group">
+                    <button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button>
+                    <button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button>
+                </div>
+                `;
+                
+                // Adicionar event listeners aos novos botões
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', function() {
+                    // Não registra como erro, apenas gera novo exercício do mesmo tipo
+                    generateNewExerciseOfSameType();
+                    showCurrentExercise();
+                });
+            }
+        }
+        
+        // Gerar novo exercício do mesmo tipo
+        function generateNewExerciseOfSameType() {
+            const currentType = exercises[currentExercise].type;
+            const currentContext = exercises[currentExercise].contextKey || 'classica';
+            exercises[currentExercise] = createExerciseByType(currentType, currentContext);
+        }
+        
+        // Pular exercício
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado em seu relatório.")) {
+                exerciseResults.push({
+                    exercise: currentExercise,
+                    correct: false,
+                    skipped: true,
+                    attempts: currentExerciseAttempts
+                });
+                
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                
+                if (currentExercise < exercises.length) {
+                    showCurrentExercise();
+                } else {
+                    showConclusion();
+                }
+            }   
+        }
+        
+        // Avançar para o próximo exercício
+        function nextExercise() {
+            currentExercise++;
+            
+            if (currentExercise < exercises.length) {
+                showCurrentExercise();
+            } else {
+                showConclusion();
+            }
+        }
+        
+        // Atualizar barra de progresso
+        function updateProgressBar() {
+            for (let i = 0; i < exercises.length; i++) {
+                const progressItem = document.getElementById(`progress${i+1}`);
+                if (!progressItem) continue;
+                progressItem.classList.remove('active', 'completed');
+                
+                if (i === currentExercise) {
+                    progressItem.classList.add('active');
+                } else if (i < currentExercise) {
+                    progressItem.classList.add('completed');
+                }
+            }
+        }
+        
+        // Mostrar tela de conclusão
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            
+            document.getElementById('submitConclusion').addEventListener('click', function() {
+                const conclusionText = document.getElementById('conclusionText').value;
+                if (conclusionText.trim() === '') {
+                    alert('Por favor, escreva uma conclusão antes de enviar.');
+                    return;
+                }
+                
+                showResults(conclusionText);
+            });
+        }
+        
+        // Mostrar resultados finais
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            document.getElementById('resultsSummary').innerHTML = `
+                <p>Exercícios respondidos: ${totalExercises}</p>
+                <p>Respostas corretas: ${correctAnswers}</p>
+                <p>Exercícios pulados: ${skippedQuestions}</p>
+                <p>Distribuição: 4 do geral + 4 da água + 4 de surfe + 4 de tsunami</p>
+                <p>Nota: ${scorePercentage}%</p>
+            `;
+            
+            document.getElementById('finalConclusion').value = conclusion;
+            
+            document.getElementById('sendResults').addEventListener('click', sendResultsToSheet);
+        }
+        
+        // Função otimizada para enviar dados e email
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Desabilita o botão para evitar múltiplos cliques
+            sendButton.disabled = true;
+            sendButton.textContent = 'Enviando...';
+            
+            const totalExercises = exercises.length;
+            const correctAnswers = exerciseResults.filter(r => r.correct).length;
+            const scorePercentage = Math.round((correctAnswers / totalExercises) * 100);
+            
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.textContent = 'Enviando dados...';
+            emailStatus.className = 'email-status sending';
+            emailStatus.style.display = 'block';
+            
+            // Dados únicos que servem para AMBOS os propósitos
+            const dadosCompletos = {
+                // Para a planilha
+                timestamp: new Date().toLocaleString('pt-BR'),
+                serie: studentGrade,
+                turma: studentClass,
+                estudante: studentName,
+                simulacao: 'Ondas Unidimensionais',
+                contexto: (contextInfo[waveContext] || contextInfo.classica).label,
+                questoes_puladas: skippedQuestions,
+                acertos_erros: `${correctAnswers}/${totalExercises - correctAnswers}`,
+                nota: scorePercentage + '%',
+                conclusao: finalConclusion,
+                criticas: criticism,
+                sugestoes: suggestion,
+                email: studentEmail || '',
+                
+                // Para o email (campos adicionais)
+                to_email: "flavio.ambrosio@edu.se.df.gov.br",
+                nome_aluno: studentName,
+                acertos: `${correctAnswers}/${totalExercises}`,
+                data_envio: new Date().toLocaleString('pt-BR')
+            };
+
+            const planilhaScriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const emailScriptUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+
+            // Primeiro: enviar para a planilha
+            fetch(planilhaScriptUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dadosCompletos)
+            })
+            .then(() => {
+                emailStatus.textContent = 'Dados salvos! Enviando email...';
+                
+                // Enviar email para o professor
+                return fetch(emailScriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(dadosCompletos)
+                });
+            })
+            .then(() => {
+                // Se o aluno forneceu email, enviar cópia
+                if (studentEmail) {
+                    const emailDataAluno = {
+                        to_email: studentEmail,
+                        nome_aluno: studentName || 'Não informado',
+                        serie: studentGrade || 'Não informado',
+                        turma: studentClass || 'Não informado',
+                        nota: scorePercentage + '%' || '0%',
+                        acertos: `${correctAnswers}/${totalExercises}` || '0/0',
+                        questoes_puladas: skippedQuestions || 0,
+                        conclusao: finalConclusion || 'Não informado',
+                        data_envio: new Date().toLocaleString('pt-BR'),
+                        simulacao: 'Ondas Unidimensionais',
+                        contexto: (contextInfo[waveContext] || contextInfo.classica).label,
+                        mensagem: `Confirmação de Envio - Simulação de Ondas Unidimensionais'
+
+            Prezado(a) ${studentName},
+
+            Confirmamos o recebimento dos seus resultados:
+
+            📊 SEUS RESULTADOS:
+            • Nota: ${scorePercentage}%
+            • Acertos: ${correctAnswers} de ${totalExercises} questões
+            • Questões Puladas: ${skippedQuestions}
+
+            Data: ${new Date().toLocaleString('pt-BR')}
+
+            Atenciosamente,
+            Sistema de Simulações Físicas`
+                    };
+                    
+                    return fetch(emailScriptUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(emailDataAluno)
+                    });
+                }
+            })
+            .then(() => {
+                const mensagemSucesso = studentEmail 
+                    ? '✅ Dados salvos e emails enviados!' 
+                    : '✅ Dados salvos e email enviado ao professor!';
+                
+                emailStatus.textContent = mensagemSucesso;
+                emailStatus.className = 'email-status sent';
+                
+                setTimeout(() => {
+                    closeExercisesModal();
+                    // Reativa o botão após fechar o modal
+                    sendButton.disabled = false;
+                    sendButton.textContent = 'Enviar Resultados';
+                }, 3000);
+            })
+            .catch(error => {
+                emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.';
+                emailStatus.className = 'email-status error-status';
+                console.error('Erro:', error);
+                
+                // Reativa o botão em caso de erro
+                sendButton.disabled = false;
+                sendButton.textContent = 'Enviar Resultados';
+            });
+        }
+        
+        // Abrir modal de exercícios
+        function openExercisesModal() {
+            generateExercises();
+            renderProgressBar();
+            document.getElementById('exercisesModal').style.display = 'flex';
+            document.getElementById('exerciseContainer').style.display = 'block';
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            showCurrentExercise();
+        }
+
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = '';
+
+            for (let i = 0; i < exercises.length; i++) {
+                const item = document.createElement('div');
+                item.className = 'progress-item';
+                item.id = `progress${i + 1}`;
+                item.textContent = String(i + 1);
+                progressBar.appendChild(item);
+            }
+        }
+        
+        // Inicializar a simulação quando a página carregar
+        window.addEventListener('load', init);
+    </script>
+    <script>
+        let studentNameOndas1D = localStorage.getItem('studentNameOndas1D') || '';
+
+        function ensureStudentNameOndas1D() {
+            if (!studentNameOndas1D) {
+                let promptedName = '';
+                try {
+                    promptedName = prompt('🎧 Qual é o seu nome? Vou usar isso nos áudios da simulação.');
+                } catch (error) {
+                    promptedName = '';
+                }
+
+                studentNameOndas1D = promptedName && promptedName.trim() ? promptedName.trim() : 'estudante';
+                localStorage.setItem('studentNameOndas1D', studentNameOndas1D);
+            }
+        }
+
+        const tracks = [
+            function () {
+                ensureStudentNameOndas1D();
+                return `Olá, ${studentNameOndas1D}. Esta simulação de ondas unidimensionais funciona como uma leitura guiada da tela. No painel principal aparece a corda ou linha de propagação da onda, desenhada em um único eixo espacial. Ao lado estão os controles que permitem alterar direção, amplitude, comprimento de onda, frequência, velocidade e fase inicial. A proposta é observar como cada parâmetro modifica a forma e o movimento da onda.`;
+            },
+            function () {
+                return 'A equação exibida resume a descrição matemática da onda harmônica. O deslocamento depende da posição x, do tempo t, da amplitude, do número de onda, da frequência angular e da fase inicial. Em vez de decorar a expressão inteira, vale perceber o papel de cada parte: a amplitude indica o quanto a onda sobe e desce, o comprimento de onda informa a repetição espacial e a frequência mostra quantas oscilações ocorrem por segundo.';
+            },
+            function () {
+                return 'O controle de direção mostra um ponto importante: a mesma forma matemática pode representar uma onda caminhando para a direita ou para a esquerda. O sinal dentro da fase da função é justamente o que distingue esses sentidos. Essa é uma boa oportunidade para relacionar a expressão algébrica com o movimento observado na animação.';
+            },
+            function () {
+                return 'Amplitude e comprimento de onda alteram aspectos diferentes da figura. A amplitude muda a altura máxima da oscilação. O comprimento de onda muda a distância entre duas cristas consecutivas. Quando o estudante separa mentalmente essas duas ideias, fica mais fácil interpretar a forma da onda sem confundir altura com espaçamento.';
+            },
+            function () {
+                return 'Frequência, período e velocidade também precisam ser lidos em conjunto. A frequência informa quantas oscilações acontecem por segundo. O período é o tempo de uma oscilação completa. A velocidade de propagação liga a parte temporal à parte espacial, porque mostra o quanto a perturbação avança no meio. A tela de medições foi organizada exatamente para ajudar nessa conexão.';
+            },
+            function () {
+                return 'Os valores de número de onda k e frequência angular ômega transformam comprimento de onda e frequência em grandezas mais convenientes para a equação trigonométrica. O estudante não precisa ver isso como mera troca de símbolos. k diz respeito à variação espacial da fase, e ômega à variação temporal. Assim, a equação da onda ganha uma leitura física mais clara.';
+            },
+            function () {
+                return 'Depois da exploração inicial, abra os exercícios resolvidos e depois os exercícios finais. Nos exemplos, tente sempre identificar primeiro a pergunta física: estamos montando a equação da onda, calculando a velocidade pela relação lambda sobre T, ou extraindo a velocidade diretamente da razão entre ômega e k? Essa ordem ajuda a transformar a fórmula em raciocínio.';
+            }
+        ];
+
+        const exampleNarrations = {
+            '1': 'No primeiro exemplo, o objetivo é montar a equação da onda a partir de amplitude, comprimento de onda e frequência. O passo mais importante é converter esses dados nos parâmetros que aparecem na expressão trigonométrica: o número de onda k e a frequência angular ômega. Depois de calcular esses dois valores, basta substituir na forma geral da onda. O ganho pedagógico aqui é perceber como os dados físicos entram na linguagem matemática da propagação.',
+            '2': 'No segundo exemplo, a pergunta é sobre a velocidade de propagação. O raciocínio é direto: a velocidade de uma onda é o comprimento de onda dividido pelo período. Esse tipo de exercício é importante porque liga uma medida espacial, lambda, a uma medida temporal, T. O resultado final mostra o ritmo com que a perturbação se desloca ao longo do meio.',
+            '3': 'No terceiro exemplo, a velocidade é obtida a partir da própria equação da onda, usando a razão entre ômega e k. Isso ajuda o estudante a perceber que a equação já carrega dentro dela a informação sobre a propagação. A pergunta deixa de ser apenas operacional e passa a ser interpretativa: ao ler os coeficientes da equação, já é possível descobrir como a onda se move.'
+        };
+    </script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ondas 1D',
+            storageKey: 'ondas-1d'
+        };
+    </script>
+    <script src="../../_shared/simulation-enhancer.js"></script>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+</body>
+</html>
+

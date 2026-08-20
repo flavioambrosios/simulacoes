@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulacao: Ciclo de Carnot">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/MaquinadeCarnot/">
+    <meta name="description" content="Simulação didática sobre Resistência Elétrica. Utiliza o motor de simulação interativa do PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepcao e planejamento pedagogico: Flavio Ambrosio Campos.
+         Codigo assistido por ferramentas de IA (DeepSeek e ChatGPT) sob supervisao humana. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulação do Ciclo de Carnot</title>
+    <style>
+        /* (estilos idênticos ao original - omitidos por brevidade, mas mantidos) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .simulation-panel {
+            flex: 2;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .simulation-container {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .simulation-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .simulation-stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background:
+                radial-gradient(circle at top, rgba(255, 200, 0, 0.12), transparent 30%),
+                linear-gradient(180deg, rgba(6, 16, 44, 0.95), rgba(0, 0, 0, 0.98));
+            padding: 14px;
+            gap: 10px;
+        }
+        .simulation-stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .cycle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            font-weight: bold;
+        }
+        .cycle-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+        }
+        .cycle-badge small {
+            color: #d7e3ff;
+            font-weight: 600;
+        }
+        .energy-flow {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .energy-chip {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #f3f6ff;
+            font-size: 0.92rem;
+        }
+        .energy-chip strong {
+            color: #ffcc00;
+        }
+        #carnotCanvas {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            display: block;
+            border-radius: 10px;
+            background: rgba(3, 9, 26, 0.85);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        @media (max-width: 768px) {
+            .simulation-stage {
+                padding: 10px;
+            }
+            .simulation-stage-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .energy-flow {
+                justify-content: flex-start;
+            }
+        }
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            text-align: center;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .visualization-toggle {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        button {
+            padding: 10px 15px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #ffdd55;
+        }
+        .active {
+            background: #1a2a6c;
+            color: white;
+        }
+        .formula-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+        .measurement-panel {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .measurement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .measurement-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .measurement-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .measurement-value {
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .red { background: #ff0000; }
+        .blue { background: #0066ff; }
+        .green { background: #00ff00; }
+        .orange { background: #ff7700; }
+        .dark-orange { background: #cc5500; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 10px;
+        }
+        .close {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .restart-btn {
+            background: #dc3545;
+            color: white;
+            margin-right: 10px;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .restart-btn:hover {
+            background: #c82333;
+        }
+        .exercise {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .exercise h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .exercise p {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        .option {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        .option:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .selected {
+            background: rgba(255, 204, 0, 0.3);
+            border: 1px solid #ffcc00;
+        }
+        .correct {
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+        .incorrect {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .check-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .check-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .skip-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 12px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .progress-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 0 2px;
+        }
+        .progress-item.active {
+            background: rgba(255, 204, 0, 0.3);
+        }
+        .progress-item.completed {
+            background: rgba(0, 255, 0, 0.2);
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .try-again-btn {
+            background: #1a2a6c;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+        .email-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-row label {
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        .required::after {
+            content: " *";
+            color: #ff0000;
+        }
+        .form-row input,
+        .form-row select,
+        .form-row textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-row textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .email-status {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .sending {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+        .sent {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        .error-status {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+        .solved-exercise {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .solved-exercise h4 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .solution-step {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            border-left: 3px solid #ffcc00;
+        }
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .exercise-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .debug-panel {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 5px;
+            display: none;
+        }
+        .theory-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        .theory-section h3 {
+            color: #ffcc00;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .theory-content {
+            line-height: 1.6;
+        }
+        .theory-content p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .theory-content ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+        .theory-content li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background: rgba(255, 204, 0, 0.2);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .theory-formula {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulação do Ciclo de Carnot</h1>
+            <p class="subtitle">Prof. Flávio Ambrósio</p>
+        </header>
+        <div class="content">
+            <div class="simulation-panel">
+                <h2 class="panel-title">Ciclo de Carnot</h2>
+                <div class="simulation-container">
+                    <div class="simulation-stage" aria-label="Animação didática do ciclo de Carnot">
+                        <div class="simulation-stage-header">
+                            <div class="cycle-badge" id="cycleStageBadge">
+                                <span class="cycle-dot" id="cycleStageDot"></span>
+                                <div>
+                                    <div id="cycleStageTitle">Expansão isotérmica</div>
+                                    <small id="cycleStageSubtitle">Fonte quente fornece calor ao gás.</small>
+                                </div>
+                            </div>
+                            <div class="energy-flow">
+                                <div class="energy-chip">Q₁: <strong id="visualHeatIn">500 J</strong></div>
+                                <div class="energy-chip">Q₂: <strong id="visualHeatOut">250 J</strong></div>
+                                <div class="energy-chip">W: <strong id="visualWork">250 J</strong></div>
+                            </div>
+                        </div>
+                        <canvas id="carnotCanvas" role="img" aria-label="Representação animada do cilindro, reservatórios térmicos e diagrama pressão-volume do ciclo de Carnot"></canvas>
+                    </div>
+                </div>
+                <div class="visualization-toggle">
+                    <button id="helpBtn">Ajuda</button>
+                    <button id="debugBtn">Debug</button>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color red"></div><span>Expansão Isotérmica (T₁)</span></div>
+                    <div class="legend-item"><div class="legend-color blue"></div><span>Expansão Adiabática</span></div>
+                    <div class="legend-item"><div class="legend-color green"></div><span>Compressão Isotérmica (T₂)</span></div>
+                    <div class="legend-item"><div class="legend-color orange"></div><span>Compressão Adiabática</span></div>
+                </div>
+                <div class="debug-panel" id="debugPanel">
+                    <h3>Informações de Debug</h3>
+                    <div id="debugInfo"></div>
+                </div>
+            </div>
+            <div class="controls-panel">
+                <h2 class="panel-title">Controles</h2>
+                <div class="control-group">
+                    <label for="hotTempInput">Temperatura da Fonte Quente (T₁):</label>
+                    <input type="range" id="hotTempInput" min="300" max="1000" value="600" step="10">
+                    <div class="value-display"><span id="hotTempValue">600</span> K</div>
+                </div>
+                <div class="control-group">
+                    <label for="coldTempInput">Temperatura da Fonte Fria (T₂):</label>
+                    <input type="range" id="coldTempInput" min="200" max="500" value="300" step="10">
+                    <div class="value-display"><span id="coldTempValue">300</span> K</div>
+                </div>
+                <div class="control-group">
+                    <label for="heatInputInput">Calor da Fonte Quente (Q₁):</label>
+                    <input type="range" id="heatInputInput" min="100" max="1000" value="500" step="50">
+                    <div class="value-display"><span id="heatInputValue">500</span> J</div>
+                </div>
+                <div class="control-group">
+                    <label for="efficiencyDisplay">Rendimento (η):</label>
+                    <div class="value-display"><span id="efficiencyValue">50.0</span> %</div>
+                </div>
+                <div class="formula-box">
+                    <h3>Fórmulas do Ciclo de Carnot</h3>
+                    <p>η = 1 - (T₂/T₁) = 1 - (Q₂/Q₁)</p>
+                    <p>Onde:</p>
+                    <p>η = Rendimento</p>
+                    <p>T₁ = Temperatura da fonte quente (K)</p>
+                    <p>T₂ = Temperatura da fonte fria (K)</p>
+                    <p>Q₁ = Calor absorvido da fonte quente</p>
+                    <p>Q₂ = Calor rejeitado para a fonte fria</p>
+                    <p>W = Q₁ - Q₂ = Trabalho realizado</p>
+                </div>
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn">Iniciar Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn">Teoria</button>
+                </div>
+            </div>
+            <div class="measurement-panel">
+                <h2 class="panel-title">Medições</h2>
+                <div class="measurement-grid">
+                    <div class="measurement-item"><div class="measurement-label">Temperatura Quente (T₁)</div><div class="measurement-value" id="hotTempDisplay">600 K</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Temperatura Fria (T₂)</div><div class="measurement-value" id="coldTempDisplay">300 K</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Calor Absorvido (Q₁)</div><div class="measurement-value" id="heatInputDisplay">500 J</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Rendimento (η)</div><div class="measurement-value" id="efficiencyDisplay">50.0 %</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Trabalho Realizado (W)</div><div class="measurement-value" id="workDisplay">250 J</div></div>
+                    <div class="measurement-item"><div class="measurement-label">Calor Rejeitado (Q₂)</div><div class="measurement-value" id="heatOutputDisplay">250 J</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios -->
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercícios sobre o Ciclo de Carnot</h2>
+                <div>
+                    <button id="restartExercisesBtn" class="restart-btn">Reiniciar</button>
+                    <span class="close">&times;</span>
+                </div>
+            </div>
+            <div class="progress" id="progressBar"></div>
+            <div id="exerciseContainer"></div>
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de Estudo</h3>
+                <p>Escreva abaixo tudo o que você aprendeu com os exercícios:</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva aqui suas observações..." style="width:100%; min-width:100%; height:150px; resize:both;"></textarea>
+                <button id="submitConclusion" class="check-btn">Enviar Conclusão</button>
+            </div>
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos Exercícios</h3>
+                <div id="resultsSummary"></div>
+                <h3>Enviar Resultados</h3>
+                <p>Preencha os dados abaixo para enviar seus resultados:</p>
+                <div class="email-form">
+                    <div class="form-row"><label class="required">Nome Completo:</label><input type="text" id="studentName" required></div>
+                    <div class="form-row"><label class="required">Série:</label><select id="studentGrade" required><option value="">Selecione sua série</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                    <div class="form-row"><label class="required">Turma:</label><select id="studentClass" required><option value="">Selecione sua turma</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option></select></div>
+                    <div class="form-row"><label>E-mail para cópia:</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                    <div class="form-row"><label>Críticas:</label><textarea id="criticismInput" rows="2" placeholder="O que poderia ser melhorado?"></textarea></div>
+                    <div class="form-row"><label>Sugestões:</label><textarea id="suggestionInput" rows="2" placeholder="Tem alguma sugestão?"></textarea></div>
+                    <div class="form-row"><label class="required">Conclusão sobre o exercício:</label><textarea id="finalConclusion" rows="4" required placeholder="Escreva aqui sua conclusão sobre a simulação e os exercícios..."></textarea></div>
+                    <div id="emailStatus" class="email-status"></div>
+                    <button id="sendResults" class="check-btn">Enviar Resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exercícios Resolvidos (mesmo conteúdo original) -->
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Exercícios Resolvidos - Ciclo de Carnot</h2><span class="close">&times;</span></div>
+            <div id="solvedExercivesContainer">
+                <div class="solved-exercise"><h4>Exemplo 1: Cálculo do Rendimento</h4><p><strong>Problema:</strong> Uma máquina de Carnot opera entre as temperaturas de 500 K e 300 K. Qual é o seu rendimento máximo?</p><div class="solution-step"><strong>Fórmula:</strong> η = 1 - (T₂/T₁)</div><div class="solution-step"><strong>Passo 1:</strong> Identificar as temperaturas: T₁ = 500 K, T₂ = 300 K</div><div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: η = 1 - (300/500)</div><div class="solution-step"><strong>Passo 3:</strong> Calcular: η = 1 - 0.6 = 0.4</div><div class="solution-step"><strong>Resposta:</strong> O rendimento é de 40%</div></div>
+                <div class="solved-exercise"><h4>Exemplo 2: Cálculo do Trabalho Realizado</h4><p><strong>Problema:</strong> Uma máquina de Carnot recebe 800 J de calor da fonte quente a 600 K e rejeita calor para a fonte fria a 300 K. Qual é o trabalho realizado pela máquina?</p><div class="solution-step"><strong>Fórmula:</strong> η = 1 - (T₂/T₁) = W/Q₁</div><div class="solution-step"><strong>Passo 1:</strong> Calcular o rendimento: η = 1 - (300/600) = 1 - 0.5 = 0.5</div><div class="solution-step"><strong>Passo 2:</strong> Calcular o trabalho: W = η × Q₁ = 0.5 × 800</div><div class="solution-step"><strong>Resposta:</strong> W = 400 J</div></div>
+                <div class="solved-exercise"><h4>Exemplo 3: Cálculo do Calor Rejeitado</h4><p><strong>Problema:</strong> Uma máquina de Carnot com rendimento de 25% recebe 1000 J de calor da fonte quente. Quanto calor é rejeitado para a fonte fria?</p><div class="solution-step"><strong>Fórmula:</strong> W = Q₁ - Q₂ e η = W/Q₁</div><div class="solution-step"><strong>Passo 1:</strong> Calcular o trabalho: W = η × Q₁ = 0.25 × 1000 = 250 J</div><div class="solution-step"><strong>Passo 2:</strong> Calcular o calor rejeitado: Q₂ = Q₁ - W = 1000 - 250</div><div class="solution-step"><strong>Resposta:</strong> Q₂ = 750 J</div></div>
+            </div>
+            <div class="buttons-container"><button id="closeSolvedExercises" class="check-btn">Fechar</button></div>
+        </div>
+    </div>
+
+    <!-- Modal de Teoria -->
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Teoria - Máquina de Carnot e Ciclo de Carnot</h2><span class="close">&times;</span></div>
+            <div class="theory-content">
+                <div class="theory-section"><h3>O que é a Máquina de Carnot?</h3><p>A máquina de Carnot é uma máquina térmica teórica que opera no ciclo de Carnot, estabelecendo o limite máximo de eficiência que qualquer máquina térmica real pode atingir. Foi proposta em 1824 pelo físico francês Nicolas Léonard Sadi Carnot.</p><p>O ciclo de Carnot consiste em quatro processos reversíveis:</p><ul><li><span class="highlight">Expansão isotérmica:</span> O sistema se expande em contato com a fonte quente (T₁), absorvendo calor Q₁.</li><li><span class="highlight">Expansão adiabática:</span> O sistema continua a se expandir sem trocar calor com o exterior.</li><li><span class="highlight">Compressão isotérmica:</span> O sistema é comprimido em contato com a fonte fria (T₂), rejeitando calor Q₂.</li><li><span class="highlight">Compressão adiabática:</span> O sistema continua a ser comprimido sem trocar calor, retornando ao estado inicial.</li></ul></div>
+                <div class="theory-section"><h3>Primeira Lei da Termodinâmica no Ciclo de Carnot</h3><p>A primeira lei da termodinâmica, que é o princípio da conservação de energia, aplicada ao ciclo de Carnot estabelece que:</p><div class="theory-formula">ΔU = Q - W</div><p>Onde:</p><ul><li><span class="highlight">ΔU</span> = Variação da energia interna</li><li><span class="highlight">Q</span> = Calor líquido trocado (Q₁ - Q₂)</li><li><span class="highlight">W</span> = Trabalho realizado pelo sistema</li></ul><p>Como o ciclo é fechado (o sistema retorna ao estado inicial), a variação da energia interna é zero (ΔU = 0). Portanto:</p><div class="theory-formula">W = Q₁ - Q₂</div><p>O trabalho líquido realizado pelo ciclo é igual ao calor líquido trocado.</p></div>
+                <div class="theory-section"><h3>Segunda Lei da Termodinâmica e o Ciclo de Carnot</h3><p>A segunda lei da termodinâmica estabelece que é impossível converter completamente calor em trabalho sem que haja outras mudanças no sistema. O ciclo de Carnot ilustra este princípio, mostrando que mesmo na máquina mais eficiente possível, parte do calor deve ser rejeitado para uma fonte fria.</p><p>O teorema de Carnot afirma que:</p><ul><li>Nenhuma máquina térmica operando entre duas fontes de calor pode ser mais eficiente que uma máquina de Carnot operando entre as mesmas fontes.</li><li>Todas as máquinas de Carnot operando entre as mesmas temperaturas têm a mesma eficiência.</li></ul></div>
+                <div class="theory-section"><h3>Rendimento da Máquina de Carnot</h3><p>O rendimento (η) de qualquer máquina térmica é definido como a razão entre o trabalho realizado (W) e o calor absorvido da fonte quente (Q₁):</p><div class="theory-formula">η = W / Q₁ = (Q₁ - Q₂) / Q₁ = 1 - (Q₂ / Q₁)</div><p>Para a máquina de Carnot, pode-se demonstrar que a razão Q₂/Q₁ é igual à razão T₂/T₁, onde T₁ e T₂ são as temperaturas absolutas (em Kelvin) das fontes quente e fria, respectivamente. Portanto:</p><div class="theory-formula">η = 1 - (T₂ / T₁)</div><p>Esta é a famosa fórmula do rendimento de Carnot, que mostra que o rendimento máximo depende apenas das temperaturas das fontes quente e fria, sendo independente da substância de trabalho.</p></div>
+                <div class="theory-section"><h3>Importância e Aplicações do Ciclo de Carnot</h3><p>O ciclo de Carnot é importante porque:</p><ul><li>Estabelece o limite máximo teórico de eficiência para qualquer máquina térmica</li><li>Fornece insights fundamentais sobre a segunda lei da termodinâmica</li><li>Serve como referência para comparar o desempenho de máquinas térmicas reais</li><li>É utilizado no estudo de refrigeração e bombas de calor (ciclo reverso de Carnot)</li></ul><p>Embora seja uma idealização e não possa ser realizado na prática com perfeição, o ciclo de Carnot é fundamental para a compreensão dos limites termodinâmicos dos processos de conversão de energia.</p></div>
+            </div>
+            <div class="buttons-container"><button id="closeTheory" class="check-btn">Fechar</button></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== SIMULAÇÃO (original) ==========
+        let hotTempInput = 600, coldTempInput = 300, heatInput = 500, efficiencyValue = 50.0, workValue = 250, heatOutputValue = 250;
+        let debugMode = false;
+        let carnotCanvas, carnotContext, animationStartTime = 0;
+        const cycleStages = [
+            { name: 'Expansão isotérmica', subtitle: 'Fonte quente fornece calor ao gás.', color: '#ff5f45' },
+            { name: 'Expansão adiabática', subtitle: 'O gás se expande sem trocar calor.', color: '#3e8bff' },
+            { name: 'Compressão isotérmica', subtitle: 'O gás rejeita calor para a fonte fria.', color: '#1bd47b' },
+            { name: 'Compressão adiabática', subtitle: 'O gás retorna ao estado inicial sem trocar calor.', color: '#ff9a3d' }
+        ];
+
+        function init() {
+            initCarnotCanvas();
+            updateMeasurements();
+            setupEventListeners();
+            animationStartTime = performance.now();
+            requestAnimationFrame(animateCarnotScene);
+            addDebugInfo("Simulação inicializada");
+        }
+        function addDebugInfo(msg) { if (!debugMode) return; const info = document.getElementById('debugInfo'); info.innerHTML += `<p>[${new Date().toLocaleTimeString()}] ${msg}</p>`; info.scrollTop = info.scrollHeight; }
+        function setupEventListeners() {
+            document.getElementById('hotTempInput').addEventListener('input', function() { hotTempInput = parseFloat(this.value); document.getElementById('hotTempValue').textContent = hotTempInput; updateMeasurements(); addDebugInfo(`Temperatura quente: ${hotTempInput} K`); });
+            document.getElementById('coldTempInput').addEventListener('input', function() { coldTempInput = parseFloat(this.value); document.getElementById('coldTempValue').textContent = coldTempInput; updateMeasurements(); addDebugInfo(`Temperatura fria: ${coldTempInput} K`); });
+            document.getElementById('heatInputInput').addEventListener('input', function() { heatInput = parseFloat(this.value); document.getElementById('heatInputValue').textContent = heatInput; updateMeasurements(); addDebugInfo(`Calor absorvido: ${heatInput} J`); });
+            document.getElementById('helpBtn').addEventListener('click', () => alert("Como usar:\n\n• Ajuste a temperatura da fonte quente, temperatura da fonte fria e calor absorvido com os controles deslizantes\n• Observe como o rendimento, trabalho realizado e calor rejeitado se alteram automaticamente\n• Use as fórmulas do Ciclo de Carnot para verificar os cálculos\n• Clique em 'Iniciar Exercícios' para testar seu conhecimento"));
+            document.getElementById('debugBtn').addEventListener('click', function() { debugMode = !debugMode; document.getElementById('debugPanel').style.display = debugMode ? 'block' : 'none'; addDebugInfo(`Modo debug ${debugMode ? 'ativado' : 'desativado'}`); });
+            document.getElementById('mainExerciseBtn').addEventListener('click', openExercisesModal);
+            document.getElementById('solvedExercisesBtn').addEventListener('click', () => { document.getElementById('solvedExercisesModal').style.display = 'flex'; addDebugInfo("Modal exercícios resolvidos aberto"); });
+            document.getElementById('theoryBtn').addEventListener('click', () => { document.getElementById('theoryModal').style.display = 'flex'; addDebugInfo("Modal teoria aberto"); });
+            document.querySelector('#exercisesModal .close').addEventListener('click', closeExercisesModal);
+            document.querySelector('#solvedExercisesModal .close').addEventListener('click', () => { document.getElementById('solvedExercisesModal').style.display = 'none'; });
+            document.querySelector('#theoryModal .close').addEventListener('click', () => { document.getElementById('theoryModal').style.display = 'none'; });
+            document.getElementById('closeSolvedExercises').addEventListener('click', () => { document.getElementById('solvedExercisesModal').style.display = 'none'; });
+            document.getElementById('closeTheory').addEventListener('click', () => { document.getElementById('theoryModal').style.display = 'none'; });
+            window.addEventListener('click', function(e) { if (e.target == document.getElementById('exercisesModal')) closeExercisesModal(); if (e.target == document.getElementById('solvedExercisesModal')) document.getElementById('solvedExercisesModal').style.display = 'none'; if (e.target == document.getElementById('theoryModal')) document.getElementById('theoryModal').style.display = 'none'; });
+            window.addEventListener('resize', resizeCarnotCanvas);
+        }
+        function updateMeasurements() {
+            efficiencyValue = (1 - (coldTempInput / hotTempInput)) * 100;
+            workValue = (efficiencyValue / 100) * heatInput;
+            heatOutputValue = heatInput - workValue;
+            document.getElementById('hotTempDisplay').textContent = hotTempInput.toFixed(0) + ' K';
+            document.getElementById('coldTempDisplay').textContent = coldTempInput.toFixed(0) + ' K';
+            document.getElementById('heatInputDisplay').textContent = heatInput.toFixed(0) + ' J';
+            document.getElementById('efficiencyDisplay').textContent = efficiencyValue.toFixed(1) + ' %';
+            document.getElementById('efficiencyValue').textContent = efficiencyValue.toFixed(1);
+            document.getElementById('workDisplay').textContent = workValue.toFixed(0) + ' J';
+            document.getElementById('heatOutputDisplay').textContent = heatOutputValue.toFixed(0) + ' J';
+            document.getElementById('visualHeatIn').textContent = heatInput.toFixed(0) + ' J';
+            document.getElementById('visualHeatOut').textContent = heatOutputValue.toFixed(0) + ' J';
+            document.getElementById('visualWork').textContent = workValue.toFixed(0) + ' J';
+            renderCarnotScene(performance.now());
+        }
+
+        function initCarnotCanvas() {
+            carnotCanvas = document.getElementById('carnotCanvas');
+            if (!carnotCanvas) return;
+            carnotContext = carnotCanvas.getContext('2d');
+            resizeCarnotCanvas();
+        }
+
+        function resizeCarnotCanvas() {
+            if (!carnotCanvas || !carnotContext) return;
+            const ratio = window.devicePixelRatio || 1;
+            const width = Math.max(320, carnotCanvas.clientWidth);
+            const height = Math.max(260, carnotCanvas.clientHeight);
+            carnotCanvas.width = Math.round(width * ratio);
+            carnotCanvas.height = Math.round(height * ratio);
+            carnotContext.setTransform(1, 0, 0, 1, 0, 0);
+            carnotContext.scale(ratio, ratio);
+            renderCarnotScene(performance.now());
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function lerp(start, end, amount) {
+            return start + (end - start) * amount;
+        }
+
+        function getCycleState(timestamp) {
+            const safeTimestamp = Number.isFinite(timestamp) ? timestamp : performance.now();
+            if (!animationStartTime) animationStartTime = safeTimestamp;
+            const cycleDuration = cycleStages.length * 2;
+            const elapsed = (((safeTimestamp - animationStartTime) / 1000) % cycleDuration + cycleDuration) % cycleDuration;
+            const stageIndex = Math.min(cycleStages.length - 1, Math.floor(elapsed / 2));
+            const localT = (elapsed - stageIndex * 2) / 2;
+            const hotRatio = clamp((hotTempInput - 300) / 700, 0, 1);
+            const coldRatio = clamp((coldTempInput - 200) / 300, 0, 1);
+            const heatRatio = clamp((heatInput - 100) / 900, 0, 1);
+            const efficiencyRatio = clamp(efficiencyValue / 100, 0, 1);
+            const volumeStates = [0.28, 0.78, 0.96, 0.42, 0.28];
+            const pressureStates = [0.86, 0.66, 0.36, 0.54, 0.86];
+            return {
+                stageIndex,
+                phase: cycleStages[stageIndex],
+                localT,
+                hotRatio,
+                coldRatio,
+                heatRatio,
+                efficiencyRatio,
+                volume: lerp(volumeStates[stageIndex], volumeStates[stageIndex + 1], localT),
+                pressure: lerp(pressureStates[stageIndex], pressureStates[stageIndex + 1], localT)
+            };
+        }
+
+        function drawArrow(ctx, x1, y1, x2, y2, color, width) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            const head = 10;
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - head * Math.cos(angle - Math.PI / 6), y2 - head * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(x2 - head * Math.cos(angle + Math.PI / 6), y2 - head * Math.sin(angle + Math.PI / 6));
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function renderCarnotScene(timestamp) {
+            if (!carnotCanvas || !carnotContext) return;
+            const ctx = carnotContext;
+            const width = carnotCanvas.clientWidth;
+            const height = carnotCanvas.clientHeight;
+            const state = getCycleState(timestamp);
+
+            document.getElementById('cycleStageTitle').textContent = state.phase.name;
+            document.getElementById('cycleStageSubtitle').textContent = state.phase.subtitle;
+            document.getElementById('cycleStageDot').style.background = state.phase.color;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const background = ctx.createLinearGradient(0, 0, 0, height);
+            background.addColorStop(0, '#07152f');
+            background.addColorStop(1, '#02060f');
+            ctx.fillStyle = background;
+            ctx.fillRect(0, 0, width, height);
+
+            const chamber = {
+                x: width * 0.08,
+                y: height * 0.16,
+                w: width * 0.42,
+                h: height * 0.58
+            };
+            const pvBox = {
+                x: width * 0.58,
+                y: height * 0.18,
+                w: width * 0.32,
+                h: height * 0.48
+            };
+
+            const hotColor = `rgba(255, ${Math.round(110 + 90 * state.hotRatio)}, 60, 0.95)`;
+            const coldColor = `rgba(${Math.round(70 - 30 * state.coldRatio)}, ${Math.round(170 + 40 * (1 - state.coldRatio))}, 255, 0.95)`;
+
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fillRect(chamber.x, chamber.y, chamber.w, chamber.h);
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(chamber.x, chamber.y, chamber.w, chamber.h);
+
+            const pistonWidth = chamber.w * 0.2;
+            const pistonX = chamber.x + chamber.w * state.volume;
+            ctx.fillStyle = '#c5d4e7';
+            ctx.fillRect(pistonX, chamber.y - 6, pistonWidth, chamber.h + 12);
+            ctx.fillStyle = '#90a4bf';
+            ctx.fillRect(pistonX + pistonWidth * 0.35, chamber.y - 28, pistonWidth * 0.3, 24);
+
+            const gasWidth = pistonX - chamber.x;
+            const gasGradient = ctx.createLinearGradient(chamber.x, chamber.y, chamber.x, chamber.y + chamber.h);
+            gasGradient.addColorStop(0, hotColor);
+            gasGradient.addColorStop(1, coldColor);
+            ctx.fillStyle = gasGradient;
+            ctx.fillRect(chamber.x, chamber.y, Math.max(18, gasWidth), chamber.h);
+
+            const particleCount = 26;
+            for (let i = 0; i < particleCount; i++) {
+                const px = chamber.x + 16 + ((i * 37 + timestamp * (0.02 + state.heatRatio * 0.05)) % Math.max(24, gasWidth - 18));
+                const py = chamber.y + 18 + ((i * 29 + timestamp * (0.03 + state.hotRatio * 0.04)) % (chamber.h - 36));
+                const radius = 2 + (i % 3);
+                ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.75)' : 'rgba(255,230,150,0.65)';
+                ctx.beginPath();
+                ctx.arc(px, py, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.fillStyle = hotColor;
+            ctx.fillRect(chamber.x, chamber.y + chamber.h + 20, chamber.w * 0.34, 16);
+            ctx.fillStyle = coldColor;
+            ctx.fillRect(chamber.x + chamber.w * 0.58, chamber.y + chamber.h + 20, chamber.w * 0.34, 16);
+            ctx.fillStyle = '#fff5c4';
+            ctx.font = 'bold 15px Segoe UI';
+            ctx.fillText(`Fonte quente: ${hotTempInput.toFixed(0)} K`, chamber.x, chamber.y + chamber.h + 60);
+            ctx.fillStyle = '#d6efff';
+            ctx.fillText(`Fonte fria: ${coldTempInput.toFixed(0)} K`, chamber.x + chamber.w * 0.52, chamber.y + chamber.h + 60);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(pvBox.x, pvBox.y, pvBox.w, pvBox.h);
+            ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+            ctx.strokeRect(pvBox.x, pvBox.y, pvBox.w, pvBox.h);
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.beginPath();
+            ctx.moveTo(pvBox.x + 28, pvBox.y + 12);
+            ctx.lineTo(pvBox.x + 28, pvBox.y + pvBox.h - 24);
+            ctx.lineTo(pvBox.x + pvBox.w - 12, pvBox.y + pvBox.h - 24);
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '13px Segoe UI';
+            ctx.fillText('P', pvBox.x + 10, pvBox.y + 20);
+            ctx.fillText('V', pvBox.x + pvBox.w - 16, pvBox.y + pvBox.h - 6);
+
+            const points = [
+                { x: 0.28, y: 0.86, color: cycleStages[0].color },
+                { x: 0.78, y: 0.66, color: cycleStages[1].color },
+                { x: 0.96, y: 0.36, color: cycleStages[2].color },
+                { x: 0.42, y: 0.54, color: cycleStages[3].color }
+            ].map(point => ({
+                x: pvBox.x + 28 + point.x * (pvBox.w - 52),
+                y: pvBox.y + 18 + (1 - point.y) * (pvBox.h - 54),
+                color: point.color
+            }));
+
+            for (let i = 0; i < points.length; i++) {
+                const start = points[i];
+                const end = points[(i + 1) % points.length];
+                ctx.strokeStyle = start.color;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(end.x, end.y);
+                ctx.stroke();
+            }
+
+            const currentPoint = {
+                x: pvBox.x + 28 + state.volume * (pvBox.w - 52),
+                y: pvBox.y + 18 + (1 - state.pressure) * (pvBox.h - 54)
+            };
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(currentPoint.x, currentPoint.y, 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = state.phase.color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(currentPoint.x, currentPoint.y, 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            const arrowPulse = 8 * Math.sin(timestamp / 260);
+            if (state.stageIndex === 0) {
+                drawArrow(ctx, chamber.x + 10, chamber.y + chamber.h * 0.2, chamber.x + 72 + arrowPulse, chamber.y + chamber.h * 0.2, hotColor, 4);
+            } else if (state.stageIndex === 1) {
+                drawArrow(ctx, pistonX + pistonWidth + 8, chamber.y + chamber.h * 0.5, pistonX + pistonWidth + 54 + arrowPulse, chamber.y + chamber.h * 0.5, '#3e8bff', 4);
+            } else if (state.stageIndex === 2) {
+                drawArrow(ctx, chamber.x + chamber.w - 12, chamber.y + chamber.h * 0.78, chamber.x + chamber.w - 78 - arrowPulse, chamber.y + chamber.h * 0.78, coldColor, 4);
+            } else {
+                drawArrow(ctx, pistonX - 8, chamber.y + chamber.h * 0.5, pistonX - 52 - arrowPulse, chamber.y + chamber.h * 0.5, '#ff9a3d', 4);
+            }
+
+            ctx.fillStyle = '#dfe8ff';
+            ctx.font = '14px Segoe UI';
+            ctx.fillText(`Rendimento: ${efficiencyValue.toFixed(1)}%`, pvBox.x, pvBox.y + pvBox.h + 34);
+            ctx.fillText(`Q₂/Q₁ = ${(heatOutputValue / heatInput).toFixed(2)}`, pvBox.x, pvBox.y + pvBox.h + 56);
+        }
+
+        function animateCarnotScene(timestamp) {
+            renderCarnotScene(timestamp);
+            requestAnimationFrame(animateCarnotScene);
+        }
+
+        // ========== SISTEMA DE EXERCÍCIOS COM PERSISTÊNCIA ==========
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
+
+        function resetExerciseState() {
+            exercises = [];
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            conclusionTextSaved = "";
+        }
+
+        function generateExercises() {
+            exercises = [];
+            for (let i = 0; i < 2; i++) {
+                let t1 = (Math.floor(Math.random() * 7) + 4) * 100;
+                let t2 = (Math.floor(Math.random() * 3) + 2) * 100;
+                let η = (1 - (t2 / t1)) * 100;
+                exercises.push({ type: 'calcular_rendimento_temp', question: `Uma máquina de Carnot opera entre as temperaturas de ${t1} K e ${t2} K. Qual é o seu rendimento máximo?`, answer: η.toFixed(1), options: generateOptions(η, '%') });
+                let q1 = (Math.floor(Math.random() * 9) + 2) * 100;
+                let q2 = (Math.floor(Math.random() * (q1/100 - 1)) + 1) * 100;
+                η = (1 - (q2 / q1)) * 100;
+                exercises.push({ type: 'calcular_rendimento_calor', question: `Uma máquina de Carnot recebe ${q1} J de calor da fonte quente e rejeita ${q2} J para a fonte fria. Qual é o seu rendimento?`, answer: η.toFixed(1), options: generateOptions(η, '%') });
+                q1 = (Math.floor(Math.random() * 9) + 2) * 100;
+                η = (Math.floor(Math.random() * 6) + 2) * 10;
+                let w = (η / 100) * q1;
+                exercises.push({ type: 'calcular_trabalho', question: `Uma máquina de Carnot com rendimento de ${η}% recebe ${q1} J de calor da fonte quente. Qual é o trabalho realizado pela máquina?`, answer: w.toFixed(0), options: generateOptions(w, 'J') });
+            }
+            exercises.push({ type: 'teorica_primeira_lei', question: `De acordo com a Primeira Lei da Termodinâmica aplicada a uma máquina térmica:`, answer: 'O trabalho realizado é igual à diferença entre o calor absorvido e o calor rejeitado', options: ['Todo calor absorvido é convertido em trabalho', 'O trabalho realizado é igual à diferença entre o calor absorvido e o calor rejeitado', 'O calor rejeitado é sempre maior que o calor absorvido', 'A energia interna do sistema aumenta a cada ciclo'] });
+            exercises.push({ type: 'teorica_segunda_lei', question: `A Segunda Lei da Termodinâmica estabelece que:`, answer: 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', options: ['A energia total do universo está diminuindo', 'É impossível converter completamente calor em trabalho sem outras mudanças no sistema', 'Todas as máquinas térmicas têm rendimento de 100%', 'O calor flui naturalmente de objetos frios para objetos quentes'] });
+            exercises.push({ type: 'teorica_carnot', question: `O rendimento de uma máquina de Carnot depende:`, answer: 'Apenas das temperaturas das fontes quente e fria', options: ['Do tipo de substância de trabalho utilizada', 'Apenas das temperaturas das fontes quente e fria', 'Do volume do sistema', 'Da pressão máxima atingida durante o ciclo'] });
+            exercises = shuffleArray(exercises);
+            renderProgressBar();
+        }
+
+        function generateOptions(correctValue, unit) {
+            const formatValue = (value) => {
+                if (unit === '%') return Number(value).toFixed(1);
+                if (unit === 'J') return String(Math.round(value));
+                return String(value);
+            };
+
+            let opts = [{
+                value: formatValue(correctValue),
+                display: unit === '%' ? Number(correctValue).toFixed(1) + ' ' + unit : (unit === 'J' ? Math.round(correctValue) + ' ' + unit : correctValue)
+            }];
+
+            for (let i = 0; i < 4; i++) {
+                let factor = 0.5 + Math.random() * 1.5;
+                let optVal = correctValue * factor;
+                if (unit === '%') opts.push({ value: formatValue(optVal), display: optVal.toFixed(1) + ' ' + unit });
+                else if (unit === 'J') opts.push({ value: formatValue(optVal), display: Math.round(optVal) + ' ' + unit });
+                else opts.push({ value: formatValue(optVal), display: optVal });
+            }
+
+            return shuffleArray(opts);
+        }
+
+        function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+
+        function renderProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.innerHTML = exercises.map((_, index) => `<div class="progress-item" id="progress${index + 1}">${index + 1}</div>`).join('');
+        }
+
+        function showCurrentExercise() {
+            const ex = exercises[currentExercise];
+            document.getElementById('exerciseContainer').innerHTML = `
+                <div class="exercise">
+                    <h3>Exercício ${currentExercise+1} de ${exercises.length}</h3>
+                    <p>${ex.question}</p>
+                    <div class="options">${ex.options.map(opt => {
+                        const optionValue = typeof opt === 'string' ? opt : opt.value;
+                        const optionDisplay = typeof opt === 'string' ? opt : opt.display;
+                        return `<div class="option" data-value="${optionValue}">${optionDisplay}</div>`;
+                    }).join('')}</div>
+                    <button class="check-btn" id="checkAnswerBtn">Verificar Resposta</button>
+                    <div class="result"></div>
+                </div>
+            `;
+            document.getElementById('exerciseContainer').onclick = function(e) { if (e.target.classList.contains('option')) { this.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected')); e.target.classList.add('selected'); } };
+            document.getElementById('checkAnswerBtn').addEventListener('click', checkAnswer);
+            updateProgressBar();
+        }
+
+        function checkAnswer() {
+            const container = document.getElementById('exerciseContainer');
+            const selected = container.querySelector('.option.selected');
+            const resultDiv = container.querySelector('.result');
+            if (!selected) { resultDiv.textContent = 'Selecione uma opção.'; resultDiv.className = 'result error'; return; }
+            const isCorrect = selected.dataset.value.trim() === String(exercises[currentExercise].answer).trim();
+            if (isCorrect) {
+                resultDiv.textContent = 'Correto! Parabéns!'; resultDiv.className = 'result success';
+                selected.classList.add('correct');
+                exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, attempts: currentExerciseAttempts + 1 });
+                currentExerciseAttempts = 0;
+                setTimeout(nextExercise, 1500);
+            } else {
+                currentExerciseAttempts++;
+                resultDiv.innerHTML = `<div class="error">Incorreto. Tente novamente.</div><div class="button-group"><button class="skip-btn" id="skipExerciseBtn">Pular Exercício</button><button class="try-again-btn" id="tryAgainBtn">Tentar Novamente</button></div>`;
+                document.getElementById('skipExerciseBtn').addEventListener('click', skipExercise);
+                document.getElementById('tryAgainBtn').addEventListener('click', () => { generateNewExerciseOfSameType(); showCurrentExercise(); });
+            }
+        }
+
+        function generateNewExerciseOfSameType() {
+            const type = exercises[currentExercise].type;
+            if (type === 'calcular_rendimento_temp') {
+                let t1 = (Math.floor(Math.random() * 7) + 4) * 100, t2 = (Math.floor(Math.random() * 3) + 2) * 100, η = (1 - (t2 / t1)) * 100;
+                exercises[currentExercise] = { type, question: `Uma máquina de Carnot opera entre as temperaturas de ${t1} K e ${t2} K. Qual é o seu rendimento máximo?`, answer: η.toFixed(1), options: generateOptions(η, '%') };
+            } else if (type === 'calcular_rendimento_calor') {
+                let q1 = (Math.floor(Math.random() * 9) + 2) * 100, q2 = (Math.floor(Math.random() * (q1/100 - 1)) + 1) * 100, η = (1 - (q2 / q1)) * 100;
+                exercises[currentExercise] = { type, question: `Uma máquina de Carnot recebe ${q1} J de calor da fonte quente e rejeita ${q2} J para a fonte fria. Qual é o seu rendimento?`, answer: η.toFixed(1), options: generateOptions(η, '%') };
+            } else if (type === 'calcular_trabalho') {
+                let q1 = (Math.floor(Math.random() * 9) + 2) * 100, η = (Math.floor(Math.random() * 6) + 2) * 10, w = (η / 100) * q1;
+                exercises[currentExercise] = { type, question: `Uma máquina de Carnot com rendimento de ${η}% recebe ${q1} J de calor da fonte quente. Qual é o trabalho realizado pela máquina?`, answer: w.toFixed(0), options: generateOptions(w, 'J') };
+            }
+        }
+
+        function skipExercise() {
+            if (confirm("Deseja pular este exercício? Um erro será registrado.")) {
+                exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, attempts: currentExerciseAttempts });
+                skippedQuestions++;
+                currentExerciseAttempts = 0;
+                currentExercise++;
+                if (currentExercise < exercises.length) showCurrentExercise();
+                else showConclusion();
+            }
+        }
+
+        function nextExercise() { currentExercise++; if (currentExercise < exercises.length) showCurrentExercise(); else showConclusion(); }
+        function updateProgressBar() {
+            for (let i = 0; i < exercises.length; i++) {
+                let p = document.getElementById(`progress${i+1}`);
+                if (!p) continue;
+                p.classList.remove('active','completed');
+                if (i === currentExercise) p.classList.add('active');
+                else if (i < currentExercise) p.classList.add('completed');
+            }
+        }
+        function showConclusion() {
+            document.getElementById('exerciseContainer').style.display = 'none';
+            document.getElementById('conclusionContainer').style.display = 'block';
+            const textarea = document.getElementById('conclusionText');
+            if (conclusionTextSaved) textarea.value = conclusionTextSaved;
+            const submit = document.getElementById('submitConclusion');
+            const newSubmit = submit.cloneNode(true);
+            submit.parentNode.replaceChild(newSubmit, submit);
+            newSubmit.addEventListener('click', () => { const text = document.getElementById('conclusionText').value.trim(); if (!text) alert('Escreva uma conclusão.'); else { conclusionTextSaved = text; showResults(text); } });
+        }
+        function showResults(conclusion) {
+            document.getElementById('conclusionContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
+            document.getElementById('resultsSummary').innerHTML = `<p>Exercícios respondidos: ${total}</p><p>Respostas corretas: ${correct}</p><p>Exercícios pulados: ${skippedQuestions}</p><p>Nota: ${percent}%</p>`;
+            document.getElementById('finalConclusion').value = conclusion;
+            const sendBtn = document.getElementById('sendResults');
+            const newSend = sendBtn.cloneNode(true);
+            sendBtn.parentNode.replaceChild(newSend, sendBtn);
+            newSend.addEventListener('click', sendResultsToSheet);
+        }
+
+        function sendResultsToSheet() {
+            const studentName = document.getElementById('studentName').value;
+            const studentGrade = document.getElementById('studentGrade').value;
+            const studentClass = document.getElementById('studentClass').value;
+            const studentEmail = document.getElementById('studentEmail').value;
+            const criticism = document.getElementById('criticismInput').value;
+            const suggestion = document.getElementById('suggestionInput').value;
+            const finalConclusion = document.getElementById('finalConclusion').value;
+            const sendButton = document.getElementById('sendResults');
+            if (!studentName || !studentGrade || !studentClass || !finalConclusion) { alert('Preencha todos os campos obrigatórios.'); return; }
+            sendButton.disabled = true; sendButton.textContent = 'Enviando...';
+            const total = exercises.length, correct = exerciseResults.filter(r => r.correct).length, percent = Math.round((correct/total)*100);
+            const emailStatus = document.getElementById('emailStatus');
+            emailStatus.style.display = 'block'; emailStatus.textContent = 'Enviando dados...'; emailStatus.className = 'email-status sending';
+            const data = { timestamp: new Date().toLocaleString('pt-BR'), serie: studentGrade, turma: studentClass, estudante: studentName, simulacao: 'Ciclo de Carnot', questoes_puladas: skippedQuestions, acertos_erros: `${correct}/${total-correct}`, nota: percent+'%', conclusao: finalConclusion, criticas: criticism, sugestoes: suggestion, email: studentEmail || '', to_email: "flavio.ambrosio@edu.se.df.gov.br", nome_aluno: studentName, acertos: `${correct}/${total}`, data_envio: new Date().toLocaleString('pt-BR') };
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            fetch(scriptUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+                .then(() => { emailStatus.textContent = 'Dados enviados com sucesso!'; emailStatus.className = 'email-status sent'; addDebugInfo("Dados enviados"); setTimeout(() => { resetExerciseState(); closeExercisesModal(); sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; }, 3000); })
+                .catch(error => { emailStatus.textContent = '❌ Houve falha no envio. Se estiver usando e-mail para cópia, retire esse campo e procure o professor para confirmação.'; emailStatus.className = 'email-status error-status'; sendButton.disabled = false; sendButton.textContent = 'Enviar Resultados'; });
+        }
+
+        function closeExercisesModal() {
+            const conclusionTextarea = document.getElementById('conclusionText');
+            if (conclusionTextarea && document.getElementById('conclusionContainer').style.display === 'block') conclusionTextSaved = conclusionTextarea.value;
+            document.getElementById('exercisesModal').style.display = 'none';
+        }
+
+        function resetAndRestartExercises() {
+            if (confirm("Deseja reiniciar todos os exercícios? Seu progresso atual será perdido.")) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            }
+        }
+
+        function openExercisesModal() {
+            if (exercises.length === 0 || (currentExercise >= exercises.length && document.getElementById('resultsContainer').style.display !== 'block' && document.getElementById('conclusionContainer').style.display !== 'block')) {
+                resetExerciseState();
+                generateExercises();
+                currentExercise = 0;
+                document.getElementById('exerciseContainer').style.display = 'block';
+                document.getElementById('conclusionContainer').style.display = 'none';
+                document.getElementById('resultsContainer').style.display = 'none';
+                showCurrentExercise();
+            } else {
+                if (document.getElementById('resultsContainer').style.display === 'block') { /* já está */ }
+                else if (document.getElementById('conclusionContainer').style.display === 'block') {
+                    document.getElementById('exerciseContainer').style.display = 'none';
+                    document.getElementById('conclusionContainer').style.display = 'block';
+                    if (conclusionTextSaved) document.getElementById('conclusionText').value = conclusionTextSaved;
+                } else {
+                    document.getElementById('exerciseContainer').style.display = 'block';
+                    document.getElementById('conclusionContainer').style.display = 'none';
+                    document.getElementById('resultsContainer').style.display = 'none';
+                    showCurrentExercise();
+                }
+            }
+            document.getElementById('exercisesModal').style.display = 'flex';
+        }
+
+        document.getElementById('restartExercisesBtn').addEventListener('click', resetAndRestartExercises);
+        window.addEventListener('load', init);
+    </script>
+    <script>
+        let studentNameCarnot = localStorage.getItem('studentNameCarnot') || '';
+
+        function ensureStudentNameCarnot() {
+            if (!studentNameCarnot) {
+                const providedName = prompt('Antes de começar, digite seu nome:');
+                if (providedName && providedName.trim()) {
+                    studentNameCarnot = providedName.trim();
+                    localStorage.setItem('studentNameCarnot', studentNameCarnot);
+                } else {
+                    studentNameCarnot = 'estudante';
+                }
+            }
+            return studentNameCarnot;
+        }
+
+        const tracks = [
+            () => `Olá, ${ensureStudentNameCarnot()}! Esta simulação mostra o ciclo de Carnot como uma referência ideal para estudar máquinas térmicas. À esquerda aparece a animação do ciclo com as quatro etapas destacadas por cores. À direita estão os controles de temperatura da fonte quente, temperatura da fonte fria e calor absorvido. Abaixo, o painel de medições reúne rendimento, trabalho realizado e calor rejeitado.`,
+            'O primeiro ponto importante é que o rendimento de Carnot depende apenas das temperaturas absolutas das fontes. A fórmula eta igual a 1 menos T dois sobre T um mostra isso com clareza. Quando a fonte quente fica muito mais quente que a fria, o rendimento aumenta. Quando as temperaturas se aproximam, o rendimento cai.',
+            'Além do rendimento, a tela permite comparar calor absorvido, trabalho e calor rejeitado. Pela primeira lei da termodinâmica aplicada ao ciclo, o trabalho realizado é a diferença entre o calor recebido da fonte quente e o calor devolvido à fonte fria. Por isso os três valores precisam ser analisados em conjunto, e não separadamente.',
+            'A legenda colorida ajuda a identificar as quatro transformações do ciclo: expansão isotérmica, expansão adiabática, compressão isotérmica e compressão adiabática. Mesmo sem entrar em todos os detalhes matemáticos de cada etapa, vale perceber que o ciclo ideal alterna momentos de troca de calor com momentos sem troca de calor.',
+            'Use os controles para testar comparações simples. Mantendo T um fixa, diminua T dois e observe o aumento do rendimento. Depois mantenha as temperaturas e altere o calor de entrada Q um. Você verá que o rendimento permanece o mesmo, mas o trabalho e o calor rejeitado mudam de escala.',
+            'Depois dessa exploração, abra os exercícios resolvidos. Eles foram escritos para mostrar o raciocínio por trás das contas: primeiro identificar o que a fórmula responde, depois interpretar fisicamente o resultado em termos de eficiência e transferência de energia.'
+        ];
+
+        const exampleNarrations = {
+            '1': 'Exemplo 1. A pergunta pede o rendimento máximo de uma máquina de Carnot, então a expressão mais importante é eta igual a 1 menos T dois sobre T um. Com T um igual a 500 kelvin e T dois igual a 300 kelvin, a razão entre as temperaturas é 0,6. Subtraindo esse valor de 1, obtemos 0,4, ou 40 por cento. A interpretação física é que, mesmo no melhor cenário possível, apenas parte do calor absorvido pode virar trabalho.',
+            '2': 'Exemplo 2. Agora queremos o trabalho realizado. Primeiro calculamos o rendimento usando as temperaturas das fontes: 1 menos 300 sobre 600, que resulta em 0,5. Isso significa que metade do calor recebido pode ser convertida em trabalho. Como a máquina absorve 800 joules, o trabalho é 0,5 vezes 800, ou 400 joules. O raciocínio liga diretamente eficiência e energia transformada.',
+            '3': 'Exemplo 3. Neste caso já sabemos o rendimento e o calor absorvido, e a pergunta é sobre o calor rejeitado. Um rendimento de 25 por cento significa que a máquina transforma 250 joules em trabalho quando recebe 1000 joules. O restante não desaparece: ele precisa ser rejeitado para a fonte fria. Então Q dois é 1000 menos 250, resultando em 750 joules. Esse exemplo deixa claro que nenhuma máquina térmica converte todo o calor em trabalho.'
+        };
+
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Ciclo de Carnot',
+            storageKey: 'ciclo-de-carnot'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+    <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulacao parte do repositorio <strong>Simulacoes Interativas de Fisica</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
+</body>
+</html>
