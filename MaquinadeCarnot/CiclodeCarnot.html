@@ -2113,18 +2113,25 @@
 
         window.SIMULATION_ENHANCER_CONFIG = {
             simulationName: 'Ciclo de Carnot',
-            storageKey: 'ciclo-de-carnot'
+            storageKey: 'ciclo-de-carnot',
+            enableEnemQuestions: true
         };
     </script>
     <script>
         (function () {
+            const bankScript = document.createElement('script');
+            bankScript.src = '../_shared/enem-question-bank.js';
             const enhancerScript = document.createElement('script');
             enhancerScript.src = '../_shared/simulation-enhancer.js';
-            enhancerScript.defer = true;
             enhancerScript.onerror = function () {
                 console.warn('simulation-enhancer.js não encontrado. A simulação principal continua funcionando.');
             };
-            document.body.appendChild(enhancerScript);
+            const loadEnhancer = function () {
+                document.body.appendChild(enhancerScript);
+            };
+            bankScript.onload = loadEnhancer;
+            bankScript.onerror = loadEnhancer;
+            document.body.appendChild(bankScript);
         })();
     </script>
     <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>

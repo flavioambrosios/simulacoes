@@ -76,7 +76,8 @@
     const config = Object.assign({
         simulationName: '',
         storageKey: '',
-        termOptions: ['1o', '2o', '3o', '4o']
+        termOptions: ['1o', '2o', '3o', '4o'],
+        enableEnemQuestions: false
     }, window.SIMULATION_ENHANCER_CONFIG || {});
 
     const simulationName = config.simulationName || getSimulationName();
@@ -116,6 +117,7 @@
     setupExercisePersistence();
     setupConclusionPreview();
     setupDelegatedSendHandler();
+    setupEnemQuestionPanel();
 
     function getSimulationName() {
         const heading = document.querySelector('h1');
@@ -3276,6 +3278,266 @@
         }, true);
 
         document.body.dataset.enhancerSendBound = 'true';
+    }
+
+    function getEnemQuestionBank() {
+        if (!config.enableEnemQuestions) {
+            return [];
+        }
+        return Array.isArray(window.ENEM_QUESTION_BANK) ? window.ENEM_QUESTION_BANK : [];
+    }
+
+    function getEnemQuestionsForCurrentSimulation() {
+        const bank = getEnemQuestionBank();
+        return bank.filter(item => {
+            const simulationKeys = Array.isArray(item.simulationKeys)
+                ? item.simulationKeys
+                : [item.simulationKey];
+            return simulationKeys.includes(normalizedSimulationKey) && item.publicado !== false;
+        });
+    }
+
+    function getEnemNextQuestion(currentQuestion, bank, excludedIds, sameTypeOnly) {
+        const excluded = excludedIds || [];
+        const available = bank.filter(item => !excluded.includes(item.id) && item.id !== currentQuestion.id);
+        const sameType = available.filter(item => item.tipo === currentQuestion.tipo);
+        const candidates = sameTypeOnly && sameType.length ? sameType : available;
+        if (!candidates.length) {
+            return currentQuestion;
+        }
+        return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function setupEnemQuestionPanel() {
+        if (!config.enableEnemQuestions) {
+            return;
+        }
+
+        const bank = getEnemQuestionsForCurrentSimulation();
+        if (!bank.length || document.getElementById('enhancer-enem-panel')) {
+            return;
+        }
+
+        const panel = document.createElement('div');
+        panel.id = 'enhancer-enem-panel';
+        panel.style.marginTop = '18px';
+        panel.style.padding = '14px';
+        panel.style.borderRadius = '12px';
+        panel.style.background = 'rgba(255, 221, 136, 0.08)';
+        panel.style.border = '1px solid rgba(255, 221, 136, 0.38)';
+        panel.style.color = '#fff';
+        panel.innerHTML = `
+            <h3 style="margin: 0 0 10px; color: #ffdd88; text-align: center;">Questões ENEM</h3>
+            <div style="text-align: center;">
+                <button id="enhancer-enem-open-btn" type="button" style="width: auto; margin: 0;">Abrir questões</button>
+            </div>
+        `;
+
+        const target = document.querySelector('.controls-panel') || document.body;
+        target.appendChild(panel);
+
+        const openBtn = document.getElementById('enhancer-enem-open-btn');
+        if (openBtn) {
+            openBtn.addEventListener('click', function () {
+                openEnemQuestionModal();
+            });
+        }
+    }
+
+    function openEnemQuestionModal(previousQuestion, questionHistory) {
+        const bank = getEnemQuestionsForCurrentSimulation();
+        if (!bank.length) {
+            alert('Ainda não há questões ENEM disponíveis para esta simulação.');
+            return;
+        }
+
+        const history = Array.isArray(questionHistory) ? questionHistory : [];
+        const preferredImageQuestion = bank.find(item => item.imagem && item.publicado !== false);
+        const question = previousQuestion || preferredImageQuestion || bank[0];
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.background = 'rgba(0, 0, 0, 0.72)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '99999';
+        modal.style.padding = '20px';
+        modal.style.boxSizing = 'border-box';
+
+        const content = document.createElement('div');
+        content.style.width = 'min(760px, 100%)';
+        content.style.maxHeight = '90vh';
+        content.style.overflowY = 'auto';
+        content.style.background = '#1b2433';
+        content.style.border = '1px solid rgba(255, 221, 136, 0.5)';
+        content.style.borderRadius = '12px';
+        content.style.padding = '20px';
+        content.style.color = '#fff';
+        content.style.boxShadow = '0 16px 36px rgba(0,0,0,0.35)';
+
+        const resolveQuestionAssetUrl = function (assetPath) {
+            const sharedMarker = '/_shared/';
+            const markerIndex = String(assetPath || '').replace(/\\/g, '/').indexOf(sharedMarker);
+            const enhancerScript = Array.from(document.scripts).find(script => /(?:^|\/)simulation-enhancer\.js(?:\?|$)/.test(script.src));
+
+            if (markerIndex === -1 || !enhancerScript) {
+                return assetPath;
+            }
+
+            const sharedAssetPath = String(assetPath).replace(/\\/g, '/').slice(markerIndex + sharedMarker.length);
+            return new URL(sharedAssetPath, enhancerScript.src).href;
+        };
+
+        const questionFiguresHtml = Array.isArray(question.figuras) ? question.figuras.map(figure => `
+            <figure style="margin: 0 0 14px; text-align:center;">
+                <img src="${resolveQuestionAssetUrl(figure.arquivo)}" alt="${figure.descricao || 'Figura da questão'}" style="max-width:100%; max-height:260px; object-fit:contain; background:#fff; border-radius:8px;" />
+                ${figure.descricao ? `<figcaption style="margin-top:6px; color:#d7e4ee; font-size:0.88rem;">${figure.descricao}</figcaption>` : ''}
+            </figure>
+        `).join('') : '';
+
+        const enunciadoRaw = typeof question.enunciado === 'string' ? question.enunciado : '';
+        const enunciadoComFigura = Array.isArray(question.figuras) && question.figuras.length && enunciadoRaw.includes('[FIGURA_1]')
+            ? enunciadoRaw.split('[FIGURA_1]').map((part, index) => {
+                return `${index === 0 ? '' : ''}${part}${index < question.figuras.length ? '' : ''}`;
+            }).join('')
+            : enunciadoRaw;
+
+        const questionTextHtml = Array.isArray(question.figuras) && question.figuras.length && enunciadoRaw.includes('[FIGURA_1]')
+            ? (() => {
+                const parts = enunciadoRaw.split('[FIGURA_1]');
+                return `
+                    <p style="margin:0 0 12px; line-height:1.5; font-size:1rem;">${parts[0]}</p>
+                    ${questionFiguresHtml}
+                    <p style="margin:0 0 12px; line-height:1.5; font-size:1rem;">${parts.slice(1).join('')}</p>
+                `;
+            })()
+            : `<p style="margin:0 0 12px; line-height:1.5; font-size:1rem;">${enunciadoRaw}</p>${questionFiguresHtml}`;
+
+        const alternativesHtml = question.alternativas.map(option => `
+            <div style="margin: 10px 0;">
+                <button type="button" data-option="${option.id}" style="width:100%; text-align:left; padding:12px 14px; border-radius:10px; background: rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#fff; cursor:pointer;">
+                    <strong>${option.id})</strong> ${option.texto || ''}
+                    ${option.imagem ? `<img src="${resolveQuestionAssetUrl(option.imagem)}" alt="Alternativa ${option.id}" style="display:block; max-width:100%; max-height:210px; margin:10px auto 0; background:#fff; border-radius:6px;" />` : ''}
+                </button>
+            </div>
+        `).join('');
+
+        const questionSource = question.origem === 'oficial'
+            ? `ENEM | ${question.ano} | Questão ${question.numeroQuestao}`
+            : 'Prática semelhante ao ENEM';
+
+        content.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:12px;">
+            <h3 style="margin:0; color:#ffdd88;">${questionSource}</h3>
+                <button type="button" id="enhancer-enem-close-btn" style="width:auto; margin:0; padding:8px 12px;">Fechar</button>
+            </div>
+            ${questionTextHtml}
+            <div>${alternativesHtml}</div>
+        `;
+
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+
+        const closeBtn = document.getElementById('enhancer-enem-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => modal.remove());
+        }
+
+        content.querySelectorAll('button[data-option]').forEach(button => {
+            button.addEventListener('click', () => {
+                const selected = button.dataset.option;
+                const correct = question.respostaCorreta;
+                const isCorrect = selected === correct;
+
+                const feedback = document.createElement('div');
+                feedback.style.marginTop = '18px';
+                feedback.style.padding = '12px 14px';
+                feedback.style.borderRadius = '10px';
+                feedback.style.background = isCorrect ? 'rgba(40, 135, 86, 0.2)' : 'rgba(180, 86, 86, 0.22)';
+                feedback.style.border = '1px solid ' + (isCorrect ? 'rgba(116, 255, 173, 0.4)' : 'rgba(255, 128, 128, 0.35)');
+                feedback.style.color = '#fff';
+                feedback.innerHTML = `
+                    <strong>${isCorrect ? 'Correto!' : 'Incorreto.'}</strong><br>
+                    ${isCorrect ? 'Parabéns, resposta correta.' : 'Resposta correta: ' + correct + '.'}<br>
+                    <span style="color:#ffdd88;">Explicação:</span> ${question.explicacao}
+                `;
+
+                content.appendChild(feedback);
+
+                const answerRecord = {
+                    questionId: question.id,
+                    simulationKey: normalizedSimulationKey,
+                    selected,
+                    correct,
+                    isCorrect,
+                    answeredAt: new Date().toISOString()
+                };
+
+                const current = JSON.parse(localStorage.getItem('simulationEnhancer:enem-progress') || '{}');
+                const key = normalizedSimulationKey || 'global';
+                current[key] = current[key] || [];
+                current[key].push(answerRecord);
+                localStorage.setItem('simulationEnhancer:enem-progress', JSON.stringify(current));
+
+                content.querySelectorAll('button[data-option]').forEach(btn => btn.disabled = true);
+
+                const nextHistory = history.concat(question.id);
+                const nextQuestion = getEnemNextQuestion(question, bank, nextHistory, false);
+                const hasNextQuestion = nextQuestion.id !== question.id;
+                if (hasNextQuestion) {
+                    const nextButton = document.createElement('button');
+                    nextButton.type = 'button';
+                    nextButton.textContent = 'Próxima questão';
+                    nextButton.style.width = '100%';
+                    nextButton.style.marginTop = '14px';
+                    nextButton.style.padding = '12px';
+                    nextButton.style.borderRadius = '10px';
+                    nextButton.style.background = '#ffdd88';
+                    nextButton.style.color = '#1b2433';
+                    nextButton.style.fontWeight = '700';
+                    nextButton.style.cursor = 'pointer';
+                    nextButton.addEventListener('click', function () {
+                        modal.remove();
+                        openEnemQuestionModal(nextQuestion, nextHistory);
+                    });
+                    content.appendChild(nextButton);
+                }
+
+                if (hasNextQuestion) {
+                    const retryButton = document.createElement('button');
+                    retryButton.type = 'button';
+                    retryButton.textContent = 'Tentar outra questão do mesmo tipo';
+                    retryButton.style.width = '100%';
+                    retryButton.style.marginTop = '14px';
+                    retryButton.style.padding = '12px';
+                    retryButton.style.borderRadius = '10px';
+                    retryButton.style.background = '#ffdd88';
+                    retryButton.style.color = '#1b2433';
+                    retryButton.style.fontWeight = '700';
+                    retryButton.style.cursor = 'pointer';
+                    retryButton.addEventListener('click', function () {
+                        const next = getEnemNextQuestion(question, bank, nextHistory, true);
+                        modal.remove();
+                        openEnemQuestionModal(next, nextHistory);
+                    });
+                    content.appendChild(retryButton);
+                }
+
+                if (!hasNextQuestion) {
+                    const finished = document.createElement('div');
+                    finished.style.marginTop = '14px';
+                    finished.style.color = '#ffdd88';
+                    finished.textContent = bank.length > 1
+                        ? 'Você respondeu todas as questões disponíveis desta simulação.'
+                        : 'Ainda há apenas uma questão oficial cadastrada para esta simulação.';
+                    content.appendChild(finished);
+                }
+            });
+        });
     }
 
     function escapeHtml(text) {
