@@ -249,11 +249,16 @@ def build_single_wave_optimization_mask(initial_amps, freq_delta):
     return np.min(distances, axis=1) <= int(freq_delta)
 
 
-def build_optimization_masks(initial_amps1, initial_amps2, freq_delta):
-    return (
-        build_single_wave_optimization_mask(initial_amps1, freq_delta),
-        build_single_wave_optimization_mask(initial_amps2, freq_delta),
-    )
+def build_optimization_masks(
+    initial_amps1,
+    initial_amps2,
+    freq_delta,
+    optimize_wave1=True,
+    optimize_wave2=True,
+):
+    mask1 = build_single_wave_optimization_mask(initial_amps1, freq_delta)
+    mask2 = build_single_wave_optimization_mask(initial_amps2, freq_delta)
+    return mask1 if optimize_wave1 else np.zeros(N_FREQS, dtype=bool), mask2 if optimize_wave2 else np.zeros(N_FREQS, dtype=bool)
 
 
 def merge_optimized_values(optimized_values, base_amps1, base_amps2, optimize_masks):
@@ -1562,6 +1567,8 @@ def optimize_amplitudes(
     max_iterations,
     smoothing_window=DEFAULT_SMOOTHING,
     freq_delta=DEFAULT_FREQ_DELTA,
+    optimize_wave1=True,
+    optimize_wave2=True,
 ):
     class OptimizationStopped(Exception):
         def __init__(self, amps_flat, diff, reason):
@@ -1569,7 +1576,13 @@ def optimize_amplitudes(
             self.diff = diff
             self.reason = reason
 
-    optimize_masks = build_optimization_masks(initial_amps1, initial_amps2, freq_delta)
+    optimize_masks = build_optimization_masks(
+        initial_amps1,
+        initial_amps2,
+        freq_delta,
+        optimize_wave1=optimize_wave1,
+        optimize_wave2=optimize_wave2,
+    )
     optimize_mask1, optimize_mask2 = optimize_masks
     free_count1 = int(np.sum(optimize_mask1))
     free_count2 = int(np.sum(optimize_mask2))
@@ -2546,7 +2559,24 @@ app.layout = html.Div(
                                         ),
                                         html.Div(
                                             [
-                                                html.Label("delta f limite para a otimização"),
+                                                html.Label("Ondas que podem ser alteradas pela otimização"),
+                                                dcc.Checklist(
+                                                    id="optimization-wave-selector",
+                                                    options=[
+                                                        {"label": "Onda 1", "value": "wave1"},
+                                                        {"label": "Onda 2", "value": "wave2"},
+                                                    ],
+                                                    value=["wave1", "wave2"],
+                                                    inline=True,
+                                                    labelStyle={"marginRight": "18px"},
+                                                    style={"marginTop": "8px"},
+                                                ),
+                                            ],
+                                            style={"marginTop": "18px"},
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.Label("delta f limite para as ondas selecionadas"),
                                                 dcc.Slider(
                                                     id="freq-delta-slider",
                                                     min=0,
@@ -3277,6 +3307,7 @@ app.layout = html.Div(
     Output("status-message", "children"),
     Output("smoothing-slider", "value"),
     Output("freq-delta-slider", "value"),
+    Output("optimization-wave-selector", "value"),
     Output("max-iter-slider", "value"),
     Input("optimize-btn", "n_clicks"),
     Input("reset-btn", "n_clicks"),
@@ -3285,6 +3316,7 @@ app.layout = html.Div(
     State("max-iter-slider", "value"),
     State("smoothing-slider", "value"),
     State("freq-delta-slider", "value"),
+    State("optimization-wave-selector", "value"),
     State("mobile-frequency-picker", "value"),
     State("mobile-amp1-input", "value"),
     State("mobile-amp2-input", "value"),
@@ -3305,6 +3337,7 @@ def handle_actions(
     max_iterations,
     smoothing_window,
     freq_delta,
+    selected_waves,
     mobile_frequency,
     mobile_amp1,
     mobile_amp2,
@@ -3325,7 +3358,7 @@ def handle_actions(
         updated_table[selected_index]["onda1"] = round(clamp_amp(mobile_amp1), TABLE_DECIMALS)
         updated_table[selected_index]["onda2"] = round(clamp_amp(mobile_amp2), TABLE_DECIMALS)
         status = f"Frequência {current_frequency} THz atualizada pelo editor móvel."
-        return updated_table, history_data, status, no_update, no_update, no_update
+        return updated_table, history_data, status, no_update, no_update, no_update, no_update
 
     if trigger == "reset-btn":
         zero_table = amps_to_table_data(ZERO_AMPS, ZERO_AMPS)
@@ -3343,16 +3376,33 @@ def handle_actions(
             "Tudo zerado. Ajuste as amplitudes novamente.",
             DEFAULT_SMOOTHING,
             DEFAULT_FREQ_DELTA,
+            ["wave1", "wave2"],
             2000,
         )
 
     # Quando não é edição móvel nem reset, a ação restante é a otimização automática do espectro.
+    selected_waves = selected_waves or []
+    optimize_wave1 = "wave1" in selected_waves
+    optimize_wave2 = "wave2" in selected_waves
+    if not optimize_wave1 and not optimize_wave2:
+        return (
+            table_data,
+            history_data,
+            "Selecione Onda 1, Onda 2 ou ambas antes de otimizar.",
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+        )
+
     optimized1, optimized2, final_diff, reason = optimize_amplitudes(
         amps1,
         amps2,
         int(max_iterations),
         smoothing_window=smoothing_window,
         freq_delta=freq_delta,
+        optimize_wave1=optimize_wave1,
+        optimize_wave2=optimize_wave2,
     )
     optimized_table = amps_to_table_data(optimized1, optimized2)
     displayed1, displayed2 = table_data_to_amps(optimized_table)
@@ -3375,7 +3425,7 @@ def handle_actions(
     else:
         status = f"Otimização parcial: diferença máxima = {displayed_diff:.4f}"
 
-    return optimized_table, history, status, no_update, no_update, no_update
+    return optimized_table, history, status, no_update, no_update, no_update, no_update
 
 
 @app.callback(
