@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatorio de Laboratorio 3</title>
+    <script src="../_shared/student-access-config.js"></script>
+    <style>
+        :root {
+            --ink: #17212b;
+            --muted: #5b6875;
+            --paper: #f7f3ea;
+            --panel: #fffdf7;
+            --line: #d7ccbb;
+            --accent: #176b87;
+            --accent-dark: #104d63;
+            --warm: #d9822b;
+            --ok: #1f7a4d;
+            --danger: #a53838;
+            --shadow: 0 18px 45px rgba(57, 45, 28, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: Georgia, 'Times New Roman', serif;
+            background:
+                linear-gradient(135deg, rgba(23, 107, 135, 0.10), rgba(217, 130, 43, 0.12)),
+                repeating-linear-gradient(0deg, rgba(23, 33, 43, 0.035) 0, rgba(23, 33, 43, 0.035) 1px, transparent 1px, transparent 28px),
+                var(--paper);
+        }
+
+        .page {
+            width: min(1080px, calc(100% - 28px));
+            margin: 0 auto;
+            padding: 28px 0 44px;
+        }
+
+        header {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            align-items: end;
+            padding: 26px 0 22px;
+            border-bottom: 2px solid var(--line);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 4.2rem);
+            line-height: 0.95;
+            letter-spacing: 0;
+            color: var(--ink);
+        }
+
+        .subtitle {
+            margin: 14px 0 0;
+            max-width: 680px;
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.55;
+        }
+
+        .score-card {
+            justify-self: end;
+            width: min(320px, 100%);
+            padding: 18px;
+            background: var(--ink);
+            color: #fffdf7;
+            box-shadow: var(--shadow);
+        }
+
+        .score-card strong {
+            display: block;
+            font-size: 2.6rem;
+            line-height: 1;
+            color: #ffd99b;
+        }
+
+        .score-card span {
+            display: block;
+            margin-top: 8px;
+            color: #f4e9d8;
+            line-height: 1.45;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 22px;
+            margin-top: 24px;
+        }
+
+        section {
+            background: rgba(255, 253, 247, 0.88);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        section h2 {
+            margin: 0 0 16px;
+            font-size: 1.35rem;
+            color: var(--accent-dark);
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        input, select, textarea, button {
+            font: inherit;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid #b9ad9b;
+            border-radius: 4px;
+            background: #fffefa;
+            color: var(--ink);
+            padding: 11px 12px;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+            line-height: 1.55;
+        }
+
+        .report-sections {
+            display: grid;
+            gap: 14px;
+            margin-top: 15px;
+        }
+
+        .report-sections textarea {
+            min-height: 120px;
+        }
+
+        .grid-two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .student-grid {
+            display: grid;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .hint {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.4;
+        }
+
+        .access-box {
+            padding: 14px;
+            margin-bottom: 16px;
+            background: #eef6f7;
+            border-left: 5px solid var(--accent);
+        }
+
+        .inline-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button, .drive-link {
+            border: 0;
+            border-radius: 4px;
+            padding: 11px 14px;
+            background: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        button:hover, .drive-link:hover {
+            background: var(--accent-dark);
+        }
+
+        button.secondary {
+            background: #6e6254;
+        }
+
+        button.secondary:hover {
+            background: #51483e;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.72;
+        }
+
+        .check-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            align-items: start;
+            padding: 12px;
+            border: 1px dashed #b9ad9b;
+            background: #fff8ec;
+        }
+
+        .check-row input {
+            width: auto;
+            margin-top: 3px;
+        }
+
+        .status {
+            display: none;
+            margin-top: 14px;
+            padding: 12px;
+            border-radius: 4px;
+            line-height: 1.45;
+        }
+
+        .status.info {
+            display: block;
+            background: #eef6f7;
+            color: var(--accent-dark);
+        }
+
+        .status.ok {
+            display: block;
+            background: #e8f5ee;
+            color: var(--ok);
+        }
+
+        .status.warn {
+            display: block;
+            background: #fff4d7;
+            color: #7a520b;
+        }
+
+        .status.error {
+            display: block;
+            background: #fde9e9;
+            color: var(--danger);
+        }
+
+        .rubric {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .rubric div {
+            padding: 14px;
+            background: #f3eadc;
+            border-top: 4px solid var(--warm);
+        }
+
+        .rubric strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+
+        .review-criteria {
+            margin-top: 16px;
+            padding: 15px;
+            border-left: 5px solid var(--accent);
+            background: #eef6f7;
+            color: var(--ink);
+        }
+
+        .review-criteria h3 {
+            margin: 0 0 9px;
+            color: var(--accent-dark);
+            font-size: 1.08rem;
+        }
+
+        .review-criteria ol {
+            margin: 0;
+            padding-left: 22px;
+        }
+
+        .review-criteria li {
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .review-criteria li:last-child {
+            margin-bottom: 0;
+        }
+
+        footer {
+            margin-top: 22px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 820px) {
+            header, main, .grid-two, .rubric {
+                grid-template-columns: 1fr;
+            }
+
+            .score-card {
+                justify-self: stretch;
+            }
+
+            .page {
+                width: min(100% - 18px, 1080px);
+                padding-top: 14px;
+            }
+
+            section {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <header>
+            <div>
+                <h1>Relatorio de Laboratorio 3</h1>
+                <p class="subtitle">Envio de evidencias de uma experiencia real: link do video no Google Drive ou Google Fotos, relatorio escrito e registro automatico na planilha da turma.</p>
+            </div>
+            <aside class="score-card" aria-live="polite">
+                <strong id="scorePreview">0,0</strong>
+                    <span>Nota previa: 5,0 pelo video compartilhado e ate 5,0 pelo relatorio escrito.</span>
+            </aside>
+        </header>
+
+        <main>
+            <section aria-labelledby="dados-title">
+                <h2 id="dados-title">Grupo e turma</h2>
+
+                <div class="access-box">
+                    <div class="field">
+                        <label for="studentAccessPassword">Senha de acesso dos estudantes</label>
+                        <input id="studentAccessPassword" type="password" autocomplete="current-password" placeholder="Digite a senha informada pelo professor">
+                    </div>
+                    <div class="inline-actions">
+                        <button id="unlockRosterBtn" type="button">Liberar listas</button>
+                        <button id="refreshRosterBtn" class="secondary" type="button">Atualizar turmas</button>
+                    </div>
+                    <p id="accessStatus" class="hint">A senha libera a lista de turmas e alunos desta sessao.</p>
+                </div>
+
+                <div class="field">
+                    <label for="studentSheet">Turma</label>
+                    <select id="studentSheet" required>
+                        <option value="">Libere o acesso para carregar as turmas</option>
+                    </select>
+                </div>
+
+                <div class="grid-two">
+                    <div class="field">
+                        <label for="schoolTerm">Bimestre</label>
+                        <select id="schoolTerm" required>
+                            <option value="">Selecione</option>
+                            <option value="1o">1o bimestre</option>
+                            <option value="2o">2o bimestre</option>
+                            <option value="3o">3o bimestre</option>
+                            <option value="4o">4o bimestre</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="experimentTitle">1. Titulo da experiencia</label>
+                        <input id="experimentTitle" value="Relatorio de Laboratorio 3" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="participationMode">Participacao na experiencia</label>
+                    <select id="participationMode" required>
+                        <option value="author">Estudante autor da experiencia</option>
+                        <option value="observer">Estudante observador ou usuario da experiencia feita por outros</option>
+                    </select>
+                    <p id="participationHint" class="hint">Selecione ate dois estudantes autores da experiencia.</p>
+                </div>
+
+                <div class="field">
+                    <label>Nome(s) do(s) estudante(s)</label>
+                    <div class="student-grid">
+                        <select id="student1" class="student-select" required><option value="">Selecione a turma primeiro</option></select>
+                        <select id="student2" class="student-select"><option value="">Segundo autor, se houver</option></select>
+                    </div>
+                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os dois nomes selecionados quando houver dupla.</p>
+                </div>
+
+                <div class="field">
+                    <label for="manualGroup">Complemento manual, se algum nome nao aparecer</label>
+                    <input id="manualGroup" placeholder="Use apenas se a lista estiver incompleta">
+                </div>
+
+                <div class="field">
+                    <label for="studentEmail">E-mail para confirmacao</label>
+                    <input id="studentEmail" type="email" placeholder="um e-mail de um participante do grupo">
+                    <p class="hint">A confirmacao sera enviada somente para este e-mail.</p>
+                </div>
+            </section>
+
+            <section aria-labelledby="relatorio-title">
+                <h2 id="relatorio-title">Video e relatorio</h2>
+
+                <div class="field">
+                    <label for="videoUrl">Link do video no Google Drive ou Google Fotos</label>
+                    <input id="videoUrl" type="url" placeholder="https://drive.google.com/... ou https://photos.google.com/..." required>
+                    <p class="hint">O video deve estar no Drive ou Google Fotos de um participante e compartilhado para visualizacao.</p>
+                </div>
+
+                <div class="field inline-actions">
+                    <a class="drive-link" href="https://drive.google.com/" target="_blank" rel="noopener">Abrir Google Drive</a>
+                    <button id="testVideoLinkBtn" class="secondary" type="button">Testar formato do link</button>
+                </div>
+
+                <label class="check-row" for="sharedCheck">
+                    <input id="sharedCheck" type="checkbox">
+                    <span>Confirmamos que o link do video foi compartilhado com permissao de visualizacao para o professor.</span>
+                </label>
+
+                <div class="report-sections" aria-label="Partes do relatorio escrito">
+                    <div class="field">
+                        <label for="reportIntro">2. Introducao</label>
+                        <textarea id="reportIntro" class="report-part" placeholder="Apresentem o tema da experiencia e o contexto fisico investigado." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="reportObjectives">3. Objetivos</label>
+                        <textarea id="reportObjectives" class="report-part" placeholder="Indiquem o que o grupo pretendia observar, medir ou verificar." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="reportDescription">4. Descricao da experiencia</label>
+                        <textarea id="reportDescription" class="report-part" placeholder="Descrevam passo a passo como a experiencia foi realizada, incluindo procedimentos e cuidados importantes." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="reportMaterials">5. Materiais utilizados</label>
+                        <textarea id="reportMaterials" class="report-part" placeholder="Listem os materiais, instrumentos e recursos usados no experimento." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="reportAnalysis">6. Analise e resultados</label>
+                        <textarea id="reportAnalysis" class="report-part" placeholder="Descrevam observacoes, dados, comparacoes, calculos e interpretacoes." required></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="reportConclusion">7. Conclusao</label>
+                        <textarea id="reportConclusion" class="report-part" placeholder="Expliquem o que o grupo concluiu a partir da experiencia." required></textarea>
+                    </div>
+                    <p id="reportCounter" class="hint">0 caracteres. A partir de 300 caracteres, distribuidos nas 7 partes do relatorio, a entrega escrita recebe a pontuacao completa desta primeira versao.</p>
+                </div>
+
+                <div class="rubric" aria-label="Criterios automaticos">
+                    <div><strong>5,0</strong>Video do Drive ou Google Fotos com link preenchido e compartilhamento confirmado.</div>
+                    <div><strong>5,0</strong>Relatorio escrito com desenvolvimento minimo da experiencia.</div>
+                </div>
+
+                <div class="review-criteria">
+                    <h3>Criterios da revisao do professor</h3>
+                    <ol>
+                        <li>Titulo e introducao devem apresentar o mesmo tema e contexto fisico.</li>
+                        <li>Os objetivos devem responder ao problema apresentado na introducao.</li>
+                        <li>Os materiais devem ser coerentes com a descricao de como a experiencia foi realizada.</li>
+                        <li>A analise e os resultados devem usar as observacoes e os dados extraidos da experiencia.</li>
+                        <li>A conclusao deve retomar a descricao, interpretar a analise e responder aos objetivos com base nos dados.</li>
+                        <li>A pontuacao exibida e uma previa automatica de entrega. A avaliacao sera revisada pelo professor, que podera ajustar a nota e registrar comentarios.</li>
+                    </ol>
+                </div>
+
+                <div class="inline-actions" style="margin-top: 16px;">
+                    <button id="sendReportBtn" type="button">Enviar relatorio</button>
+                    <button id="clearBtn" class="secondary" type="button">Limpar campos</button>
+                </div>
+                <div id="sendStatus" class="status" role="status" aria-live="polite"></div>
+            </section>
+        </main>
+
+        <footer>Ferramenta experimental independente. Nao altera o enhancer das simulacoes.</footer>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            const PRIMARY_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
+            const LEGACY_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
+            const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            const ACCESS_SESSION_KEY = 'relatorioLaboratorio:student-access-auth';
+            const ACCESS_TOKEN_SESSION_KEY = 'relatorioLaboratorio:student-access-token';
+            const TERM_COLUMN_MAP = {
+                '1o': 'J',
+                '2o': 'N',
+                '3o': 'R',
+                '4o': 'V',
+                '1o bimestre': 'J',
+                '2o bimestre': 'N',
+                '3o bimestre': 'R',
+                '4o bimestre': 'V'
+            };
+            const DEFAULT_ACCESS_CONFIG = {
+                enabled: true,
+                salt: 'EDU-DIGITAL-2026',
+                passwordHash: '631c745c1549ba2e7bbb6648a4e5aa0e60ca05fb88a4adb251eb2836d144f347',
+                acceptedPasswordHashes: [
+                    '0e71f1560760cf5cc90d84c76c5028354b4d2366d8841144d34b1fa4b6dacb60',
+                    'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1'
+                ],
+                apiAccessToken: 'f267aa257c7116e591f638a9bb704f8c11940f3798b59f7a8f1f6a55d0877be1',
+                hint: 'Solicite ao professor a senha de acesso do estudante.',
+                rosterApiUrl: PRIMARY_GRADEBOOK_URL,
+                apiTimeoutMs: 20000,
+                rosterCacheTtlMs: 15000
+            };
+
+            const elements = {
+                password: document.getElementById('studentAccessPassword'),
+                unlock: document.getElementById('unlockRosterBtn'),
+                refresh: document.getElementById('refreshRosterBtn'),
+                accessStatus: document.getElementById('accessStatus'),
+                sheet: document.getElementById('studentSheet'),
+                schoolTerm: document.getElementById('schoolTerm'),
+                experimentTitle: document.getElementById('experimentTitle'),
+                participationMode: document.getElementById('participationMode'),
+                participationHint: document.getElementById('participationHint'),
+                participantNamesHint: document.getElementById('participantNamesHint'),
+                studentEmail: document.getElementById('studentEmail'),
+                manualGroup: document.getElementById('manualGroup'),
+                videoUrl: document.getElementById('videoUrl'),
+                sharedCheck: document.getElementById('sharedCheck'),
+                reportParts: Array.from(document.querySelectorAll('.report-part')),
+                reportCounter: document.getElementById('reportCounter'),
+                scorePreview: document.getElementById('scorePreview'),
+                send: document.getElementById('sendReportBtn'),
+                clear: document.getElementById('clearBtn'),
+                status: document.getElementById('sendStatus'),
+                testVideo: document.getElementById('testVideoLinkBtn'),
+                studentSelects: Array.from(document.querySelectorAll('.student-select'))
+            };
+
+            let rosterCache = {};
+            let sheetsCache = null;
+
+            function getAccessConfig() {
+                return Object.assign({}, DEFAULT_ACCESS_CONFIG, window.SIMULATION_ENHANCER_STUDENT_ACCESS || {});
+            }
+
+            function normalizeText(text) {
+                return String(text || '')
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .toLowerCase();
+            }
+
+            function normalizeSheetLabel(sheetName) {
+                return String(sheetName || '')
+                    .replace(/(\d)[º°]/g, '$1o')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            }
+
+            function escapeHtml(text) {
+                const node = document.createElement('div');
+                node.textContent = String(text || '');
+                return node.innerHTML;
+            }
+
+            function setStatus(message, type) {
+                elements.status.textContent = message;
+                elements.status.className = 'status ' + (type || 'info');
+            }
+
+            function setAccessStatus(message, type) {
+                elements.accessStatus.textContent = message;
+                elements.accessStatus.style.color = type === 'error' ? '#a53838' : (type === 'ok' ? '#1f7a4d' : '#5b6875');
+            }
+
+            function setAuthenticated(value, token) {
+                try {
+                    if (value) {
+                        sessionStorage.setItem(ACCESS_SESSION_KEY, '1');
+                        sessionStorage.setItem(ACCESS_TOKEN_SESSION_KEY, token || '');
+                    } else {
+                        sessionStorage.removeItem(ACCESS_SESSION_KEY);
+                        sessionStorage.removeItem(ACCESS_TOKEN_SESSION_KEY);
+                    }
+                } catch (error) {
+                    return;
+                }
+            }
+
+            function isAuthenticated() {
+                try {
+                    return sessionStorage.getItem(ACCESS_SESSION_KEY) === '1' && !!sessionStorage.getItem(ACCESS_TOKEN_SESSION_KEY);
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            function getAccessToken() {
+                try {
+                    const configuredToken = String((getAccessConfig().apiAccessToken || '')).trim().toLowerCase();
+                    if (configuredToken && sessionStorage.getItem(ACCESS_SESSION_KEY) === '1') {
+                        sessionStorage.setItem(ACCESS_TOKEN_SESSION_KEY, configuredToken);
+                        return configuredToken;
+                    }
+                    return sessionStorage.getItem(ACCESS_TOKEN_SESSION_KEY) || '';
+                } catch (error) {
+                    return '';
+                }
+            }
+
+            function hashText(rawText) {
+                if (!window.crypto || !window.crypto.subtle || !window.TextEncoder) {
+                    return Promise.resolve('');
+                }
+                return window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(rawText || '')))
+                    .then(function (buffer) {
+                        return Array.from(new Uint8Array(buffer)).map(function (value) {
+                            return value.toString(16).padStart(2, '0');
+                        }).join('');
+                    });
+            }
+
+            function getAcceptedHashes(config) {
+                const hashes = [];
+                if (config.passwordHash) {
+                    hashes.push(String(config.passwordHash).trim().toLowerCase());
+                }
+                if (Array.isArray(config.acceptedPasswordHashes)) {
+                    config.acceptedPasswordHashes.forEach(function (hashValue) {
+                        if (hashValue) {
+                            hashes.push(String(hashValue).trim().toLowerCase());
+                        }
+                    });
+                }
+                return Array.from(new Set(hashes));
+            }
+
+            function unlockRoster() {
+                const config = getAccessConfig();
+                const password = elements.password.value.trim();
+                if (!password) {
+                    setAccessStatus('Digite a senha antes de liberar as listas.', 'error');
+                    return;
+                }
+                elements.unlock.disabled = true;
+                elements.unlock.textContent = 'Verificando...';
+                hashText(String(config.salt || '') + password).then(function (digest) {
+                    const acceptedHashes = getAcceptedHashes(config);
+                    if (!digest || acceptedHashes.indexOf(String(digest).toLowerCase()) === -1) {
+                        setAuthenticated(false);
+                        setAccessStatus('Senha invalida. As listas permanecem bloqueadas.', 'error');
+                        return;
+                    }
+                    setAuthenticated(true, String((config.apiAccessToken || digest) || '').trim().toLowerCase());
+                    elements.password.value = '';
+                    setAccessStatus('Acesso liberado. Carregando turmas...', 'ok');
+                    loadSheets();
+                }).catch(function () {
+                    setAccessStatus('Nao foi possivel verificar a senha neste navegador.', 'error');
+                }).finally(function () {
+                    elements.unlock.disabled = false;
+                    elements.unlock.textContent = 'Liberar listas';
+                });
+            }
+
+            function postJsonWithResponse(url, data) {
+                return fetch(url, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(data)
+                }).then(function (response) {
+                    return response.text().then(function (text) {
+                        let payload = null;
+                        try {
+                            payload = text ? JSON.parse(text) : null;
+                        } catch (error) {
+                            payload = null;
+                        }
+                        if (!response.ok) {
+                            throw new Error((payload && payload.message) || ('HTTP ' + response.status));
+                        }
+                        if (payload && String(payload.status || '').toLowerCase() === 'error') {
+                            throw new Error(payload.message || 'Erro no Apps Script.');
+                        }
+                        return payload || { status: 'success' };
+                    });
+                });
+            }
+
+            function postJsonNoCors(url, data) {
+                return fetch(url, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).then(function () {
+                    return { status: 'accepted-opaque' };
+                });
+            }
+
+            function isOpaqueFetchIssue(error) {
+                const message = String((error && error.message) || error || '').toLowerCase();
+                return message.includes('failed to fetch') || message.includes('cors') || message.includes('networkerror') || message.includes('load failed');
+            }
+
+            function postWithFallback(url, data) {
+                return postJsonWithResponse(url, data).catch(function (error) {
+                    if (!isOpaqueFetchIssue(error)) {
+                        throw error;
+                    }
+                    return postJsonNoCors(url, data);
+                });
+            }
+
+            function loadSheets() {
+                const config = getAccessConfig();
+                const token = getAccessToken();
+                if (!config.rosterApiUrl || !token) {
+                    setAccessStatus('API de turmas nao configurada ou acesso nao liberado.', 'error');
+                    return Promise.resolve([]);
+                }
+                if (sheetsCache && sheetsCache.expiresAt > Date.now()) {
+                    renderSheets(sheetsCache.sheets);
+                    return Promise.resolve(sheetsCache.sheets);
+                }
+                elements.sheet.innerHTML = '<option value="">Carregando turmas...</option>';
+                return postJsonWithResponse(config.rosterApiUrl, {
+                    action: 'getAvailableSheets',
+                    accessToken: token
+                }).then(function (payload) {
+                    const rawSheets = Array.isArray(payload) ? payload : (Array.isArray(payload.sheets) ? payload.sheets : []);
+                    const sheets = rawSheets.map(normalizeSheetLabel).filter(Boolean).filter(function (name, index, values) {
+                        return values.indexOf(name) === index;
+                    }).sort(function (first, second) {
+                        return first.localeCompare(second, 'pt-BR');
+                    });
+                    sheetsCache = { sheets: sheets, expiresAt: Date.now() + Math.max(1000, Number(config.rosterCacheTtlMs || 15000)) };
+                    renderSheets(sheets);
+                    setAccessStatus(sheets.length ? 'Turmas carregadas. Selecione a turma do grupo.' : 'Nenhuma turma foi encontrada.', sheets.length ? 'ok' : 'error');
+                    return sheets;
+                }).catch(function (error) {
+                    elements.sheet.innerHTML = '<option value="">Falha ao carregar turmas</option>';
+                    setAccessStatus('Falha ao carregar turmas: ' + ((error && error.message) || 'tente novamente.'), 'error');
+                    return [];
+                });
+            }
+
+            function renderSheets(sheets) {
+                elements.sheet.innerHTML = '<option value="">Selecione sua turma</option>' + sheets.map(function (sheetName) {
+                    return '<option value="' + escapeHtml(sheetName) + '">' + escapeHtml(sheetName) + '</option>';
+                }).join('');
+            }
+
+            function loadStudents() {
+                const config = getAccessConfig();
+                const token = getAccessToken();
+                const sheetName = normalizeSheetLabel(elements.sheet.value);
+                if (!sheetName) {
+                    renderStudentOptions([]);
+                    return Promise.resolve([]);
+                }
+                const cacheKey = sheetName;
+                if (rosterCache[cacheKey] && rosterCache[cacheKey].expiresAt > Date.now()) {
+                    renderStudentOptions(rosterCache[cacheKey].names);
+                    return Promise.resolve(rosterCache[cacheKey].names);
+                }
+                renderStudentOptions([], 'Carregando alunos...');
+                return postJsonWithResponse(config.rosterApiUrl, {
+                    action: 'getStudentNames',
+                    sheetName: sheetName,
+                    serie: '',
+                    turma: '',
+                    trilha: '',
+                    accessToken: token
+                }).then(function (payload) {
+                    const rawNames = Array.isArray(payload) ? payload : (Array.isArray(payload.names) ? payload.names : []);
+                    const names = rawNames.map(function (name) {
+                        return String(name || '').trim();
+                    }).filter(Boolean).filter(function (name, index, values) {
+                        return values.indexOf(name) === index;
+                    }).sort(function (first, second) {
+                        return first.localeCompare(second, 'pt-BR');
+                    });
+                    rosterCache[cacheKey] = { names: names, expiresAt: Date.now() + Math.max(1000, Number(config.rosterCacheTtlMs || 15000)) };
+                    renderStudentOptions(names);
+                    return names;
+                }).catch(function () {
+                    renderStudentOptions([], 'Falha ao carregar alunos');
+                    return [];
+                });
+            }
+
+            function renderStudentOptions(names, placeholder) {
+                elements.studentSelects.forEach(function (select, index) {
+                    const currentValue = select.value;
+                    const firstLabel = index === 0 ? (placeholder || 'Selecione um estudante') : 'Segundo autor, se houver';
+                    select.innerHTML = '<option value="">' + escapeHtml(firstLabel) + '</option>' + names.map(function (name) {
+                        return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
+                    }).join('');
+                    if (names.indexOf(currentValue) !== -1) {
+                        select.value = currentValue;
+                    }
+                });
+                updateScorePreview();
+            }
+
+            function getMaxParticipants() {
+                return elements.participationMode.value === 'observer' ? 1 : 2;
+            }
+
+            function updateParticipationMode() {
+                const maxParticipants = getMaxParticipants();
+                const secondStudent = document.getElementById('student2');
+                if (secondStudent) {
+                    secondStudent.classList.toggle('hidden', maxParticipants === 1);
+                    if (maxParticipants === 1) {
+                        secondStudent.value = '';
+                    }
+                }
+                elements.participationHint.textContent = maxParticipants === 1
+                    ? 'Selecione apenas o nome do estudante que observou ou usou a experiencia.'
+                    : 'Selecione ate dois estudantes autores da experiencia.';
+                elements.participantNamesHint.textContent = maxParticipants === 1
+                    ? 'No modo observador, a nota sera lancada somente para o estudante selecionado.'
+                    : 'No modo autor, a nota sera lancada para os dois nomes selecionados quando houver dupla.';
+                updateScorePreview();
+            }
+
+            function getSelectedStudents() {
+                const names = elements.studentSelects.map(function (select) {
+                    return select.value.trim();
+                }).filter(Boolean);
+                const manualNames = elements.manualGroup.value.split(/[;,]/).map(function (name) {
+                    return name.trim();
+                }).filter(Boolean);
+                return Array.from(new Set(names.concat(manualNames)));
+            }
+
+            function isLikelyVideoEvidenceUrl(url) {
+                const value = String(url || '').trim();
+                return /^https:\/\/drive\.google\.com\//i.test(value)
+                    || /^https:\/\/docs\.google\.com\/file\//i.test(value)
+                    || /^https:\/\/photos\.google\.com\//i.test(value)
+                    || /^https:\/\/photos\.app\.goo\.gl\//i.test(value);
+            }
+
+            function getReportSections() {
+                return {
+                    titulo: elements.experimentTitle.value.trim(),
+                    introducao: document.getElementById('reportIntro').value.trim(),
+                    objetivos: document.getElementById('reportObjectives').value.trim(),
+                    materiais: document.getElementById('reportMaterials').value.trim(),
+                    descricao: document.getElementById('reportDescription').value.trim(),
+                    analise: document.getElementById('reportAnalysis').value.trim(),
+                    conclusao: document.getElementById('reportConclusion').value.trim()
+                };
+            }
+
+            function getReportText() {
+                const sections = getReportSections();
+                return [
+                    '1. TITULO DA EXPERIENCIA\n' + sections.titulo,
+                    '2. INTRODUCAO\n' + sections.introducao,
+                    '3. OBJETIVOS\n' + sections.objetivos,
+                    '4. DESCRICAO DA EXPERIENCIA\n' + sections.descricao,
+                    '5. MATERIAIS UTILIZADOS\n' + sections.materiais,
+                    '6. ANALISE E RESULTADOS\n' + sections.analise,
+                    '7. CONCLUSAO\n' + sections.conclusao
+                ].join('\n\n');
+            }
+
+            function getFilledReportPartCount() {
+                const sections = getReportSections();
+                return ['titulo', 'introducao', 'objetivos', 'materiais', 'descricao', 'analise', 'conclusao'].filter(function (key) {
+                    return sections[key].length >= 12;
+                }).length;
+            }
+
+            function getReportContentLength() {
+                const sections = getReportSections();
+                return ['titulo', 'introducao', 'objetivos', 'materiais', 'descricao', 'analise', 'conclusao'].reduce(function (total, key) {
+                    return total + sections[key].length;
+                }, 0);
+            }
+
+            function calculateScore() {
+                const hasVideo = isLikelyVideoEvidenceUrl(elements.videoUrl.value) && elements.sharedCheck.checked;
+                const reportLength = getReportContentLength();
+                const filledPartCount = getFilledReportPartCount();
+                const videoScore = hasVideo ? 5 : 0;
+                let reportScore = 0;
+                if (reportLength >= 300 && filledPartCount >= 7) {
+                    reportScore = 5;
+                } else if (reportLength >= 100 && filledPartCount >= 3) {
+                    reportScore = 2.5;
+                }
+                return Number((videoScore + reportScore).toFixed(1));
+            }
+
+            function updateScorePreview() {
+                const reportLength = getReportContentLength();
+                const filledPartCount = getFilledReportPartCount();
+                elements.reportCounter.textContent = reportLength + ' caracteres em ' + filledPartCount + '/7 partes preenchidas. A partir de 300 caracteres e 7 partes preenchidas, o relatorio recebe a pontuacao completa desta primeira versao.';
+                elements.scorePreview.textContent = calculateScore().toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            }
+
+            function getTermGradeColumn(term) {
+                return TERM_COLUMN_MAP[String(term || '').trim()] || '';
+            }
+
+            function getSheetMetadata(sheetName) {
+                const normalizedSheet = normalizeSheetLabel(sheetName);
+                const match = normalizedSheet.match(/([123]o ano)\s+([A-Z])/i);
+                return {
+                    serie: match ? match[1].replace(/\s+/g, ' ').trim() : '',
+                    turma: match ? match[2].trim().toUpperCase() : ''
+                };
+            }
+
+            function buildGradebookPayload(studentName, groupNames, finalScore) {
+                const sheetName = normalizeSheetLabel(elements.sheet.value);
+                const metadata = getSheetMetadata(sheetName);
+                const reportText = getReportText().trim();
+                const reportSections = getReportSections();
+                const videoUrl = elements.videoUrl.value.trim();
+                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 3';
+                const timestampIso = new Date().toISOString();
+                const timestampBr = new Date().toLocaleString('pt-BR');
+                const reportLength = getReportContentLength();
+                const filledPartCount = getFilledReportPartCount();
+                const reportScore = reportLength >= 300 && filledPartCount >= 7 ? 5 : (reportLength >= 100 && filledPartCount >= 3 ? 2.5 : 0);
+                const videoScore = isLikelyVideoEvidenceUrl(videoUrl) && elements.sharedCheck.checked ? 5 : 0;
+                const feedback = 'Pontuacao automatica de entrega: video ' + videoScore.toFixed(1) + '/5, relatorio ' + reportScore.toFixed(1) + '/5 (' + filledPartCount + '/7 partes preenchidas). Avaliacao qualitativa do professor pendente.';
+
+                return {
+                    timestamp: timestampIso,
+                    data_envio: timestampBr,
+                    serie: metadata.serie,
+                    turma: metadata.turma,
+                    trilha: sheetName,
+                    coluna: getTermGradeColumn(elements.schoolTerm.value),
+                    bimestre: elements.schoolTerm.value,
+                    colunaBimestre: getTermGradeColumn(elements.schoolTerm.value),
+                    acao: 'acumular_nota_bimestral',
+                    tipoLancamento: 'somar',
+                    valorLancamento: finalScore,
+                    estudante: studentName,
+                    estudanteDigitado: '',
+                    sheetName: sheetName,
+                    avaliacao: 'Relatorio de laboratorio - ' + activityName,
+                    categoria: 'relatorio-laboratorio',
+                    atividade: activityName,
+                    simulacao: activityName,
+                    participacaoExperiencia: elements.participationMode.value,
+                    papelNaExperiencia: elements.participationMode.value === 'observer' ? 'observador' : 'autor',
+                    scoreHeader: activityName,
+                    totalSimulacoesAcumuladas: 1,
+                    nota: finalScore,
+                    notaFinal: finalScore,
+                    nota_final: finalScore,
+                    notaFinalCombinada: finalScore,
+                    nota_final_combinada: finalScore,
+                    notaCombinada: finalScore,
+                    finalScore: finalScore,
+                    notaExercicios: videoScore,
+                    nota_exercicios: videoScore,
+                    exerciseScore: videoScore,
+                    exerciseScoreValue: videoScore,
+                    notaConclusao: reportScore,
+                    nota_conclusao: reportScore,
+                    notaConclusaoIa: reportScore,
+                    nota_conclusao_ia: reportScore,
+                    conclusionScore: reportScore,
+                    conclusionScoreValue: reportScore,
+                    notaPercentual: Math.round(finalScore * 10) + '%',
+                    nota_percentual: Math.round(finalScore * 10) + '%',
+                    acertos: videoScore > 0 ? 1 : 0,
+                    totalQuestoes: 1,
+                    questoes_puladas: 0,
+                    acertosIndividuais: videoScore > 0 ? 1 : 0,
+                    conclusao: reportText + '\n\nLink do video: ' + videoUrl + '\n\nGrupo: ' + groupNames.join('; '),
+                    anotacoesEstudo: 'Video: ' + videoUrl + '\nGrupo: ' + groupNames.join('; '),
+                    analiseIa: feedback,
+                    palavrasConclusao: reportText.split(/\s+/).filter(Boolean).length,
+                    extensaoTexto: reportScore,
+                    coerenciaSemantica: reportScore,
+                    significanciaAprendizagem: reportScore,
+                    videoUrl: videoUrl,
+                    linkVideo: videoUrl,
+                    tituloExperiencia: reportSections.titulo,
+                    introducao: reportSections.introducao,
+                    objetivos: reportSections.objetivos,
+                    materiaisUtilizados: reportSections.materiais,
+                    analiseResultados: reportSections.analise,
+                    conclusaoRelatorio: reportSections.conclusao,
+                    grupo: groupNames.join('; '),
+                    participantes: groupNames.join('; '),
+                    statusAvaliacao: 'pendente',
+                    suppressStudentEmail: true,
+                    criticas: '',
+                    sugestoes: '',
+                    email: elements.studentEmail.value.trim()
+                };
+            }
+
+            function buildBackupPayload(primaryPayload) {
+                return Object.assign({}, primaryPayload, {
+                    timestamp: new Date().toLocaleString('pt-BR'),
+                    acertos_erros: primaryPayload.acertos + '/' + (primaryPayload.totalQuestoes - primaryPayload.acertos),
+                    anotacoes_estudo: primaryPayload.anotacoesEstudo,
+                    analise_ia: primaryPayload.analiseIa,
+                    to_email: 'flavio.ambrosio@edu.se.df.gov.br',
+                    nome_aluno: primaryPayload.estudante,
+                    acertos: primaryPayload.acertos + '/' + primaryPayload.totalQuestoes
+                });
+            }
+
+            function buildEmailPayload(groupNames, finalScore) {
+                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 3';
+                const timestamp = new Date().toLocaleString('pt-BR');
+                const videoUrl = elements.videoUrl.value.trim();
+                const message = [
+                    'Confirmacao de envio - ' + activityName,
+                    '',
+                    'Grupo: ' + groupNames.join('; '),
+                    'Turma: ' + normalizeSheetLabel(elements.sheet.value),
+                    'Bimestre: ' + elements.schoolTerm.value,
+                    'Nota automatica de entrega: ' + finalScore.toFixed(1) + '/10',
+                    'Link do video: ' + videoUrl,
+                    '',
+                    'O professor ainda podera avaliar qualitativamente o video e o relatorio.',
+                    '',
+                    'Data de envio: ' + timestamp
+                ].join('\n');
+
+                return {
+                    to_email: elements.studentEmail.value.trim(),
+                    nome_aluno: groupNames[0],
+                    nomeAluno: groupNames[0],
+                    serie: getSheetMetadata(elements.sheet.value).serie,
+                    turma: getSheetMetadata(elements.sheet.value).turma,
+                    simulacao: activityName,
+                    atividade: activityName,
+                    avaliacao: activityName,
+                    nota: finalScore.toFixed(1),
+                    notaFinal: finalScore,
+                    notaPercentual: Math.round(finalScore * 10) + '%',
+                    acertos: 'Entrega registrada',
+                    conclusao: getReportText().trim(),
+                    detalhes: message,
+                    mensagem: message,
+                    message: message,
+                    textoEmail: message,
+                    dataEnvio: timestamp,
+                    data_envio: timestamp,
+                    timestamp: timestamp
+                };
+            }
+
+            function validateForm() {
+                const groupNames = getSelectedStudents();
+                if (!isAuthenticated()) {
+                    return 'Libere as listas com a senha antes de enviar.';
+                }
+                if (!elements.sheet.value) {
+                    return 'Selecione a turma do grupo.';
+                }
+                if (!elements.schoolTerm.value) {
+                    return 'Selecione o bimestre.';
+                }
+                if (!groupNames.length) {
+                    return 'Selecione pelo menos um estudante.';
+                }
+                if (groupNames.length > getMaxParticipants()) {
+                    return elements.participationMode.value === 'observer'
+                        ? 'No modo observador, selecione apenas um estudante.'
+                        : 'No modo autor, selecione no maximo dois estudantes.';
+                }
+                if (new Set(groupNames).size !== groupNames.length) {
+                    return 'Ha nomes repetidos na selecao.';
+                }
+                if (!elements.studentEmail.value.trim()) {
+                    return 'Informe um e-mail para confirmacao.';
+                }
+                if (!isLikelyVideoEvidenceUrl(elements.videoUrl.value)) {
+                    return 'Informe um link valido do Google Drive ou Google Fotos.';
+                }
+                if (!elements.sharedCheck.checked) {
+                    return 'Confirme que o video foi compartilhado para visualizacao.';
+                }
+                if (getFilledReportPartCount() < 3 || getReportContentLength() < 80) {
+                    return 'Preencha pelo menos 3 partes do relatorio e escreva pelo menos 80 caracteres para registrar a entrega.';
+                }
+                return '';
+            }
+
+            function sendReport() {
+                const validationError = validateForm();
+                if (validationError) {
+                    setStatus(validationError, 'error');
+                    return;
+                }
+
+                const groupNames = getSelectedStudents();
+                const finalScore = calculateScore();
+                const gradePayloads = groupNames.map(function (studentName) {
+                    return buildGradebookPayload(studentName, groupNames, finalScore);
+                });
+                const backupPayload = buildBackupPayload(gradePayloads[0]);
+                const emailPayload = elements.studentEmail.value.trim() ? buildEmailPayload(groupNames, finalScore) : null;
+                const jobs = gradePayloads.map(function (payload) {
+                    return postWithFallback(PRIMARY_GRADEBOOK_URL, payload);
+                });
+
+                jobs.push(postJsonNoCors(LEGACY_BACKUP_URL, backupPayload));
+                if (emailPayload) {
+                    jobs.push(postJsonNoCors(EMAIL_SCRIPT_URL, emailPayload));
+                }
+
+                elements.send.disabled = true;
+                elements.send.textContent = 'Enviando...';
+                setStatus('Enviando relatorio para a planilha e confirmacao por e-mail...', 'info');
+
+                Promise.allSettled(jobs).then(function (results) {
+                    const failed = results.filter(function (result) { return result.status !== 'fulfilled'; });
+                    if (failed.length >= gradePayloads.length) {
+                        throw new Error('A planilha nao confirmou o recebimento. Tente novamente em instantes.');
+                    }
+                    setStatus('Envio registrado. Nota automatica: ' + finalScore.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '/10 para ' + groupNames.length + ' participante(s).', failed.length ? 'warn' : 'ok');
+                }).catch(function (error) {
+                    setStatus('Erro ao enviar: ' + ((error && error.message) || 'tente novamente.'), 'error');
+                }).finally(function () {
+                    elements.send.disabled = false;
+                    elements.send.textContent = 'Enviar relatorio';
+                });
+            }
+
+            function clearForm() {
+                elements.studentSelects.forEach(function (select) { select.value = ''; });
+                elements.manualGroup.value = '';
+                elements.studentEmail.value = '';
+                elements.videoUrl.value = '';
+                elements.sharedCheck.checked = false;
+                elements.reportParts.forEach(function (part) { part.value = ''; });
+                updateScorePreview();
+                elements.status.className = 'status';
+                elements.status.textContent = '';
+            }
+
+            elements.unlock.addEventListener('click', unlockRoster);
+            elements.refresh.addEventListener('click', function () {
+                rosterCache = {};
+                sheetsCache = null;
+                if (isAuthenticated()) {
+                    loadSheets();
+                } else {
+                    setAccessStatus('Libere o acesso antes de atualizar as turmas.', 'error');
+                }
+            });
+            elements.sheet.addEventListener('change', loadStudents);
+            elements.participationMode.addEventListener('change', updateParticipationMode);
+            elements.reportParts.forEach(function (part) {
+                part.addEventListener('input', updateScorePreview);
+            });
+            elements.videoUrl.addEventListener('input', updateScorePreview);
+            elements.sharedCheck.addEventListener('change', updateScorePreview);
+            elements.studentSelects.forEach(function (select) {
+                select.addEventListener('change', updateScorePreview);
+            });
+            elements.send.addEventListener('click', sendReport);
+            elements.clear.addEventListener('click', clearForm);
+            elements.testVideo.addEventListener('click', function () {
+                if (isLikelyVideoEvidenceUrl(elements.videoUrl.value)) {
+                    setStatus('O link parece ser do Google Drive ou Google Fotos. Ainda assim, confira se o compartilhamento esta liberado.', 'ok');
+                } else {
+                    setStatus('Este link nao parece ser um link valido do Google Drive ou Google Fotos.', 'error');
+                }
+            });
+
+            if (isAuthenticated()) {
+                setAccessStatus('Acesso ja liberado nesta sessao. Carregando turmas...', 'ok');
+                loadSheets();
+            }
+            updateParticipationMode();
+            updateScorePreview();
+        }());
+    </script>
+</body>
+</html>
+
