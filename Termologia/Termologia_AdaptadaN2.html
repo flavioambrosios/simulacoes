@@ -409,11 +409,6 @@
                 <div class="progress-item" id="progress3">3</div>
                 <div class="progress-item" id="progress4">4</div>
                 <div class="progress-item" id="progress5">5</div>
-                <div class="progress-item" id="progress6">6</div>
-                <div class="progress-item" id="progress7">7</div>
-                <div class="progress-item" id="progress8">8</div>
-                <div class="progress-item" id="progress9">9</div>
-                <div class="progress-item" id="progress10">10</div>
             </div>
 
             <div id="exerciseContainer"></div>
@@ -1596,7 +1591,9 @@
                 type,
                 question: selected.question,
                 answer: selected.answer,
-                options: shuffleArray(selected.options.slice())
+                options: shuffleArray([selected.answer].concat(selected.options.filter(function(option) {
+                    return option !== selected.answer;
+                }).slice(0, 2)))
             };
         }
 
@@ -1607,15 +1604,10 @@
         function generateExercises() {
             const types = shuffleArray([
                 'conceito_calor',
-                'calor_sensivel',
-                'capacidade_termica',
-                'calor_especifico',
-                'calor_latente_fusao',
-                'calor_latente_vapor',
                 'patamar',
-                'variacao_temperatura',
                 'cotidiano',
-                'grafico_volume'
+                'grafico_volume',
+                'comparacao_massa'
             ]);
             exercises = types.map(function(type) {
                 return buildExerciseByType(type, false);
@@ -1709,7 +1701,7 @@
         }
 
         function updateProgressBar() {
-            for (let index = 0; index < 10; index++) {
+            for (let index = 0; index < 5; index++) {
                 const item = document.getElementById(`progress${index + 1}`);
                 item.classList.remove('active', 'completed');
                 if (index === currentExercise) item.classList.add('active');
