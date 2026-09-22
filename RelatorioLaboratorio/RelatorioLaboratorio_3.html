@@ -393,7 +393,7 @@
                         <option value="author">Estudante autor da experiencia</option>
                         <option value="observer">Estudante observador ou usuario da experiencia feita por outros</option>
                     </select>
-                    <p id="participationHint" class="hint">Selecione ate dois estudantes autores da experiencia.</p>
+                    <p id="participationHint" class="hint">Selecione ate tres estudantes autores da experiencia.</p>
                 </div>
 
                 <div class="field">
@@ -401,8 +401,9 @@
                     <div class="student-grid">
                         <select id="student1" class="student-select" required><option value="">Selecione a turma primeiro</option></select>
                         <select id="student2" class="student-select"><option value="">Segundo autor, se houver</option></select>
+                        <select id="student3" class="student-select"><option value="">Terceiro autor, se houver</option></select>
                     </div>
-                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os dois nomes selecionados quando houver dupla.</p>
+                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de tres autores.</p>
                 </div>
 
                 <div class="field">
@@ -809,7 +810,9 @@
             function renderStudentOptions(names, placeholder) {
                 elements.studentSelects.forEach(function (select, index) {
                     const currentValue = select.value;
-                    const firstLabel = index === 0 ? (placeholder || 'Selecione um estudante') : 'Segundo autor, se houver';
+                    const firstLabel = index === 0
+                        ? (placeholder || 'Selecione um estudante')
+                        : (index === 1 ? 'Segundo autor, se houver' : 'Terceiro autor, se houver');
                     select.innerHTML = '<option value="">' + escapeHtml(firstLabel) + '</option>' + names.map(function (name) {
                         return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
                     }).join('');
@@ -821,24 +824,23 @@
             }
 
             function getMaxParticipants() {
-                return elements.participationMode.value === 'observer' ? 1 : 2;
+                return elements.participationMode.value === 'observer' ? 1 : 3;
             }
 
             function updateParticipationMode() {
                 const maxParticipants = getMaxParticipants();
-                const secondStudent = document.getElementById('student2');
-                if (secondStudent) {
-                    secondStudent.classList.toggle('hidden', maxParticipants === 1);
-                    if (maxParticipants === 1) {
-                        secondStudent.value = '';
+                elements.studentSelects.forEach(function (select, index) {
+                    select.classList.toggle('hidden', index >= maxParticipants);
+                    if (index >= maxParticipants) {
+                        select.value = '';
                     }
-                }
+                });
                 elements.participationHint.textContent = maxParticipants === 1
                     ? 'Selecione apenas o nome do estudante que observou ou usou a experiencia.'
-                    : 'Selecione ate dois estudantes autores da experiencia.';
+                    : 'Selecione ate tres estudantes autores da experiencia.';
                 elements.participantNamesHint.textContent = maxParticipants === 1
                     ? 'No modo observador, a nota sera lancada somente para o estudante selecionado.'
-                    : 'No modo autor, a nota sera lancada para os dois nomes selecionados quando houver dupla.';
+                    : 'No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de tres autores.';
                 updateScorePreview();
             }
 
@@ -1090,7 +1092,7 @@
                 if (groupNames.length > getMaxParticipants()) {
                     return elements.participationMode.value === 'observer'
                         ? 'No modo observador, selecione apenas um estudante.'
-                        : 'No modo autor, selecione no maximo dois estudantes.';
+                        : 'No modo autor, selecione no maximo tres estudantes.';
                 }
                 if (new Set(groupNames).size !== groupNames.length) {
                     return 'Ha nomes repetidos na selecao.';
