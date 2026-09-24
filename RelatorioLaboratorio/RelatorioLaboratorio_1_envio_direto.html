@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatorio de Laboratorio 1 - Envio Direto</title>
+    <title>Relatórios de Laboratório - Envio Direto</title>
     <script src="../_shared/student-access-config.js"></script>
     <style>
         :root {
@@ -356,12 +356,12 @@
     <div class="page">
         <header>
             <div>
-                <h1>Relatorio de Laboratorio 1 - Envio Direto</h1>
-                <p class="subtitle">Envio de evidencias de uma experiencia real: video enviado diretamente da galeria, relatorio escrito e registro automatico na planilha da turma.</p>
+                <h1>Relatórios de Laboratório - Envio Direto</h1>
+                <p class="subtitle">Envio de evidências de uma experiência real: vídeo enviado diretamente da galeria, relatório escrito e registro automático na planilha da turma.</p>
             </div>
             <aside class="score-card" aria-live="polite">
                 <strong id="scorePreview">0,0</strong>
-                    <span>Nota previa: 5,0 pelo video enviado e ate 5,0 pelo relatorio escrito.</span>
+                    <span>Nota prévia: 5,0 pelo vídeo enviado e até 5,0 pelo relatório escrito.</span>
             </aside>
         </header>
 
@@ -378,7 +378,7 @@
                         <button id="unlockRosterBtn" type="button">Liberar listas</button>
                         <button id="refreshRosterBtn" class="secondary" type="button">Atualizar turmas</button>
                     </div>
-                    <p id="accessStatus" class="hint">A senha libera a lista de turmas e alunos desta sessao.</p>
+                    <p id="accessStatus" class="hint">A senha libera a lista de turmas e alunos desta sessão.</p>
                 </div>
 
                 <div class="field">
@@ -400,18 +400,18 @@
                         </select>
                     </div>
                     <div class="field">
-                        <label for="experimentTitle">1. Titulo da experiencia</label>
-                        <input id="experimentTitle" value="Relatorio de Laboratorio 1 - Envio Direto" required>
+                        <label for="experimentTitle">1. Título da experiência</label>
+                        <input id="experimentTitle" value="Relatórios de Laboratório - Envio Direto" required>
                     </div>
                 </div>
 
                 <div class="field">
-                    <label for="participationMode">Participacao na experiencia</label>
+                    <label for="participationMode">Participação na experiência</label>
                     <select id="participationMode" required>
-                        <option value="author">Estudante autor da experiencia</option>
-                        <option value="observer">Estudante observador ou usuario da experiencia feita por outros</option>
+                        <option value="author">Estudante autor da experiência</option>
+                        <option value="observer">Estudante observador ou usuário da experiência feita por outros</option>
                     </select>
-                    <p id="participationHint" class="hint">Selecione ate quatro estudantes autores da experiencia.</p>
+                    <p id="participationHint" class="hint">Selecione até quatro estudantes autores da experiência.</p>
                 </div>
 
                 <div class="field">
@@ -422,87 +422,87 @@
                         <select id="student3" class="student-select"><option value="">Terceiro autor, se houver</option></select>
                         <select id="student4" class="student-select"><option value="">Quarto autor, se houver</option></select>
                     </div>
-                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de quatro autores.</p>
+                    <p id="participantNamesHint" class="hint">No modo autor, a nota será lançada para os nomes selecionados, até o limite de quatro autores.</p>
                 </div>
 
                 <div class="field">
-                    <label for="manualGroup">Complemento manual, se algum nome nao aparecer</label>
+                    <label for="manualGroup">Complemento manual, se algum nome não aparecer</label>
                     <input id="manualGroup" placeholder="Use apenas se a lista estiver incompleta">
                 </div>
 
                 <div class="field">
-                    <label for="studentEmail">E-mail para confirmacao</label>
+                    <label for="studentEmail">E-mail para confirmação</label>
                     <input id="studentEmail" type="email" placeholder="um e-mail de um participante do grupo">
-                    <p class="hint">A confirmacao sera enviada somente para este e-mail.</p>
+                    <p class="hint">A confirmação será enviada somente para este e-mail.</p>
                 </div>
             </section>
 
             <section aria-labelledby="relatorio-title">
-                <h2 id="relatorio-title">Video e relatorio</h2>
+                <h2 id="relatorio-title">Vídeo e relatório</h2>
 
                 <div class="video-upload">
-                    <label for="videoFile">Enviar video direto da galeria</label>
+                    <label for="videoFile">Enviar vídeo direto da galeria</label>
                     <input id="videoFile" type="file" accept="video/*">
-                    <button id="uploadVideoBtn" class="secondary" type="button">Enviar video para a pasta da turma</button>
-                    <p id="videoUploadStatus" class="hint" role="status" aria-live="polite">Limite: 25 MB. O video sera salvo na pasta do Google Drive e o link sera preenchido automaticamente.</p>
+                    <button id="uploadVideoBtn" class="secondary" type="button">Enviar vídeo para a pasta da turma</button>
+                    <p id="videoUploadStatus" class="hint" role="status" aria-live="polite">Limite: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.</p>
                 </div>
                 <input id="videoUrl" type="hidden">
                 <input id="sharedCheck" type="checkbox" class="hidden">
 
-                <div class="report-sections" aria-label="Partes do relatorio escrito">
+                <div class="report-sections" aria-label="Partes do relatório escrito">
                     <div class="field">
-                        <label for="reportIntro">2. Introducao</label>
-                        <textarea id="reportIntro" class="report-part" placeholder="Apresentem o tema da experiencia e o contexto fisico investigado." required></textarea>
+                        <label for="reportIntro">2. Introdução</label>
+                        <textarea id="reportIntro" class="report-part" placeholder="Apresentem o tema da experiência e o contexto físico investigado." required></textarea>
                     </div>
                     <div class="field">
                         <label for="reportObjectives">3. Objetivos</label>
                         <textarea id="reportObjectives" class="report-part" placeholder="Indiquem o que o grupo pretendia observar, medir ou verificar." required></textarea>
                     </div>
                     <div class="field">
-                        <label for="reportDescription">4. Descricao da experiencia</label>
-                        <textarea id="reportDescription" class="report-part" placeholder="Descrevam passo a passo como a experiencia foi realizada, incluindo procedimentos e cuidados importantes." required></textarea>
+                        <label for="reportDescription">4. Descrição da experiência</label>
+                        <textarea id="reportDescription" class="report-part" placeholder="Descrevam passo a passo como a experiência foi realizada, incluindo procedimentos e cuidados importantes." required></textarea>
                     </div>
                     <div class="field">
                         <label for="reportMaterials">5. Materiais utilizados</label>
                         <textarea id="reportMaterials" class="report-part" placeholder="Listem os materiais, instrumentos e recursos usados no experimento." required></textarea>
                     </div>
                     <div class="field">
-                        <label for="reportAnalysis">6. Analise e resultados</label>
-                        <textarea id="reportAnalysis" class="report-part" placeholder="Descrevam observacoes, dados, comparacoes, calculos e interpretacoes." required></textarea>
+                        <label for="reportAnalysis">6. Análise e resultados</label>
+                        <textarea id="reportAnalysis" class="report-part" placeholder="Descrevam observações, dados, comparações, cálculos e interpretações." required></textarea>
                     </div>
                     <div class="field">
-                        <label for="reportConclusion">7. Conclusao</label>
-                        <textarea id="reportConclusion" class="report-part" placeholder="Expliquem o que o grupo concluiu a partir da experiencia." required></textarea>
+                        <label for="reportConclusion">7. Conclusão</label>
+                        <textarea id="reportConclusion" class="report-part" placeholder="Expliquem o que o grupo concluiu a partir da experiência." required></textarea>
                     </div>
-                    <p id="reportCounter" class="hint">0 caracteres. A partir de 300 caracteres, distribuidos nas 7 partes do relatorio, a entrega escrita recebe a pontuacao completa desta primeira versao.</p>
+                    <p id="reportCounter" class="hint">0 caracteres. A partir de 300 caracteres, distribuídos nas 7 partes do relatório, a entrega escrita recebe a pontuação completa desta primeira versão.</p>
                 </div>
 
                 <div class="rubric" aria-label="Criterios automaticos">
-                    <div><strong>5,0</strong>Video enviado diretamente pela galeria.</div>
-                    <div><strong>5,0</strong>Relatorio escrito com desenvolvimento minimo da experiencia.</div>
+                    <div><strong>5,0</strong>Vídeo enviado diretamente pela galeria.</div>
+                    <div><strong>5,0</strong>Relatório escrito com desenvolvimento mínimo da experiência.</div>
                 </div>
 
                 <div class="review-criteria">
-                    <h3>Criterios da revisao do professor</h3>
+                    <h3>Critérios da revisão do professor</h3>
                     <ol>
-                        <li>Titulo e introducao devem apresentar o mesmo tema e contexto fisico.</li>
-                        <li>Os objetivos devem responder ao problema apresentado na introducao.</li>
-                        <li>Os materiais devem ser coerentes com a descricao de como a experiencia foi realizada.</li>
-                        <li>A analise e os resultados devem usar as observacoes e os dados extraidos da experiencia.</li>
-                        <li>A conclusao deve retomar a descricao, interpretar a analise e responder aos objetivos com base nos dados.</li>
-                        <li>A pontuacao exibida e uma previa automatica de entrega. A avaliacao sera revisada pelo professor, que podera ajustar a nota e registrar comentarios.</li>
+                        <li>Título e introdução devem apresentar o mesmo tema e contexto físico.</li>
+                        <li>Os objetivos devem responder ao problema apresentado na introdução.</li>
+                        <li>Os materiais devem ser coerentes com a descrição de como a experiência foi realizada.</li>
+                        <li>A análise e os resultados devem usar as observações e os dados extraídos da experiência.</li>
+                        <li>A conclusão deve retomar a descrição, interpretar a análise e responder aos objetivos com base nos dados.</li>
+                        <li>A pontuação exibida é uma prévia automática de entrega. A avaliação será revisada pelo professor, que poderá ajustar a nota e registrar comentários.</li>
                     </ol>
                 </div>
 
                 <div class="inline-actions" style="margin-top: 16px;">
-                    <button id="sendReportBtn" type="button">Enviar relatorio</button>
+                    <button id="sendReportBtn" type="button">Enviar relatório</button>
                     <button id="clearBtn" class="secondary" type="button">Limpar campos</button>
                 </div>
                 <div id="sendStatus" class="status" role="status" aria-live="polite"></div>
             </section>
         </main>
 
-        <footer>Ferramenta experimental independente. Nao altera o enhancer das simulacoes.</footer>
+        <footer>Ferramenta experimental independente. Não altera o enhancer das simulações.</footer>
     </div>
 
     <script>
@@ -679,7 +679,7 @@
                     const acceptedHashes = getAcceptedHashes(config);
                     if (!digest || acceptedHashes.indexOf(String(digest).toLowerCase()) === -1) {
                         setAuthenticated(false);
-                        setAccessStatus('Senha invalida. As listas permanecem bloqueadas.', 'error');
+                        setAccessStatus('Senha inválida. As listas permanecem bloqueadas.', 'error');
                         return;
                     }
                     setAuthenticated(true, String((config.apiAccessToken || digest) || '').trim().toLowerCase());
@@ -687,7 +687,7 @@
                     setAccessStatus('Acesso liberado. Carregando turmas...', 'ok');
                     loadSheets();
                 }).catch(function () {
-                    setAccessStatus('Nao foi possivel verificar a senha neste navegador.', 'error');
+                    setAccessStatus('Não foi possível verificar a senha neste navegador.', 'error');
                 }).finally(function () {
                     elements.unlock.disabled = false;
                     elements.unlock.textContent = 'Liberar listas';
@@ -748,7 +748,7 @@
                 const config = getAccessConfig();
                 const token = getAccessToken();
                 if (!config.rosterApiUrl || !token) {
-                    setAccessStatus('API de turmas nao configurada ou acesso nao liberado.', 'error');
+                    setAccessStatus('API de turmas não configurada ou acesso não liberado.', 'error');
                     return Promise.resolve([]);
                 }
                 if (sheetsCache && sheetsCache.expiresAt > Date.now()) {
@@ -851,11 +851,11 @@
                     }
                 });
                 elements.participationHint.textContent = maxParticipants === 1
-                    ? 'Selecione apenas o nome do estudante que observou ou usou a experiencia.'
-                    : 'Selecione ate quatro estudantes autores da experiencia.';
+                    ? 'Selecione apenas o nome do estudante que observou ou usou a experiência.'
+                    : 'Selecione até quatro estudantes autores da experiência.';
                 elements.participantNamesHint.textContent = maxParticipants === 1
-                    ? 'No modo observador, a nota sera lancada somente para o estudante selecionado.'
-                    : 'No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de quatro autores.';
+                    ? 'No modo observador, a nota será lançada somente para o estudante selecionado.'
+                    : 'No modo autor, a nota será lançada para os nomes selecionados, até o limite de quatro autores.';
                 updateScorePreview();
             }
 
@@ -885,7 +885,7 @@
             function readFileAsDataUrl(file) {
                 return new Promise(function (resolve, reject) {
                     if (!file) {
-                        reject(new Error('Selecione um video antes de enviar.'));
+                        reject(new Error('Selecione um vídeo antes de enviar.'));
                         return;
                     }
                     const reader = new FileReader();
@@ -893,7 +893,7 @@
                         resolve(String(reader.result || ''));
                     };
                     reader.onerror = function () {
-                        reject(new Error('Nao foi possivel ler o video selecionado.'));
+                        reject(new Error('Não foi possível ler o vídeo selecionado.'));
                     };
                     reader.readAsDataURL(file);
                 });
@@ -926,7 +926,7 @@
                             return;
                         }
                         if (!payload.ok) {
-                            finish(reject, new Error(payload.error || 'Falha no envio do video.'));
+                            finish(reject, new Error(payload.error || 'Falha no envio do vídeo.'));
                             return;
                         }
                         finish(resolve, payload);
@@ -952,7 +952,7 @@
                     form.submit();
 
                     window.setTimeout(function () {
-                        finish(reject, new Error('O servico de upload nao respondeu. Verifique se a nova versao do Apps Script foi implantada.'));
+                        finish(reject, new Error('O serviço de upload não respondeu. Verifique se a nova versão do Apps Script foi implantada.'));
                     }, 90000);
                 });
             }
@@ -960,17 +960,17 @@
             async function uploadSelectedVideo() {
                 const file = elements.videoFile.files ? elements.videoFile.files[0] : null;
                 if (!file) {
-                    setVideoUploadStatus('Selecione um video na galeria antes de enviar.', 'error');
+                    setVideoUploadStatus('Selecione um vídeo na galeria antes de enviar.', 'error');
                     return;
                 }
                 if (file.size > 25 * 1024 * 1024) {
-                    setVideoUploadStatus('O video excede o limite de 25 MB. Escolha outro arquivo.', 'error');
+                    setVideoUploadStatus('O vídeo excede o limite de 25 MB. Escolha outro arquivo.', 'error');
                     return;
                 }
 
                 elements.uploadVideo.disabled = true;
                 elements.uploadVideo.textContent = 'Enviando...';
-                setVideoUploadStatus('Enviando video para a pasta do Drive...', 'info');
+                setVideoUploadStatus('Enviando vídeo para a pasta do Drive...', 'info');
 
                 try {
                     const dataUrl = await readFileAsDataUrl(file);
@@ -982,18 +982,18 @@
                     });
                     const uploadedUrl = String(payload.url || '').trim();
                     if (!isLikelyVideoEvidenceUrl(uploadedUrl)) {
-                        throw new Error('O upload foi concluido, mas nao retornou um link valido do Drive.');
+                        throw new Error('O upload foi concluído, mas não retornou um link válido do Drive.');
                     }
 
                     elements.videoUrl.value = uploadedUrl;
                     elements.sharedCheck.checked = true;
                     updateScorePreview();
-                    setVideoUploadStatus('Video enviado com sucesso. Agora conclua e envie o relatorio.', 'ok');
+                    setVideoUploadStatus('Vídeo enviado com sucesso. Agora conclua e envie o relatório.', 'ok');
                 } catch (error) {
-                    setVideoUploadStatus('Nao foi possivel enviar o video: ' + ((error && error.message) || 'tente novamente.'), 'error');
+                    setVideoUploadStatus('Não foi possível enviar o vídeo: ' + ((error && error.message) || 'tente novamente.'), 'error');
                 } finally {
                     elements.uploadVideo.disabled = false;
-                    elements.uploadVideo.textContent = 'Enviar video para a pasta da turma';
+                    elements.uploadVideo.textContent = 'Enviar vídeo para a pasta da turma';
                 }
             }
 
@@ -1012,13 +1012,13 @@
             function getReportText() {
                 const sections = getReportSections();
                 return [
-                    '1. TITULO DA EXPERIENCIA\n' + sections.titulo,
-                    '2. INTRODUCAO\n' + sections.introducao,
+                    '1. TÍTULO DA EXPERIÊNCIA\n' + sections.titulo,
+                    '2. INTRODUÇÃO\n' + sections.introducao,
                     '3. OBJETIVOS\n' + sections.objetivos,
-                    '4. DESCRICAO DA EXPERIENCIA\n' + sections.descricao,
+                    '4. DESCRIÇÃO DA EXPERIÊNCIA\n' + sections.descricao,
                     '5. MATERIAIS UTILIZADOS\n' + sections.materiais,
-                    '6. ANALISE E RESULTADOS\n' + sections.analise,
-                    '7. CONCLUSAO\n' + sections.conclusao
+                    '6. ANÁLISE E RESULTADOS\n' + sections.analise,
+                    '7. CONCLUSÃO\n' + sections.conclusao
                 ].join('\n\n');
             }
 
@@ -1053,7 +1053,7 @@
             function updateScorePreview() {
                 const reportLength = getReportContentLength();
                 const filledPartCount = getFilledReportPartCount();
-                elements.reportCounter.textContent = reportLength + ' caracteres em ' + filledPartCount + '/7 partes preenchidas. A partir de 300 caracteres e 7 partes preenchidas, o relatorio recebe a pontuacao completa desta primeira versao.';
+                elements.reportCounter.textContent = reportLength + ' caracteres em ' + filledPartCount + '/7 partes preenchidas. A partir de 300 caracteres e 7 partes preenchidas, o relatório recebe a pontuação completa desta primeira versão.';
                 elements.scorePreview.textContent = calculateScore().toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             }
 
@@ -1076,14 +1076,14 @@
                 const reportText = getReportText().trim();
                 const reportSections = getReportSections();
                 const videoUrl = elements.videoUrl.value.trim();
-                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 1 - Envio Direto';
+                const activityName = elements.experimentTitle.value.trim() || 'Relatórios de Laboratório - Envio Direto';
                 const timestampIso = new Date().toISOString();
                 const timestampBr = new Date().toLocaleString('pt-BR');
                 const reportLength = getReportContentLength();
                 const filledPartCount = getFilledReportPartCount();
                 const reportScore = reportLength >= 300 && filledPartCount >= 7 ? 5 : (reportLength >= 100 && filledPartCount >= 3 ? 2.5 : 0);
                 const videoScore = isLikelyVideoEvidenceUrl(videoUrl) && elements.sharedCheck.checked ? 5 : 0;
-                const feedback = 'Pontuacao automatica de entrega: video ' + videoScore.toFixed(1) + '/5, relatorio ' + reportScore.toFixed(1) + '/5 (' + filledPartCount + '/7 partes preenchidas). Avaliacao qualitativa do professor pendente.';
+                const feedback = 'Pontuação automática de entrega: vídeo ' + videoScore.toFixed(1) + '/5, relatório ' + reportScore.toFixed(1) + '/5 (' + filledPartCount + '/7 partes preenchidas). Avaliação qualitativa do professor pendente.';
 
                 return {
                     timestamp: timestampIso,
@@ -1100,7 +1100,7 @@
                     estudante: studentName,
                     estudanteDigitado: '',
                     sheetName: sheetName,
-                    avaliacao: 'Relatorio de laboratorio - ' + activityName,
+                    avaliacao: 'Relatório de laboratório - ' + activityName,
                     categoria: 'relatorio-laboratorio',
                     atividade: activityName,
                     simulacao: activityName,
@@ -1131,8 +1131,8 @@
                     totalQuestoes: 1,
                     questoes_puladas: 0,
                     acertosIndividuais: videoScore > 0 ? 1 : 0,
-                    conclusao: reportText + '\n\nLink do video: ' + videoUrl + '\n\nGrupo: ' + groupNames.join('; '),
-                    anotacoesEstudo: 'Video: ' + videoUrl + '\nGrupo: ' + groupNames.join('; '),
+                    conclusao: reportText + '\n\nLink do vídeo: ' + videoUrl + '\n\nGrupo: ' + groupNames.join('; '),
+                    anotacoesEstudo: 'Vídeo: ' + videoUrl + '\nGrupo: ' + groupNames.join('; '),
                     analiseIa: feedback,
                     palavrasConclusao: reportText.split(/\s+/).filter(Boolean).length,
                     extensaoTexto: reportScore,
@@ -1169,19 +1169,19 @@
             }
 
             function buildEmailPayload(groupNames, finalScore) {
-                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 1 - Envio Direto';
+                const activityName = elements.experimentTitle.value.trim() || 'Relatórios de Laboratório - Envio Direto';
                 const timestamp = new Date().toLocaleString('pt-BR');
                 const videoUrl = elements.videoUrl.value.trim();
                 const message = [
-                    'Confirmacao de envio - ' + activityName,
+                    'Confirmação de envio - ' + activityName,
                     '',
                     'Grupo: ' + groupNames.join('; '),
                     'Turma: ' + normalizeSheetLabel(elements.sheet.value),
                     'Bimestre: ' + elements.schoolTerm.value,
-                    'Nota automatica de entrega: ' + finalScore.toFixed(1) + '/10',
-                    'Link do video: ' + videoUrl,
+                    'Nota automática de entrega: ' + finalScore.toFixed(1) + '/10',
+                    'Link do vídeo: ' + videoUrl,
                     '',
-                    'O professor ainda podera avaliar qualitativamente o video e o relatorio.',
+                    'O professor ainda poderá avaliar qualitativamente o vídeo e o relatório.',
                     '',
                     'Data de envio: ' + timestamp
                 ].join('\n');
@@ -1227,19 +1227,19 @@
                 if (groupNames.length > getMaxParticipants()) {
                     return elements.participationMode.value === 'observer'
                         ? 'No modo observador, selecione apenas um estudante.'
-                        : 'No modo autor, selecione no maximo quatro estudantes.';
+                        : 'No modo autor, selecione no máximo quatro estudantes.';
                 }
                 if (new Set(groupNames).size !== groupNames.length) {
-                    return 'Ha nomes repetidos na selecao.';
+                    return 'Há nomes repetidos na seleção.';
                 }
                 if (!elements.studentEmail.value.trim()) {
-                    return 'Informe um e-mail para confirmacao.';
+                    return 'Informe um e-mail para confirmação.';
                 }
                 if (!isLikelyVideoEvidenceUrl(elements.videoUrl.value)) {
-                    return 'Envie o video diretamente pela galeria antes de enviar o relatorio.';
+                    return 'Envie o vídeo diretamente pela galeria antes de enviar o relatório.';
                 }
                 if (getFilledReportPartCount() < 3 || getReportContentLength() < 80) {
-                    return 'Preencha pelo menos 3 partes do relatorio e escreva pelo menos 80 caracteres para registrar a entrega.';
+                    return 'Preencha pelo menos 3 partes do relatório e escreva pelo menos 80 caracteres para registrar a entrega.';
                 }
                 return '';
             }
@@ -1269,19 +1269,19 @@
 
                 elements.send.disabled = true;
                 elements.send.textContent = 'Enviando...';
-                setStatus('Enviando relatorio para a planilha e confirmacao por e-mail...', 'info');
+                setStatus('Enviando relatório para a planilha e confirmação por e-mail...', 'info');
 
                 Promise.allSettled(jobs).then(function (results) {
                     const failed = results.filter(function (result) { return result.status !== 'fulfilled'; });
                     if (failed.length >= gradePayloads.length) {
-                        throw new Error('A planilha nao confirmou o recebimento. Tente novamente em instantes.');
+                        throw new Error('A planilha não confirmou o recebimento. Tente novamente em instantes.');
                     }
-                    setStatus('Envio registrado. Nota automatica: ' + finalScore.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '/10 para ' + groupNames.length + ' participante(s).', failed.length ? 'warn' : 'ok');
+                    setStatus('Envio registrado. Nota automática: ' + finalScore.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '/10 para ' + groupNames.length + ' participante(s).', failed.length ? 'warn' : 'ok');
                 }).catch(function (error) {
                     setStatus('Erro ao enviar: ' + ((error && error.message) || 'tente novamente.'), 'error');
                 }).finally(function () {
                     elements.send.disabled = false;
-                    elements.send.textContent = 'Enviar relatorio';
+                    elements.send.textContent = 'Enviar relatório';
                 });
             }
 
@@ -1293,7 +1293,7 @@
                 elements.videoFile.value = '';
                 elements.sharedCheck.checked = false;
                 elements.reportParts.forEach(function (part) { part.value = ''; });
-                setVideoUploadStatus('Limite: 25 MB. O video sera salvo na pasta do Google Drive e o link sera preenchido automaticamente.', 'info');
+                setVideoUploadStatus('Limite: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.', 'info');
                 updateScorePreview();
                 elements.status.className = 'status';
                 elements.status.textContent = '';
@@ -1324,12 +1324,12 @@
             elements.uploadVideo.addEventListener('click', uploadSelectedVideo);
             elements.videoFile.addEventListener('change', function () {
                 if (this.files && this.files[0]) {
-                    setVideoUploadStatus('Video selecionado: ' + this.files[0].name + '. Clique em enviar para enviar para o Drive.', 'info');
+                    setVideoUploadStatus('Vídeo selecionado: ' + this.files[0].name + '. Clique em enviar para enviar para o Drive.', 'info');
                 }
             });
 
             if (isAuthenticated()) {
-                setAccessStatus('Acesso ja liberado nesta sessao. Carregando turmas...', 'ok');
+                setAccessStatus('Acesso já liberado nesta sessão. Carregando turmas...', 'ok');
                 loadSheets();
             }
             updateParticipationMode();
