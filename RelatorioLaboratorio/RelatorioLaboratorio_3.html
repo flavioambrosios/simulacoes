@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatorio de Laboratorio 3</title>
+    <title>Relatório de Laboratório: Envio Direto de Vídeo</title>
     <script src="../_shared/student-access-config.js"></script>
     <style>
         :root {
@@ -177,6 +177,46 @@
             border-left: 5px solid var(--accent);
         }
 
+        .video-help {
+            margin: 12px 0 15px;
+            padding: 14px;
+            border: 1px solid #b9ad9b;
+            border-radius: 4px;
+            background: #fff8ec;
+            line-height: 1.5;
+        }
+
+        .video-help strong {
+            color: var(--accent-dark);
+        }
+
+        .video-help ol {
+            margin: 8px 0 0;
+            padding-left: 22px;
+        }
+
+        .video-help li {
+            margin-bottom: 5px;
+        }
+
+        .video-upload {
+            margin: 12px 0 15px;
+            padding: 14px;
+            border: 1px solid #b9ad9b;
+            border-radius: 4px;
+            background: #eef6f7;
+        }
+
+        .video-upload input[type="file"] {
+            width: 100%;
+            padding: 9px;
+            background: #fffefa;
+        }
+
+        .video-upload button {
+            margin-top: 10px;
+        }
+
         .inline-actions {
             display: flex;
             flex-wrap: wrap;
@@ -338,7 +378,7 @@
     <div class="page">
         <header>
             <div>
-                <h1>Relatorio de Laboratorio 3</h1>
+                <h1>Relatório de Laboratório: Envio Direto de Vídeo</h1>
                 <p class="subtitle">Envio de evidencias de uma experiencia real: link do video no Google Drive ou Google Fotos, relatorio escrito e registro automatico na planilha da turma.</p>
             </div>
             <aside class="score-card" aria-live="polite">
@@ -383,7 +423,7 @@
                     </div>
                     <div class="field">
                         <label for="experimentTitle">1. Titulo da experiencia</label>
-                        <input id="experimentTitle" value="Relatorio de Laboratorio 3" required>
+                        <input id="experimentTitle" value="Relatório de Laboratório: Envio Direto de Vídeo" required>
                     </div>
                 </div>
 
@@ -393,7 +433,7 @@
                         <option value="author">Estudante autor da experiencia</option>
                         <option value="observer">Estudante observador ou usuario da experiencia feita por outros</option>
                     </select>
-                    <p id="participationHint" class="hint">Selecione ate tres estudantes autores da experiencia.</p>
+                    <p id="participationHint" class="hint">Selecione ate quatro estudantes autores da experiencia.</p>
                 </div>
 
                 <div class="field">
@@ -402,8 +442,9 @@
                         <select id="student1" class="student-select" required><option value="">Selecione a turma primeiro</option></select>
                         <select id="student2" class="student-select"><option value="">Segundo autor, se houver</option></select>
                         <select id="student3" class="student-select"><option value="">Terceiro autor, se houver</option></select>
+                        <select id="student4" class="student-select"><option value="">Quarto autor, se houver</option></select>
                     </div>
-                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de tres autores.</p>
+                    <p id="participantNamesHint" class="hint">No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de quatro autores.</p>
                 </div>
 
                 <div class="field">
@@ -422,14 +463,36 @@
                 <h2 id="relatorio-title">Video e relatorio</h2>
 
                 <div class="field">
-                    <label for="videoUrl">Link do video no Google Drive ou Google Fotos</label>
-                    <input id="videoUrl" type="url" placeholder="https://drive.google.com/... ou https://photos.google.com/..." required>
-                    <p class="hint">O video deve estar no Drive ou Google Fotos de um participante e compartilhado para visualizacao.</p>
+                    <label for="videoUrl">Video da galeria ou link do Google Drive/Google Fotos</label>
+                    <input id="videoUrl" type="url" placeholder="https://drive.google.com/... ou https://photos.google.com/...">
+                    <p class="hint">Envie o video pela galeria ou informe um link valido do Google Drive/Google Fotos.</p>
+                </div>
+
+                <div class="video-upload">
+                    <label for="videoFile">Ou enviar video direto da galeria</label>
+                    <input id="videoFile" type="file" accept="video/*">
+                    <button id="uploadVideoBtn" class="secondary" type="button">Enviar video para a pasta da turma</button>
+                    <p id="videoUploadStatus" class="hint" role="status" aria-live="polite">Limite: 25 MB. O video sera salvo na pasta do Google Drive e o link sera preenchido automaticamente.</p>
                 </div>
 
                 <div class="field inline-actions">
                     <a class="drive-link" href="https://drive.google.com/" target="_blank" rel="noopener">Abrir Google Drive</a>
+                    <a class="drive-link" href="https://photos.google.com/" target="_blank" rel="noopener">Abrir Google Fotos</a>
+                    <button id="pasteVideoLinkBtn" class="secondary" type="button">Colar link</button>
+                    <button id="copyVideoLinkBtn" class="secondary" type="button">Copiar link</button>
+                    <button id="openVideoLinkBtn" class="secondary" type="button">Abrir link</button>
                     <button id="testVideoLinkBtn" class="secondary" type="button">Testar formato do link</button>
+                </div>
+
+                <div class="video-help">
+                    <strong>Como fazer pelo celular</strong>
+                    <ol>
+                        <li>Toque em <strong>Abrir Google Drive</strong> ou <strong>Abrir Google Fotos</strong>.</li>
+                        <li>Envie o video e abra as opcoes do arquivo ou album.</li>
+                        <li>Escolha <strong>Compartilhar</strong> e altere o acesso para <strong>Qualquer pessoa com o link</strong>, como leitor/visualizador.</li>
+                        <li>Toque em <strong>Copiar link</strong>, volte para esta pagina e use <strong>Colar link</strong>.</li>
+                    </ol>
+                    <p id="videoHelpStatus" class="hint" role="status" aria-live="polite">Depois de colar, use Abrir link para conferir se o endereco abre.</p>
                 </div>
 
                 <label class="check-row" for="sharedCheck">
@@ -500,6 +563,7 @@
             const PRIMARY_GRADEBOOK_URL = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
             const LEGACY_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
             const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
+            const VIDEO_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbwuyrHepxfKYW26bp-av7jh-DQHLuoUmf1KudC7jECnDnQ_E9Zp06oVbZ8BYzmCkX4dRA/exec';
             const ACCESS_SESSION_KEY = 'relatorioLaboratorio:student-access-auth';
             const ACCESS_TOKEN_SESSION_KEY = 'relatorioLaboratorio:student-access-token';
             const TERM_COLUMN_MAP = {
@@ -540,7 +604,10 @@
                 participantNamesHint: document.getElementById('participantNamesHint'),
                 studentEmail: document.getElementById('studentEmail'),
                 manualGroup: document.getElementById('manualGroup'),
+                videoFile: document.getElementById('videoFile'),
                 videoUrl: document.getElementById('videoUrl'),
+                uploadVideo: document.getElementById('uploadVideoBtn'),
+                videoUploadStatus: document.getElementById('videoUploadStatus'),
                 sharedCheck: document.getElementById('sharedCheck'),
                 reportParts: Array.from(document.querySelectorAll('.report-part')),
                 reportCounter: document.getElementById('reportCounter'),
@@ -812,7 +879,7 @@
                     const currentValue = select.value;
                     const firstLabel = index === 0
                         ? (placeholder || 'Selecione um estudante')
-                        : (index === 1 ? 'Segundo autor, se houver' : 'Terceiro autor, se houver');
+                        : ['Segundo autor, se houver', 'Terceiro autor, se houver', 'Quarto autor, se houver'][index - 1];
                     select.innerHTML = '<option value="">' + escapeHtml(firstLabel) + '</option>' + names.map(function (name) {
                         return '<option value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</option>';
                     }).join('');
@@ -824,7 +891,7 @@
             }
 
             function getMaxParticipants() {
-                return elements.participationMode.value === 'observer' ? 1 : 3;
+                return elements.participationMode.value === 'observer' ? 1 : 4;
             }
 
             function updateParticipationMode() {
@@ -837,10 +904,10 @@
                 });
                 elements.participationHint.textContent = maxParticipants === 1
                     ? 'Selecione apenas o nome do estudante que observou ou usou a experiencia.'
-                    : 'Selecione ate tres estudantes autores da experiencia.';
+                    : 'Selecione ate quatro estudantes autores da experiencia.';
                 elements.participantNamesHint.textContent = maxParticipants === 1
                     ? 'No modo observador, a nota sera lancada somente para o estudante selecionado.'
-                    : 'No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de tres autores.';
+                    : 'No modo autor, a nota sera lancada para os nomes selecionados, ate o limite de quatro autores.';
                 updateScorePreview();
             }
 
@@ -860,6 +927,132 @@
                     || /^https:\/\/docs\.google\.com\/file\//i.test(value)
                     || /^https:\/\/photos\.google\.com\//i.test(value)
                     || /^https:\/\/photos\.app\.goo\.gl\//i.test(value);
+            }
+
+            function setVideoUploadStatus(message, type) {
+                if (!elements.videoUploadStatus) {
+                    return;
+                }
+                elements.videoUploadStatus.textContent = message;
+                elements.videoUploadStatus.style.color = type === 'error' ? '#a53838' : (type === 'ok' ? '#1f7a4d' : '#5b6875');
+            }
+
+            function readFileAsDataUrl(file) {
+                return new Promise(function (resolve, reject) {
+                    if (!file) {
+                        reject(new Error('Selecione um video antes de enviar.'));
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        resolve(String(reader.result || ''));
+                    };
+                    reader.onerror = function () {
+                        reject(new Error('Nao foi possivel ler o video selecionado.'));
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function submitVideoUpload(data) {
+                return new Promise(function (resolve, reject) {
+                    const iframeName = 'videoUploadFrame' + Date.now();
+                    const iframe = document.createElement('iframe');
+                    const form = document.createElement('form');
+                    const allowedOrigins = ['https://script.google.com', 'https://script.googleusercontent.com'];
+                    let finished = false;
+
+                    function finish(callback, value) {
+                        if (finished) {
+                            return;
+                        }
+                        finished = true;
+                        window.removeEventListener('message', onMessage);
+                        form.remove();
+                        iframe.remove();
+                        callback(value);
+                    }
+
+                    function onMessage(event) {
+                        const payload = event.data || {};
+                        const isGoogleUploadOrigin = allowedOrigins.indexOf(event.origin) !== -1
+                            || /^https:\/\/[a-z0-9-]+\.googleusercontent\.com$/i.test(event.origin);
+                        if (!isGoogleUploadOrigin || payload.type !== 'video-upload-result') {
+                            return;
+                        }
+                        if (!payload.ok) {
+                            finish(reject, new Error(payload.error || 'Falha no envio do video.'));
+                            return;
+                        }
+                        finish(resolve, payload);
+                    }
+
+                    iframe.name = iframeName;
+                    iframe.hidden = true;
+                    form.action = VIDEO_UPLOAD_URL;
+                    form.method = 'post';
+                    form.target = iframeName;
+                    form.hidden = true;
+
+                    Object.keys(data).forEach(function (key) {
+                        const field = document.createElement('textarea');
+                        field.name = key;
+                        field.value = data[key];
+                        form.appendChild(field);
+                    });
+
+                    window.addEventListener('message', onMessage);
+                    document.body.appendChild(iframe);
+                    document.body.appendChild(form);
+                    form.submit();
+
+                    window.setTimeout(function () {
+                        finish(reject, new Error('O servico de upload nao respondeu. Verifique se a nova versao do Apps Script foi implantada.'));
+                    }, 90000);
+                });
+            }
+
+            async function uploadSelectedVideo() {
+                const file = elements.videoFile && elements.videoFile.files ? elements.videoFile.files[0] : null;
+                if (!file) {
+                    setVideoUploadStatus('Selecione um video na galeria antes de enviar.', 'error');
+                    return;
+                }
+                if (file.size > 25 * 1024 * 1024) {
+                    setVideoUploadStatus('O video excede o limite de 25 MB. Escolha outro arquivo.', 'error');
+                    return;
+                }
+
+                elements.uploadVideo.disabled = true;
+                elements.uploadVideo.textContent = 'Enviando...';
+                setVideoUploadStatus('Enviando video para a pasta do Drive...', 'info');
+
+                try {
+                    const dataUrl = await readFileAsDataUrl(file);
+                    const payload = await submitVideoUpload({
+                        action: 'uploadVideo',
+                        dataUrl: dataUrl,
+                        fileName: file.name,
+                        mimeType: file.type || 'video/mp4'
+                    });
+
+                    const uploadedUrl = String((payload.url || payload.fileUrl || '')).trim();
+                    if (!uploadedUrl || !isLikelyVideoEvidenceUrl(uploadedUrl)) {
+                        throw new Error('O upload foi concluido, mas o retorno nao trouxe um link valido do Google Drive/Google Fotos.');
+                    }
+
+                    elements.videoUrl.value = uploadedUrl;
+                    elements.sharedCheck.checked = true;
+                    updateScorePreview();
+                    setVideoUploadStatus('Video enviado com sucesso. O link foi preenchido automaticamente.', 'ok');
+                    setStatus('Video da galeria enviado com sucesso. Agora pode concluir o relatorio e enviar.', 'ok');
+                } catch (error) {
+                    setVideoUploadStatus('Nao foi possivel enviar o video: ' + ((error && error.message) || 'tente novamente.'), 'error');
+                    setStatus('Nao foi possivel enviar o video: ' + ((error && error.message) || 'tente novamente.'), 'error');
+                } finally {
+                    elements.uploadVideo.disabled = false;
+                    elements.uploadVideo.textContent = 'Enviar video para a pasta da turma';
+                }
             }
 
             function getReportSections() {
@@ -941,7 +1134,7 @@
                 const reportText = getReportText().trim();
                 const reportSections = getReportSections();
                 const videoUrl = elements.videoUrl.value.trim();
-                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 3';
+                const activityName = elements.experimentTitle.value.trim() || 'Relatório de Laboratório: Envio Direto de Vídeo';
                 const timestampIso = new Date().toISOString();
                 const timestampBr = new Date().toLocaleString('pt-BR');
                 const reportLength = getReportContentLength();
@@ -1034,7 +1227,7 @@
             }
 
             function buildEmailPayload(groupNames, finalScore) {
-                const activityName = elements.experimentTitle.value.trim() || 'Relatorio de Laboratorio 3';
+                const activityName = elements.experimentTitle.value.trim() || 'Relatório de Laboratório: Envio Direto de Vídeo';
                 const timestamp = new Date().toLocaleString('pt-BR');
                 const videoUrl = elements.videoUrl.value.trim();
                 const message = [
@@ -1092,7 +1285,7 @@
                 if (groupNames.length > getMaxParticipants()) {
                     return elements.participationMode.value === 'observer'
                         ? 'No modo observador, selecione apenas um estudante.'
-                        : 'No modo autor, selecione no maximo tres estudantes.';
+                        : 'No modo autor, selecione no maximo quatro estudantes.';
                 }
                 if (new Set(groupNames).size !== groupNames.length) {
                     return 'Ha nomes repetidos na selecao.';
@@ -1101,7 +1294,7 @@
                     return 'Informe um e-mail para confirmacao.';
                 }
                 if (!isLikelyVideoEvidenceUrl(elements.videoUrl.value)) {
-                    return 'Informe um link valido do Google Drive ou Google Fotos.';
+                    return 'Envie o video pela galeria ou informe um link valido do Google Drive/Google Fotos.';
                 }
                 if (!elements.sharedCheck.checked) {
                     return 'Confirme que o video foi compartilhado para visualizacao.';
@@ -1158,8 +1351,12 @@
                 elements.manualGroup.value = '';
                 elements.studentEmail.value = '';
                 elements.videoUrl.value = '';
+                if (elements.videoFile) {
+                    elements.videoFile.value = '';
+                }
                 elements.sharedCheck.checked = false;
                 elements.reportParts.forEach(function (part) { part.value = ''; });
+                setVideoUploadStatus('Limite: 25 MB. O video sera salvo na pasta do Google Drive e o link sera preenchido automaticamente.', 'info');
                 updateScorePreview();
                 elements.status.className = 'status';
                 elements.status.textContent = '';
@@ -1187,12 +1384,65 @@
             });
             elements.send.addEventListener('click', sendReport);
             elements.clear.addEventListener('click', clearForm);
+            if (elements.uploadVideo) {
+                elements.uploadVideo.addEventListener('click', uploadSelectedVideo);
+            }
+            if (elements.videoFile) {
+                elements.videoFile.addEventListener('change', function () {
+                    if (this.files && this.files[0]) {
+                        setVideoUploadStatus('Video selecionado: ' + this.files[0].name + '. Clique em enviar para enviar para o Drive.', 'info');
+                    }
+                });
+            }
             elements.testVideo.addEventListener('click', function () {
                 if (isLikelyVideoEvidenceUrl(elements.videoUrl.value)) {
                     setStatus('O link parece ser do Google Drive ou Google Fotos. Ainda assim, confira se o compartilhamento esta liberado.', 'ok');
                 } else {
                     setStatus('Este link nao parece ser um link valido do Google Drive ou Google Fotos.', 'error');
                 }
+            });
+
+            document.getElementById('pasteVideoLinkBtn').addEventListener('click', function () {
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    setStatus('Cole o link diretamente no campo acima.', 'info');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                navigator.clipboard.readText().then(function (text) {
+                    elements.videoUrl.value = text.trim();
+                    updateScorePreview();
+                    setStatus(isLikelyVideoEvidenceUrl(elements.videoUrl.value) ? 'Link colado. Agora confira abrindo o link.' : 'Texto colado, mas ele nao parece ser um link do Drive ou Google Fotos.', isLikelyVideoEvidenceUrl(elements.videoUrl.value) ? 'ok' : 'warn');
+                }).catch(function () {
+                    setStatus('Nao foi possivel acessar a area de transferencia. Toque no campo e escolha Colar.', 'info');
+                    elements.videoUrl.focus();
+                });
+            });
+
+            document.getElementById('copyVideoLinkBtn').addEventListener('click', function () {
+                const videoUrl = elements.videoUrl.value.trim();
+                if (!videoUrl) {
+                    setStatus('Cole ou digite o link antes de copia-lo.', 'warn');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(videoUrl).then(function () {
+                        setStatus('Link copiado. Agora voce pode cola-lo em outro lugar.', 'ok');
+                    }).catch(function () {
+                        setStatus('Selecione e copie o link manualmente no campo acima.', 'info');
+                    });
+                }
+            });
+
+            document.getElementById('openVideoLinkBtn').addEventListener('click', function () {
+                const videoUrl = elements.videoUrl.value.trim();
+                if (!isLikelyVideoEvidenceUrl(videoUrl)) {
+                    setStatus('Cole primeiro um link valido do Google Drive ou Google Fotos.', 'warn');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                window.open(videoUrl, '_blank', 'noopener');
+                setStatus('O link foi aberto em outra aba. Confira se o video pode ser visualizado.', 'info');
             });
 
             if (isAuthenticated()) {

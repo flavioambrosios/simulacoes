@@ -177,6 +177,28 @@
             border-left: 5px solid var(--accent);
         }
 
+        .video-help {
+            margin: 12px 0 15px;
+            padding: 14px;
+            border: 1px solid #b9ad9b;
+            border-radius: 4px;
+            background: #fff8ec;
+            line-height: 1.5;
+        }
+
+        .video-help strong {
+            color: var(--accent-dark);
+        }
+
+        .video-help ol {
+            margin: 8px 0 0;
+            padding-left: 22px;
+        }
+
+        .video-help li {
+            margin-bottom: 5px;
+        }
+
         .inline-actions {
             display: flex;
             flex-wrap: wrap;
@@ -422,14 +444,29 @@
                 <h2 id="relatorio-title">Video e relatorio</h2>
 
                 <div class="field">
-                    <label for="videoUrl">Link do video no Google Drive ou Google Fotos</label>
+                    <label for="videoUrl">Video da galeria ou link do Google Drive/Google Fotos</label>
                     <input id="videoUrl" type="url" placeholder="https://drive.google.com/... ou https://photos.google.com/..." required>
-                    <p class="hint">O video deve estar no Drive ou Google Fotos de um participante e compartilhado para visualizacao.</p>
+                    <p class="hint">Envie o video pela galeria no Drive/Google Fotos ou informe aqui um link valido compartilhado para visualizacao.</p>
                 </div>
 
                 <div class="field inline-actions">
                     <a class="drive-link" href="https://drive.google.com/" target="_blank" rel="noopener">Abrir Google Drive</a>
+                    <a class="drive-link" href="https://photos.google.com/" target="_blank" rel="noopener">Abrir Google Fotos</a>
+                    <button id="pasteVideoLinkBtn" class="secondary" type="button">Colar link</button>
+                    <button id="copyVideoLinkBtn" class="secondary" type="button">Copiar link</button>
+                    <button id="openVideoLinkBtn" class="secondary" type="button">Abrir link</button>
                     <button id="testVideoLinkBtn" class="secondary" type="button">Testar formato do link</button>
+                </div>
+
+                <div class="video-help">
+                    <strong>Como fazer pelo celular</strong>
+                    <ol>
+                        <li>Toque em <strong>Abrir Google Drive</strong> ou <strong>Abrir Google Fotos</strong>.</li>
+                        <li>Envie o video e abra as opcoes do arquivo ou album.</li>
+                        <li>Escolha <strong>Compartilhar</strong> e altere o acesso para <strong>Qualquer pessoa com o link</strong>, como leitor/visualizador.</li>
+                        <li>Toque em <strong>Copiar link</strong>, volte para esta pagina e use <strong>Colar link</strong>.</li>
+                    </ol>
+                    <p id="videoHelpStatus" class="hint" role="status" aria-live="polite">Depois de colar, use Abrir link para conferir se o endereco abre.</p>
                 </div>
 
                 <label class="check-row" for="sharedCheck">
@@ -1193,6 +1230,49 @@
                 } else {
                     setStatus('Este link nao parece ser um link valido do Google Drive ou Google Fotos.', 'error');
                 }
+            });
+
+            document.getElementById('pasteVideoLinkBtn').addEventListener('click', function () {
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    setStatus('Cole o link diretamente no campo acima.', 'info');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                navigator.clipboard.readText().then(function (text) {
+                    elements.videoUrl.value = text.trim();
+                    updateScorePreview();
+                    setStatus(isLikelyVideoEvidenceUrl(elements.videoUrl.value) ? 'Link colado. Agora confira abrindo o link.' : 'Texto colado, mas ele nao parece ser um link do Drive ou Google Fotos.', isLikelyVideoEvidenceUrl(elements.videoUrl.value) ? 'ok' : 'warn');
+                }).catch(function () {
+                    setStatus('Nao foi possivel acessar a area de transferencia. Toque no campo e escolha Colar.', 'info');
+                    elements.videoUrl.focus();
+                });
+            });
+
+            document.getElementById('copyVideoLinkBtn').addEventListener('click', function () {
+                const videoUrl = elements.videoUrl.value.trim();
+                if (!videoUrl) {
+                    setStatus('Cole ou digite o link antes de copia-lo.', 'warn');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(videoUrl).then(function () {
+                        setStatus('Link copiado. Agora voce pode cola-lo em outro lugar.', 'ok');
+                    }).catch(function () {
+                        setStatus('Selecione e copie o link manualmente no campo acima.', 'info');
+                    });
+                }
+            });
+
+            document.getElementById('openVideoLinkBtn').addEventListener('click', function () {
+                const videoUrl = elements.videoUrl.value.trim();
+                if (!isLikelyVideoEvidenceUrl(videoUrl)) {
+                    setStatus('Cole primeiro um link valido do Google Drive ou Google Fotos.', 'warn');
+                    elements.videoUrl.focus();
+                    return;
+                }
+                window.open(videoUrl, '_blank', 'noopener');
+                setStatus('O link foi aberto em outra aba. Confira se o video pode ser visualizado.', 'info');
             });
 
             if (isAuthenticated()) {
