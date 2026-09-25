@@ -2107,7 +2107,7 @@
                 const exercises = readGlobalBinding('exercises');
                 if (!Array.isArray(exercises) || !exercises.length) {
                     if (typeof window.generateExercises === 'function') {
-                        window.resetExerciseState && window.resetExerciseState();
+                        resetLegacyExerciseState();
                         window.generateExercises();
                     }
                 }
@@ -3549,5 +3549,4 @@
             .replace(/'/g, '&#39;');
     }
 })();
-
 
