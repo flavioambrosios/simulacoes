@@ -357,8 +357,9 @@
     }
 
     function ensureEnhancedFormFields() {
-        const emailForm = document.querySelector('#resultsContainer .email-form');
-        if (!emailForm) {
+        let emailForm = document.querySelector('#resultsContainer .email-form');
+        const resultView = document.getElementById('resultView');
+        if (!emailForm && !resultView) {
             return;
         }
 
@@ -376,6 +377,19 @@
             suggestionInput: getFieldValue('suggestionInput'),
             finalConclusion: getFieldValue('finalConclusion')
         };
+
+        if (!emailForm) {
+            resultView.querySelectorAll('.form-row, #sendResults, #sendStatus').forEach(function (element) {
+                element.remove();
+            });
+
+            const resultsContainer = document.createElement('div');
+            resultsContainer.id = 'resultsContainer';
+            emailForm = document.createElement('div');
+            emailForm.className = 'email-form';
+            resultsContainer.appendChild(emailForm);
+            resultView.appendChild(resultsContainer);
+        }
 
         emailForm.innerHTML = [
                                 '<div class="form-row enhancer-student-auth">',
