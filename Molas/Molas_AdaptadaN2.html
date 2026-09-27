@@ -1,6 +1,17 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
+<!DOCTYPE html><html lang="pt-br"><head>
+<script>
+(function () {
+	const improvedExercises = [
+		{ question: 'Ao puxar uma mola com mais força, sem ultrapassar seu limite elástico, o que acontece com a deformação?', options: ['Aumenta.', 'Diminui.', 'Permanece igual em qualquer situação.'], answer: 0, explanation: 'No regime elástico, uma força maior provoca uma deformação maior.' },
+		{ question: 'Duas molas recebem a mesma força. A mola A é mais rígida que a mola B. Qual delas se estica menos?', options: ['A mola A.', 'A mola B.', 'As duas sempre se esticam igualmente.'], answer: 0, explanation: 'Uma mola mais rígida se deforma menos quando recebe a mesma força.' },
+		{ question: 'Uma mola é puxada e depois comprimida. Como fica a força elástica?', options: ['Aponta para a posição de equilíbrio e tende a desfazer a deformação.', 'Aponta sempre para longe da posição de equilíbrio.', 'Muda de direção a cada instante, mesmo sem movimento.'], answer: 0, explanation: 'A força elástica é restauradora: tenta levar a mola de volta à posição de equilíbrio, tanto no alongamento quanto na compressão.' },
+		{ question: 'Uma mola é esticada e mantida parada nessa posição. Onde fica armazenada principalmente a energia transferida para ela?', options: ['Como energia potencial elástica na mola.', 'Como energia cinética, mesmo sem movimento.', 'A energia desaparece enquanto a mola está esticada.'], answer: 0, explanation: 'A mola deformada e parada armazena energia potencial elástica.' },
+		{ question: 'Uma mola comprimida é solta e empurra um carrinho em uma pista ideal. Qual transformação ocorre principalmente?', options: ['Energia potencial elástica transforma-se em energia cinética.', 'Energia cinética transforma-se em massa.', 'A energia potencial elástica transforma-se em carga elétrica.'], answer: 0, explanation: 'Ao se expandir, a mola transfere energia ao movimento do carrinho.' },
+		{ question: 'Duas molas iguais são ligadas em série e, em outro conjunto, em paralelo. Sob a mesma força, qual conjunto tende a se deformar mais?', options: ['O conjunto em série.', 'O conjunto em paralelo.', 'Os dois conjuntos sempre se deformam igualmente.'], answer: 0, explanation: 'Molas em série formam um conjunto menos rígido que molas em paralelo; por isso, sob a mesma força, a deformação tende a ser maior.' }
+	];
+	window.__IMPROVED_EXERCISES = improvedExercises;
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Atividade adaptada N2 sobre molas e Lei de Hooke com duas simulacoes PhET, teoria essencial e exercicios formativos.">
@@ -32,5 +43,5 @@ window.PHET_ACTIVITY_CONFIG={simulationName:'Molas e Lei de Hooke (Adaptada N2)'
 {question:'Duas molas em paralelo tem constante equivalente:',options:['k1 + k2','k1 - k2','k1/k2','Zero'],answer:0,explanation:'Em paralelo, as constantes se somam.'}
 ]};
 window.tracks=window.PHET_ACTIVITY_CONFIG.tracks;window.exampleNarrations={'1':'A forca elastica e calculada multiplicando a constante k pela deformacao.','2':'A energia elastica depende do quadrado da deformacao.','3':'Em paralelo, as constantes elasticas se somam.'};window.SIMULATION_ENHANCER_CONFIG={simulationName:'Molas e Lei de Hooke (Adaptada N2)',storageKey:'molas-adaptada-n2'};
-</script><script src="../_shared/phet-activity.js"></script><script src="../_shared/simulation-enhancer.js"></script>
+</script><script>window.PHET_ACTIVITY_CONFIG.exercises=window.__IMPROVED_EXERCISES;</script><script src="../_shared/phet-activity.js"></script><script src="../_shared/simulation-enhancer.js"></script>
 </body></html>

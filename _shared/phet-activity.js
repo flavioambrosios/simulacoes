@@ -7,7 +7,8 @@
     const sheetUrl = 'https://script.google.com/macros/s/AKfycbye5ZFZ95mUfkdUD_iZvFEvHUPww7-t_dKZQaDtvC72PqJhJtdPLs3FHeNFG6SfztXlVQ/exec';
     const emailUrl = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
     const teacherEmail = 'flavio.ambrosio@edu.se.df.gov.br';
-    const exercises = config.exercises || [];
+    const exercises = window.__IMPROVED_EXERCISES || config.exercises || [];
+    const useFiveOptions = config.storageKey === 'molas-lei-de-hooke' || config.storageKey === 'lancamento-de-projeteis';
     let currentExercise = 0;
     let score = 0;
     let skipped = 0;
@@ -19,6 +20,33 @@
 
     const $ = id => document.getElementById(id);
     const stateKey = storageKey + ':state';
+
+    if (useFiveOptions) {
+        const extraOptions = config.storageKey === 'molas-lei-de-hooke'
+            ? ['A constante elástica vale 5 N/m.', 'A força resultante vale 10 N.', 'A energia potencial vale 5 J.', 'A deformação vale 0,5 m.', 'A mola perde toda a energia.']
+            : ['A trajetória permanece horizontal.', 'A altura máxima vale 5 m.', 'O alcance vale 15 m.', 'O tempo de voo vale 2 s.', 'A aceleração vertical vale 5 m/s².'];
+
+        function addFifthOption(exercise, exerciseIndex) {
+            if (exercise.options.length < 5) {
+                const extraOption = extraOptions[exerciseIndex % extraOptions.length];
+                if (!exercise.options.includes(extraOption)) exercise.options.push(extraOption);
+            }
+            return exercise;
+        }
+
+        exercises.forEach((exercise, exerciseIndex) => {
+            addFifthOption(exercise, exerciseIndex);
+            if (typeof exercise.variant === 'function') {
+                const variantFactory = exercise.variant;
+                exercise.variant = () => {
+                    const variant = variantFactory();
+                    return addFifthOption(variant, exerciseIndex + 1);
+                };
+            }
+        });
+    }
+
+    const initialExercises = exercises.map(exercise => Object.assign({}, exercise, { options: [...exercise.options] }));
 
     function saveState() {
         localStorage.setItem(stateKey, JSON.stringify({ currentExercise, score, skipped, attempts, selected, results, conclusion: $('conclusionText')?.value || '', form: readForm() }));
@@ -136,6 +164,37 @@
         $('finalConclusion').value = conclusion;
         saveState();
     }
+
+    function resetAndRestartExercises() {
+        currentExercise = 0;
+        score = 0;
+        skipped = 0;
+        attempts = 0;
+        selected = null;
+        results = [];
+        exercises.splice(0, exercises.length, ...initialExercises.map(exercise => Object.assign({}, exercise, { options: [...exercise.options] })));
+        localStorage.removeItem(stateKey);
+
+        ['conclusionText', 'finalConclusion', 'studentName', 'studentNameSelect', 'studentNameManual', 'enhancerNotesInput'].forEach(id => {
+            if ($(id)) $(id).value = '';
+        });
+        if ($('resultsSummary')) $('resultsSummary').innerHTML = '';
+        if ($('emailStatus')) {
+            $('emailStatus').textContent = '';
+            $('emailStatus').className = 'email-status';
+            $('emailStatus').style.display = 'none';
+        }
+        if ($('sendStatus')) $('sendStatus').textContent = '';
+        if ($('resumeNotice')) $('resumeNotice').textContent = '';
+
+        $('exerciseModal').style.display = 'flex';
+        $('exerciseView').style.display = 'block';
+        $('conclusionView').style.display = 'none';
+        $('resultView').style.display = 'none';
+        renderExercise();
+    }
+
+    window.resetAndRestartExercises = resetAndRestartExercises;
 
     function sendResults() {
         const form = readForm();
