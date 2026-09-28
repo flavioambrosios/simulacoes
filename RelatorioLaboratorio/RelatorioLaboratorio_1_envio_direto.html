@@ -444,7 +444,7 @@
                     <label for="videoFile">Enviar vídeo direto da galeria</label>
                     <input id="videoFile" type="file" accept="video/*">
                     <button id="uploadVideoBtn" class="secondary" type="button">Enviar vídeo para a pasta da turma</button>
-                    <p id="videoUploadStatus" class="hint" role="status" aria-live="polite">Limite: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.</p>
+                    <p id="videoUploadStatus" class="hint" role="status" aria-live="polite">Tamanho recomendado: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.</p>
                 </div>
                 <input id="videoUrl" type="hidden">
                 <input id="sharedCheck" type="checkbox" class="hidden">
@@ -513,6 +513,7 @@
             const LEGACY_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbxX6bygZyd5PwiPXZtLz4GfpqatnFT_ZRGSPPcQYSxrc2cWqD8YyX-ic4oOTG1QvRzX/exec';
             const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyVQeiZ9lxSy86Lp-85VlJWRXamY2uc_-s9dCo472uLkeg_ezHeGdQPjl4HAH7Uonfi/exec';
             const VIDEO_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbwuyrHepxfKYW26bp-av7jh-DQHLuoUmf1KudC7jECnDnQ_E9Zp06oVbZ8BYzmCkX4dRA/exec';
+            const MAX_VIDEO_BYTES = 30 * 1024 * 1024;
             const ACCESS_SESSION_KEY = 'relatorioLaboratorio:student-access-auth';
             const ACCESS_TOKEN_SESSION_KEY = 'relatorioLaboratorio:student-access-token';
             const TERM_COLUMN_MAP = {
@@ -963,8 +964,9 @@
                     setVideoUploadStatus('Selecione um vídeo na galeria antes de enviar.', 'error');
                     return;
                 }
-                if (file.size > 25 * 1024 * 1024) {
-                    setVideoUploadStatus('O vídeo excede o limite de 25 MB. Escolha outro arquivo.', 'error');
+                if (file.size > MAX_VIDEO_BYTES) {
+                    const actualSizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                    setVideoUploadStatus('O arquivo tem ' + actualSizeMb + ' MB. O limite técnico de envio é 30 MB.', 'error');
                     return;
                 }
 
@@ -1293,7 +1295,7 @@
                 elements.videoFile.value = '';
                 elements.sharedCheck.checked = false;
                 elements.reportParts.forEach(function (part) { part.value = ''; });
-                setVideoUploadStatus('Limite: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.', 'info');
+                setVideoUploadStatus('Limite recomendado: 25 MB. O vídeo será salvo na pasta do Google Drive e o link será preenchido automaticamente.', 'info');
                 updateScorePreview();
                 elements.status.className = 'status';
                 elements.status.textContent = '';
