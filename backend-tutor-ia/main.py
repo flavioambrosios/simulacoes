@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -147,6 +147,15 @@ SIMULATION_CONTEXTS = {
             'Oriente sobre B = μ₀I/(2πr): a intensidade aumenta com a corrente e diminui com a distância. '
             'Diferencie a intensidade do campo da sua direção e, quando pertinente, use a regra da mão direita '
             'para relacionar o sentido da corrente ao sentido das linhas de campo.'
+        ),
+    },
+    'lei-de-faraday': {
+        'title': 'Lei de Faraday',
+        'guidance': (
+            'Oriente sobre força eletromotriz induzida como consequência da variação do fluxo magnético. '
+            'Para os exercícios de gerador, ajude a identificar espiras, campo magnético, área e velocidade angular '
+            'na relação da fem máxima. Destaque a conversão de área para metros quadrados e, conceitualmente, '
+            'a Lei de Lenz: o sentido induzido se opõe à variação do fluxo.'
         ),
     },
 }
