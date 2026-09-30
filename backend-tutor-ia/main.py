@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -85,6 +85,14 @@ SIMULATION_CONTEXTS = {
         'guidance': (
             'Oriente sobre a Lei de Hooke no regime elástico, força e deformação, energia potencial elástica '
             'e transformações entre energia potencial e cinética. Diferencie a intensidade da força do seu sentido.'
+        ),
+    },
+    'lancamento-projeteis': {
+        'title': 'Lançamento de Projéteis',
+        'guidance': (
+            'Considere o modelo ideal sem resistência do ar. Oriente sobre a decomposição da velocidade inicial '
+            'em componentes horizontal e vertical, velocidade horizontal constante e aceleração gravitacional '
+            'vertical para baixo. Ajude o estudante a identificar qual componente é relevante antes de calcular.'
         ),
     },
 }
