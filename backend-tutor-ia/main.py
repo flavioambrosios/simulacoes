@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -93,6 +93,15 @@ SIMULATION_CONTEXTS = {
             'Considere o modelo ideal sem resistência do ar. Oriente sobre a decomposição da velocidade inicial '
             'em componentes horizontal e vertical, velocidade horizontal constante e aceleração gravitacional '
             'vertical para baixo. Ajude o estudante a identificar qual componente é relevante antes de calcular.'
+        ),
+    },
+    'energia-pista-skate': {
+        'title': 'Energia na Pista de Skate',
+        'guidance': (
+            'Oriente sobre energia potencial gravitacional, energia cinética e conservação da energia mecânica. '
+            'Distinga situações com e sem atrito; com atrito, parte da energia mecânica pode ser transformada em '
+            'energia térmica. Para questões de loop, ajude a interpretar o modelo ideal informado no enunciado. '
+            'Faça o estudante identificar as formas de energia nos pontos inicial e final antes de relacioná-las.'
         ),
     },
 }
