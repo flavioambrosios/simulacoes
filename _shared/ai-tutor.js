@@ -2,6 +2,7 @@
     'use strict';
 
     const config = window.AI_TUTOR_CONFIG || {};
+    const simulationKey = config.simulationKey || 'lei-de-coulomb';
     if (!config.enabled || window.__aiTutorLoaded) {
         return;
     }
@@ -38,7 +39,7 @@
 
     observer.observe(exerciseContainer, { childList: true, subtree: true });
 
-    const exercisesModal = document.getElementById('exercisesModal');
+    const exercisesModal = document.getElementById('exercisesModal') || document.getElementById('exerciseModal');
     if (exercisesModal) {
         const closeWhenExerciseEnds = new MutationObserver(function () {
             if (getComputedStyle(exercisesModal).display === 'none' || getComputedStyle(exerciseContainer).display === 'none') {
@@ -271,7 +272,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    simulation_key: 'lei-de-coulomb',
+                    simulation_key: simulationKey,
                     exercise_question: currentQuestion,
                     history: history.slice(-8),
                     message: text
