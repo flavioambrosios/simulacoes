@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -102,6 +102,15 @@ SIMULATION_CONTEXTS = {
             'Distinga situações com e sem atrito; com atrito, parte da energia mecânica pode ser transformada em '
             'energia térmica. Para questões de loop, ajude a interpretar o modelo ideal informado no enunciado. '
             'Faça o estudante identificar as formas de energia nos pontos inicial e final antes de relacioná-las.'
+        ),
+    },
+    'laboratorio-colisoes': {
+        'title': 'Laboratório de Colisões',
+        'guidance': (
+            'Oriente sobre conservação do momento linear em sistemas isolados, tratando velocidade como grandeza '
+            'com direção e sinal. Diferencie colisões elásticas, em que a energia cinética total se conserva no '
+            'modelo ideal, de inelásticas, em que parte da energia cinética se transforma em outras formas. '
+            'Quando os corpos permanecem unidos, ajude a reconhecer a colisão perfeitamente inelástica.'
         ),
     },
 }
