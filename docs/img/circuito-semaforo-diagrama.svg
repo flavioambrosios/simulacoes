@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" font-family="Georgia, 'Times New Roman', serif">
+  <style>
+    .box { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .box-title { font-weight: bold; font-size: 16px; fill: #104d63; }
+    .pin-text { font-size: 12px; fill: #17212b; }
+    .note { font-size: 12px; fill: #5b6875; }
+    .wire { stroke: #17212b; stroke-width: 2; fill: none; }
+    .wire-vcc { stroke: #a53838; stroke-width: 3; fill: none; }
+    .wire-gnd { stroke: #17212b; stroke-width: 3; fill: none; }
+    .wire-clock { stroke: #176b87; stroke-width: 2.5; fill: none; stroke-dasharray: 6 4; }
+    .wire-g1 { stroke: #1f7a4d; stroke-width: 2; fill: none; }
+    .wire-g2 { stroke: #d9822b; stroke-width: 2; fill: none; }
+    .wire-g3 { stroke: #a53838; stroke-width: 2; fill: none; }
+    .label { font-size: 13px; fill: #17212b; }
+    .label-strong { font-size: 13px; font-weight: bold; fill: #17212b; }
+  </style>
+
+  <text x="600" y="28" text-anchor="middle" font-size="20" font-weight="bold" fill="#104d63">Diagrama de blocos: como o sinal percorre o circuito</text>
+  <text x="600" y="48" text-anchor="middle" class="note">(visão geral do funcionamento — para a ligação real dos pinos, siga o checklist dos Passos B, C, D e E)</text>
+
+  <!-- Power rails -->
+  <line x1="40" y1="70" x2="1160" y2="70" class="wire-vcc"/>
+  <text x="30" y="66" text-anchor="end" class="label-strong" fill="#a53838">+VCC</text>
+  <line x1="40" y1="700" x2="1160" y2="700" class="wire-gnd"/>
+  <text x="30" y="704" text-anchor="end" class="label-strong">GND (−)</text>
+
+  <!-- RC network box -->
+  <rect x="70" y="140" width="200" height="150" rx="6" class="box"/>
+  <text x="170" y="165" text-anchor="middle" class="box-title">Rede RC</text>
+  <text x="170" y="185" text-anchor="middle" class="pin-text">Potenciômetro 100kΩ</text>
+  <text x="170" y="203" text-anchor="middle" class="pin-text">+ Capacitor 47/100µF</text>
+  <text x="170" y="225" text-anchor="middle" class="note">Define o tempo de cada fase</text>
+  <text x="170" y="242" text-anchor="middle" class="note">(constante de tempo ∝ R × C)</text>
+  <text x="170" y="265" text-anchor="middle" class="note">Ligada aos pinos 2, 6 e 7 do 555</text>
+
+  <!-- Button box -->
+  <rect x="70" y="330" width="200" height="110" rx="6" class="box"/>
+  <text x="170" y="355" text-anchor="middle" class="box-title">Botão de Pedestre</text>
+  <text x="170" y="375" text-anchor="middle" class="pin-text">Resistor 1kΩ em paralelo</text>
+  <text x="170" y="393" text-anchor="middle" class="note">Reduz a resistência equivalente</text>
+  <text x="170" y="410" text-anchor="middle" class="note">→ carrega o capacitor mais rápido</text>
+
+  <!-- Arrows RC/Button -> 555 -->
+  <path d="M270 210 H340" class="wire" marker-end="url(#arrow)"/>
+  <path d="M270 385 H310 V220 H340" class="wire" marker-end="url(#arrow)"/>
+
+  <!-- 555 box -->
+  <rect x="340" y="140" width="180" height="220" rx="6" class="box"/>
+  <text x="430" y="165" text-anchor="middle" class="box-title">CI 555</text>
+  <text x="430" y="183" text-anchor="middle" class="note">Oscilador Astável ("Coração")</text>
+  <text x="360" y="210" class="pin-text">1 GND</text>
+  <text x="360" y="228" class="pin-text">2 → pino 6</text>
+  <text x="360" y="246" class="pin-text">3 saída (clock)</text>
+  <text x="360" y="264" class="pin-text">4 VCC</text>
+  <text x="480" y="210" text-anchor="end" class="pin-text">8 VCC</text>
+  <text x="480" y="228" text-anchor="end" class="pin-text">7 RC</text>
+  <text x="480" y="246" text-anchor="end" class="pin-text">6 RC</text>
+  <text x="480" y="264" text-anchor="end" class="pin-text">5 livre</text>
+  <text x="430" y="345" text-anchor="middle" class="note">Gera pulsos (onda quadrada)</text>
+
+  <!-- VCC/GND drops to 555 -->
+  <path d="M400 70 V140" class="wire-vcc"/>
+  <path d="M400 360 V700" class="wire-gnd"/>
+
+  <!-- Clock wire 555 -> 4017 -->
+  <path d="M520 250 H600" class="wire-clock" marker-end="url(#arrowClock)"/>
+  <text x="560" y="240" text-anchor="middle" class="note" fill="#176b87">pulsos</text>
+
+  <!-- 4017 box -->
+  <rect x="600" y="120" width="200" height="260" rx="6" class="box"/>
+  <text x="700" y="145" text-anchor="middle" class="box-title">CI 4017</text>
+  <text x="700" y="163" text-anchor="middle" class="note">Contador Decimal ("Cérebro")</text>
+  <text x="618" y="188" class="pin-text">14 clock (entrada)</text>
+  <text x="618" y="206" class="pin-text">15 reset → 11</text>
+  <text x="618" y="224" class="pin-text">16 VCC · 8/13 GND</text>
+  <text x="618" y="248" class="label-strong">Saídas:</text>
+  <text x="618" y="266" class="pin-text" fill="#1f7a4d">3, 2, 4, 7 → Grupo 1</text>
+  <text x="618" y="284" class="pin-text" fill="#d9822b">10 → Grupo 2</text>
+  <text x="618" y="302" class="pin-text" fill="#a53838">1, 5, 6, 9 → Grupo 3</text>
+  <text x="700" y="330" text-anchor="middle" class="note">Avança 1 saída a cada pulso</text>
+
+  <path d="M700 70 V120" class="wire-vcc"/>
+  <path d="M700 380 V700" class="wire-gnd"/>
+
+  <!-- Output groups (diodes) -->
+  <rect x="850" y="140" width="150" height="70" rx="6" class="box"/>
+  <text x="925" y="163" text-anchor="middle" class="box-title" fill="#1f7a4d">Grupo 1</text>
+  <text x="925" y="181" text-anchor="middle" class="note">4 diodos + resistor 330Ω</text>
+  <text x="925" y="198" text-anchor="middle" class="note">(pinos 3, 2, 4, 7)</text>
+
+  <rect x="850" y="240" width="150" height="70" rx="6" class="box"/>
+  <text x="925" y="263" text-anchor="middle" class="box-title" fill="#d9822b">Grupo 2</text>
+  <text x="925" y="281" text-anchor="middle" class="note">1 diodo + resistor 330Ω</text>
+  <text x="925" y="298" text-anchor="middle" class="note">(pino 10)</text>
+
+  <rect x="850" y="340" width="150" height="70" rx="6" class="box"/>
+  <text x="925" y="363" text-anchor="middle" class="box-title" fill="#a53838">Grupo 3</text>
+  <text x="925" y="381" text-anchor="middle" class="note">4 diodos + resistor 330Ω</text>
+  <text x="925" y="398" text-anchor="middle" class="note">(pinos 1, 5, 6, 9)</text>
+
+  <path d="M800 175 H850" class="wire-g1" marker-end="url(#arrowG1)"/>
+  <path d="M800 275 H850" class="wire-g2" marker-end="url(#arrowG2)"/>
+  <path d="M800 375 H850" class="wire-g3" marker-end="url(#arrowG3)"/>
+
+  <!-- Traffic lights -->
+  <rect x="1030" y="110" width="80" height="230" rx="10" class="box" fill="#2b2b2b" stroke="#17212b"/>
+  <text x="1070" y="105" text-anchor="middle" class="label-strong">Carros</text>
+  <circle cx="1070" cy="150" r="20" fill="#c62828" stroke="#17212b" stroke-width="2"/>
+  <circle cx="1070" cy="210" r="20" fill="#f9a825" stroke="#17212b" stroke-width="2"/>
+  <circle cx="1070" cy="270" r="20" fill="#2e7d32" stroke="#17212b" stroke-width="2"/>
+
+  <rect x="1030" y="400" width="80" height="170" rx="10" class="box" fill="#2b2b2b" stroke="#17212b"/>
+  <text x="1070" y="395" text-anchor="middle" class="label-strong">Pedestres</text>
+  <circle cx="1070" cy="440" r="20" fill="#c62828" stroke="#17212b" stroke-width="2"/>
+  <circle cx="1070" cy="500" r="20" fill="#2e7d32" stroke="#17212b" stroke-width="2"/>
+
+  <!-- connections group1 -> verde carro + vermelho pedestre -->
+  <path d="M1000 175 H1015 V270 H1050" class="wire-g1" marker-end="url(#arrowG1)"/>
+  <path d="M1000 175 H1010 V440 H1050" class="wire-g1" marker-end="url(#arrowG1)"/>
+  <!-- group2 -> amarelo carro -->
+  <path d="M1000 275 H1050" class="wire-g2" marker-end="url(#arrowG2)"/>
+  <!-- group3 -> vermelho carro + verde pedestre -->
+  <path d="M1000 375 H1020 V150 H1050" class="wire-g3" marker-end="url(#arrowG3)"/>
+  <path d="M1000 375 H1050" class="wire-g3" marker-end="url(#arrowG3)"/>
+  <path d="M1000 375 H1005 V500 H1050" class="wire-g3" marker-end="url(#arrowG3)"/>
+
+  <text x="1070" y="600" text-anchor="middle" class="note">Grupo 1: verde carro + vermelho pedestre</text>
+  <text x="1070" y="618" text-anchor="middle" class="note">Grupo 2: amarelo carro</text>
+  <text x="1070" y="636" text-anchor="middle" class="note">Grupo 3: vermelho carro + verde pedestre</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#17212b"/></marker>
+    <marker id="arrowClock" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#176b87"/></marker>
+    <marker id="arrowG1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f7a4d"/></marker>
+    <marker id="arrowG2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#d9822b"/></marker>
+    <marker id="arrowG3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#a53838"/></marker>
+  </defs>
+</svg>

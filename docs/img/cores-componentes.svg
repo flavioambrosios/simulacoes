@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" font-family="Georgia, 'Times New Roman', serif">
+  <style>
+    .box { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .title { font-weight: bold; font-size: 16px; fill: #104d63; }
+    .note { font-size: 12px; fill: #5b6875; }
+    .label { font-size: 12px; fill: #17212b; }
+    .label-strong { font-size: 13px; font-weight: bold; fill: #17212b; }
+  </style>
+
+  <text x="450" y="26" text-anchor="middle" font-size="19" font-weight="bold" fill="#104d63">Como identificar cada componente</text>
+
+  <!-- Capacitor -->
+  <rect x="30" y="50" width="200" height="180" rx="6" class="box"/>
+  <text x="130" y="75" text-anchor="middle" class="title">Capacitor eletrolítico</text>
+  <rect x="100" y="110" width="60" height="90" rx="10" fill="#2b2b2b" stroke="#17212b" stroke-width="2"/>
+  <path d="M100 110 A30 12 0 0 0 160 110" fill="none" stroke="#f4e9d8" stroke-width="2"/>
+  <text x="130" y="140" text-anchor="middle" font-size="22" fill="#f4e9d8">−</text>
+  <line x1="120" y1="200" x2="120" y2="220" stroke="#c9c2b5" stroke-width="3"/>
+  <line x1="140" y1="200" x2="140" y2="215" stroke="#c9c2b5" stroke-width="3"/>
+  <text x="130" y="95" text-anchor="middle" class="note">faixa clara = lado negativo (−)</text>
+  <text x="40" y="212" class="label">perna curta</text>
+  <text x="170" y="205" class="label">perna longa (+)</text>
+
+  <!-- Resistor 330 -->
+  <rect x="250" y="50" width="300" height="180" rx="6" class="box"/>
+  <text x="400" y="75" text-anchor="middle" class="title">Resistores</text>
+  <text x="270" y="105" class="label-strong">330Ω (para os LEDs):</text>
+  <rect x="270" y="115" width="140" height="24" rx="4" fill="#e9dcc0" stroke="#17212b"/>
+  <rect x="290" y="115" width="8" height="24" fill="#d9822b"/>
+  <rect x="305" y="115" width="8" height="24" fill="#d9822b"/>
+  <rect x="320" y="115" width="8" height="24" fill="#8a5a2b"/>
+  <rect x="345" y="115" width="8" height="24" fill="#d4af37"/>
+  <text x="270" y="160" class="note">Laranja – Laranja – Marrom – Dourado</text>
+
+  <text x="270" y="190" class="label-strong">1kΩ (rede RC e botão):</text>
+  <rect x="270" y="200" width="140" height="24" rx="4" fill="#e9dcc0" stroke="#17212b"/>
+  <rect x="290" y="200" width="8" height="24" fill="#5a3a1a"/>
+  <rect x="305" y="200" width="8" height="24" fill="#1a1a1a"/>
+  <rect x="320" y="200" width="8" height="24" fill="#c62828"/>
+  <rect x="345" y="200" width="8" height="24" fill="#d4af37"/>
+
+  <!-- Diode -->
+  <rect x="30" y="250" width="420" height="180" rx="6" class="box"/>
+  <text x="240" y="275" text-anchor="middle" class="title">Diodo comum (1N4148 / 1N4007)</text>
+  <line x1="70" y1="330" x2="130" y2="330" stroke="#17212b" stroke-width="3"/>
+  <rect x="130" y="315" width="70" height="30" rx="4" fill="#2b2b2b" stroke="#17212b" stroke-width="2"/>
+  <rect x="192" y="315" width="8" height="30" fill="#f4e9d8"/>
+  <line x1="200" y1="330" x2="260" y2="330" stroke="#17212b" stroke-width="3"/>
+  <text x="100" y="310" text-anchor="middle" class="note">ânodo</text>
+  <text x="230" y="310" text-anchor="middle" class="note">cátodo</text>
+  <text x="70" y="370" class="label">Ponta SEM listra (ânodo) → liga no pino do CI 4017</text>
+  <text x="70" y="392" class="label">Ponta COM listra (cátodo) → liga na fileira comum</text>
+  <text x="70" y="414" class="note">A corrente só passa no sentido ânodo → cátodo.</text>
+
+  <!-- LED -->
+  <rect x="470" y="250" width="400" height="180" rx="6" class="box"/>
+  <text x="670" y="275" text-anchor="middle" class="title">LED (Verde, Amarelo, Vermelho)</text>
+  <path d="M660 330 A30 30 0 1 1 720 330 Z" fill="#2e7d32" stroke="#17212b" stroke-width="2"/>
+  <line x1="678" y1="360" x2="672" y2="400" stroke="#17212b" stroke-width="3"/>
+  <line x1="700" y1="360" x2="704" y2="390" stroke="#17212b" stroke-width="3"/>
+  <text x="655" y="412" text-anchor="middle" class="note">perna curta</text>
+  <text x="715" y="405" text-anchor="middle" class="note">perna longa</text>
+  <text x="490" y="360" class="label">Perna longa = ânodo (+) → vem do resistor</text>
+  <text x="490" y="382" class="label">Perna curta = cátodo (−) → vai para o GND</text>
+  <text x="490" y="404" class="note">Repare também no lado achatado da carcaça: é o lado do cátodo.</text>
+
+  <!-- Potentiometer 100k -->
+  <rect x="30" y="450" width="840" height="170" rx="6" class="box"/>
+  <text x="450" y="475" text-anchor="middle" class="title">Potenciômetro 100kΩ</text>
+  <circle cx="140" cy="545" r="55" fill="#2b2b2b" stroke="#17212b" stroke-width="2"/>
+  <circle cx="140" cy="545" r="10" fill="#8a8a8a" stroke="#17212b"/>
+  <line x1="140" y1="545" x2="165" y2="525" stroke="#d4af37" stroke-width="4"/>
+  <rect x="100" y="600" width="80" height="18" fill="#f4e9d8" stroke="#17212b"/>
+  <text x="140" y="614" text-anchor="middle" font-size="11" fill="#17212b">104 / 100K</text>
+  <line x1="90" y1="595" x2="90" y2="620" stroke="#17212b" stroke-width="3"/>
+  <line x1="140" y1="595" x2="140" y2="620" stroke="#17212b" stroke-width="3"/>
+  <line x1="190" y1="595" x2="190" y2="620" stroke="#17212b" stroke-width="3"/>
+  <text x="90" y="635" text-anchor="middle" font-size="11" class="note">lateral</text>
+  <text x="140" y="635" text-anchor="middle" font-size="11" class="note">cursor</text>
+  <text x="190" y="635" text-anchor="middle" font-size="11" class="note">lateral</text>
+  <text x="250" y="510" class="label">Potenciômetro não tem faixas coloridas: o valor vem</text>
+  <text x="250" y="532" class="label">impresso no corpo, geralmente como <tspan font-weight="bold">"104"</tspan> ou <tspan font-weight="bold">"100K"</tspan>.</text>
+  <text x="250" y="554" class="note">"104" segue o mesmo código dos capacitores cerâmicos: os 2 primeiros</text>
+  <text x="250" y="574" class="note">dígitos (10) multiplicados por 10⁴ → 10 × 10.000 = 100.000Ω = 100kΩ.</text>
+  <text x="250" y="598" class="note">Os 3 pinos embaixo: os dois das pontas (laterais) e o do meio (cursor,</text>
+  <text x="250" y="618" class="note">ligado ao eixo que gira) — veja o Passo B para saber qual liga em qual pino do 555.</text>
+</svg>

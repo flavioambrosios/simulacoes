@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="Georgia, 'Times New Roman', serif">
+  <style>
+    .box { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .box-title { font-weight: bold; font-size: 16px; fill: #104d63; }
+    .pin-text { font-size: 12px; fill: #17212b; }
+    .note { font-size: 12px; fill: #5b6875; }
+    .wire { stroke: #17212b; stroke-width: 2; fill: none; }
+    .wire-gnd { stroke: #17212b; stroke-width: 3; fill: none; }
+    .label-strong { font-size: 13px; font-weight: bold; fill: #17212b; }
+    .diode-body { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .diode-band { stroke: #17212b; stroke-width: 4; }
+  </style>
+
+  <text x="450" y="26" text-anchor="middle" font-size="19" font-weight="bold" fill="#104d63">Barramento de diodos (Passo D) — exemplo do Grupo 1</text>
+  <text x="450" y="46" text-anchor="middle" class="note">4 pinos do CI 4017 (saídas 3, 2, 4 e 7) somam-se em UMA única fileira da protoboard</text>
+
+  <!-- 4017 pins -->
+  <g>
+    <rect x="40" y="90" width="90" height="30" rx="4" class="box"/>
+    <text x="85" y="110" text-anchor="middle" class="pin-text">Pino 3</text>
+    <rect x="40" y="150" width="90" height="30" rx="4" class="box"/>
+    <text x="85" y="170" text-anchor="middle" class="pin-text">Pino 2</text>
+    <rect x="40" y="210" width="90" height="30" rx="4" class="box"/>
+    <text x="85" y="230" text-anchor="middle" class="pin-text">Pino 4</text>
+    <rect x="40" y="270" width="90" height="30" rx="4" class="box"/>
+    <text x="85" y="290" text-anchor="middle" class="pin-text">Pino 7</text>
+  </g>
+  <text x="85" y="70" text-anchor="middle" class="note">saídas do CI 4017</text>
+
+  <!-- diode symbol function -->
+  <defs>
+    <g id="diode">
+      <line x1="0" y1="0" x2="26" y2="0" class="wire"/>
+      <path d="M26 -10 L26 10 L52 0 Z" class="diode-body"/>
+      <line x1="52" y1="-10" x2="52" y2="10" class="diode-band"/>
+      <line x1="52" y1="0" x2="78" y2="0" class="wire"/>
+    </g>
+  </defs>
+
+  <use href="#diode" x="130" y="105"/>
+  <use href="#diode" x="130" y="165"/>
+  <use href="#diode" x="130" y="225"/>
+  <use href="#diode" x="130" y="285"/>
+
+  <text x="150" y="90" text-anchor="middle" class="note" fill="#1f7a4d">ponta SEM listra (ânodo)</text>
+  <text x="240" y="90" text-anchor="middle" class="note" fill="#a53838">ponta COM listra (cátodo)</text>
+
+  <!-- lines from diodes to common bus -->
+  <path d="M208 105 H340 V300" class="wire"/>
+  <path d="M208 165 H340" class="wire"/>
+  <path d="M208 225 H340" class="wire"/>
+  <path d="M208 285 H340" class="wire"/>
+
+  <!-- common bus row -->
+  <rect x="330" y="290" width="20" height="20" rx="3" fill="#104d63"/>
+  <text x="400" y="305" class="label-strong">Fileira comum (barramento) da protoboard</text>
+  <text x="400" y="323" class="note">os 4 diodos se encontram aqui — cada um só permite</text>
+  <text x="400" y="339" class="note">a corrente sair do 4017 e entrar no barramento, nunca o contrário</text>
+
+  <!-- from bus to resistor -->
+  <path d="M340 300 V400" class="wire"/>
+  <g transform="translate(310,400)">
+    <path class="wire" d="M30 0 l10 -12 l14 24 l14 -24 l14 24 l14 -24 l10 12" fill="none" stroke="#17212b" stroke-width="2"/>
+  </g>
+  <text x="410" y="405" class="pin-text">Resistor 330Ω</text>
+
+  <path d="M448 400 H520" class="wire"/>
+
+  <!-- LEDs -->
+  <circle cx="560" cy="370" r="22" fill="#2e7d32" stroke="#17212b" stroke-width="2"/>
+  <text x="560" y="375" text-anchor="middle" font-size="11" fill="#fff">LED</text>
+  <text x="560" y="335" text-anchor="middle" class="pin-text">Verde (Carro)</text>
+  <path d="M520 400 V370 H538" class="wire"/>
+
+  <circle cx="560" cy="430" r="22" fill="#c62828" stroke="#17212b" stroke-width="2"/>
+  <text x="560" y="435" text-anchor="middle" font-size="11" fill="#fff">LED</text>
+  <text x="560" y="470" text-anchor="middle" class="pin-text">Vermelho (Pedestre)</text>
+  <path d="M520 400 V430 H538" class="wire"/>
+
+  <path d="M582 370 H620 V500 H480 V480" class="wire-gnd"/>
+  <path d="M582 430 H600 V500" class="wire-gnd"/>
+  <text x="500" y="514" text-anchor="middle" class="note">pernas curtas dos LEDs → GND</text>
+
+  <rect x="650" y="90" width="220" height="260" rx="6" fill="#eef6f7" stroke="#176b87"/>
+  <text x="760" y="115" text-anchor="middle" class="label-strong" fill="#104d63">Para os outros grupos</text>
+  <text x="665" y="140" class="note">Grupo 2 (amarelo): apenas</text>
+  <text x="665" y="156" class="note">1 diodo do pino 10, mesma lógica.</text>
+  <text x="665" y="180" class="note">Grupo 3 (vermelho carro +</text>
+  <text x="665" y="196" class="note">verde pedestre): 4 diodos dos</text>
+  <text x="665" y="212" class="note">pinos 1, 5, 6 e 9, em outra</text>
+  <text x="665" y="228" class="note">fileira livre da protoboard.</text>
+  <text x="665" y="255" class="note">Nunca una diretamente pinos</text>
+  <text x="665" y="271" class="note">de saída diferentes sem diodo</text>
+  <text x="665" y="287" class="note">— isso causaria curto-circuito</text>
+  <text x="665" y="303" class="note">entre as saídas do CI 4017.</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780" font-family="Georgia, 'Times New Roman', serif">
+  <style>
+    .box { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .title { font-weight: bold; font-size: 20px; fill: #104d63; }
+    .subtitle { font-size: 13px; fill: #5b6875; }
+    .pin-text { font-size: 14px; fill: #17212b; }
+    .note { font-size: 13px; fill: #5b6875; }
+    .wire { stroke: #17212b; stroke-width: 2; fill: none; }
+    .wire-vcc { stroke: #a53838; stroke-width: 3; fill: none; }
+    .wire-gnd { stroke: #17212b; stroke-width: 3; fill: none; }
+    .busA { stroke: #176b87; stroke-width: 6; fill: none; }
+    .busB { stroke: #d9822b; stroke-width: 6; fill: none; }
+    .label-strong { font-size: 14px; font-weight: bold; fill: #17212b; }
+    .zigzag { fill: none; stroke: #17212b; stroke-width: 2; }
+    .dot { fill: #17212b; }
+  </style>
+
+  <text x="500" y="30" text-anchor="middle" class="title">Rede RC + Botão de Pedestre (Passos B e E)</text>
+  <text x="500" y="52" text-anchor="middle" class="subtitle">As duas faixas coloridas verticais funcionam como duas fileiras da protoboard: tudo que toca a mesma faixa está eletricamente ligado</text>
+
+  <!-- Rails -->
+  <line x1="60" y1="90" x2="940" y2="90" class="wire-vcc"/>
+  <text x="45" y="86" text-anchor="end" class="label-strong" fill="#a53838">+VCC</text>
+  <line x1="60" y1="700" x2="940" y2="700" class="wire-gnd"/>
+  <text x="45" y="704" text-anchor="end" class="label-strong">GND (−)</text>
+
+  <!-- Bus A and Bus B vertical strips -->
+  <line x1="400" y1="150" x2="400" y2="620" class="busA"/>
+  <line x1="620" y1="150" x2="620" y2="620" class="busB"/>
+  <text x="400" y="135" text-anchor="middle" class="label-strong" fill="#176b87">Fileira A (pino 6)</text>
+  <text x="620" y="135" text-anchor="middle" class="label-strong" fill="#d9822b">Fileira B (pino 7)</text>
+
+  <!-- 555 box -->
+  <rect x="80" y="330" width="160" height="160" rx="8" class="box"/>
+  <text x="160" y="360" text-anchor="middle" class="label-strong">CI 555</text>
+  <text x="160" y="380" text-anchor="middle" class="note">(pinos 2, 6 e 7)</text>
+
+  <circle cx="240" cy="410" r="5" class="dot"/>
+  <text x="252" y="415" class="pin-text">2</text>
+  <path d="M240 410 H400" class="busA"/>
+
+  <circle cx="240" cy="450" r="5" class="dot"/>
+  <text x="252" y="455" class="pin-text">6</text>
+  <path d="M240 450 H400" class="busA"/>
+
+  <circle cx="240" cy="490" r="5" class="dot"/>
+  <text x="252" y="495" class="pin-text">7</text>
+  <path d="M240 490 H620" class="busB"/>
+
+  <!-- Potentiometer -->
+  <rect x="450" y="190" width="170" height="40" rx="6" class="box"/>
+  <text x="535" y="215" text-anchor="middle" class="pin-text">Potenciômetro 100kΩ</text>
+
+  <!-- wiper (center tap) -> Bus A -->
+  <path d="M535 230 V270 H400" class="busA"/>
+  <path d="M529 262 L535 272 L541 262 Z" fill="#176b87"/>
+  <text x="535" y="255" text-anchor="middle" class="note">cursor</text>
+
+  <!-- right lateral -> Bus B -->
+  <path d="M620 210 H620" class="busB"/>
+  <path d="M620 210 V150" class="busB"/>
+  <text x="660" y="205" class="note">pino lateral direito</text>
+
+  <!-- left lateral: dangling, not connected -->
+  <path d="M450 210 H410" class="wire"/>
+  <circle cx="404" cy="210" r="5" fill="none" stroke="#5b6875" stroke-width="2"/>
+  <text x="380" y="206" text-anchor="end" class="note">pino lateral esquerdo:</text>
+  <text x="380" y="222" text-anchor="end" class="note">solto (não usar)</text>
+
+  <!-- R1 resistor Bus B -> VCC -->
+  <path d="M620 150 V120" class="busB"/>
+  <path class="zigzag" d="M620 150 l-12 -8 l24 -12 l-24 -12 l24 -12 l-12 -8"/>
+  <path d="M620 90 V98" class="wire-vcc"/>
+  <text x="655" y="115" class="pin-text">R1 = 1kΩ</text>
+  <text x="655" y="132" class="note">(carga, → VCC)</text>
+
+  <!-- Capacitor Bus A -> GND -->
+  <path d="M400 550 V620" class="busA"/>
+  <line x1="380" y1="560" x2="420" y2="560" stroke="#17212b" stroke-width="4"/>
+  <path d="M380 578 Q400 566 420 578" fill="none" stroke="#17212b" stroke-width="4"/>
+  <path d="M400 590 V700" class="wire-gnd"/>
+  <text x="440" y="558" class="pin-text">+ (perna longa)</text>
+  <text x="440" y="582" class="pin-text">− (perna curta)</text>
+  <text x="270" y="558" text-anchor="end" class="note">Capacitor 47/100µF</text>
+
+  <!-- Button bridging Bus A and Bus B -->
+  <path d="M400 480 H480" class="busA"/>
+  <path d="M540 480 H620" class="busB"/>
+  <rect x="480" y="460" width="60" height="40" rx="6" class="box"/>
+  <line x1="490" y1="480" x2="530" y2="465" class="wire"/>
+  <text x="510" y="520" text-anchor="middle" class="pin-text">botão</text>
+
+  <rect x="60" y="620" width="880" height="70" rx="6" fill="#eef6f7" stroke="#176b87"/>
+  <text x="500" y="642" text-anchor="middle" class="pin-text" fill="#104d63">Fileira A (azul) = pino 6 + pino 2 + cursor do potenciômetro + capacitor(+)</text>
+  <text x="500" y="662" text-anchor="middle" class="pin-text" fill="#7a520b">Fileira B (laranja) = pino 7 + pino lateral direito do potenciômetro + R1</text>
+  <text x="500" y="682" text-anchor="middle" class="note">O botão, ao ser pressionado, liga a Fileira A direto à Fileira B (sem resistor extra).</text>
+</svg>

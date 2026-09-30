@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelo de Simulacao</title>
+    <style>
+        :root {
+            --bg: #101827;
+            --panel: #1d2a40;
+            --text: #e5eef8;
+            --accent: #f6ad55;
+            --line: rgba(255, 255, 255, 0.16);
+            --ok: #6ee7b7;
+            --bad: #fca5a5;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #1d2a40 0%, #0e1726 55%, #0a1320 100%);
+            color: var(--text);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            gap: 18px;
+        }
+
+        .hero, .panel, .modal-content {
+            background: rgba(29, 42, 64, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .hero {
+            padding: 18px;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            color: var(--accent);
+        }
+
+        .hero p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-main { background: var(--accent); color: #231b11; }
+        .btn-secondary { background: #334a6b; color: #fff; }
+
+        .panel {
+            padding: 16px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1.2fr 0.8fr;
+        }
+
+        #scene {
+            width: 100%;
+            height: 320px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: linear-gradient(180deg, #132238, #1b3558);
+        }
+
+        .metrics {
+            display: grid;
+            gap: 10px;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+        }
+
+        .metric strong {
+            color: var(--accent);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            z-index: 1000;
+            padding: 22px;
+            overflow: auto;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .close {
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .exercise-card {
+            margin-top: 14px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .choice-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .option {
+            width: 100%;
+            text-align: left;
+            background: #233654;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .option.selected {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 2px rgba(147, 197, 253, 0.2);
+        }
+
+        .result {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: rgba(15, 23, 38, 0.6);
+            display: grid;
+            gap: 8px;
+        }
+
+        .result .success {
+            color: var(--ok);
+        }
+
+        .result .error {
+            color: var(--bad);
+        }
+
+        .result-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .progress {
+            margin-top: 10px;
+            font-size: 0.95rem;
+            color: #d2deec;
+        }
+
+        .email-form {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .form-row {
+            display: grid;
+            gap: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 9px;
+            background: #132238;
+            color: #fff;
+        }
+
+        .required::after {
+            content: " *";
+            color: #fda4af;
+        }
+
+        .email-status {
+            padding: 8px;
+            border-radius: 8px;
+            background: #1f334f;
+            border: 1px solid var(--line);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 860px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1>Nome da Simulacao</h1>
+            <p>
+                TODO: escreva aqui o objetivo da simulacao e como o estudante deve interagir.
+            </p>
+        </header>
+
+        <div class="actions">
+            <button class="btn-main" id="mainExerciseBtn">Abrir exercicios</button>
+            <button class="btn-secondary" id="solvedExercisesBtn">Exercicios resolvidos</button>
+            <button class="btn-secondary" id="openTheoryBtn">Teoria resumida</button>
+        </div>
+
+        <section class="panel grid">
+            <div>
+                <canvas id="scene"></canvas>
+            </div>
+            <div class="metrics">
+                <div class="metric"><strong>Variavel 1:</strong> <span id="metric1">--</span></div>
+                <div class="metric"><strong>Variavel 2:</strong> <span id="metric2">--</span></div>
+                <div class="metric"><strong>Variavel 3:</strong> <span id="metric3">--</span></div>
+                <p>TODO: substituir os indicadores pelo conteudo da sua simulacao.</p>
+            </div>
+        </section>
+    </div>
+
+    <div id="theoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Teoria</h2>
+                <span class="close" data-close="theoryModal">&times;</span>
+            </div>
+            <p>
+                TODO: inserir explicacao curta da teoria e relacao com a atividade pratica.
+            </p>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios resolvidos</h2>
+                <span class="close" data-close="solvedExercisesModal">&times;</span>
+            </div>
+            <div class="exercise-card solved-exercise">
+                <h3>Resolvido 1</h3>
+                <p>TODO: inclua um exercicio resolvido com passo a passo.</p>
+            </div>
+            <div class="exercise-card solved-exercise">
+                <h3>Resolvido 2</h3>
+                <p>TODO: inclua outro exemplo resolvido para reforcar o conceito.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="exercisesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Exercicios propostos</h2>
+                <div>
+                    <button id="restartExercisesBtn" class="btn-secondary">Reiniciar</button>
+                    <span class="close" data-close="exercisesModal">&times;</span>
+                </div>
+            </div>
+
+            <div class="progress" id="progress"></div>
+            <div id="exerciseContainer"></div>
+
+            <div id="conclusionContainer" style="display:none; margin-top: 14px;">
+                <h3>Conclusao de estudo</h3>
+                <p>Escreva o que aprendeu com a simulacao e com os exercicios.</p>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva sua conclusao"></textarea>
+                <button id="submitConclusion" class="btn-main" style="margin-top: 10px; width: 100%;">Enviar conclusao</button>
+            </div>
+
+            <div id="resultsContainer" style="display:none; margin-top: 14px;">
+                <h3>Resumo final</h3>
+                <div id="resultsSummary"></div>
+
+                <h3>Enviar resultados</h3>
+                <div class="email-form">
+                    <div class="form-row">
+                        <label class="required">Nome completo</label>
+                        <input id="studentName" type="text" required>
+                    </div>
+                    <div class="form-row">
+                        <label class="required">Serie</label>
+                        <select id="studentGrade" required>
+                            <option value="">Selecione</option>
+                            <option>1o ano</option>
+                            <option>2o ano</option>
+                            <option>3o ano</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="required">Turma</label>
+                        <select id="studentClass" required>
+                            <option value="">Selecione</option>
+                            <option>A</option>
+                            <option>B</option>
+                            <option>C</option>
+                            <option>D</option>
+                            <option>E</option>
+                            <option>F</option>
+                            <option>G</option>
+                            <option>H</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Email para copia</label>
+                        <input id="studentEmail" type="email" placeholder="email@exemplo.com">
+                    </div>
+                    <div class="form-row">
+                        <label>Criticas</label>
+                        <textarea id="criticismInput" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Sugestoes</label>
+                        <textarea id="suggestionInput" rows="2"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label class="required">Conclusao sobre a atividade</label>
+                        <textarea id="finalConclusion" rows="4" required></textarea>
+                    </div>
+                    <div id="emailStatus" class="email-status">Aguardando envio.</div>
+                    <button id="sendResults" class="btn-main">Enviar resultados</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="exercicios-modelo.js"></script>
+
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: "Nome da Simulacao",
+            storageKey: "nome-da-simulacao"
+        };
+
+        // TODO: substituir pelas URLs reais quando configurar o Apps Script.
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/SEU_SCRIPT_DE_PLANILHA/exec";
+        const EMAIL_SCRIPT_URL = "https://script.google.com/macros/s/SEU_SCRIPT_DE_EMAIL/exec";
+
+        window.tracks = [
+            "TODO: inserir uma narracao inicial com o contexto da simulacao.",
+            "TODO: inserir uma narracao com orientacoes para os exercicios."
+        ];
+
+        window.exampleNarrations = {
+            "1": "TODO: narracao do exemplo 1",
+            "2": "TODO: narracao do exemplo 2"
+        };
+
+        let exercises = [];
+        let currentExercise = 0;
+        let exerciseResults = [];
+        let skippedQuestions = 0;
+        let currentExerciseAttempts = 0;
+        let conclusionTextSaved = "";
+        let selectedOptionValue = "";
+
+        function getExerciseSource() {
+            return Array.isArray(window.SIMULATION_EXERCISES) ? window.SIMULATION_EXERCISES : [];
+        }
+
+        function mapExercises(rawExercises) {
+            return rawExercises.map(function (item) {
+                const alternatives = Array.isArray(item.alternativas) ? item.alternativas : [];
+                return {
+                    type: "multipla-escolha",
+                    question: item.enunciado || "Pergunta não definida.",
+                    title: item.titulo || "Questão",
+                    explanation: item.explicacao || "",
+                    options: alternatives.map(function (alt) {
+                        return {
+                            value: alt.id,
+                            display: alt.id + ") " + alt.texto
+                        };
+                    }),
+                    answer: item.correta
+                };
+            });
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = "flex";
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function openExercisesModal() {
+            if (!exercises.length) {
+                generateExercises();
+            }
+            openModal("exercisesModal");
+            showCurrentExercise();
+        }
+
+        function closeExercisesModal() {
+            closeModal("exercisesModal");
+        }
+
+        function openSolvedExercisesModal() {
+            openModal("solvedExercisesModal");
+        }
+
+        function closeSolvedExercisesModal() {
+            closeModal("solvedExercisesModal");
+        }
+
+        function openTheoryModal() {
+            openModal("theoryModal");
+        }
+
+        function closeTheoryModal() {
+            closeModal("theoryModal");
+        }
+
+        function generateExercises() {
+            exercises = mapExercises(getExerciseSource());
+        }
+
+        function showCurrentExercise() {
+            const progressEl = document.getElementById("progress");
+            const container = document.getElementById("exerciseContainer");
+            const conclusionEl = document.getElementById("conclusionContainer");
+            const resultsEl = document.getElementById("resultsContainer");
+
+            if (!progressEl || !container) {
+                return;
+            }
+
+            if (resultsEl) resultsEl.style.display = "none";
+            if (conclusionEl) conclusionEl.style.display = "none";
+
+            if (!exercises.length) {
+                progressEl.textContent = "Nenhum exercício configurado.";
+                container.innerHTML = "";
+                return;
+            }
+
+            if (currentExercise >= exercises.length) {
+                showConclusion();
+                return;
+            }
+
+            const ex = exercises[currentExercise];
+            selectedOptionValue = "";
+
+            progressEl.textContent = "Questão " + (currentExercise + 1) + " de " + exercises.length;
+
+            container.innerHTML =
+                '<div class="exercise-card">' +
+                '<h3>' + ex.title + '</h3>' +
+                '<p>' + ex.question + '</p>' +
+                '<div class="choice-list">' +
+                ex.options.map(function (opt) {
+                    return '<button class="option" data-value="' + opt.value + '">' + opt.display + '</button>';
+                }).join("") +
+                '</div>' +
+                '<div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">' +
+                '<button class="btn-main" id="checkAnswerBtn">Verificar resposta</button>' +
+                '<button class="btn-secondary" id="skipBtn">Pular questão</button>' +
+                '</div>' +
+                '<div class="result" id="exerciseResult"></div>' +
+                '</div>';
+
+            container.querySelectorAll(".option").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    container.querySelectorAll(".option").forEach(function (item) {
+                        item.classList.remove("selected");
+                    });
+                    btn.classList.add("selected");
+                    selectedOptionValue = btn.getAttribute("data-value") || "";
+                });
+            });
+
+            document.getElementById("checkAnswerBtn").addEventListener("click", checkAnswer);
+            document.getElementById("skipBtn").addEventListener("click", skipExercise);
+            document.getElementById("exerciseResult").innerHTML = "";
+        }
+
+        function checkAnswer() {
+            const resultBox = document.getElementById("exerciseResult");
+            const ex = exercises[currentExercise];
+            if (!resultBox || !ex) {
+                return;
+            }
+
+            if (!selectedOptionValue) {
+                resultBox.innerHTML = '<div class="error">Selecione uma alternativa antes de verificar.</div>';
+                return;
+            }
+
+            currentExerciseAttempts += 1;
+            const isCorrect = selectedOptionValue === ex.answer;
+
+            if (isCorrect) {
+                exerciseResults.push({
+                    question: ex.question,
+                    selected: selectedOptionValue,
+                    answer: ex.answer,
+                    correct: true,
+                    attempts: currentExerciseAttempts,
+                    skipped: false
+                });
+
+                resultBox.innerHTML =
+                    '<div class="success">Correto. ' + (ex.explanation || "") + '</div>' +
+                    '<div class="result-actions">' +
+                    '<button class="btn-main" id="nextExerciseBtn">Próxima questão</button>' +
+                    '</div>';
+
+                document.getElementById("nextExerciseBtn").addEventListener("click", function () {
+                    currentExercise += 1;
+                    currentExerciseAttempts = 0;
+                    showCurrentExercise();
+                });
+            } else {
+                resultBox.innerHTML =
+                    '<div class="error">Incorreto. Tente novamente.</div>' +
+                    '<div>Resposta esperada: ' + ex.answer + '</div>' +
+                    '<div>' + (ex.explanation || "") + '</div>' +
+                    '<div class="result-actions">' +
+                    '<button class="btn-secondary" id="tryAgainBtn">Tentar novamente</button>' +
+                    '<button class="btn-secondary" id="regenBtn">Gerar variação da mesma questão</button>' +
+                    '</div>';
+
+                document.getElementById("tryAgainBtn").addEventListener("click", function () {
+                    selectedOptionValue = "";
+                    currentExerciseAttempts = Math.max(0, currentExerciseAttempts);
+                    showCurrentExercise();
+                });
+
+                document.getElementById("regenBtn").addEventListener("click", function () {
+                    generateNewExerciseOfSameType();
+                    selectedOptionValue = "";
+                    showCurrentExercise();
+                });
+            }
+        }
+
+        function generateNewExerciseOfSameType() {
+            const ex = exercises[currentExercise];
+            if (!ex || !Array.isArray(ex.options)) {
+                return;
+            }
+
+            const shuffled = ex.options.slice();
+            for (let i = shuffled.length - 1; i > 0; i -= 1) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const temp = shuffled[i];
+                shuffled[i] = shuffled[j];
+                shuffled[j] = temp;
+            }
+            ex.options = shuffled;
+        }
+
+        function skipExercise() {
+            const ex = exercises[currentExercise];
+            if (!ex) {
+                return;
+            }
+
+            skippedQuestions += 1;
+            exerciseResults.push({
+                question: ex.question,
+                selected: "",
+                answer: ex.answer,
+                correct: false,
+                attempts: currentExerciseAttempts,
+                skipped: true
+            });
+
+            currentExercise += 1;
+            currentExerciseAttempts = 0;
+            showCurrentExercise();
+        }
+
+        function showConclusion() {
+            const progressEl = document.getElementById("progress");
+            const exerciseContainer = document.getElementById("exerciseContainer");
+            const conclusionContainer = document.getElementById("conclusionContainer");
+            const resultsContainer = document.getElementById("resultsContainer");
+
+            if (progressEl) progressEl.textContent = "Exercícios concluídos.";
+            if (exerciseContainer) exerciseContainer.innerHTML = "";
+            if (exerciseContainer) exerciseContainer.style.display = "none";
+            if (resultsContainer) resultsContainer.style.display = "none";
+            if (conclusionContainer) {
+                conclusionContainer.style.display = "block";
+                const conclusionInput = document.getElementById("conclusionText");
+                if (conclusionInput && conclusionTextSaved && !conclusionInput.value) {
+                    conclusionInput.value = conclusionTextSaved;
+                }
+            }
+        }
+
+        function showResults() {
+            const conclusionContainer = document.getElementById("conclusionContainer");
+            const resultsContainer = document.getElementById("resultsContainer");
+            const summary = document.getElementById("resultsSummary");
+            const finalConclusion = document.getElementById("finalConclusion");
+            const conclusionText = document.getElementById("conclusionText");
+
+            const total = exercises.length || 1;
+            const correct = exerciseResults.filter(function (item) { return item.correct; }).length;
+            const wrong = Math.max(0, exerciseResults.length - correct - skippedQuestions);
+            const score = ((correct / total) * 10).toFixed(1);
+
+            if (summary) {
+                summary.innerHTML =
+                    "<p><strong>Acertos:</strong> " + correct + " de " + total + "</p>" +
+                    "<p><strong>Erros:</strong> " + wrong + "</p>" +
+                    "<p><strong>Puladas:</strong> " + skippedQuestions + "</p>" +
+                    "<p><strong>Nota estimada:</strong> " + score + "</p>";
+            }
+
+            if (finalConclusion && conclusionText) {
+                finalConclusion.value = conclusionText.value;
+            }
+
+            if (conclusionContainer) conclusionContainer.style.display = "none";
+            if (resultsContainer) resultsContainer.style.display = "block";
+        }
+
+        function resetExerciseState() {
+            currentExercise = 0;
+            exerciseResults = [];
+            skippedQuestions = 0;
+            currentExerciseAttempts = 0;
+            selectedOptionValue = "";
+            conclusionTextSaved = "";
+
+            const conclusionText = document.getElementById("conclusionText");
+            const finalConclusion = document.getElementById("finalConclusion");
+            const summary = document.getElementById("resultsSummary");
+            const emailStatus = document.getElementById("emailStatus");
+            const exerciseContainer = document.getElementById("exerciseContainer");
+            const conclusionContainer = document.getElementById("conclusionContainer");
+            const resultsContainer = document.getElementById("resultsContainer");
+
+            if (conclusionText) conclusionText.value = "";
+            if (finalConclusion) finalConclusion.value = "";
+            if (summary) summary.innerHTML = "";
+            if (emailStatus) emailStatus.textContent = "Aguardando envio.";
+            if (exerciseContainer) exerciseContainer.style.display = "block";
+            if (conclusionContainer) conclusionContainer.style.display = "none";
+            if (resultsContainer) resultsContainer.style.display = "none";
+        }
+
+        function resetAndRestartExercises() {
+            resetExerciseState();
+            generateExercises();
+            showCurrentExercise();
+        }
+
+        function collectSendPayload() {
+            const studentName = document.getElementById("studentName");
+            const studentGrade = document.getElementById("studentGrade");
+            const studentClass = document.getElementById("studentClass");
+            const studentEmail = document.getElementById("studentEmail");
+            const criticismInput = document.getElementById("criticismInput");
+            const suggestionInput = document.getElementById("suggestionInput");
+            const finalConclusion = document.getElementById("finalConclusion");
+
+            const total = exercises.length || 1;
+            const correct = exerciseResults.filter(function (item) { return item.correct; }).length;
+            const score = Number(((correct / total) * 10).toFixed(1));
+
+            return {
+                avaliacao: "Simulação - Modelo",
+                simulacao: window.SIMULATION_ENHANCER_CONFIG.simulationName,
+                serie: studentGrade ? studentGrade.value : "",
+                turma: studentClass ? studentClass.value : "",
+                estudante: studentName ? studentName.value : "",
+                email: studentEmail ? studentEmail.value : "",
+                nota: score,
+                acertosIndividuais: correct,
+                totalQuestoes: exercises.length,
+                questoes_puladas: skippedQuestions,
+                criticas: criticismInput ? criticismInput.value : "",
+                sugestoes: suggestionInput ? suggestionInput.value : "",
+                conclusao: finalConclusion ? finalConclusion.value : "",
+                respostas: exerciseResults
+            };
+        }
+
+        function sendResultsToSheet() {
+            const emailStatus = document.getElementById("emailStatus");
+            const payload = collectSendPayload();
+
+            if (emailStatus) {
+                emailStatus.textContent = "Enviando dados para a planilha...";
+            }
+
+            return fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            }).then(function () {
+                if (emailStatus) {
+                    emailStatus.textContent = "Dados enviados para a planilha. Preparando confirmação por e-mail...";
+                }
+
+                if (!payload.email) {
+                    return null;
+                }
+
+                return fetch(EMAIL_SCRIPT_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({
+                        to_email: payload.email,
+                        estudante: payload.estudante,
+                        simulacao: payload.simulacao,
+                        nota: payload.nota
+                    })
+                });
+            }).then(function () {
+                if (emailStatus) {
+                    emailStatus.textContent = "Envio concluído. Se houver e-mail informado, a confirmação foi solicitada.";
+                }
+            }).catch(function (error) {
+                if (emailStatus) {
+                    emailStatus.textContent = "Falha no envio: " + (error && error.message ? error.message : "tente novamente.");
+                }
+            });
+        }
+
+        function setupBaseEvents() {
+            document.getElementById("mainExerciseBtn").addEventListener("click", openExercisesModal);
+            document.getElementById("solvedExercisesBtn").addEventListener("click", openSolvedExercisesModal);
+            document.getElementById("openTheoryBtn").addEventListener("click", openTheoryModal);
+            document.getElementById("restartExercisesBtn").addEventListener("click", resetAndRestartExercises);
+
+            document.getElementById("submitConclusion").addEventListener("click", function () {
+                const conclusionInput = document.getElementById("conclusionText");
+                conclusionTextSaved = conclusionInput ? conclusionInput.value : "";
+                showResults();
+            });
+
+            document.querySelectorAll(".close").forEach(function (closeBtn) {
+                closeBtn.addEventListener("click", function () {
+                    const modalId = closeBtn.getAttribute("data-close");
+                    if (modalId === "exercisesModal") closeExercisesModal();
+                    if (modalId === "solvedExercisesModal") closeSolvedExercisesModal();
+                    if (modalId === "theoryModal") closeTheoryModal();
+                });
+            });
+
+            window.addEventListener("click", function (event) {
+                ["theoryModal", "solvedExercisesModal", "exercisesModal"].forEach(function (modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (modal && event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            });
+        }
+
+        generateExercises();
+        setupBaseEvents();
+    </script>
+
+    <script src="../_shared/simulation-enhancer.js"></script>
+</body>
+</html>

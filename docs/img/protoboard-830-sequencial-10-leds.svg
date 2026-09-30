@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1260" font-family="Georgia, 'Times New Roman', serif">
+  <defs>
+    <pattern id="leftHoles" width="250" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="22" cy="8" r="3" fill="#b7b1a7"/><circle cx="67" cy="8" r="3" fill="#b7b1a7"/>
+      <circle cx="112" cy="8" r="3" fill="#b7b1a7"/><circle cx="157" cy="8" r="3" fill="#b7b1a7"/>
+      <circle cx="202" cy="8" r="3" fill="#b7b1a7"/>
+    </pattern>
+    <pattern id="rightHoles" width="250" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="22" cy="8" r="3" fill="#b7b1a7"/><circle cx="67" cy="8" r="3" fill="#b7b1a7"/>
+      <circle cx="112" cy="8" r="3" fill="#b7b1a7"/><circle cx="157" cy="8" r="3" fill="#b7b1a7"/>
+      <circle cx="202" cy="8" r="3" fill="#b7b1a7"/>
+    </pattern>
+    <style>
+      .title { fill: #104d63; font-size: 24px; font-weight: bold; }
+      .heading { fill: #104d63; font-size: 17px; font-weight: bold; }
+      .text { fill: #17212b; font-size: 13px; }
+      .small { fill: #5b6875; font-size: 11px; }
+      .board { fill: #fffdf7; stroke: #b9ad9b; stroke-width: 3; }
+      .chip { fill: #2b2b2b; stroke: #111; stroke-width: 2; }
+      .chiptext { fill: #fffdf7; font-size: 15px; font-weight: bold; }
+      .pin { fill: #d9d4c9; stroke: #17212b; stroke-width: 1; }
+      .vcc { fill: none; stroke: #c62828; stroke-width: 4; }
+      .gnd { fill: none; stroke: #176b87; stroke-width: 4; }
+      .signal { fill: none; stroke: #2e7d32; stroke-width: 3; }
+      .rc { fill: none; stroke: #d9822b; stroke-width: 3; }
+      .resistor { fill: #e9dcc0; stroke: #17212b; stroke-width: 1.5; }
+      .led { fill: #5cc779; stroke: #17212b; stroke-width: 1.5; }
+      .tag { fill: #104d63; stroke: #fff; stroke-width: 1; }
+      .tagtext { fill: #fff; font-size: 11px; font-weight: bold; }
+      .panel { fill: #eef6f7; stroke: #176b87; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <text x="800" y="34" text-anchor="middle" class="title">Mapa sugerido: sequencial de 10 LEDs em protoboard de 830 pontos</text>
+  <text x="800" y="58" text-anchor="middle" class="small">Vista superior — alimentação regulada de 5V — confira a numeração impressa na sua protoboard</text>
+
+  <!-- Breadboard body -->
+  <rect x="55" y="82" width="840" height="1110" rx="18" class="board"/>
+
+  <!-- Vertical power rails -->
+  <line x1="90" y1="155" x2="90" y2="1163" class="vcc"/>
+  <line x1="860" y1="155" x2="860" y2="1163" class="gnd"/>
+  <text x="90" y="140" text-anchor="middle" class="text" fill="#c62828">+5V</text>
+  <text x="860" y="140" text-anchor="middle" class="text" fill="#176b87">GND</text>
+
+  <!-- Terminal strips, 63 rows -->
+  <rect x="150" y="155" width="250" height="1008" fill="url(#leftHoles)"/>
+  <rect x="500" y="155" width="250" height="1008" fill="url(#rightHoles)"/>
+  <rect x="420" y="155" width="60" height="1008" fill="#f0ece4" stroke="#d7ccbb"/>
+  <text x="180" y="148" class="small">a</text><text x="225" y="148" class="small">b</text><text x="270" y="148" class="small">c</text><text x="315" y="148" class="small">d</text><text x="360" y="148" class="small">e</text>
+  <text x="520" y="148" class="small">f</text><text x="565" y="148" class="small">g</text><text x="610" y="148" class="small">h</text><text x="655" y="148" class="small">i</text><text x="700" y="148" class="small">j</text>
+  <text x="450" y="690" text-anchor="middle" transform="rotate(-90 450 690)" class="small">canaleta central</text>
+
+  <!-- Row number guides -->
+  <g class="small" text-anchor="end">
+    <text x="135" y="231">5</text><text x="135" y="311">10</text><text x="135" y="391">15</text>
+    <text x="135" y="471">20</text><text x="135" y="551">25</text><text x="135" y="631">30</text>
+    <text x="135" y="711">35</text><text x="135" y="791">40</text><text x="135" y="871">45</text>
+    <text x="135" y="951">50</text><text x="135" y="1031">55</text><text x="135" y="1111">60</text>
+  </g>
+
+  <!-- NE555 at rows 6-9 -->
+  <rect x="356" y="243" width="162" height="64" rx="8" class="chip"/>
+  <path d="M419 243 A18 10 0 0 0 455 243" fill="#fffdf7"/>
+  <text x="437" y="279" text-anchor="middle" class="chiptext">NE555</text>
+  <g class="pin">
+    <rect x="346" y="246" width="12" height="8"/><rect x="346" y="262" width="12" height="8"/><rect x="346" y="278" width="12" height="8"/><rect x="346" y="294" width="12" height="8"/>
+    <rect x="516" y="294" width="12" height="8"/><rect x="516" y="278" width="12" height="8"/><rect x="516" y="262" width="12" height="8"/><rect x="516" y="246" width="12" height="8"/>
+  </g>
+  <text x="332" y="254" class="small">1</text><text x="332" y="270" class="small">2</text><text x="332" y="286" class="small">3</text><text x="332" y="302" class="small">4</text>
+  <text x="535" y="302" class="small">5</text><text x="535" y="286" class="small">6</text><text x="535" y="270" class="small">7</text><text x="535" y="254" class="small">8</text>
+
+  <!-- 555 power/control jumpers -->
+  <path d="M352 250 H280 V180 H860" class="gnd"/><text x="290" y="243" class="small">p1</text>
+  <path d="M352 298 H90" class="vcc"/><text x="275" y="304" class="small">p4</text>
+  <path d="M522 250 H790 V195 H90" class="vcc"/><text x="548" y="244" class="small">p8</text>
+  <path d="M352 266 H325 V282 H522" class="rc"/><text x="306" y="274" class="small">p2↔p6</text>
+
+  <!-- RC components shown beside 555 -->
+  <rect x="610" y="208" width="105" height="30" rx="5" class="resistor"/><text x="662" y="228" text-anchor="middle" class="small">R = 1kΩ</text>
+  <path d="M522 266 H610 V223" class="rc"/><path d="M715 223 H790 V210 H90" class="vcc"/>
+  <rect x="625" y="260" width="145" height="48" rx="6" fill="#fff4d7" stroke="#d9822b"/>
+  <text x="697" y="280" text-anchor="middle" class="small">Potenciômetro 100kΩ</text>
+  <text x="697" y="297" text-anchor="middle" class="small">lateral→p7 · centro→p6</text>
+  <path d="M522 266 H600 V275 H625" class="rc"/><path d="M522 282 H600 V295 H625" class="rc"/>
+  <line x1="585" y1="282" x2="585" y2="340" class="rc"/>
+  <line x1="570" y1="340" x2="600" y2="340" stroke="#17212b" stroke-width="4"/>
+  <path d="M570 354 Q585 345 600 354" fill="none" stroke="#17212b" stroke-width="4"/>
+  <path d="M585 358 V385 H860" class="gnd"/>
+  <text x="610" y="350" class="small">C 47/100µF</text>
+
+  <!-- CD4017 at rows 15-22 -->
+  <rect x="356" y="387" width="162" height="128" rx="8" class="chip"/>
+  <path d="M419 387 A18 10 0 0 0 455 387" fill="#fffdf7"/>
+  <text x="437" y="456" text-anchor="middle" class="chiptext">CD4017</text>
+  <g class="pin">
+    <rect x="346" y="390" width="12" height="8"/><rect x="346" y="406" width="12" height="8"/><rect x="346" y="422" width="12" height="8"/><rect x="346" y="438" width="12" height="8"/>
+    <rect x="346" y="454" width="12" height="8"/><rect x="346" y="470" width="12" height="8"/><rect x="346" y="486" width="12" height="8"/><rect x="346" y="502" width="12" height="8"/>
+    <rect x="516" y="502" width="12" height="8"/><rect x="516" y="486" width="12" height="8"/><rect x="516" y="470" width="12" height="8"/><rect x="516" y="454" width="12" height="8"/>
+    <rect x="516" y="438" width="12" height="8"/><rect x="516" y="422" width="12" height="8"/><rect x="516" y="406" width="12" height="8"/><rect x="516" y="390" width="12" height="8"/>
+  </g>
+  <g class="small">
+    <text x="330" y="398">1</text><text x="330" y="414">2</text><text x="330" y="430">3</text><text x="330" y="446">4</text>
+    <text x="330" y="462">5</text><text x="330" y="478">6</text><text x="330" y="494">7</text><text x="330" y="510">8</text>
+    <text x="535" y="510">9</text><text x="535" y="494">10</text><text x="535" y="478">11</text><text x="535" y="462">12</text>
+    <text x="535" y="446">13</text><text x="535" y="430">14</text><text x="535" y="414">15</text><text x="535" y="398">16</text>
+  </g>
+
+  <!-- Clock and 4017 control -->
+  <path d="M352 282 H250 V370 H600 V426 H522" class="signal"/><text x="245" y="360" class="small">clock: 555 p3 → 4017 p14</text>
+  <path d="M522 394 H790 V225 H90" class="vcc"/><text x="735" y="389" class="small">p16→+5V</text>
+  <path d="M352 506 H270 V535 H860" class="gnd"/><text x="265" y="528" class="small">p8→GND</text>
+  <path d="M522 442 H760 V550 H860" class="gnd"/><text x="700" y="438" class="small">p13→GND</text>
+  <path d="M522 410 H735 V565 H860" class="gnd"/><text x="690" y="406" class="small">p15→GND</text>
+  <text x="550" y="462" class="small">p12: vazio</text>
+
+  <!-- Output tags at 4017 pins -->
+  <g text-anchor="middle">
+    <circle cx="320" cy="394" r="10" class="tag"/><text x="320" y="398" class="tagtext">6</text>
+    <circle cx="320" cy="410" r="10" class="tag"/><text x="320" y="414" class="tagtext">2</text>
+    <circle cx="320" cy="426" r="10" class="tag"/><text x="320" y="430" class="tagtext">1</text>
+    <circle cx="320" cy="442" r="10" class="tag"/><text x="320" y="446" class="tagtext">3</text>
+    <circle cx="320" cy="458" r="10" class="tag"/><text x="320" y="462" class="tagtext">7</text>
+    <circle cx="320" cy="474" r="10" class="tag"/><text x="320" y="478" class="tagtext">8</text>
+    <circle cx="320" cy="490" r="10" class="tag"/><text x="320" y="494" class="tagtext">4</text>
+    <circle cx="580" cy="506" r="10" class="tag"/><text x="580" y="510" class="tagtext">9</text>
+    <circle cx="580" cy="490" r="10" class="tag"/><text x="580" y="494" class="tagtext">5</text>
+    <circle cx="580" cy="474" r="10" class="tag"/><text x="580" y="478" class="tagtext">10</text>
+  </g>
+
+  <!-- LED strip: source rows 24,28...60; LEDs on rows 26/27 etc. -->
+  <g>
+    <g transform="translate(0,0)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">1</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 1 · linhas 26/27</text></g>
+    <g transform="translate(0,64)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">2</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 2 · linhas 30/31</text></g>
+    <g transform="translate(0,128)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">3</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 3 · linhas 34/35</text></g>
+    <g transform="translate(0,192)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">4</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 4 · linhas 38/39</text></g>
+    <g transform="translate(0,256)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">5</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 5 · linhas 42/43</text></g>
+    <g transform="translate(0,320)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">6</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 6 · linhas 46/47</text></g>
+    <g transform="translate(0,384)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">7</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 7 · linhas 50/51</text></g>
+    <g transform="translate(0,448)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">8</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 8 · linhas 54/55</text></g>
+    <g transform="translate(0,512)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">9</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 9 · linhas 58/59</text></g>
+    <g transform="translate(0,576)"><circle cx="565" cy="550" r="10" class="tag"/><text x="565" y="554" text-anchor="middle" class="tagtext">10</text><path d="M575 550 H620" class="signal"/><rect x="614" y="550" width="12" height="24" rx="3" class="resistor"/><path d="M620 574 V578" class="signal"/><circle cx="620" cy="590" r="12" class="led"/><text x="640" y="586" class="small">+</text><text x="640" y="607" class="small">−</text><path d="M620 602 V614 H860" class="gnd"/><text x="670" y="594" class="small">LED 10 · linhas 62/63</text></g>
+  </g>
+
+  <!-- Side instructions -->
+  <rect x="940" y="90" width="610" height="1095" rx="10" class="panel"/>
+  <text x="1245" y="125" text-anchor="middle" class="heading">Como usar este mapa</text>
+  <text x="975" y="160" class="text">1. Coloque os dois CIs atravessando a canaleta:</text>
+  <text x="995" y="183" class="text">• NE555 nas linhas 6 a 9.</text>
+  <text x="995" y="206" class="text">• CD4017 nas linhas 15 a 22.</text>
+
+  <text x="975" y="246" class="text">2. Faça primeiro as ligações de alimentação:</text>
+  <text x="995" y="269" class="text">• vermelho = +5V;</text>
+  <text x="995" y="292" class="text">• azul = GND.</text>
+
+  <text x="975" y="332" class="text">3. Monte a rede RC do 555:</text>
+  <text x="995" y="355" class="text">• pinos 2 e 6 unidos;</text>
+  <text x="995" y="378" class="text">• capacitor entre pino 6 e GND;</text>
+  <text x="995" y="401" class="text">• centro do potenciômetro no pino 6;</text>
+  <text x="995" y="424" class="text">• um lateral no pino 7;</text>
+  <text x="995" y="447" class="text">• resistor de 1kΩ entre pino 7 e +5V.</text>
+
+  <text x="975" y="487" class="text">4. Una pino 3 do 555 ao pino 14 do 4017.</text>
+
+  <text x="975" y="527" class="text">5. Nos círculos numerados:</text>
+  <text x="995" y="550" class="text">• ligue 1 no 1, 2 no 2, ... 10 no 10;</text>
+  <text x="995" y="573" class="text">• cada ligação é um jumper da saída do 4017</text>
+  <text x="1012" y="596" class="text">até o resistor do LED correspondente.</text>
+
+  <text x="975" y="636" class="text">6. Em cada LED:</text>
+  <text x="995" y="659" class="text">• saída do 4017 → resistor de 1kΩ;</text>
+  <text x="995" y="682" class="text">• resistor → perna longa do LED;</text>
+  <text x="995" y="705" class="text">• perna curta do LED → GND.</text>
+
+  <rect x="975" y="750" width="540" height="145" rx="6" fill="#fff4d7" stroke="#d9822b" stroke-width="2"/>
+  <text x="1245" y="780" text-anchor="middle" class="heading" fill="#7a520b">Atenção</text>
+  <text x="1000" y="812" class="text">• O pino 12 do 4017 fica vazio.</text>
+  <text x="1000" y="837" class="text">• Os pinos 13 e 15 do 4017 vão ao GND.</text>
+  <text x="1000" y="862" class="text">• Cada LED precisa do próprio resistor.</text>
+
+  <text x="975" y="940" class="heading">Sobre as linhas indicadas</text>
+  <text x="975" y="970" class="text">As linhas são uma sugestão para uma placa padrão de</text>
+  <text x="975" y="993" class="text">830 pontos. Algumas marcas imprimem números ou dividem</text>
+  <text x="975" y="1016" class="text">os trilhos de alimentação de forma diferente.</text>
+  <text x="975" y="1056" class="text">Se precisar deslocar um componente, preserve as mesmas</text>
+  <text x="975" y="1079" class="text">conexões elétricas descritas no guia.</text>
+
+  <text x="975" y="1135" class="small">O desenho é um mapa didático de montagem, não uma fotografia em escala.</text>
+</svg>

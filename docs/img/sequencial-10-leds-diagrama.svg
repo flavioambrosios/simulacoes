@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="Georgia, 'Times New Roman', serif">
+  <style>
+    .panel { fill: #fffdf7; stroke: #17212b; stroke-width: 2; }
+    .title { fill: #104d63; font-size: 22px; font-weight: bold; }
+    .heading { fill: #104d63; font-size: 16px; font-weight: bold; }
+    .text { fill: #17212b; font-size: 13px; }
+    .note { fill: #5b6875; font-size: 12px; }
+    .wire { fill: none; stroke: #176b87; stroke-width: 3; }
+    .output { fill: none; stroke: #5b6875; stroke-width: 2; }
+    .resistor { fill: #e9dcc0; stroke: #17212b; stroke-width: 1.5; }
+    .led-off { fill: #d9ded8; stroke: #17212b; stroke-width: 2; }
+    .led-on { fill: #31b866; stroke: #17212b; stroke-width: 2; }
+  </style>
+
+  <text x="600" y="32" text-anchor="middle" class="title">Sequencial de 10 LEDs com CI 555 + CI 4017</text>
+  <text x="600" y="54" text-anchor="middle" class="note">A cada pulso do 555, o 4017 apaga o LED atual e acende o próximo</text>
+
+  <rect x="45" y="95" width="240" height="180" rx="6" class="panel"/>
+  <text x="165" y="125" text-anchor="middle" class="heading">CI 555 — relógio</text>
+  <text x="65" y="158" class="text">Rede RC:</text>
+  <text x="65" y="180" class="text">potenciômetro 100kΩ</text>
+  <text x="65" y="202" class="text">+ capacitor 47µF ou 100µF</text>
+  <text x="65" y="236" class="note">Pino 3 gera pulsos elétricos</text>
+
+  <path d="M285 185 H390" class="wire"/>
+  <path d="M380 177 L394 185 L380 193 Z" fill="#176b87"/>
+  <text x="338" y="172" text-anchor="middle" class="note">pino 3 → pino 14</text>
+
+  <rect x="395" y="75" width="260" height="220" rx="6" class="panel"/>
+  <text x="525" y="105" text-anchor="middle" class="heading">CI 4017 — contador</text>
+  <text x="415" y="137" class="text">Pino 14: recebe o clock</text>
+  <text x="415" y="161" class="text">Pino 13: GND (contagem liberada)</text>
+  <text x="415" y="185" class="text">Pino 15: GND (sem reset antecipado)</text>
+  <text x="415" y="209" class="text">Pino 16: VCC</text>
+  <text x="415" y="233" class="text">Pino 8: GND</text>
+  <text x="525" y="270" text-anchor="middle" class="note">Usa as dez saídas: Q0 até Q9</text>
+
+  <path d="M655 185 H745" class="wire"/>
+  <path d="M735 177 L749 185 L735 193 Z" fill="#176b87"/>
+  <text x="700" y="172" text-anchor="middle" class="note">uma saída por vez</text>
+
+  <rect x="750" y="95" width="400" height="180" rx="6" class="panel"/>
+  <text x="950" y="125" text-anchor="middle" class="heading">10 LEDs em sequência</text>
+  <text x="770" y="158" class="text">Cada saída liga:</text>
+  <text x="770" y="180" class="text">saída do 4017 → resistor 1kΩ → LED → GND</text>
+  <text x="770" y="214" class="note">Cada LED precisa do seu próprio resistor.</text>
+  <text x="770" y="236" class="note">Não são necessários diodos neste experimento.</text>
+
+  <text x="600" y="335" text-anchor="middle" class="heading">Ordem das saídas e dos pinos</text>
+
+  <g transform="translate(55,365)">
+    <path d="M45 0 H45 V55" class="output"/>
+    <rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/>
+    <circle cx="45" cy="110" r="20" class="led-on"/>
+    <text x="45" y="116" text-anchor="middle" class="text" fill="#fff">LED 1</text>
+    <text x="45" y="145" text-anchor="middle" class="text">Q0</text>
+    <text x="45" y="165" text-anchor="middle" class="text">pino 3</text>
+  </g>
+  <g transform="translate(165,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 2</text><text x="45" y="145" text-anchor="middle" class="text">Q1</text><text x="45" y="165" text-anchor="middle" class="text">pino 2</text>
+  </g>
+  <g transform="translate(275,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 3</text><text x="45" y="145" text-anchor="middle" class="text">Q2</text><text x="45" y="165" text-anchor="middle" class="text">pino 4</text>
+  </g>
+  <g transform="translate(385,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 4</text><text x="45" y="145" text-anchor="middle" class="text">Q3</text><text x="45" y="165" text-anchor="middle" class="text">pino 7</text>
+  </g>
+  <g transform="translate(495,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 5</text><text x="45" y="145" text-anchor="middle" class="text">Q4</text><text x="45" y="165" text-anchor="middle" class="text">pino 10</text>
+  </g>
+  <g transform="translate(605,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 6</text><text x="45" y="145" text-anchor="middle" class="text">Q5</text><text x="45" y="165" text-anchor="middle" class="text">pino 1</text>
+  </g>
+  <g transform="translate(715,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 7</text><text x="45" y="145" text-anchor="middle" class="text">Q6</text><text x="45" y="165" text-anchor="middle" class="text">pino 5</text>
+  </g>
+  <g transform="translate(825,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 8</text><text x="45" y="145" text-anchor="middle" class="text">Q7</text><text x="45" y="165" text-anchor="middle" class="text">pino 6</text>
+  </g>
+  <g transform="translate(935,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 9</text><text x="45" y="145" text-anchor="middle" class="text">Q8</text><text x="45" y="165" text-anchor="middle" class="text">pino 9</text>
+  </g>
+  <g transform="translate(1045,365)">
+    <path d="M45 0 V55" class="output"/><rect x="18" y="55" width="54" height="20" rx="3" class="resistor"/><circle cx="45" cy="110" r="20" class="led-off"/><text x="45" y="116" text-anchor="middle" class="text">LED 10</text><text x="45" y="145" text-anchor="middle" class="text">Q9</text><text x="45" y="165" text-anchor="middle" class="text">pino 11</text>
+  </g>
+
+  <path d="M100 570 H1100" class="wire-gnd"/>
+  <text x="600" y="592" text-anchor="middle" class="note">Pernas curtas dos dez LEDs ligadas ao GND</text>
+
+  <rect x="95" y="625" width="1010" height="62" rx="6" fill="#fff4d7" stroke="#d9822b" stroke-width="2"/>
+  <text x="600" y="650" text-anchor="middle" class="text">Atenção: para usar os 10 LEDs, o pino 15 (RESET) deve ir ao GND.</text>
+  <text x="600" y="672" text-anchor="middle" class="note">O pino 11 agora é a saída Q9 do LED 10; ele não deve ser ligado ao RESET.</text>
+</svg>
