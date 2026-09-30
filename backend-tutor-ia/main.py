@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -156,6 +156,15 @@ SIMULATION_CONTEXTS = {
             'Para os exercícios de gerador, ajude a identificar espiras, campo magnético, área e velocidade angular '
             'na relação da fem máxima. Destaque a conversão de área para metros quadrados e, conceitualmente, '
             'a Lei de Lenz: o sentido induzido se opõe à variação do fluxo.'
+        ),
+    },
+    'solenoide': {
+        'title': 'Solenoide',
+        'guidance': (
+            'Oriente sobre o campo magnético no interior de um solenoide longo ideal, relacionado à corrente '
+            'e à densidade de espiras N/L. Ajude o estudante a identificar N, comprimento e corrente na relação '
+            'B = μ₀(N/L)I antes de isolar a incógnita. Diferencie intensidade e sentido do campo; use a regra '
+            'da mão direita quando a questão perguntar a direção.'
         ),
     },
 }
