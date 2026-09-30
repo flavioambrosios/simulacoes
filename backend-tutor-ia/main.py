@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -129,6 +129,15 @@ SIMULATION_CONTEXTS = {
             'Ajude o estudante a identificar qual grandeza é conhecida e qual é pedida, escolher como reorganizar '
             'V = R·I e acompanhar as unidades. Para resistência constante, a corrente cresce com a tensão; '
             'para tensão constante, a corrente diminui quando a resistência aumenta.'
+        ),
+    },
+    'resistencia-eletrica': {
+        'title': 'Resistência Elétrica',
+        'guidance': (
+            'Oriente sobre R = ρL/A e a distinção entre resistividade ρ, propriedade do material, '
+            'e resistência R, que também depende da geometria do fio. Ajude a identificar como comprimento '
+            'e área transversal afetam R: maior comprimento aumenta a resistência, enquanto maior área a reduz. '
+            'Ajude a conferir as unidades antes de substituir valores.'
         ),
     },
 }
