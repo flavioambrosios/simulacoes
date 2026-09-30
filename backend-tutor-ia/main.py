@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -138,6 +138,15 @@ SIMULATION_CONTEXTS = {
             'e resistência R, que também depende da geometria do fio. Ajude a identificar como comprimento '
             'e área transversal afetam R: maior comprimento aumenta a resistência, enquanto maior área a reduz. '
             'Ajude a conferir as unidades antes de substituir valores.'
+        ),
+    },
+    'lei-de-ampere': {
+        'title': 'Lei de Ampère',
+        'guidance': (
+            'Nas questões desta simulação, considere o campo magnético ao redor de um fio retilíneo longo. '
+            'Oriente sobre B = μ₀I/(2πr): a intensidade aumenta com a corrente e diminui com a distância. '
+            'Diferencie a intensidade do campo da sua direção e, quando pertinente, use a regra da mão direita '
+            'para relacionar o sentido da corrente ao sentido das linhas de campo.'
         ),
     },
 }
