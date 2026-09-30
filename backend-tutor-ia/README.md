@@ -1,6 +1,6 @@
 # Tutor Socrático de Física
 
-Backend independente para o tutor de IA nas simulações piloto da Lei de Coulomb, Molas, Lançamento de Projéteis, Energia na Pista de Skate e Laboratório de Colisões. A chave da DeepSeek fica no servidor, nunca no HTML ou no JavaScript.
+Backend independente para o tutor de IA nas simulações piloto da Lei de Coulomb, Molas, Lançamento de Projéteis, Energia na Pista de Skate, Laboratório de Colisões e Circuitos Elétricos DC. A chave da DeepSeek fica no servidor, nunca no HTML ou no JavaScript.
 
 ## Executar localmente
 

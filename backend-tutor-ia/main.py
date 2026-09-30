@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -111,6 +111,15 @@ SIMULATION_CONTEXTS = {
             'com direção e sinal. Diferencie colisões elásticas, em que a energia cinética total se conserva no '
             'modelo ideal, de inelásticas, em que parte da energia cinética se transforma em outras formas. '
             'Quando os corpos permanecem unidos, ajude a reconhecer a colisão perfeitamente inelástica.'
+        ),
+    },
+    'circuitos-dc': {
+        'title': 'Circuitos Elétricos DC',
+        'guidance': (
+            'Oriente sobre tensão, corrente, resistência e potência em circuitos de corrente contínua. '
+            'Ajude a identificar os dados e a incógnita antes de escolher uma relação como a Lei de Ohm. '
+            'Em série, a corrente é a mesma e as resistências equivalentes se somam; em paralelo, a tensão '
+            'é a mesma nos ramos e a resistência equivalente é menor que cada resistência dos ramos.'
         ),
     },
 }
