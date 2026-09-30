@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -120,6 +120,15 @@ SIMULATION_CONTEXTS = {
             'Ajude a identificar os dados e a incógnita antes de escolher uma relação como a Lei de Ohm. '
             'Em série, a corrente é a mesma e as resistências equivalentes se somam; em paralelo, a tensão '
             'é a mesma nos ramos e a resistência equivalente é menor que cada resistência dos ramos.'
+        ),
+    },
+    'lei-de-ohm': {
+        'title': 'Lei de Ohm',
+        'guidance': (
+            'Oriente sobre a relação entre tensão, corrente e resistência em um resistor ôhmico. '
+            'Ajude o estudante a identificar qual grandeza é conhecida e qual é pedida, escolher como reorganizar '
+            'V = R·I e acompanhar as unidades. Para resistência constante, a corrente cresce com a tensão; '
+            'para tensão constante, a corrente diminui quando a resistência aumenta.'
         ),
     },
 }
