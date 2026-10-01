@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -220,6 +220,15 @@ SIMULATION_CONTEXTS = {
             'condutividade k, a área A e a diferença de temperatura ΔT, e diminui com o comprimento L. '
             'Ajude a distinguir fluxo de calor (taxa, em watts) de quantidade total de calor e a conferir as '
             'unidades. O sentido espontâneo da condução é do corpo mais quente para o mais frio.'
+        ),
+    },
+    'comportamento-gases': {
+        'title': 'Comportamento dos Gases',
+        'guidance': (
+            'Ajude primeiro a identificar qual grandeza permanece constante. Relacione pressão e volume na '
+            'transformação isotérmica (Lei de Boyle), volume e temperatura na isobárica (Lei de Charles), e '
+            'pressão e temperatura na isocórica (Lei de Gay-Lussac). Para essas proporções, use temperatura '
+            'absoluta em kelvin. Em questões do modelo cinético, conecte temperatura à agitação média das partículas.'
         ),
     },
 }
