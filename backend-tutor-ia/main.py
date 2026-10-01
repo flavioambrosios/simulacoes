@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -174,6 +174,15 @@ SIMULATION_CONTEXTS = {
             'entre tensão, corrente e potência. Diferencie o modelo ideal, em que a potência de entrada e saída '
             'se igualam, de um transformador real com eficiência menor que 100%. Ajude a identificar primário e '
             'secundário, escolher a grandeza pedida e acompanhar as unidades antes de calcular.'
+        ),
+    },
+    'termologia': {
+        'title': 'Termologia',
+        'guidance': (
+            'Oriente sobre a diferença entre calor e temperatura, calor sensível Q = mcΔT, capacidade térmica '
+            'e calor latente nas mudanças de fase. Ajude a reconhecer patamares de temperatura em curvas de '
+            'aquecimento e a conferir unidades, sinais e conversões. Em perguntas conceituais, use exemplos '
+            'como evaporação do suor sem entregar a resposta final.'
         ),
     },
 }
