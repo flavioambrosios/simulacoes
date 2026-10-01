@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -287,6 +287,18 @@ SIMULATION_CONTEXTS = {
             'intensidades emitidas por unidade de área, use a Lei de Stefan-Boltzmann, I ∝ T^4, comparando razões '
             'de temperaturas absolutas em kelvin. Relacione o aumento da temperatura ao deslocamento do pico para '
             'comprimentos de onda menores. Não forneça valores finais nem alternativas corretas.'
+        ),
+    },
+    'fotossintese-solar': {
+        'title': 'Fotossíntese Solar',
+        'guidance': (
+            'Oriente sobre a transformação da energia luminosa em energia química. Para energia de fótons, relacione '
+            'E = hc/λ e, quando os dados estiverem em nanômetros e elétron-volts, use E(eV) ≈ 1240/λ(nm); explique '
+            'que menor comprimento de onda corresponde a maior energia por fóton. Ajude a interpretar a faixa do '
+            'espectro e a absorção por clorofilas e carotenoides, distinguindo luz absorvida da refletida. Ao comparar '
+            'taxas, considere em conjunto comprimento de onda, intensidade luminosa, CO2, água e pigmento conforme '
+            'o modelo da simulação. Para glicose, acompanhe unidades e conversões entre mmol e mol e use a equação '
+            'global da fotossíntese quando pertinente. Faça perguntas graduais sem revelar resultados nem alternativas.'
         ),
     },
 }
