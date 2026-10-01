@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -258,6 +258,15 @@ SIMULATION_CONTEXTS = {
             'para carga negativa, a direção se inverte em relação à regra da mão direita para carga positiva. '
             'Em questões de trajetória circular, use o modelo em que a velocidade é perpendicular ao campo e '
             'ajude a identificar as grandezas sem fornecer o resultado.'
+        ),
+    },
+    'ondas-1d': {
+        'title': 'Ondas 1D',
+        'guidance': (
+            'Oriente sobre ondas harmônicas unidimensionais e ajude a distinguir amplitude, comprimento de onda, '
+            'frequência, período, número de onda e frequência angular. Relacione k = 2π/λ, ω = 2πf, T = 1/f e '
+            'v = λf = ω/k. Ao ler y(x,t) = A cos(kx − ωt), ajude a identificar os parâmetros e o sentido de '
+            'propagação segundo a convenção do enunciado, sem calcular a resposta final.'
         ),
     },
 }
