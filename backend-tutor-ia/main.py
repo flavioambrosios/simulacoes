@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -165,6 +165,15 @@ SIMULATION_CONTEXTS = {
             'e à densidade de espiras N/L. Ajude o estudante a identificar N, comprimento e corrente na relação '
             'B = μ₀(N/L)I antes de isolar a incógnita. Diferencie intensidade e sentido do campo; use a regra '
             'da mão direita quando a questão perguntar a direção.'
+        ),
+    },
+    'transformadores': {
+        'title': 'Transformadores',
+        'guidance': (
+            'Oriente sobre a relação entre número de espiras e tensão em transformadores, além das relações '
+            'entre tensão, corrente e potência. Diferencie o modelo ideal, em que a potência de entrada e saída '
+            'se igualam, de um transformador real com eficiência menor que 100%. Ajude a identificar primário e '
+            'secundário, escolher a grandeza pedida e acompanhar as unidades antes de calcular.'
         ),
     },
 }
