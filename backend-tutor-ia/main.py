@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -277,6 +277,16 @@ SIMULATION_CONTEXTS = {
             'diferença de caminho e comprimento de onda às franjas claras e escuras na dupla fenda; em aplicações '
             'como cancelamento ativo de ruído, destaque a oposição de fase. Não revele alternativas corretas nem '
             'resolva a questão.'
+        ),
+    },
+    'radiacao-corpo-negro': {
+        'title': 'Radiação de Corpo Negro',
+        'guidance': (
+            'Oriente sobre a radiação térmica de um corpo negro ideal. Para o comprimento de onda de pico, use a Lei '
+            'de Wien, λ_max T = b, e ajude a converter nanômetros para metros antes de calcular. Para comparar '
+            'intensidades emitidas por unidade de área, use a Lei de Stefan-Boltzmann, I ∝ T^4, comparando razões '
+            'de temperaturas absolutas em kelvin. Relacione o aumento da temperatura ao deslocamento do pico para '
+            'comprimentos de onda menores. Não forneça valores finais nem alternativas corretas.'
         ),
     },
 }
