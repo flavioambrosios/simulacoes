@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -238,6 +238,16 @@ SIMULATION_CONTEXTS = {
             'fornecida, parcela efetivamente transferida e calor recebido pela água. Para as questões, considere '
             'E_mec = mgh, E_transferida = ηE_mec, Q = mcΔT e o equivalente mecânico E/Q em J/cal. Em questões '
             'experimentais, ajude a interpretar inclinação de gráfico e incertezas sem tratar medições como exatas.'
+        ),
+    },
+    'ciclo-carnot': {
+        'title': 'Ciclo de Carnot e Máquinas Térmicas',
+        'guidance': (
+            'Para Carnot, ajude a relacionar o rendimento máximo às temperaturas absolutas das fontes quente e fria '
+            '(em kelvin) e a primeira lei ao balanço entre calor absorvido, calor rejeitado e trabalho. Reforce que '
+            'uma máquina real não converte todo o calor em trabalho. Se a questão tratar dos ciclos Otto e Diesel, '
+            'diferencie adição de calor a volume constante no Otto e a pressão constante no Diesel, sem confundir '
+            'esses modelos com o ciclo de Carnot.'
         ),
     },
 }
