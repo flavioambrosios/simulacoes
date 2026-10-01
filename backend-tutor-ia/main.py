@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -211,6 +211,15 @@ SIMULATION_CONTEXTS = {
             'Ajude a separar calor sensível Q = mcΔT de calor latente Q = mL e a considerar a capacidade térmica '
             'do calorímetro quando indicada. Em problemas com gelo ou mudança de fase, organize o processo em '
             'etapas e verifique a temperatura de transição antes de avançar.'
+        ),
+    },
+    'fluxo-calor': {
+        'title': 'Fluxo de Calor e Lei de Fourier',
+        'guidance': (
+            'Oriente sobre a condução térmica em uma barra no modelo unidimensional: o fluxo Q/t cresce com a '
+            'condutividade k, a área A e a diferença de temperatura ΔT, e diminui com o comprimento L. '
+            'Ajude a distinguir fluxo de calor (taxa, em watts) de quantidade total de calor e a conferir as '
+            'unidades. O sentido espontâneo da condução é do corpo mais quente para o mais frio.'
         ),
     },
 }
