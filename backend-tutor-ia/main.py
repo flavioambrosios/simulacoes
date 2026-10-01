@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -202,6 +202,15 @@ SIMULATION_CONTEXTS = {
             'de 32 na escala Fahrenheit e a usar a aproximação de 273 adotada nesta simulação para conversões com '
             'Kelvin. Lembre que Kelvin não usa símbolo de grau e que variações de temperatura em Celsius e Kelvin '
             'têm o mesmo tamanho.'
+        ),
+    },
+    'calorimetria': {
+        'title': 'Calorimetria',
+        'guidance': (
+            'Oriente sobre balanço térmico em sistemas isolados: o calor cedido e o calor recebido se compensam. '
+            'Ajude a separar calor sensível Q = mcΔT de calor latente Q = mL e a considerar a capacidade térmica '
+            'do calorímetro quando indicada. Em problemas com gelo ou mudança de fase, organize o processo em '
+            'etapas e verifique a temperatura de transição antes de avançar.'
         ),
     },
 }
