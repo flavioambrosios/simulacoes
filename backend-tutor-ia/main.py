@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -193,6 +193,15 @@ SIMULATION_CONTEXTS = {
             'final de variação de temperatura ΔT. Oriente sobre ΔL = αL₀ΔT e, para sólidos isotrópicos no modelo '
             'usual, β = 2α e γ = 3α. Em situações com líquido e recipiente, diferencie dilatação real do líquido '
             'e dilatação aparente observada.'
+        ),
+    },
+    'escalas-termometricas': {
+        'title': 'Escalas Termométricas',
+        'guidance': (
+            'Oriente conversões entre Celsius, Fahrenheit e Kelvin. Ajude a separar o fator de escala do deslocamento '
+            'de 32 na escala Fahrenheit e a usar a aproximação de 273 adotada nesta simulação para conversões com '
+            'Kelvin. Lembre que Kelvin não usa símbolo de grau e que variações de temperatura em Celsius e Kelvin '
+            'têm o mesmo tamanho.'
         ),
     },
 }
