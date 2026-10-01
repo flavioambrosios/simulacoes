@@ -20,6 +20,7 @@
     let status;
     let input;
     let sendButton;
+    let mathJaxLoadPromise = null;
 
     injectStyles();
     ensureHelpButton();
@@ -120,6 +121,12 @@
                 border-radius: 6px;
                 white-space: pre-wrap;
                 overflow-wrap: anywhere;
+            }
+            .ai-tutor-message mjx-container[display="true"] {
+                display: block;
+                margin: .35em 0;
+                overflow-x: auto;
+                overflow-y: hidden;
             }
             .ai-tutor-message.assistant { align-self: flex-start; background: #edf3f2; }
             .ai-tutor-message.user { align-self: flex-end; background: #d8eef0; }
@@ -249,6 +256,58 @@
         message.textContent = label + ': ' + text;
         transcript.appendChild(message);
         transcript.scrollTop = transcript.scrollHeight;
+
+        if (role === 'assistant' && /\\\(|\\\[|\$\$|\$[^$\n]+\$/.test(text)) {
+            ensureMathJax()
+                .then(function () {
+                    return window.MathJax.typesetPromise([message]);
+                })
+                .then(function () {
+                    transcript.scrollTop = transcript.scrollHeight;
+                })
+                .catch(function () {
+                    status.textContent = 'A equação não pôde ser formatada; o texto continua disponível.';
+                });
+        }
+    }
+
+    function ensureMathJax() {
+        if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+            return Promise.resolve();
+        }
+        if (mathJaxLoadPromise) {
+            return mathJaxLoadPromise;
+        }
+
+        window.MathJax = Object.assign({
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$','$']],
+                displayMath: [['\\[', '\\]'], ['$$','$$']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        }, window.MathJax || {});
+
+        mathJaxLoadPromise = new Promise(function (resolve, reject) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+            script.async = true;
+            script.onload = function () {
+                if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+                    resolve();
+                } else {
+                    reject(new Error('MathJax não inicializou.'));
+                }
+            };
+            script.onerror = function () {
+                mathJaxLoadPromise = null;
+                reject(new Error('Não foi possível carregar MathJax.'));
+            };
+            document.head.appendChild(script);
+        });
+
+        return mathJaxLoadPromise;
     }
 
     async function sendMessage(event) {
