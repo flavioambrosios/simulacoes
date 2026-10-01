@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -229,6 +229,15 @@ SIMULATION_CONTEXTS = {
             'transformação isotérmica (Lei de Boyle), volume e temperatura na isobárica (Lei de Charles), e '
             'pressão e temperatura na isocórica (Lei de Gay-Lussac). Para essas proporções, use temperatura '
             'absoluta em kelvin. Em questões do modelo cinético, conecte temperatura à agitação média das partículas.'
+        ),
+    },
+    'experiencia-joule': {
+        'title': 'Experiência de Joule',
+        'guidance': (
+            'Oriente sobre a conversão de energia mecânica em energia térmica. Ajude a distinguir energia mecânica '
+            'fornecida, parcela efetivamente transferida e calor recebido pela água. Para as questões, considere '
+            'E_mec = mgh, E_transferida = ηE_mec, Q = mcΔT e o equivalente mecânico E/Q em J/cal. Em questões '
+            'experimentais, ajude a interpretar inclinação de gráfico e incertezas sem tratar medições como exatas.'
         ),
     },
 }

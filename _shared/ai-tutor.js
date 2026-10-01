@@ -171,7 +171,7 @@
     }
 
     function ensureHelpButton() {
-        const exercise = exerciseContainer.querySelector('.exercise');
+        const exercise = exerciseContainer.querySelector('.exercise, .exercise-card');
         if (!exercise || exercise.querySelector('.ai-tutor-launcher')) {
             return;
         }
@@ -186,7 +186,7 @@
     }
 
     function getExerciseQuestion() {
-        const exercise = exerciseContainer.querySelector('.exercise');
+        const exercise = exerciseContainer.querySelector('.exercise, .exercise-card');
         const question = exercise && exercise.querySelector('p');
         return question ? question.textContent.trim().slice(0, 1200) : '';
     }
