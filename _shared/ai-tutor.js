@@ -21,6 +21,7 @@
     let input;
     let sendButton;
     let mathJaxLoadPromise = null;
+    let tutorReadyAt = 0;
 
     injectStyles();
     ensureHelpButton();
@@ -310,6 +311,45 @@
         return mathJaxLoadPromise;
     }
 
+    async function ensureTutorReady() {
+        const healthCacheMs = 5 * 60 * 1000;
+        if (Date.now() - tutorReadyAt < healthCacheMs) {
+            return;
+        }
+
+        const serviceRoot = new URL('/', config.apiUrl).toString();
+        const deadline = Date.now() + 75000;
+
+        while (Date.now() < deadline) {
+            const controller = new AbortController();
+            const requestTimer = window.setTimeout(function () {
+                controller.abort();
+            }, 10000);
+
+            try {
+                const response = await fetch(serviceRoot, {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal: controller.signal
+                });
+                const health = await response.json().catch(function () { return null; });
+                if (response.ok && health && health.status === 'ok' && health.service === 'tutor-socratico') {
+                    tutorReadyAt = Date.now();
+                    return;
+                }
+            } catch (error) {
+            } finally {
+                window.clearTimeout(requestTimer);
+            }
+
+            await new Promise(function (resolve) {
+                window.setTimeout(resolve, 2500);
+            });
+        }
+
+        throw new Error('O tutor ainda está iniciando ou indisponível. Aguarde um pouco e tente novamente; sua pergunta não foi enviada à IA.');
+    }
+
     async function sendMessage(event) {
         event.preventDefault();
         const text = input.value.trim();
@@ -321,12 +361,14 @@
             return;
         }
 
-        addMessage('Você', text, 'user');
-        input.value = '';
-        status.textContent = 'O tutor está pensando em uma pergunta para você...';
         sendButton.disabled = true;
+        status.textContent = 'Conferindo a conexão do tutor. Após um período sem uso, o serviço pode levar até um minuto para acordar...';
 
         try {
+            await ensureTutorReady();
+            addMessage('Você', text, 'user');
+            input.value = '';
+            status.textContent = 'O tutor está pensando em uma pergunta para você...';
             const response = await fetch(config.apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -340,6 +382,9 @@
             const payload = await response.json().catch(function () { return {}; });
             if (!response.ok) {
                 throw new Error(payload.detail || 'Não foi possível obter uma dica agora.');
+            }
+            if (typeof payload.reply !== 'string' || !payload.reply.trim()) {
+                throw new Error('O serviço do tutor não retornou uma resposta legível. Tente novamente.');
             }
             addMessage('Tutor', payload.reply, 'assistant');
             history.push({ role: 'user', content: text }, { role: 'assistant', content: payload.reply });
