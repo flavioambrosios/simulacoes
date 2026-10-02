@@ -96,6 +96,10 @@
             margin-top: 24px;
         }
 
+        .tutor-section {
+            grid-column: 1 / -1;
+        }
+
         section {
             background: rgba(255, 253, 247, 0.88);
             border: 1px solid var(--line);
@@ -499,6 +503,15 @@
                     <button id="clearBtn" class="secondary" type="button">Limpar campos</button>
                 </div>
                 <div id="sendStatus" class="status" role="status" aria-live="polite"></div>
+            </section>
+            <section class="tutor-section" aria-labelledby="tutor-title">
+                <h2 id="tutor-title">Reflexão sobre a experiência</h2>
+                <div id="exerciseContainer">
+                    <div class="exercise">
+                        <p>Como distinguir uma observação experimental, um dado calculado e uma interpretação? Que evidência sustenta cada conclusão?</p>
+                    </div>
+                </div>
+                <p class="hint">Os campos do relatório, nomes, e-mail e vídeo não são enviados automaticamente ao tutor.</p>
             </section>
         </main>
 
@@ -1338,5 +1351,13 @@
             updateScorePreview();
         }());
     </script>
+    <script>
+        window.AI_TUTOR_CONFIG = {
+            enabled: true,
+            simulationKey: 'relatorio-laboratorio',
+            apiUrl: 'https://tutor-ia-fisica-vrcy.onrender.com/api/tutor'
+        };
+    </script>
+    <script src="../_shared/ai-tutor.js"></script>
 </body>
 </html>
