@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico', 'espectrometro-de-massa']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -343,6 +343,17 @@ SIMULATION_CONTEXTS = {
             'a energia de cada fóton, de intensidade, que afeta o fluxo de fótons e a corrente quando há emissão. '
             'Para a voltagem de parada, relacione eV₀ = K_max e observe que seus valores numéricos coincidem em V '
             'e eV para elétrons. Ajude a conferir unidades e não revele resultados finais.'
+        ),
+    },
+    'espectrometro-de-massa': {
+        'title': 'Espectrômetro de Massa',
+        'guidance': (
+            'Oriente sobre partículas aceleradas por uma diferença de potencial e desviadas por um campo magnético. '
+            'Para partículas que partem do repouso, relacione |q|V = mv²/2 à força magnética perpendicular, '
+            '|q|vB = mv²/r, obtendo |q|/m = 2V/(B²r²). Para velocidade conhecida, use r = mv/(|q|B). '
+            'Ajude a identificar os dados e a converter tudo para SI. A razão inferida pelo raio é o módulo de q/m; '
+            'não determine o sinal da carga apenas pelo raio. Ao identificar partículas, compare seus valores de '
+            '|q|/m; elétron e pósitron têm o mesmo módulo. Faça perguntas graduais sem revelar resultados finais.'
         ),
     },
 }
