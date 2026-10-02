@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -299,6 +299,16 @@ SIMULATION_CONTEXTS = {
             'taxas, considere em conjunto comprimento de onda, intensidade luminosa, CO2, água e pigmento conforme '
             'o modelo da simulação. Para glicose, acompanhe unidades e conversões entre mmol e mol e use a equação '
             'global da fotossíntese quando pertinente. Faça perguntas graduais sem revelar resultados nem alternativas.'
+        ),
+    },
+    'optica-geometrica': {
+        'title': 'Óptica Geométrica',
+        'guidance': (
+            'Oriente sobre formação de imagens por lentes convergentes e espelhos côncavos, conforme os exercícios. '
+            'Use a equação de Gauss, 1/f = 1/p + 1/p\', e a ampliação A = -p\'/p, ajudando a manter consistentes '
+            'as convenções de sinais adotadas no enunciado. Relacione sinal da posição da imagem à natureza real ou '
+            'virtual, sinal da ampliação à orientação direita ou invertida, e módulo da ampliação ao tamanho relativo. '
+            'Peça que identifique os dados e as convenções antes de substituir; não forneça resultados finais.'
         ),
     },
 }

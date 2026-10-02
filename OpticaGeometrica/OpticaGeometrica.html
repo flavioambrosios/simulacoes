@@ -931,7 +931,10 @@
             for (let i = 0; i < 2; i++) {
                 // Tipo 1: Cálculo com Equação de Gauss
                 let f = (Math.floor(Math.random() * 9) + 1) * 5; // 5, 10, 15... 45 cm
-                let p = (Math.floor(Math.random() * 9) + 1) * 10; // 10, 20, 30... 90 cm
+                let p;
+                do {
+                    p = (Math.floor(Math.random() * 9) + 1) * 10; // 10, 20, 30... 90 cm
+                } while (p === f);
                 let p_prime = (f * p) / (p - f);
                 let A = -p_prime / p;
                 
@@ -978,13 +981,13 @@
                     type: 'identificar_imagem',
                     question: `Um objeto real está a ${optic.p} cm de uma ${optic.description}. Quais são as características da imagem formada?`,
                     answer: `${natureza}, ${orientacao}, ${tamanho}`,
-                    options: [
+                    options: shuffleArray([
                         "real, invertida, maior",
-                        "real, invertida, menor", 
+                        "real, invertida, menor",
+                        "real, invertida, igual",
                         "virtual, direita, menor",
-                        "real, direita, maior",
-                        "virtual, invertida, igual"
-                    ]
+                        "virtual, direita, maior"
+                    ])
                 });
             }
             
@@ -1494,17 +1497,6 @@
             document.getElementById('conclusionContainer').style.display = 'none';
             document.getElementById('resultsContainer').style.display = 'none';
             showCurrentExercise();
-
-            // Na função generateExercises(), após gerar cada exercício de identificação:
-            if (exercise.type === 'identificar_imagem') {
-                // Verificar se a resposta está entre as opções
-                if (!exercise.options.includes(exercise.answer)) {
-                    // Se não estiver, adicionar
-                    exercise.options.push(exercise.answer);
-                    // Embaralhar novamente
-                    exercise.options = shuffleArray(exercise.options);
-                }
-            }    
         }
         
         // Inicializar quando a página carregar
@@ -1569,6 +1561,14 @@
     </script>
     <script src="../_shared/enem-question-bank.js"></script>
     <script src="../_shared/simulation-enhancer.js"></script>
+    <script>
+        window.AI_TUTOR_CONFIG = {
+            enabled: true,
+            simulationKey: 'optica-geometrica',
+            apiUrl: 'https://tutor-ia-fisica-vrcy.onrender.com/api/tutor'
+        };
+    </script>
+    <script src="../_shared/ai-tutor.js"></script>
     <footer style="text-align:center;padding:20px;margin-top:20px;background:rgba(0,0,0,0.5);border-radius:10px;color:#ccc;font-size:0.9rem;"><p>Simulação parte do repositorio <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color:#ffcc00;">10.5281/zenodo.20737876</a> | Licenca MIT | Prof. Flavio Ambrosio - CEAN</p></footer>
 </body>
 </html>
