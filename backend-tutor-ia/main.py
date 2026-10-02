@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -332,6 +332,17 @@ SIMULATION_CONTEXTS = {
             'forma do orbital, e m descreve sua orientação espacial. Respeite n ≥ 1, 0 ≤ ℓ ≤ n−1 e −ℓ ≤ m ≤ ℓ. '
             'Explique que |ψ|² representa densidade de probabilidade e que o orbital não é uma trajetória definida. '
             'Use os valores n, ℓ e m do desafio da página e faça perguntas graduais, sem dar respostas prontas.'
+        ),
+    },
+    'efeito-fotoeletrico': {
+        'title': 'Efeito Fotoelétrico',
+        'guidance': (
+            'Oriente sobre a explicação de Einstein para o efeito fotoelétrico. Relacione a energia cinética máxima '
+            'à energia do fóton e à função trabalho: K_max = hν − φ = hc/λ − φ. A frequência limiar é ν₀ = φ/h; '
+            'abaixo dela não há emissão, independentemente da intensidade da luz. Diferencie frequência, que determina '
+            'a energia de cada fóton, de intensidade, que afeta o fluxo de fótons e a corrente quando há emissão. '
+            'Para a voltagem de parada, relacione eV₀ = K_max e observe que seus valores numéricos coincidem em V '
+            'e eV para elétrons. Ajude a conferir unidades e não revele resultados finais.'
         ),
     },
 }

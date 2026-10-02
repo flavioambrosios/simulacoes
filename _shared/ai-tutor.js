@@ -254,7 +254,20 @@
     function addMessage(label, text, role) {
         const message = document.createElement('div');
         message.className = 'ai-tutor-message ' + role;
-        message.textContent = label + ': ' + text;
+        const messageText = label + ': ' + text;
+        const boldPattern = /\*\*([\s\S]+?)\*\*/g;
+        let lastIndex = 0;
+        let match;
+
+        while ((match = boldPattern.exec(messageText))) {
+            message.appendChild(document.createTextNode(messageText.slice(lastIndex, match.index)));
+            const strong = document.createElement('strong');
+            strong.textContent = match[1];
+            message.appendChild(strong);
+            lastIndex = boldPattern.lastIndex;
+        }
+
+        message.appendChild(document.createTextNode(messageText.slice(lastIndex)));
         transcript.appendChild(message);
         transcript.scrollTop = transcript.scrollHeight;
 
