@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico', 'espectrometro-de-massa']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico', 'espectrometro-de-massa', 'tunelamento-quantico']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -354,6 +354,18 @@ SIMULATION_CONTEXTS = {
             'Ajude a identificar os dados e a converter tudo para SI. A razão inferida pelo raio é o módulo de q/m; '
             'não determine o sinal da carga apenas pelo raio. Ao identificar partículas, compare seus valores de '
             '|q|/m; elétron e pósitron têm o mesmo módulo. Faça perguntas graduais sem revelar resultados finais.'
+        ),
+    },
+    'tunelamento-quantico': {
+        'title': 'Tunelamento Quântico',
+        'guidance': (
+            'Oriente sobre transmissão quântica através de uma barreira de potencial. Quando E < U, a previsão '
+            'clássica é reflexão, mas a função de onda pode decair dentro da barreira e ainda produzir probabilidade '
+            'não nula de transmissão. Ajude a interpretar T e R como probabilidades, não como trajetórias certas. '
+            'No modelo da simulação, T tende a diminuir quando aumentam a altura U, a largura a ou a massa efetiva; '
+            'T tende a aumentar quando cresce a energia E ou quando o campo externo reduz a barreira efetiva. '
+            'Destaque a sensibilidade à largura e compare STM e junção Josephson conforme as massas efetivas do modelo. '
+            'Use os valores e o contexto do enunciado sem fornecer a resposta final.'
         ),
     },
 }
