@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -309,6 +309,18 @@ SIMULATION_CONTEXTS = {
             'as convenções de sinais adotadas no enunciado. Relacione sinal da posição da imagem à natureza real ou '
             'virtual, sinal da ampliação à orientação direita ou invertida, e módulo da ampliação ao tamanho relativo. '
             'Peça que identifique os dados e as convenções antes de substituir; não forneça resultados finais.'
+        ),
+    },
+    'led-e-oled': {
+        'title': 'LED e OLED',
+        'guidance': (
+            'Oriente sobre a conversão de energia elétrica em luz em dispositivos semicondutores. Relacione a energia '
+            'do fóton ao comprimento de onda por E = h·c/λ e, em eV e nm, E(eV) ≈ 1240/λ(nm); portanto, fótons '
+            'azuis têm mais energia que fótons vermelhos. Diferencie a recombinação de portadores em um LED e a '
+            'emissão em camadas orgânicas de um OLED, conforme o modelo didático da simulação. Para potência elétrica, '
+            'use P = V·I e converta corrente de mA para A ou potência para mW com consistência. Não confunda este '
+            'processo com o efeito fotoelétrico: no LED a energia elétrica pode produzir fótons, enquanto no efeito '
+            'fotoelétrico a luz transfere energia a elétrons. Faça perguntas socráticas sem revelar respostas finais.'
         ),
     },
 }
