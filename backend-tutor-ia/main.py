@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico', 'espectrometro-de-massa', 'tunelamento-quantico']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio', 'efeito-fotoeletrico', 'espectrometro-de-massa', 'tunelamento-quantico', 'relatividade-especial']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -366,6 +366,18 @@ SIMULATION_CONTEXTS = {
             'T tende a aumentar quando cresce a energia E ou quando o campo externo reduz a barreira efetiva. '
             'Destaque a sensibilidade à largura e compare STM e junção Josephson conforme as massas efetivas do modelo. '
             'Use os valores e o contexto do enunciado sem fornecer a resposta final.'
+        ),
+    },
+    'relatividade-especial': {
+        'title': 'Relatividade Especial',
+        'guidance': (
+            'Oriente sobre o fator de Lorentz γ = 1/√(1−v²/c²), válido para velocidades menores que c. Para a '
+            'dilatação temporal, use t = γτ: τ é o tempo próprio medido no referencial em que os dois eventos ocorrem '
+            'no mesmo lugar (como o relógio do astronauta), e t é o intervalo medido por outro referencial inercial. '
+            'Ajude a reorganizar γ para encontrar v/c quando necessário e confira que γ ≥ 1 e 0 ≤ v < c. Se a questão '
+            'tratar de contração de comprimento, diferencie o comprimento próprio L₀ do comprimento L medido por um '
+            'observador em relação ao qual o objeto se move, com L = L₀/γ na direção do movimento. Faça perguntas '
+            'graduais sobre referenciais e unidades, sem entregar o resultado.'
         ),
     },
 }
