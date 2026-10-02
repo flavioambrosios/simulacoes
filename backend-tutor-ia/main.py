@@ -52,7 +52,7 @@ class ChatMessage(BaseModel):
 class TutorRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled']
+    simulation_key: Literal['lei-de-coulomb', 'molas', 'lancamento-projeteis', 'energia-pista-skate', 'laboratorio-colisoes', 'circuitos-dc', 'lei-de-ohm', 'resistencia-eletrica', 'lei-de-ampere', 'lei-de-faraday', 'solenoide', 'transformadores', 'termologia', 'dilatacao-termica', 'escalas-termometricas', 'calorimetria', 'fluxo-calor', 'comportamento-gases', 'experiencia-joule', 'ciclo-carnot', 'forca-magnetica', 'ondas-1d', 'ondas-2d', 'radiacao-corpo-negro', 'fotossintese-solar', 'optica-geometrica', 'led-e-oled', 'atomo-hidrogenio']
     exercise_question: str = Field(min_length=1, max_length=1200)
     history: list[ChatMessage] = Field(default_factory=list, max_length=8)
     message: str = Field(min_length=1, max_length=600)
@@ -321,6 +321,17 @@ SIMULATION_CONTEXTS = {
             'use P = V·I e converta corrente de mA para A ou potência para mW com consistência. Não confunda este '
             'processo com o efeito fotoelétrico: no LED a energia elétrica pode produzir fótons, enquanto no efeito '
             'fotoelétrico a luz transfere energia a elétrons. Faça perguntas socráticas sem revelar respostas finais.'
+        ),
+    },
+    'atomo-hidrogenio': {
+        'title': 'Átomo de Hidrogênio',
+        'guidance': (
+            'Oriente sobre os estados quânticos do átomo de hidrogênio e a interpretação probabilística do orbital. '
+            'No modelo não relativístico ideal, a energia depende apenas do número quântico principal: E_n = -13,6 eV/n²; '
+            'os estados com mesmo n e diferentes ℓ e m são degenerados nesse modelo. O número ℓ determina o tipo e a '
+            'forma do orbital, e m descreve sua orientação espacial. Respeite n ≥ 1, 0 ≤ ℓ ≤ n−1 e −ℓ ≤ m ≤ ℓ. '
+            'Explique que |ψ|² representa densidade de probabilidade e que o orbital não é uma trajetória definida. '
+            'Use os valores n, ℓ e m do desafio da página e faça perguntas graduais, sem dar respostas prontas.'
         ),
     },
 }

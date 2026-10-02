@@ -376,6 +376,15 @@
                     <label for="mSelect">Número quântico magnético (m):</label>
                     <select id="mSelect"></select>
                 </div>
+
+                <div class="control-group">
+                    <div class="control-title">Desafio Conceitual</div>
+                    <div id="exerciseContainer">
+                        <div class="exercise">
+                            <p id="orbitalTutorQuestion">No estado selecionado, como os números quânticos determinam a energia e as características do orbital?</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="control-group">
                     <div class="control-title">Efeito de Nuvem</div>
@@ -948,6 +957,9 @@
                 <strong>Forma:</strong> ${obterDescricaoForma(l, m)}<br>
                 <strong>Elétrons no orbital:</strong> 1 (átomo de hidrogênio)
             `;
+
+            document.getElementById('orbitalTutorQuestion').textContent =
+                `Para o estado n=${n}, l=${l} e m=${m}, qual número quântico determina a energia, e quais descrevem a forma e a orientação do orbital?`;
             
             // Atualizar informações de comparação
             atualizarComparacaoOrbitais(n, l, m);
@@ -1104,5 +1116,13 @@
             | Prof. Flávio Ambrósio - CEAN
         </p>
     </footer>
+    <script>
+        window.AI_TUTOR_CONFIG = {
+            enabled: true,
+            simulationKey: 'atomo-hidrogenio',
+            apiUrl: 'https://tutor-ia-fisica-vrcy.onrender.com/api/tutor'
+        };
+    </script>
+    <script src="../_shared/ai-tutor.js"></script>
 </body>
 </html>
