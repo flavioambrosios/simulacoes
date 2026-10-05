@@ -54,6 +54,7 @@ Arquivos de referência:
 - [ ] Enviei resultado com nome, série e turma.
 - [ ] Confirmei nota na aba da turma.
 - [ ] Confirmei registro na aba Historico Avaliacoes.
+- [ ] Preenchi críticas e sugestões e confirmei os textos nas colunas `criticas` e `sugestoes` do histórico, inclusive no envio bimestral.
 - [ ] Testei fechamento e reabertura do modal com persistência de progresso.
 
 ## Etapa 6: E-mail de confirmação

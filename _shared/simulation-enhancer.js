@@ -2836,6 +2836,8 @@
             significanciaAprendizagem: aiAnalysis.learningScore,
             analiseIa: aiAnalysis.feedback,
             suppressStudentEmail: true,
+            criticas: formData.criticism,
+            sugestoes: formData.suggestion,
             email: formData.studentEmail || ''
         });
     }
