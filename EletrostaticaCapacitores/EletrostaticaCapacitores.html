@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Simulação interativa de campo elétrico, placas paralelas, capacitores e circuitos RC.">
+    <title>Campo Elétrico, Capacitores e Circuitos RC</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #101729;
+            --panel: #1b2740;
+            --panel-soft: #24324e;
+            --text: #f4f7ff;
+            --muted: #bdc9df;
+            --accent: #ffd166;
+            --cyan: #66e3ff;
+            --green: #74e3a2;
+            --red: #ff7d88;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+            background: radial-gradient(circle at 10% 0%, #253c65, transparent 32%), linear-gradient(145deg, #101729, #18233b 55%, #211b37);
+            font: 16px/1.5 "Segoe UI", Tahoma, sans-serif;
+        }
+        button, input, select, textarea { font: inherit; }
+        button, select, input[type="text"], input[type="email"], textarea {
+            color: #101729;
+        }
+        button {
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: var(--accent);
+            color: #172033;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        button:hover { filter: brightness(1.08); }
+        button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+            outline: 3px solid var(--cyan);
+            outline-offset: 2px;
+        }
+        button:disabled { opacity: .65; cursor: wait; }
+        .page { max-width: 1260px; margin: 0 auto; }
+        header, .panel, .measurements, .lesson, .exercise-modal {
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 16px;
+            background: rgba(10, 17, 31, .78);
+            box-shadow: 0 16px 42px rgba(0,0,0,.2);
+        }
+        header { padding: 22px; margin-bottom: 18px; text-align: center; }
+        h1 { margin: 0 0 5px; font-size: clamp(1.55rem, 4vw, 2.45rem); }
+        .subtitle { color: var(--muted); margin: 0; }
+        .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, .8fr); gap: 18px; }
+        .panel { padding: 18px; }
+        h2, h3 { margin-top: 0; }
+        h2 { font-size: 1.25rem; color: var(--accent); }
+        .mode-picker { display: grid; grid-template-columns: 1fr; gap: 7px; margin-bottom: 14px; }
+        label { display: block; font-weight: 650; margin: 9px 0 5px; }
+        select, input[type="range"] { width: 100%; }
+        select, input[type="text"], input[type="email"], textarea {
+            padding: 9px 10px;
+            border: 1px solid #c8d3e4;
+            border-radius: 8px;
+            background: #f5f7fb;
+        }
+        input[type="range"] { accent-color: var(--cyan); }
+        .control { padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .value { color: var(--accent); font-weight: 750; }
+        .checkline { display: flex; align-items: center; gap: 9px; margin: 10px 0; }
+        .checkline input { width: 18px; height: 18px; accent-color: var(--cyan); }
+        .checkline label { margin: 0; }
+        .scene {
+            min-height: 380px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            border: 1px solid #405474;
+            background: radial-gradient(ellipse at 50% 42%, #203b5a, #08111e 75%);
+        }
+        canvas { display: block; width: 100%; height: 380px; }
+        .rc-scene { min-height: 330px; margin-bottom: 10px; }
+        #rcCanvas { height: 330px; }
+        .hud {
+            position: absolute;
+            top: 10px; left: 10px; right: 10px;
+            display: flex; flex-wrap: wrap; gap: 7px;
+            pointer-events: none;
+        }
+        .pill { padding: 4px 9px; border-radius: 30px; background: #07101dcc; color: var(--cyan); font-size: .83rem; }
+        .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .button-row button { flex: 1; min-width: 120px; }
+        .secondary { background: #d9e6ff; }
+        .measurements { margin-top: 18px; padding: 18px; }
+        .measurement-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+        .measurement { padding: 12px; border-radius: 10px; background: var(--panel); text-align: center; }
+        .measurement small { display: block; color: var(--muted); }
+        .measurement strong { display: block; color: var(--accent); font-size: 1.1rem; overflow-wrap: anywhere; }
+        .equation { margin-top: 12px; padding: 12px; background: #ffffff12; border-radius: 10px; text-align: center; }
+        .equation p { margin: 4px 0; }
+        .mode-content[hidden] { display: none; }
+        #phETFrame { display: block; width: 100%; height: min(68vh, 600px); min-height: 430px; border: 0; border-radius: 10px; background: white; }
+        .note { color: var(--muted); font-size: .93rem; }
+        .lesson { margin-top: 18px; padding: 18px; }
+        .lesson details { margin-top: 10px; padding: 11px 13px; border-radius: 9px; background: #ffffff10; }
+        .lesson summary { color: var(--cyan); font-weight: 700; cursor: pointer; }
+        .lesson li { margin: 6px 0 6px 20px; }
+        .exercise-launch { display: grid; gap: 8px; margin-top: 16px; }
+        .modal-backdrop {
+            display: none; position: fixed; inset: 0; z-index: 20;
+            align-items: center; justify-content: center; padding: 14px;
+            background: rgba(0,0,0,.78);
+        }
+        .modal-backdrop.open { display: flex; }
+        .exercise-modal {
+            width: min(880px, 100%); max-height: 94vh; overflow: auto; padding: 20px;
+            background: #121b2d;
+        }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .modal-header h2 { margin: 0; }
+        .progress-track { display: flex; gap: 5px; margin: 14px 0; }
+        .progress-item {
+            flex: 1; min-width: 24px; padding: 7px 4px; border-radius: 5px;
+            background: rgba(255,255,255,.1); color: var(--text); text-align: center;
+            font-weight: 700; transition: background .2s;
+        }
+        .progress-item.active { background: rgba(255,209,102,.32); color: var(--accent); }
+        .progress-item.completed { background: rgba(116,227,162,.25); color: var(--green); }
+        .progress-item.skipped { background: rgba(255,125,136,.22); color: var(--red); }
+        .exercise-card { margin-bottom: 15px; padding: 14px; background: rgba(255,255,255,.08); border-radius: 10px; }
+        .exercise-card h3 { color: var(--accent); margin: 0 0 10px; text-align: center; }
+        .exercise-question { text-align: center; margin: 10px 0 14px; }
+        .options { display: grid; gap: 8px; margin: 14px 0; }
+        .option {
+            width: 100%; text-align: center; color: var(--text);
+            background: #293852; border: 1px solid #485c7b;
+        }
+        .option.selected { border-color: var(--cyan); background: #1b5062; }
+        .option.correct { background: rgba(0,255,0,.16); border-color: var(--green); }
+        .feedback { min-height: 1.5em; margin: 10px 0; }
+        .feedback.good { color: var(--green); }
+        .feedback.bad { color: var(--red); }
+        .exercise-actions { justify-content: center; }
+        .exercise-actions button { flex: 1; }
+        .exercise-actions .skip-question { background: #65738a; color: white; }
+        .try-again { background: #2d4774; color: white; }
+        .stage-card { margin: 12px 0; padding: 16px; border-radius: 10px; background: var(--panel); }
+        .stage-card h3 { color: var(--accent); }
+        .stage-card textarea { width: 100%; resize: vertical; }
+        .stage-card .results-summary { line-height: 1.8; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 14px; }
+        .form-row { min-width: 0; }
+        .form-row.full { grid-column: 1 / -1; }
+        .form-row label { margin-top: 5px; }
+        .required::after { content: " *"; color: var(--red); }
+        .email-status { margin: 10px 0; min-height: 1.4em; }
+        .results-box { padding: 12px; border-radius: 10px; background: var(--panel-soft); }
+        .content-backdrop {
+            display: none; position: fixed; inset: 0; z-index: 25;
+            align-items: center; justify-content: center; padding: 14px;
+            background: rgba(0,0,0,.78);
+        }
+        .content-backdrop.open { display: flex; }
+        .content-modal {
+            width: min(900px, 100%); max-height: 94vh; overflow: auto; padding: 20px;
+            border: 1px solid rgba(255,255,255,.1); border-radius: 16px;
+            background: #121b2d; box-shadow: 0 16px 42px rgba(0,0,0,.35);
+        }
+        .content-modal-header {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--accent);
+        }
+        .content-modal-header h2 { margin: 0; }
+        .solved-exercise { margin: 14px 0; padding: 15px; border-radius: 10px; background: #ffffff12; }
+        .solved-exercise h3 { margin: 0 0 9px; color: var(--accent); }
+        .solution-step { margin: 7px 0; padding: 9px 11px; border-radius: 7px; background: #ffffff0b; }
+        .solution-answer { color: var(--green); font-weight: 750; }
+        .narration-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 11px; }
+        .narration-controls button { min-width: 132px; }
+        .narration-status { color: var(--muted); font-size: .9rem; }
+        .theory-section { margin: 14px 0; padding: 15px; border-radius: 10px; background: #ffffff12; }
+        .theory-section h3 { margin: 0 0 9px; color: var(--accent); }
+        .theory-section ul { padding-left: 22px; }
+        .theory-section li { margin: 6px 0; }
+        .theory-formula { margin: 10px 0; padding: 11px; border-radius: 8px; background: #0005; text-align: center; font: 1.1rem "Courier New", monospace; }
+        footer { padding: 18px 8px; margin-top: 16px; text-align: center; color: var(--muted); font-size: .9rem; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+        @media (max-width: 850px) {
+            body { padding: 12px; }
+            .layout { grid-template-columns: 1fr; }
+            .scene, canvas { min-height: 320px; height: 320px; }
+        }
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-row.full { grid-column: auto; }
+            .modal-header { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <header>
+        <h1>Campo Elétrico, Capacitores e Circuitos RC</h1>
+        <p class="subtitle">Explore o movimento de cargas, a energia armazenada e a resposta de um circuito.</p>
+    </header>
+
+    <div class="layout">
+        <section class="panel" aria-labelledby="visual-title">
+            <h2 id="visual-title">Animação</h2>
+            <div class="mode-picker">
+                <label for="simulationMode">Escolha uma experiência</label>
+                <select id="simulationMode">
+                    <option value="particle">Partícula entre placas paralelas</option>
+                    <option value="capacitor">Capacitor de placas paralelas</option>
+                    <option value="rc">Circuito RC (PhET)</option>
+                </select>
+            </div>
+            <div id="particleView" class="mode-content">
+                <div class="scene">
+                    <canvas id="particleCanvas" aria-label="Partícula carregada ou neutra movendo-se entre placas paralelas"></canvas>
+                    <div class="hud">
+                        <span class="pill" id="particleChargeHud">carga positiva</span>
+                        <span class="pill" id="particleFieldHud">campo elétrico ligado</span>
+                        <span class="pill" id="particleMotionHud">velocidade inicial ligada</span>
+                    </div>
+                </div>
+                <div class="button-row">
+                    <button id="launchParticle">Lançar partícula</button>
+                    <button id="pauseParticle" class="secondary">Pausar</button>
+                    <button id="resetParticle" class="secondary">Reiniciar</button>
+                </div>
+                <p class="note">A trajetória é qualitativa, com sentido definido por a = qE/m. Ocultar as setas não desliga o campo; para campo nulo, ajuste V para zero. Sem velocidade inicial, a partícula parte do repouso.</p>
+            </div>
+            <div id="capacitorView" class="mode-content" hidden>
+                <div class="scene">
+                    <canvas id="capacitorCanvas" aria-label="Capacitor de placas paralelas com cargas e linhas de campo"></canvas>
+                    <div class="hud"><span class="pill">armazenamento de energia elétrica</span></div>
+                </div>
+                <div class="equation">
+                    <p><strong>C = ε₀A/d</strong> &nbsp; | &nbsp; <strong>Q = CV</strong></p>
+                    <p id="capacitorEnergy">Energia armazenada: 0 J</p>
+                </div>
+            </div>
+            <div id="rcView" class="mode-content" hidden>
+                <h3>Carga de um capacitor em circuito RC</h3>
+                <div class="scene rc-scene">
+                    <canvas id="rcCanvas" aria-label="Diagrama de circuito RC e curva animada de carga do capacitor"></canvas>
+                </div>
+                <div class="button-row">
+                    <button id="playRc">Iniciar carga</button>
+                    <button id="resetRc" class="secondary">Reiniciar circuito</button>
+                </div>
+                <p class="note">A curva mostra q(t)/Qmáx = 1 − e<sup>−t/τ</sup>. O circuito é idealizado para visualizar a carga inicial do capacitor.</p>
+                <p class="note">Monte e investigue circuitos no laboratório virtual PhET. A simulação incorporada abre o kit de construção de circuitos em português.</p>
+                <iframe id="phETFrame"
+                    src="https://phet.colorado.edu/sims/html/circuit-construction-kit-ac-virtual-lab/latest/circuit-construction-kit-ac-virtual-lab_pt_BR.html"
+                    title="Laboratório virtual PhET: construção de circuitos elétricos"
+                    allowfullscreen
+                    loading="lazy"></iframe>
+                <div class="equation">
+                    <p><strong>Circuito RC:</strong> τ = RC</p>
+                    <p>Durante a carga, q(t) = Q<sub>máx</sub>(1 − e<sup>−t/τ</sup>). Explore a constante de tempo no PhET usando resistor e capacitor.</p>
+                </div>
+            </div>
+        </section>
+
+        <aside class="panel" aria-labelledby="controls-title">
+            <h2 id="controls-title">Controles</h2>
+            <div id="particleControls" class="mode-content">
+                <div class="control">
+                    <label for="chargeSelect">Carga da partícula</label>
+                    <select id="chargeSelect">
+                        <option value="1">Positiva (+e)</option>
+                        <option value="-1">Negativa (−e)</option>
+                        <option value="0">Sem carga (neutra)</option>
+                    </select>
+                </div>
+                <div class="control">
+                    <label for="velocityInput">Velocidade horizontal inicial: <span class="value" id="velocityValue">2,0</span> m/s (escala visual)</label>
+                    <input id="velocityInput" type="range" min="0" max="5" value="2" step="0.1">
+                </div>
+                <div class="control">
+                    <label for="particleVoltageInput">Diferença de potencial entre placas: <span class="value" id="particleVoltageValue">120</span> V</label>
+                    <input id="particleVoltageInput" type="range" min="0" max="300" value="120" step="10">
+                </div>
+                <div class="control">
+                    <label for="particleGapInput">Distância entre placas: <span class="value" id="particleGapValue">0,10</span> m</label>
+                    <input id="particleGapInput" type="range" min="0.05" max="0.20" value="0.10" step="0.01">
+                </div>
+                <div class="checkline">
+                    <input id="showField" type="checkbox" checked>
+                    <label for="showField">Mostrar campo elétrico</label>
+                </div>
+                <div class="checkline">
+                    <input id="showForce" type="checkbox" checked>
+                    <label for="showForce">Mostrar força resultante</label>
+                </div>
+                <div class="checkline">
+                    <input id="useInitialVelocity" type="checkbox" checked>
+                    <label for="useInitialVelocity">Lançar com velocidade inicial</label>
+                </div>
+            </div>
+            <div id="capacitorControls" class="mode-content" hidden>
+                <div class="control">
+                    <label for="capacitorVoltage">Voltagem V: <span class="value" id="capacitorVoltageValue">12</span> V</label>
+                    <input id="capacitorVoltage" type="range" min="1" max="100" value="12" step="1">
+                </div>
+                <div class="control">
+                    <label for="plateArea">Área A: <span class="value" id="plateAreaValue">0,020</span> m²</label>
+                    <input id="plateArea" type="range" min="0.005" max="0.05" value="0.02" step="0.001">
+                </div>
+                <div class="control">
+                    <label for="plateGap">Separação d: <span class="value" id="plateGapValue">1,0</span> mm</label>
+                    <input id="plateGap" type="range" min="0.5" max="5" value="1" step="0.1">
+                </div>
+                <p class="note">Capacitância é determinada pela geometria e pelo material entre as placas. A carga depende também da voltagem aplicada.</p>
+            </div>
+            <div id="rcControls" class="mode-content" hidden>
+                <div class="control">
+                    <label for="rcResistance">Resistência R: <span class="value" id="rcResistanceValue">10</span> kΩ</label>
+                    <input id="rcResistance" type="range" min="1" max="100" value="10" step="1">
+                </div>
+                <div class="control">
+                    <label for="rcCapacitance">Capacitância C: <span class="value" id="rcCapacitanceValue">100</span> μF</label>
+                    <input id="rcCapacitance" type="range" min="10" max="1000" value="100" step="10">
+                </div>
+                <div class="control">
+                    <label for="rcVoltage">Fonte V: <span class="value" id="rcVoltageValue">9</span> V</label>
+                    <input id="rcVoltage" type="range" min="1" max="24" value="9" step="1">
+                </div>
+                <p class="note">A constante de tempo τ = RC corresponde ao tempo para o capacitor atingir cerca de 63% da carga final.</p>
+            </div>
+            <div class="equation" id="formulaBox">
+                <p><strong>Campo uniforme:</strong> E = V/d</p>
+                <p><strong>Força elétrica:</strong> F = qE</p>
+                <p>O sentido da força depende do sinal da carga.</p>
+            </div>
+            <div class="exercise-launch">
+                <button id="openExercises">Praticar: exercícios</button>
+                <button id="openSolved" class="secondary">Ver exemplos resolvidos</button>
+                <button id="openTheory" class="secondary">Teoria essencial</button>
+            </div>
+        </aside>
+    </div>
+
+    <section class="measurements" aria-labelledby="measure-title">
+        <h2 id="measure-title">Grandezas em destaque</h2>
+        <div class="measurement-grid" id="particleMeasurements">
+            <div class="measurement"><small>Campo elétrico E</small><strong id="fieldValueDisplay">1,20 × 10³ V/m</strong></div>
+            <div class="measurement"><small>Carga q</small><strong id="chargeValueDisplay">+e</strong></div>
+            <div class="measurement"><small>Força elétrica F</small><strong id="forceValueDisplay">1,92 × 10⁻¹⁶ N</strong></div>
+            <div class="measurement"><small>Movimento</small><strong id="motionValueDisplay">curvado</strong></div>
+        </div>
+        <div class="measurement-grid" id="capacitorMeasurements" hidden>
+            <div class="measurement"><small>Capacitância C</small><strong id="capacitanceDisplay">177 pF</strong></div>
+            <div class="measurement"><small>Voltagem V</small><strong id="capVoltageDisplay">12 V</strong></div>
+            <div class="measurement"><small>Carga Q</small><strong id="capChargeDisplay">2,12 nC</strong></div>
+            <div class="measurement"><small>Campo entre as placas</small><strong id="capFieldDisplay">12 kV/m</strong></div>
+        </div>
+        <div class="measurement-grid" id="rcMeasurements" hidden>
+            <div class="measurement"><small>Constante de tempo τ</small><strong id="rcTauDisplay">1,00 s</strong></div>
+            <div class="measurement"><small>Carga final Q<sub>máx</sub></small><strong id="rcMaxChargeDisplay">900 μC</strong></div>
+            <div class="measurement"><small>Carga atual q(t)</small><strong id="rcCurrentChargeDisplay">0%</strong></div>
+            <div class="measurement"><small>Relação fundamental</small><strong>τ = RC</strong></div>
+        </div>
+    </section>
+
+    <section class="lesson">
+        <h2>Como investigar</h2>
+        <p>Altere uma variável por vez. Na experiência das placas, compare cargas positivas, negativas e neutras; observe o que muda ao ligar o campo, a força e a velocidade inicial. No capacitor, acompanhe como área, separação e voltagem afetam C e Q. No modo RC, construa o circuito no PhET e observe a carga e descarga do capacitor.</p>
+    </section>
+
+    <footer>Simulação didática de Física | Prof. Flávio Ambrósio | Atividade com acompanhamento de exercícios e progresso salvo neste dispositivo.</footer>
+</main>
+
+<div class="modal-backdrop" id="exerciseModal" role="dialog" aria-modal="true" aria-labelledby="exerciseTitle">
+    <section class="exercise-modal">
+        <div class="modal-header">
+            <h2 id="exerciseTitle">Exercícios: eletrostática e circuitos</h2>
+            <div class="button-row" style="margin:0">
+                <button id="restartExercisesBtn" class="secondary">Reiniciar</button>
+                <button id="closeExercises" class="secondary" aria-label="Fechar exercícios">Fechar</button>
+            </div>
+        </div>
+        <div class="progress-track" id="progressBar" aria-label="Progresso dos exercícios"></div>
+        <p class="note">Cada questão apresenta cinco alternativas e uma única resposta correta. Em caso de erro, você pode tentar novamente ou pular a questão.</p>
+        <div id="exerciseContainer" aria-live="polite">
+            <div id="exerciseStage"></div>
+        </div>
+        <div id="conclusionStage" hidden>
+            <div class="stage-card">
+                <h3>Conclusão de estudo</h3>
+                <p>Registre o que aprendeu sobre campo elétrico, capacitores e circuito RC.</p>
+                <label for="conclusionText">Sua conclusão</label>
+                <textarea id="conclusionText" rows="6" placeholder="Explique as relações físicas que você observou e o que aprendeu."></textarea>
+                <p class="feedback bad" id="conclusionFeedback" aria-live="polite"></p>
+                <button id="submitConclusion" style="margin-top:10px">Ver resultado</button>
+            </div>
+        </div>
+        <div id="resultStage" hidden></div>
+        <div id="submissionStage" hidden>
+            <h3>Enviar resultados</h3>
+            <p>Informe os dados escolares e escreva uma conclusão para registrar a atividade.</p>
+            <div id="resultsContainer">
+                <div class="email-form">
+                    <div class="form-grid">
+                <div class="form-row">
+                    <label for="studentGrade" class="required">Série</label>
+                    <select id="studentGrade" required>
+                        <option value="">Selecione</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="studentClass" class="required">Turma</label>
+                    <select id="studentClass" required>
+                        <option value="">Selecione</option>
+                        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option>
+                    </select>
+                </div>
+                <div class="form-row full">
+                    <label for="studentTrail">Trilha</label>
+                    <select id="studentTrail">
+                        <option value="Nenhuma (Turma de Física)">Nenhuma (Turma de Física)</option>
+                        <option value="PCA - Educação Digital 3o ano E">PCA - Educação Digital 3o ano E</option>
+                        <option value="PCA - Educação Digital 3o ano G">PCA - Educação Digital 3o ano G</option>
+                        <option value="Sustentabilidade 2o ano C">Sustentabilidade 2o ano C</option>
+                        <option value="Outra">Outra</option>
+                    </select>
+                </div>
+                <div class="form-row full">
+                    <label for="studentNameSelect" class="required">Nome na lista de alunos</label>
+                    <select id="studentNameSelect" required><option value="">Selecione primeiro série e turma</option></select>
+                    <input type="hidden" id="studentName">
+                </div>
+                <div class="form-row full" id="studentNameManualRow" hidden>
+                    <label for="studentNameManual" class="required">Nome completo, se não estiver na lista</label>
+                    <input type="text" id="studentNameManual">
+                </div>
+                <div class="form-row">
+                    <label for="schoolTerm" class="required">Bimestre</label>
+                    <select id="schoolTerm" required>
+                        <option value="">Selecione</option><option value="1o">1º bimestre</option><option value="2o">2º bimestre</option><option value="3o">3º bimestre</option><option value="4o">4º bimestre</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="studentEmail">E-mail para cópia (opcional)</label>
+                    <input type="email" id="studentEmail" placeholder="seu@email.com">
+                </div>
+                <div class="form-row full">
+                    <label for="finalConclusion" class="required">Conclusão final</label>
+                    <textarea id="finalConclusion" rows="4" required placeholder="O que você aprendeu sobre campo elétrico, capacitância ou circuito RC?"></textarea>
+                </div>
+                <div class="form-row">
+                    <label for="criticismInput">Críticas (opcional)</label>
+                    <textarea id="criticismInput" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <label for="suggestionInput">Sugestões (opcional)</label>
+                    <textarea id="suggestionInput" rows="2"></textarea>
+                </div>
+                    </div>
+                    <div id="emailStatus" class="email-status" aria-live="polite"></div>
+                    <button id="sendResults">Enviar resultados</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="content-backdrop" id="solvedModal" role="dialog" aria-modal="true" aria-labelledby="solvedModalTitle">
+    <section class="content-modal">
+        <div class="content-modal-header">
+            <h2 id="solvedModalTitle">Exercícios resolvidos — Campo elétrico, capacitores e RC</h2>
+            <button type="button" class="secondary" data-close-content>Fechar</button>
+        </div>
+        <p class="note">Acompanhe os passos e use “Ouvir explicação” para escutar a resolução. O áudio usa a voz disponível no navegador.</p>
+        <article class="solved-exercise">
+            <h3>Exemplo 1: campo elétrico entre placas</h3>
+            <p><strong>Problema:</strong> Duas placas paralelas estão separadas por 2,0 mm e submetidas a 120 V. Qual é o campo elétrico uniforme?</p>
+            <div class="solution-step"><strong>Fórmula:</strong> E = V/d</div>
+            <div class="solution-step"><strong>Passo 1:</strong> Converter a distância: 2,0 mm = 0,002 m.</div>
+            <div class="solution-step"><strong>Passo 2:</strong> Substituir os valores: E = 120/0,002.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> E = 60 000 V/m = 60 kV/m.</div>
+            <div class="narration-controls"><button type="button" data-example="1">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 2: força sobre uma carga</h3>
+            <p><strong>Problema:</strong> Uma carga q = +2,0 μC é colocada em um campo uniforme E = 3,0 × 10³ N/C. Determine o módulo e o sentido da força.</p>
+            <div class="solution-step"><strong>Fórmula:</strong> F = qE</div>
+            <div class="solution-step"><strong>Passo 1:</strong> Converter a carga: 2,0 μC = 2,0 × 10⁻⁶ C.</div>
+            <div class="solution-step"><strong>Passo 2:</strong> Calcular: F = (2,0 × 10⁻⁶)(3,0 × 10³) = 6,0 × 10⁻³ N.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> 6,0 mN, no mesmo sentido do campo, pois q é positiva.</div>
+            <div class="narration-controls"><button type="button" data-example="2">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 3: capacitância de placas paralelas</h3>
+            <p><strong>Problema:</strong> Um capacitor no vácuo tem área A = 0,020 m² e separação d = 1,0 mm. Calcule sua capacitância, usando ε₀ = 8,85 × 10⁻¹² F/m.</p>
+            <div class="solution-step"><strong>Fórmula:</strong> C = ε₀A/d</div>
+            <div class="solution-step"><strong>Passo 1:</strong> Converter d = 1,0 × 10⁻³ m.</div>
+            <div class="solution-step"><strong>Passo 2:</strong> C = (8,85 × 10⁻¹²)(0,020)/(1,0 × 10⁻³).</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> C ≈ 1,77 × 10⁻¹⁰ F = 177 pF.</div>
+            <div class="narration-controls"><button type="button" data-example="3">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 4: carga e energia armazenada</h3>
+            <p><strong>Problema:</strong> O capacitor de 177 pF está ligado a uma fonte de 12 V. Determine a carga e a energia armazenadas.</p>
+            <div class="solution-step"><strong>Carga:</strong> Q = CV = (177 × 10⁻¹²)(12) ≈ 2,12 nC.</div>
+            <div class="solution-step"><strong>Energia:</strong> U = ½CV² = ½(177 × 10⁻¹²)(12²).</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> Q ≈ 2,12 nC e U ≈ 12,7 nJ.</div>
+            <div class="narration-controls"><button type="button" data-example="4">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 5: constante de tempo de circuito RC</h3>
+            <p><strong>Problema:</strong> Um resistor de 10 kΩ é ligado em série a um capacitor de 100 μF. Qual é τ? Que fração da carga máxima foi atingida após esse tempo?</p>
+            <div class="solution-step"><strong>Fórmula:</strong> τ = RC</div>
+            <div class="solution-step"><strong>Passo 1:</strong> τ = (10 × 10³)(100 × 10⁻⁶) = 1,0 s.</div>
+            <div class="solution-step"><strong>Passo 2:</strong> Para t = τ, q/Qmáx = 1 − e⁻¹ ≈ 0,63.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> τ = 1,0 s; após 1,0 s, o capacitor atinge cerca de 63% da carga final.</div>
+            <div class="narration-controls"><button type="button" data-example="5">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <div class="button-row"><button type="button" data-close-content>Fechar exemplos resolvidos</button></div>
+    </section>
+</div>
+
+<div class="content-backdrop" id="theoryModal" role="dialog" aria-modal="true" aria-labelledby="theoryModalTitle">
+    <section class="content-modal">
+        <div class="content-modal-header">
+            <h2 id="theoryModalTitle">Teoria — Campo elétrico, capacitores e circuitos RC</h2>
+            <button type="button" class="secondary" data-close-content>Fechar</button>
+        </div>
+        <section class="theory-section">
+            <h3>Campo elétrico e placas paralelas</h3>
+            <p>Entre placas paralelas ideais, o campo é aproximadamente uniforme e aponta da placa positiva para a negativa. Seu módulo é determinado pela diferença de potencial e pela separação.</p>
+            <div class="theory-formula">E = ΔV/d</div>
+            <p>Uma carga elétrica imersa no campo sofre força elétrica. A direção depende do sinal da carga: para carga positiva, F aponta como E; para carga negativa, no sentido oposto. Uma partícula neutra não sofre força elétrica.</p>
+            <div class="theory-formula">F = qE &nbsp; | &nbsp; a = F/m = qE/m</div>
+        </section>
+        <section class="theory-section">
+            <h3>Capacitores</h3>
+            <p>Um capacitor armazena cargas opostas em condutores separados e energia no campo elétrico entre eles. A capacitância mede a carga armazenada por unidade de voltagem.</p>
+            <div class="theory-formula">C = Q/V &nbsp; | &nbsp; C = ε₀A/d (placas paralelas no vácuo)</div>
+            <ul>
+                <li>Aumentar a área A aumenta a capacitância.</li>
+                <li>Aumentar a separação d diminui a capacitância.</li>
+                <li>Para C fixa, Q cresce proporcionalmente com V.</li>
+            </ul>
+            <div class="theory-formula">Q = CV &nbsp; | &nbsp; U = ½CV²</div>
+        </section>
+        <section class="theory-section">
+            <h3>Circuito RC: carga e descarga</h3>
+            <p>Em um circuito com resistor e capacitor, a resistência limita a rapidez com que a carga se move. O produto RC define a constante de tempo τ. Após uma constante de tempo, a carga do capacitor em processo de carga chega a aproximadamente 63% do valor final.</p>
+            <div class="theory-formula">τ = RC &nbsp; | &nbsp; q(t) = Q<sub>máx</sub>(1 − e<sup>−t/τ</sup>)</div>
+            <p>Na descarga, a carga diminui exponencialmente: q(t) = Q₀e<sup>−t/τ</sup>. O PhET incorporado permite construir e investigar circuitos; o modelo animado mostra a evolução idealizada da carga.</p>
+        </section>
+        <section class="theory-section">
+            <h3>Unidades úteis</h3>
+            <ul>
+                <li>Campo elétrico: N/C ou V/m.</li>
+                <li>Capacitância: farad (F); 1 μF = 10⁻⁶ F e 1 pF = 10⁻¹² F.</li>
+                <li>Carga: coulomb (C); 1 μC = 10⁻⁶ C e 1 nC = 10⁻⁹ C.</li>
+                <li>Constante de tempo: segundo (s); kΩ × μF = ms.</li>
+            </ul>
+        </section>
+        <div class="button-row"><button type="button" data-close-content>Fechar teoria</button></div>
+    </section>
+</div>
+
+<script src="../AvaliacaoBimestralEducacaoDigital/alunos.js"></script>
+<script>
+    "use strict";
+    const SIM_NAME = "Campo Elétrico, Capacitores e Circuitos RC";
+    const STORAGE_KEY = "campoEletricoCapacitoresRc:exercise-state";
+    const ELECTRON_CHARGE = 1.602176634e-19;
+    const EPSILON_0 = 8.8541878128e-12;
+    let exercises = [];
+    let currentExercise = 0;
+    let exerciseResults = [];
+    let skippedQuestions = 0;
+    let currentExerciseAttempts = 0;
+    let selectedAnswer = null;
+    let animationRunning = false;
+    let particleTime = 0;
+    let lastFrameTime = 0;
+    let particlePosition = null;
+    let particleAnimationId = 0;
+    let rcElapsedNormalized = 0;
+    let rcAnimationRunning = false;
+    let rcLastFrameTime = 0;
+    let rcAnimationId = 0;
+    let activeNarrationButton = null;
+    const particleCanvas = document.getElementById("particleCanvas");
+    const capacitorCanvas = document.getElementById("capacitorCanvas");
+    const particleContext = particleCanvas.getContext("2d");
+    const capacitorContext = capacitorCanvas.getContext("2d");
+    const rcCanvas = document.getElementById("rcCanvas");
+    const rcContext = rcCanvas.getContext("2d");
+    const exampleNarrations = {
+        "1": "Exemplo 1. Para encontrar o campo elétrico entre placas, usamos E igual a V dividido por d. Primeiro convertemos dois milímetros para zero vírgula zero zero dois metros. Depois dividimos cento e vinte volts por zero vírgula zero zero dois metros. O resultado é sessenta mil volts por metro, ou sessenta quilovolts por metro.",
+        "2": "Exemplo 2. A força elétrica é F igual a q vezes E. A carga de dois microcoulombs equivale a dois vezes dez elevado a menos seis coulombs. Multiplicando por três vezes dez elevado a três newtons por coulomb, obtemos seis vezes dez elevado a menos três newtons, ou seis milinewtons. Como a carga é positiva, a força aponta no mesmo sentido do campo.",
+        "3": "Exemplo 3. A capacitância das placas paralelas é C igual a épsilon zero vezes A dividido por d. Convertendo a distância, um milímetro corresponde a dez elevado a menos três metros. Substituímos a área de zero vírgula zero dois metros quadrados e calculamos aproximadamente cento e setenta e sete picofarads.",
+        "4": "Exemplo 4. A carga armazenada é Q igual a C vezes V. Multiplicando cento e setenta e sete picofarads por doze volts, encontramos aproximadamente dois vírgula doze nanocoulombs. A energia é U igual a um meio C V ao quadrado. Com os mesmos valores, resulta em aproximadamente doze vírgula sete nanojoules.",
+        "5": "Exemplo 5. A constante de tempo é o produto R C. Dez quilo-ohms multiplicados por cem microfarads resultam em um segundo. Depois de um tempo tau, a carga alcança um menos e elevado a menos um, que é aproximadamente sessenta e três por cento da carga máxima."
+    };
+
+    function numberPt(value, digits = 2) {
+        return Number(value).toLocaleString("pt-BR", { maximumFractionDigits: digits });
+    }
+
+    function updateMode() {
+        const mode = document.getElementById("simulationMode").value;
+        document.querySelectorAll(".mode-content").forEach(element => {
+            const group = element.id.endsWith("View") ? "view" : element.id.endsWith("Controls") ? "controls" : "";
+            if (!group) return;
+            const active = element.id === `${mode}${group === "view" ? "View" : "Controls"}`;
+            element.hidden = !active;
+        });
+        document.getElementById("particleMeasurements").hidden = mode !== "particle";
+        document.getElementById("capacitorMeasurements").hidden = mode !== "capacitor";
+        document.getElementById("rcMeasurements").hidden = mode !== "rc";
+        document.getElementById("formulaBox").hidden = mode !== "particle";
+        if (mode === "capacitor") updateCapacitor();
+        if (mode === "rc") updateRc();
+        drawParticle();
+    }
+
+    function resizeCanvas(canvas, context) {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.max(1, window.devicePixelRatio || 1);
+        canvas.width = Math.round(rect.width * ratio);
+        canvas.height = Math.round(rect.height * ratio);
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    function drawArrow(context, x1, y1, x2, y2, color, width = 2) {
+        const angle = Math.atan2(y2 - y1, x2 - x1);
+        context.strokeStyle = color;
+        context.fillStyle = color;
+        context.lineWidth = width;
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x2, y2);
+        context.lineTo(x2 - 9 * Math.cos(angle - Math.PI / 6), y2 - 9 * Math.sin(angle - Math.PI / 6));
+        context.lineTo(x2 - 9 * Math.cos(angle + Math.PI / 6), y2 - 9 * Math.sin(angle + Math.PI / 6));
+        context.closePath();
+        context.fill();
+    }
+
+    function drawParticle() {
+        const box = particleCanvas.getBoundingClientRect();
+        if (!box.width) return;
+        if (particleCanvas.width !== Math.round(box.width * Math.max(1, window.devicePixelRatio || 1))) resizeCanvas(particleCanvas, particleContext);
+        const w = box.width, h = box.height;
+        particleContext.clearRect(0, 0, w, h);
+        const top = h * .19, bottom = h * .81, left = w * .23, right = w * .78;
+        particleContext.fillStyle = "#ff7685";
+        particleContext.fillRect(left, top, right - left, 12);
+        particleContext.fillStyle = "#66baff";
+        particleContext.fillRect(left, bottom - 12, right - left, 12);
+        particleContext.fillStyle = "#fff";
+        particleContext.font = "bold 18px Segoe UI";
+        particleContext.fillText("+", left + 8, top - 5);
+        particleContext.fillText("−", left + 8, bottom + 16);
+        particleContext.fillText("placa positiva", left + 34, top + 10);
+        particleContext.fillText("placa negativa", left + 34, bottom + 7);
+
+        if (document.getElementById("showField").checked && Number(document.getElementById("particleVoltageInput").value) > 0) {
+            for (let i = 0; i < 6; i++) {
+                const x = left + 35 + i * (right - left - 65) / 5;
+                drawArrow(particleContext, x, top + 28, x, bottom - 28, "#6bdfff88", 1.4);
+            }
+        }
+        const launchWithVelocity = document.getElementById("useInitialVelocity").checked;
+        if (particlePosition) {
+            const qSign = Number(document.getElementById("chargeSelect").value);
+            const speed = launchWithVelocity ? Number(document.getElementById("velocityInput").value) : 0;
+            const gap = Number(document.getElementById("particleGapInput").value);
+            const voltage = Number(document.getElementById("particleVoltageInput").value);
+            const field = document.getElementById("showField").checked ? voltage / gap : 0;
+            const acceleration = qSign * field / 3000;
+            const t = particleTime;
+            const x = left - 32 + Math.min(right - left - 8, speed * t * 55);
+            const startY = (top + bottom) / 2;
+            const y = startY + (qSign === 0 ? 0 : acceleration * t * t * 12);
+            particlePosition = { x, y };
+            particleContext.beginPath();
+            particleContext.arc(x, y, 10, 0, Math.PI * 2);
+            particleContext.fillStyle = qSign > 0 ? "#ffbd58" : qSign < 0 ? "#75edbb" : "#f5f7ff";
+            particleContext.shadowColor = particleContext.fillStyle;
+            particleContext.shadowBlur = 16;
+            particleContext.fill();
+            particleContext.shadowBlur = 0;
+            particleContext.fillStyle = "#07111d";
+            particleContext.font = "bold 12px Segoe UI";
+            particleContext.textAlign = "center";
+            particleContext.fillText(qSign > 0 ? "+" : qSign < 0 ? "−" : "0", x, y + 4);
+            particleContext.textAlign = "left";
+            if (document.getElementById("showForce").checked && qSign !== 0 && field > 0) {
+                drawArrow(particleContext, x, y, x, y + Math.sign(acceleration) * 48, "#ffd166", 3);
+                particleContext.fillStyle = "#ffd166";
+                particleContext.fillText("Fₑ", x + 7, y + Math.sign(acceleration) * 46);
+            }
+            if (x > right - 6 || y < top + 20 || y > bottom - 20) {
+                animationRunning = false;
+                particlePosition = null;
+                particleTime = 0;
+            }
+        } else {
+            particleContext.beginPath();
+            particleContext.setLineDash([5, 7]);
+            particleContext.moveTo(left - 26, h / 2);
+            particleContext.lineTo(left + 14, h / 2);
+            particleContext.strokeStyle = "#d8e6ff99";
+            particleContext.stroke();
+            particleContext.setLineDash([]);
+        }
+        document.getElementById("particleChargeHud").textContent = Number(document.getElementById("chargeSelect").value) === 0 ? "partícula neutra" : Number(document.getElementById("chargeSelect").value) > 0 ? "carga positiva" : "carga negativa";
+        document.getElementById("particleFieldHud").textContent = document.getElementById("showField").checked ? "campo elétrico ligado" : "campo elétrico oculto";
+        document.getElementById("particleMotionHud").textContent = launchWithVelocity ? "velocidade inicial ligada" : "sem velocidade inicial";
+    }
+
+    function animateParticle(timestamp) {
+        if (!animationRunning) return;
+        if (lastFrameTime) particleTime += Math.min((timestamp - lastFrameTime) / 1000, .04);
+        lastFrameTime = timestamp;
+        drawParticle();
+        particleAnimationId = window.requestAnimationFrame(animateParticle);
+    }
+
+    function updateParticleMeasurements() {
+        const qSign = Number(document.getElementById("chargeSelect").value);
+        const voltage = Number(document.getElementById("particleVoltageInput").value);
+        const gap = Number(document.getElementById("particleGapInput").value);
+        const field = voltage / gap;
+        const force = Math.abs(qSign) * ELECTRON_CHARGE * field;
+        document.getElementById("fieldValueDisplay").textContent = `${field.toExponential(2).replace(".", ",")} V/m`;
+        document.getElementById("chargeValueDisplay").textContent = qSign === 0 ? "0 C" : `${qSign > 0 ? "+" : "−"}e`;
+        document.getElementById("forceValueDisplay").textContent = `${force.toExponential(2).replace(".", ",")} N`;
+        document.getElementById("motionValueDisplay").textContent = qSign === 0 ? "retilíneo (sem força elétrica)" : voltage === 0 ? "retilíneo (campo nulo)" : "desviado pela força elétrica";
+        document.getElementById("velocityValue").textContent = numberPt(document.getElementById("velocityInput").value, 1);
+        document.getElementById("particleVoltageValue").textContent = document.getElementById("particleVoltageInput").value;
+        document.getElementById("particleGapValue").textContent = numberPt(document.getElementById("particleGapInput").value, 2);
+        drawParticle();
+    }
+
+    function updateCapacitor() {
+        const voltage = Number(document.getElementById("capacitorVoltage").value);
+        const area = Number(document.getElementById("plateArea").value);
+        const gapMm = Number(document.getElementById("plateGap").value);
+        const gap = gapMm / 1000;
+        const capacitance = EPSILON_0 * area / gap;
+        const charge = capacitance * voltage;
+        const energy = .5 * capacitance * voltage * voltage;
+        document.getElementById("capacitorVoltageValue").textContent = voltage;
+        document.getElementById("plateAreaValue").textContent = numberPt(area, 3);
+        document.getElementById("plateGapValue").textContent = numberPt(gapMm, 1);
+        document.getElementById("capacitanceDisplay").textContent = `${numberPt(capacitance * 1e12, 1)} pF`;
+        document.getElementById("capVoltageDisplay").textContent = `${voltage} V`;
+        document.getElementById("capChargeDisplay").textContent = `${numberPt(charge * 1e9, 2)} nC`;
+        document.getElementById("capFieldDisplay").textContent = `${numberPt(voltage / gap / 1000, 1)} kV/m`;
+        document.getElementById("capacitorEnergy").textContent = `Energia armazenada: ${energy.toExponential(2).replace(".", ",")} J`;
+        drawCapacitor();
+    }
+
+    function drawCapacitor() {
+        const box = capacitorCanvas.getBoundingClientRect();
+        if (!box.width) return;
+        if (capacitorCanvas.width !== Math.round(box.width * Math.max(1, window.devicePixelRatio || 1))) resizeCanvas(capacitorCanvas, capacitorContext);
+        const w = box.width, h = box.height;
+        capacitorContext.clearRect(0, 0, w, h);
+        const x1 = w * .25, x2 = w * .75, top = h * .27, bottom = h * .73;
+        capacitorContext.fillStyle = "#ff7180";
+        capacitorContext.fillRect(x1, top, 15, bottom - top);
+        capacitorContext.fillStyle = "#67baff";
+        capacitorContext.fillRect(x2, top, 15, bottom - top);
+        capacitorContext.font = "bold 21px Segoe UI";
+        capacitorContext.fillStyle = "#fff";
+        capacitorContext.fillText("+ + +", x1 - 5, top - 13);
+        capacitorContext.fillText("− − −", x2 - 11, top - 13);
+        const voltage = Number(document.getElementById("capacitorVoltage").value);
+        const fieldLines = Math.min(9, Math.max(2, Math.round(voltage / 12)));
+        for (let i = 0; i < fieldLines; i++) {
+            const y = top + 25 + i * (bottom - top - 50) / Math.max(1, fieldLines - 1);
+            drawArrow(capacitorContext, x1 + 28, y, x2 - 16, y, "#6bdfffcc", 1.6);
+        }
+        capacitorContext.fillStyle = "#bdc9df";
+        capacitorContext.font = "14px Segoe UI";
+        capacitorContext.fillText("campo elétrico E", w * .39, h * .86);
+    }
+
+    function drawRc() {
+        const box = rcCanvas.getBoundingClientRect();
+        if (!box.width) return;
+        if (rcCanvas.width !== Math.round(box.width * Math.max(1, window.devicePixelRatio || 1))) resizeCanvas(rcCanvas, rcContext);
+        const w = box.width, h = box.height;
+        rcContext.clearRect(0, 0, w, h);
+        const midY = h * .34, left = w * .12, right = w * .48;
+        const sourceX = left + 24;
+        rcContext.strokeStyle = "#dce8f6";
+        rcContext.lineWidth = 3;
+        rcContext.beginPath();
+        rcContext.moveTo(left, midY);
+        rcContext.lineTo(sourceX, midY);
+        rcContext.lineTo(sourceX + 11, midY - 14);
+        rcContext.lineTo(sourceX + 25, midY + 14);
+        rcContext.lineTo(sourceX + 39, midY - 14);
+        rcContext.lineTo(sourceX + 53, midY + 14);
+        rcContext.lineTo(sourceX + 67, midY);
+        rcContext.lineTo(right, midY);
+        rcContext.lineTo(right, h * .66);
+        rcContext.lineTo(left, h * .66);
+        rcContext.closePath();
+        rcContext.stroke();
+        rcContext.beginPath();
+        rcContext.moveTo(left, midY - 19);
+        rcContext.lineTo(left, midY + 19);
+        rcContext.moveTo(left + 10, midY - 10);
+        rcContext.lineTo(left + 10, midY + 10);
+        rcContext.stroke();
+        rcContext.beginPath();
+        rcContext.moveTo(right - 11, h * .66 - 22);
+        rcContext.lineTo(right - 11, h * .66 + 22);
+        rcContext.moveTo(right + 11, h * .66 - 22);
+        rcContext.lineTo(right + 11, h * .66 + 22);
+        rcContext.stroke();
+        rcContext.fillStyle = "#fff";
+        rcContext.font = "14px Segoe UI";
+        rcContext.fillText("V", left - 4, midY - 28);
+        rcContext.fillText("R", sourceX + 31, midY - 23);
+        rcContext.fillText("+", right - 6, h * .66 - 29);
+        rcContext.fillText("C", right + 19, h * .66 + 5);
+        rcContext.fillText("Circuito RC em série", left, h * .83);
+
+        const graphLeft = w * .60, graphTop = h * .16, graphWidth = w * .33, graphHeight = h * .58;
+        rcContext.strokeStyle = "#aebdd4";
+        rcContext.lineWidth = 1.5;
+        rcContext.beginPath();
+        rcContext.moveTo(graphLeft, graphTop);
+        rcContext.lineTo(graphLeft, graphTop + graphHeight);
+        rcContext.lineTo(graphLeft + graphWidth, graphTop + graphHeight);
+        rcContext.stroke();
+        rcContext.fillStyle = "#c4d2e7";
+        rcContext.fillText("q/Qmáx", graphLeft - 3, graphTop - 7);
+        rcContext.fillText("t / τ", graphLeft + graphWidth - 5, graphTop + graphHeight + 23);
+        rcContext.setLineDash([4, 5]);
+        const oneTauX = graphLeft + graphWidth / 5;
+        rcContext.beginPath();
+        rcContext.moveTo(oneTauX, graphTop);
+        rcContext.lineTo(oneTauX, graphTop + graphHeight);
+        rcContext.strokeStyle = "#ffd16677";
+        rcContext.stroke();
+        rcContext.setLineDash([]);
+        const fraction = 1 - Math.exp(-Math.min(rcElapsedNormalized, 5));
+        rcContext.beginPath();
+        rcContext.moveTo(graphLeft, graphTop + graphHeight);
+        for (let i = 0; i <= 100; i++) {
+            const xTau = i / 20;
+            const q = 1 - Math.exp(-xTau);
+            const x = graphLeft + xTau / 5 * graphWidth;
+            const y = graphTop + graphHeight * (1 - q);
+            if (i === 0) rcContext.moveTo(x, y);
+            else rcContext.lineTo(x, y);
+        }
+        rcContext.strokeStyle = "#66e3ff";
+        rcContext.lineWidth = 3;
+        rcContext.stroke();
+        const dotX = graphLeft + Math.min(1, rcElapsedNormalized / 5) * graphWidth;
+        const dotY = graphTop + graphHeight * (1 - fraction);
+        rcContext.beginPath();
+        rcContext.arc(dotX, dotY, 5, 0, Math.PI * 2);
+        rcContext.fillStyle = "#ffd166";
+        rcContext.fill();
+        document.getElementById("rcCurrentChargeDisplay").textContent = `${Math.round(fraction * 100)}%`;
+    }
+
+    function updateRc() {
+        const resistance = Number(document.getElementById("rcResistance").value);
+        const capacitance = Number(document.getElementById("rcCapacitance").value);
+        const voltage = Number(document.getElementById("rcVoltage").value);
+        const tauSeconds = resistance * capacitance / 1000;
+        const maxChargeMicroC = capacitance * voltage;
+        document.getElementById("rcResistanceValue").textContent = resistance;
+        document.getElementById("rcCapacitanceValue").textContent = capacitance;
+        document.getElementById("rcVoltageValue").textContent = voltage;
+        document.getElementById("rcTauDisplay").textContent = `${numberPt(tauSeconds, 2)} s`;
+        document.getElementById("rcMaxChargeDisplay").textContent = `${numberPt(maxChargeMicroC, 1)} μC`;
+        drawRc();
+    }
+
+    function stopExampleNarration() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        if (activeNarrationButton) {
+            activeNarrationButton.textContent = "Ouvir explicação";
+            activeNarrationButton = null;
+        }
+        document.querySelectorAll(".narration-status").forEach(status => { status.textContent = ""; });
+    }
+
+    function closeExerciseModal() {
+        document.getElementById("exerciseModal").classList.remove("open");
+        const tutorPanel = document.querySelector(".ai-tutor-panel");
+        if (tutorPanel) tutorPanel.hidden = true;
+    }
+
+    function playExampleNarration(button) {
+        const text = exampleNarrations[button.dataset.example];
+        if (!text) {
+            console.error("Não há narração cadastrada para este exemplo.");
+            return;
+        }
+        if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+            button.closest(".narration-controls").querySelector(".narration-status").textContent = "A leitura em voz alta não está disponível neste navegador.";
+            return;
+        }
+        if (activeNarrationButton === button && window.speechSynthesis.speaking) {
+            stopExampleNarration();
+            return;
+        }
+        stopExampleNarration();
+        const status = button.closest(".narration-controls").querySelector(".narration-status");
+        const utterance = new SpeechSynthesisUtterance(text);
+        const portugueseVoice = window.speechSynthesis.getVoices().find(voice => voice.lang.toLowerCase().startsWith("pt"));
+        if (portugueseVoice) utterance.voice = portugueseVoice;
+        utterance.lang = portugueseVoice?.lang || "pt-BR";
+        utterance.rate = 0.95;
+        activeNarrationButton = button;
+        button.textContent = "Parar áudio";
+        status.textContent = "Reproduzindo explicação…";
+        utterance.onend = () => {
+            if (activeNarrationButton === button) {
+                button.textContent = "Ouvir explicação";
+                activeNarrationButton = null;
+                status.textContent = "Áudio concluído.";
+            }
+        };
+        utterance.onerror = () => {
+            if (activeNarrationButton === button) {
+                button.textContent = "Ouvir explicação";
+                activeNarrationButton = null;
+                status.textContent = "Não foi possível reproduzir o áudio.";
+            }
+        };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function animateRc(timestamp) {
+        if (!rcAnimationRunning) return;
+        if (rcLastFrameTime) rcElapsedNormalized += Math.min((timestamp - rcLastFrameTime) / 1000, .05) * .65;
+        rcLastFrameTime = timestamp;
+        if (rcElapsedNormalized >= 5) {
+            rcElapsedNormalized = 5;
+            rcAnimationRunning = false;
+        }
+        drawRc();
+        if (rcAnimationRunning) rcAnimationId = window.requestAnimationFrame(animateRc);
+    }
+
+    function setInitialValues() {
+        document.getElementById("chargeSelect").addEventListener("change", updateParticleMeasurements);
+        ["velocityInput", "particleVoltageInput", "particleGapInput", "showField", "showForce", "useInitialVelocity"].forEach(id => {
+            document.getElementById(id).addEventListener("input", updateParticleMeasurements);
+            document.getElementById(id).addEventListener("change", updateParticleMeasurements);
+        });
+        ["capacitorVoltage", "plateArea", "plateGap"].forEach(id => document.getElementById(id).addEventListener("input", updateCapacitor));
+        ["rcResistance", "rcCapacitance", "rcVoltage"].forEach(id => document.getElementById(id).addEventListener("input", updateRc));
+        document.getElementById("simulationMode").addEventListener("change", updateMode);
+        document.getElementById("launchParticle").addEventListener("click", () => {
+            particleTime = 0;
+            lastFrameTime = 0;
+            particlePosition = { x: 0, y: 0 };
+            animationRunning = true;
+            window.cancelAnimationFrame(particleAnimationId);
+            particleAnimationId = window.requestAnimationFrame(animateParticle);
+        });
+        document.getElementById("pauseParticle").addEventListener("click", () => {
+            animationRunning = false;
+            window.cancelAnimationFrame(particleAnimationId);
+            drawParticle();
+        });
+        document.getElementById("resetParticle").addEventListener("click", () => {
+            animationRunning = false;
+            particleTime = 0;
+            particlePosition = null;
+            window.cancelAnimationFrame(particleAnimationId);
+            drawParticle();
+        });
+        document.getElementById("playRc").addEventListener("click", () => {
+            if (rcElapsedNormalized >= 5) rcElapsedNormalized = 0;
+            rcAnimationRunning = true;
+            rcLastFrameTime = 0;
+            window.cancelAnimationFrame(rcAnimationId);
+            rcAnimationId = window.requestAnimationFrame(animateRc);
+        });
+        document.getElementById("resetRc").addEventListener("click", () => {
+            rcAnimationRunning = false;
+            rcElapsedNormalized = 0;
+            window.cancelAnimationFrame(rcAnimationId);
+            updateRc();
+        });
+    }
+
+    function shuffle(items) {
+        const array = [...items];
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function makeExercise(question, answer, distractors, explanation) {
+        const options = [answer];
+        [...distractors, "Não há dados suficientes para calcular.", "As grandezas informadas não se relacionam."].forEach(option => {
+            if (options.length < 5 && !options.includes(option)) options.push(option);
+        });
+        if (options.length !== 5) throw new Error("Cada exercício precisa ter cinco alternativas distintas.");
+        return { question, answer, options, explanation };
+    }
+
+    function generateExercises() {
+        const v = Math.round((20 + Math.random() * 80) / 10) * 10;
+        const dMm = Math.round((1 + Math.random() * 9) * 10) / 10;
+        const e = v / (dMm / 1000);
+        const areaCm = Math.round((100 + Math.random() * 400) / 10) * 10;
+        const area = areaCm / 10000;
+        const gapMm = Math.round((1 + Math.random() * 4) * 10) / 10;
+        const cPf = EPSILON_0 * area / (gapMm / 1000) * 1e12;
+        const capV = Math.round(5 + Math.random() * 35);
+        const qNc = cPf * capV / 1000;
+        const rKohm = Math.round(1 + Math.random() * 9);
+        const capacitanceMicroF = Math.round(1 + Math.random() * 9);
+        const tauMs = rKohm * capacitanceMicroF;
+        exercises = [
+            makeExercise(
+                `Entre placas paralelas há ${v} V de diferença de potencial e ${numberPt(dMm, 1)} mm de separação. Qual é o módulo do campo elétrico uniforme?`,
+                `${numberPt(e / 1000, 1)} kV/m`,
+                [`${numberPt(e / 2000, 1)} kV/m`, `${numberPt(e * 2 / 1000, 1)} kV/m`, `${numberPt(e / 4000, 1)} kV/m`, `${numberPt(v * dMm / 1000, 3)} kV/m`],
+                "Use E = V/d e converta milímetros para metros antes de dividir."
+            ),
+            makeExercise(
+                `Um capacitor ideal tem área de placas ${areaCm} cm² e separação ${numberPt(gapMm, 1)} mm. Usando ε₀ = 8,85 × 10⁻¹² F/m, qual é aproximadamente a capacitância?`,
+                `${numberPt(cPf, 1)} pF`,
+                [`${numberPt(cPf * 10, 1)} pF`, `${numberPt(cPf / 10, 1)} pF`, `${numberPt(cPf + 100, 1)} pF`, `${numberPt(cPf * 2, 1)} pF`],
+                "A capacitância de placas paralelas é C = ε₀A/d, com A em m² e d em m."
+            ),
+            makeExercise(
+                `Um capacitor de ${numberPt(cPf, 1)} pF está submetido a ${capV} V. Qual carga aproximada Q = CV fica armazenada?`,
+                `${numberPt(qNc, 2)} nC`,
+                [`${numberPt(qNc * 10, 2)} nC`, `${numberPt(qNc / 10, 2)} nC`, `${numberPt(qNc + 1, 2)} nC`, `${numberPt(qNc * 2, 2)} nC`],
+                "Multiplique a capacitância em farads pela voltagem; 1 nC = 10⁻⁹ C."
+            ),
+            makeExercise(
+                `Um capacitor de ${numberPt(cPf, 1)} pF está ligado a uma fonte de ${capV} V. Se a voltagem dobrar e a capacitância não mudar, como fica a carga?`,
+                "Dobra",
+                ["Cai à metade", "Permanece igual", "Fica quatro vezes maior", "Muda de sinal"],
+                "Como Q = CV, a carga é diretamente proporcional à voltagem para capacitância fixa."
+            ),
+            makeExercise(
+                `Um circuito RC tem R = ${rKohm} kΩ e C = ${capacitanceMicroF} μF. Qual é a constante de tempo τ = RC?`,
+                `${tauMs} ms`,
+                [`${tauMs * 10} ms`, `${numberPt(tauMs / 10, 1)} ms`, `${rKohm + capacitanceMicroF} ms`, `${tauMs * 100} ms`],
+                "kΩ × μF resulta diretamente em milissegundos."
+            ),
+            makeExercise(
+                "Uma partícula neutra atravessa um campo elétrico uniforme ideal. Qual é a força elétrica resultante sobre ela?",
+                "Nula (F = 0)",
+                ["No sentido do campo", "No sentido oposto ao campo", "Depende apenas da massa", "F = E/q"],
+                "Como F = qE, uma partícula sem carga elétrica não sofre força elétrica."
+            ),
+            makeExercise(
+                "Uma carga positiva é colocada entre duas placas paralelas com campo elétrico uniforme. Em que sentido atua a força elétrica?",
+                "No mesmo sentido do campo elétrico",
+                ["No sentido oposto ao campo elétrico", "Perpendicular ao campo elétrico", "A força é sempre nula", "O sentido depende apenas da massa"],
+                "Como F = qE e q é positiva, a força tem o mesmo sentido do campo."
+            ),
+            makeExercise(
+                "Uma carga negativa é colocada entre duas placas paralelas. Como se orienta a força elétrica em relação ao campo?",
+                "No sentido oposto ao campo elétrico",
+                ["No mesmo sentido do campo elétrico", "Perpendicular ao campo elétrico", "A força é sempre nula", "O sentido depende apenas da velocidade"],
+                "Para q negativa, F = qE aponta no sentido contrário ao vetor campo elétrico."
+            ),
+            makeExercise(
+                "Mantendo a voltagem fixa, o que acontece com o campo elétrico entre placas paralelas quando a distância entre elas diminui?",
+                "O campo elétrico aumenta",
+                ["O campo elétrico diminui", "O campo elétrico permanece sempre nulo", "O campo muda de sentido", "A carga das placas necessariamente zera"],
+                "Pela relação E = V/d, reduzir d mantendo V aumenta o módulo de E."
+            ),
+            makeExercise(
+                "Para um capacitor ideal de placas paralelas, o que acontece com a capacitância se a área das placas aumentar, mantendo as demais condições?",
+                "A capacitância aumenta",
+                ["A capacitância diminui", "A capacitância não depende da área", "A capacitância torna-se nula", "A voltagem determina sozinha a capacitância"],
+                "C = ε₀A/d: a capacitância é diretamente proporcional à área das placas."
+            ),
+            makeExercise(
+                "Para um capacitor ideal de placas paralelas, o que acontece com a capacitância se a separação entre as placas aumentar?",
+                "A capacitância diminui",
+                ["A capacitância aumenta", "A capacitância não depende da separação", "A capacitância torna-se infinita", "A carga muda de sinal necessariamente"],
+                "C = ε₀A/d: a capacitância é inversamente proporcional à separação."
+            ),
+            makeExercise(
+                "Qual expressão representa a energia armazenada em um capacitor de capacitância C submetido à voltagem V?",
+                "U = ½CV²",
+                ["U = CV", "U = C/V", "U = ½C/V²", "U = V/C"],
+                "A energia eletrostática armazenada é U = ½CV²."
+            ),
+            makeExercise(
+                "Em um circuito RC inicialmente descarregado, aproximadamente que fração da carga final o capacitor alcança após um tempo τ = RC?",
+                "63%",
+                ["37%", "50%", "90%", "100%"],
+                "Na carga, q(t) = Qmáx(1 − e^(−t/τ)); em t = τ, isso corresponde a aproximadamente 63%."
+            ),
+            makeExercise(
+                "Em um circuito RC, se a resistência R dobrar e a capacitância C permanecer constante, o que acontece com τ = RC?",
+                "A constante de tempo dobra",
+                ["A constante de tempo cai à metade", "A constante de tempo permanece igual", "A constante de tempo quadruplica", "A constante de tempo torna-se zero"],
+                "A constante de tempo é diretamente proporcional a R quando C é fixa."
+            ),
+            makeExercise(
+                "Durante a descarga de um capacitor em um resistor, como varia a carga do capacitor com o tempo?",
+                "Diminui exponencialmente em direção a zero",
+                ["Aumenta linearmente sem limite", "Permanece constante", "Muda instantaneamente para um valor negativo", "Aumenta exponencialmente até dobrar"],
+                "Em uma descarga RC ideal, a carga decai como q(t) = Q₀e^(−t/RC)."
+            ),
+        ];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        selectedAnswer = null;
+        window.saveExerciseState?.();
+    }
+
+    function saveExerciseState() {
+        const form = Object.fromEntries(["studentGrade", "studentClass", "studentTrail", "studentNameSelect", "studentNameManual", "studentEmail", "schoolTerm", "finalConclusion", "conclusionText", "criticismInput", "suggestionInput"].map(id => [id, document.getElementById(id)?.value || ""]));
+        const view = !document.getElementById("conclusionStage").hidden
+            ? "conclusion"
+            : !document.getElementById("resultStage").hidden
+                ? "results"
+                : !document.getElementById("submissionStage").hidden ? "submission" : "exercise";
+        const state = { exercises, currentExercise, exerciseResults, skippedQuestions, currentExerciseAttempts, selectedAnswer, form, view };
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            const launcher = document.getElementById("openExercises");
+            if (launcher) launcher.textContent = "Continuar exercícios";
+        } catch (error) {
+            console.warn("Não foi possível salvar o progresso desta atividade.", error);
+        }
+    }
+
+    function restoreExerciseState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return false;
+            const state = JSON.parse(raw);
+            if (!state || !Array.isArray(state.exercises) || !state.exercises.length) return false;
+            exercises = state.exercises;
+            currentExercise = Math.max(0, Math.min(Number(state.currentExercise) || 0, exercises.length));
+            exerciseResults = Array.isArray(state.exerciseResults) ? state.exerciseResults : [];
+            skippedQuestions = Number(state.skippedQuestions) || 0;
+            currentExerciseAttempts = Number(state.currentExerciseAttempts) || 0;
+            selectedAnswer = state.selectedAnswer || null;
+            Object.entries(state.form || {}).forEach(([id, value]) => {
+                const field = document.getElementById(id);
+                if (field) field.value = value;
+            });
+            syncSelectedStudent();
+            return true;
+        } catch (error) {
+            console.warn("Não foi possível recuperar o progresso salvo.", error);
+            return false;
+        }
+    }
+
+    function updateExerciseProgress() {
+        const progressBar = document.getElementById("progressBar");
+        if (progressBar.children.length !== exercises.length) {
+            progressBar.innerHTML = exercises.map((_, index) => `<div class="progress-item" id="progress${index + 1}">${index + 1}</div>`).join("");
+        }
+        exercises.forEach((_, index) => {
+            const item = document.getElementById(`progress${index + 1}`);
+            const result = exerciseResults.find(entry => entry.exercise === index);
+            item.classList.toggle("active", index === currentExercise && currentExercise < exercises.length);
+            item.classList.toggle("completed", Boolean(result && result.correct));
+            item.classList.toggle("skipped", Boolean(result && result.skipped));
+        });
+    }
+
+    function showExercise() {
+        const stage = document.getElementById("exerciseStage");
+        const exercise = exercises[currentExercise];
+        if (!exercise) {
+            showConclusion();
+            return;
+        }
+        document.getElementById("conclusionStage").hidden = true;
+        document.getElementById("resultStage").hidden = true;
+        document.getElementById("submissionStage").hidden = true;
+        stage.hidden = false;
+        stage.innerHTML = `<div class="exercise-card"><h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3><p class="exercise-question">${exercise.question}</p><div class="options">${exercise.options.map((option, index) => `<button type="button" class="option${selectedAnswer === option ? " selected" : ""}" data-index="${index}">${option}</button>`).join("")}</div><p class="feedback" id="answerFeedback" aria-live="polite"></p><div class="button-row exercise-actions"><button id="checkAnswer">Verificar resposta</button><button id="skipQuestion" class="skip-question">Pular exercício</button></div></div>`;
+        stage.querySelectorAll(".option").forEach(button => button.addEventListener("click", () => {
+            selectedAnswer = exercise.options[Number(button.dataset.index)];
+            stage.querySelectorAll(".option").forEach(option => option.classList.toggle("selected", option === button));
+            saveExerciseState();
+        }));
+        document.getElementById("checkAnswer").addEventListener("click", checkAnswer);
+        document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+        updateExerciseProgress();
+        saveExerciseState();
+    }
+
+    function checkAnswer() {
+        if (!selectedAnswer) {
+            const feedback = document.getElementById("answerFeedback");
+            feedback.textContent = "Selecione uma alternativa antes de verificar.";
+            feedback.className = "feedback bad";
+            return;
+        }
+        const exercise = exercises[currentExercise];
+        const correct = selectedAnswer === exercise.answer;
+        currentExerciseAttempts++;
+        const feedback = document.getElementById("answerFeedback");
+        const optionButtons = document.querySelectorAll("#exerciseStage .option");
+        if (!correct) {
+            feedback.className = "feedback bad";
+            feedback.textContent = "Incorreto. Tente novamente.";
+            optionButtons.forEach(button => button.classList.remove("selected"));
+            selectedAnswer = null;
+            document.querySelector(".exercise-actions").innerHTML = '<button id="skipQuestion" class="skip-question">Pular exercício</button><button id="tryAgain" class="try-again">Tentar novamente</button>';
+            document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+            document.getElementById("tryAgain").addEventListener("click", () => {
+                feedback.textContent = "";
+                document.querySelector(".exercise-actions").innerHTML = '<button id="checkAnswer">Verificar resposta</button><button id="skipQuestion" class="skip-question">Pular exercício</button>';
+                document.getElementById("checkAnswer").addEventListener("click", checkAnswer);
+                document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+            });
+            saveExerciseState();
+            return;
+        }
+
+        exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, answer: selectedAnswer, expected: exercise.answer, question: exercise.question, attempts: currentExerciseAttempts });
+        currentExerciseAttempts = 0;
+        feedback.className = "feedback good";
+        feedback.textContent = `Correto! ${exercise.explanation}`;
+        optionButtons.forEach(button => {
+            button.disabled = true;
+            if (exercise.options[Number(button.dataset.index)] === exercise.answer) button.classList.add("correct");
+        });
+        currentExercise++;
+        selectedAnswer = null;
+        updateExerciseProgress();
+        saveExerciseState();
+        document.querySelector(".exercise-actions").innerHTML = "";
+        window.setTimeout(() => {
+            if (!document.getElementById("exerciseModal").classList.contains("open")) return;
+            if (currentExercise >= exercises.length) showConclusion();
+            else showExercise();
+        }, 1200);
+    }
+
+    function skipQuestion() {
+        if (!window.confirm("Deseja pular este exercício? A questão será registrada como incorreta.")) return;
+        exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, answer: selectedAnswer, expected: exercises[currentExercise].answer, question: exercises[currentExercise].question, attempts: currentExerciseAttempts });
+        skippedQuestions++;
+        currentExercise++;
+        currentExerciseAttempts = 0;
+        selectedAnswer = null;
+        updateExerciseProgress();
+        saveExerciseState();
+        if (currentExercise >= exercises.length) showConclusion();
+        else showExercise();
+    }
+
+    function showConclusion() {
+        document.getElementById("exerciseStage").hidden = true;
+        document.getElementById("resultStage").hidden = true;
+        document.getElementById("submissionStage").hidden = true;
+        document.getElementById("conclusionStage").hidden = false;
+        document.getElementById("conclusionText").value = document.getElementById("conclusionText").value || document.getElementById("finalConclusion").value;
+        updateExerciseProgress();
+        saveExerciseState();
+    }
+
+    function showResults() {
+        const conclusion = document.getElementById("conclusionText").value.trim();
+        if (!conclusion) {
+            document.getElementById("conclusionText").focus();
+            document.getElementById("conclusionFeedback").textContent = "Escreva sua conclusão antes de continuar.";
+            return;
+        }
+        document.getElementById("finalConclusion").value = conclusion;
+        document.getElementById("exerciseStage").hidden = true;
+        document.getElementById("conclusionStage").hidden = true;
+        const resultStage = document.getElementById("resultStage");
+        resultStage.hidden = false;
+        const correct = exerciseResults.filter(result => result.correct).length;
+        const percentage = exercises.length ? Math.round(correct / exercises.length * 100) : 0;
+        resultStage.innerHTML = `<div class="stage-card results-summary"><h3>Resultados dos exercícios</h3><p>Exercícios respondidos: <strong>${exerciseResults.length} de ${exercises.length}</strong></p><p>Respostas corretas: <strong>${correct}</strong></p><p>Exercícios pulados: <strong>${skippedQuestions}</strong></p><p>Nota: <strong>${percentage}%</strong></p><button id="continueToSubmission">Enviar resultados</button></div>`;
+        document.getElementById("submissionStage").hidden = true;
+        document.getElementById("continueToSubmission").addEventListener("click", () => {
+            document.getElementById("continueToSubmission").hidden = true;
+            document.getElementById("submissionStage").hidden = false;
+            saveExerciseState();
+        });
+        saveExerciseState();
+        resultStage.scrollIntoView({ block: "nearest" });
+    }
+
+    function restoreSavedView(view) {
+        if (view === "conclusion") showConclusion();
+        else if (view === "results") {
+            document.getElementById("conclusionText").value ||= document.getElementById("finalConclusion").value;
+            showResults();
+        } else if (view === "submission") {
+            document.getElementById("exerciseStage").hidden = true;
+            document.getElementById("conclusionStage").hidden = true;
+            showResults();
+            const continueButton = document.getElementById("continueToSubmission");
+            if (continueButton) continueButton.hidden = true;
+            document.getElementById("submissionStage").hidden = false;
+            updateExerciseProgress();
+            saveExerciseState();
+        } else showExercise();
+    }
+
+    function openExercisesModal() {
+        document.getElementById("exerciseModal").classList.add("open");
+        const restored = restoreExerciseState();
+        if (!restored) generateExercises();
+        if (currentExercise >= exercises.length && exercises.length) showConclusion();
+        else restoreSavedView(restored ? getSavedExerciseView() : "exercise");
+    }
+
+    function restartExercises() {
+        if (!window.confirm("Gerar novos dados e apagar o progresso atual dos exercícios?")) return;
+        resetAndRestartExercises(false);
+    }
+
+    function resetAndRestartExercises(confirmed = true) {
+        if (!confirmed && !window.confirm("Gerar novos dados e apagar o progresso atual dos exercícios?")) return;
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+            console.warn("Não foi possível apagar o progresso anterior.", error);
+        }
+        resetExerciseState();
+        document.getElementById("conclusionText").value = "";
+        document.getElementById("submissionStage").hidden = true;
+        document.getElementById("resultStage").hidden = true;
+        document.getElementById("conclusionStage").hidden = true;
+        document.getElementById("exerciseStage").hidden = false;
+        document.getElementById("emailStatus").textContent = "";
+        generateExercises();
+        showExercise();
+    }
+
+    function getSavedExerciseView() {
+        try {
+            const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+            return state?.view || "exercise";
+        } catch (error) {
+            console.warn("Não foi possível identificar a etapa salva dos exercícios.", error);
+            return "exercise";
+        }
+    }
+
+    function syncSelectedStudent() {
+        const select = document.getElementById("studentNameSelect");
+        const manual = document.getElementById("studentNameManual");
+        const other = select.value === "__OTHER__";
+        document.getElementById("studentNameManualRow").hidden = !other;
+        manual.required = other;
+        document.getElementById("studentName").value = other ? manual.value.trim() : select.value;
+    }
+
+    function validateSubmission() {
+        syncSelectedStudent();
+        const requiredFields = ["studentGrade", "studentClass", "schoolTerm", "finalConclusion", "studentName"];
+        const missing = requiredFields.some(id => !document.getElementById(id).value.trim());
+        if (missing || (document.getElementById("studentNameSelect").value === "__OTHER__" && !document.getElementById("studentNameManual").value.trim())) {
+            document.getElementById("emailStatus").textContent = "Preencha os campos obrigatórios: série, turma, nome, bimestre e conclusão.";
+            document.getElementById("emailStatus").className = "email-status feedback bad";
+            return false;
+        }
+        return true;
+    }
+
+    function sendResultsToSheet() {
+        if (!validateSubmission()) return;
+        if (typeof window.__simulationEnhancerSendResults !== "function") {
+            document.getElementById("emailStatus").textContent = "O serviço compartilhado de envio não está disponível. Verifique a conexão e tente novamente.";
+            document.getElementById("emailStatus").className = "email-status feedback bad";
+            console.error("Integração de envio do simulation-enhancer.js indisponível.");
+            return;
+        }
+        saveExerciseState();
+        return window.__simulationEnhancerSendResults();
+    }
+
+    function resetExerciseState() {
+        exercises = [];
+        currentExercise = 0;
+        exerciseResults = [];
+        skippedQuestions = 0;
+        currentExerciseAttempts = 0;
+        selectedAnswer = null;
+        try { localStorage.removeItem(STORAGE_KEY); }
+        catch (error) { console.warn("Não foi possível apagar o progresso salvo.", error); }
+        document.getElementById("openExercises").textContent = "Praticar: exercícios";
+    }
+
+    window.generateExercises = generateExercises;
+    window.saveExerciseState = saveExerciseState;
+    window.resetExerciseState = resetExerciseState;
+    window.resetAndRestartExercises = resetAndRestartExercises;
+    window.openExercisesModal = openExercisesModal;
+    window.sendResultsToSheet = sendResultsToSheet;
+    window.exercises = exercises;
+    window.addEventListener("DOMContentLoaded", () => {
+        setInitialValues();
+        updateParticleMeasurements();
+        updateCapacitor();
+        updateMode();
+        document.getElementById("openExercises").addEventListener("click", openExercisesModal);
+        document.getElementById("restartExercisesBtn").addEventListener("click", restartExercises);
+        document.getElementById("closeExercises").addEventListener("click", closeExerciseModal);
+        document.getElementById("submitConclusion").addEventListener("click", showResults);
+        document.getElementById("exerciseModal").addEventListener("click", event => {
+            if (event.target.id === "exerciseModal") closeExerciseModal();
+        });
+        document.getElementById("openSolved").addEventListener("click", () => document.getElementById("solvedModal").classList.add("open"));
+        document.getElementById("openTheory").addEventListener("click", () => document.getElementById("theoryModal").classList.add("open"));
+        document.querySelectorAll("[data-close-content]").forEach(button => button.addEventListener("click", () => {
+            button.closest(".content-backdrop").classList.remove("open");
+            stopExampleNarration();
+        }));
+        document.querySelectorAll("[data-example]").forEach(button => button.addEventListener("click", () => playExampleNarration(button)));
+        document.querySelectorAll(".content-backdrop").forEach(modal => modal.addEventListener("click", event => {
+            if (event.target === modal) {
+                modal.classList.remove("open");
+                stopExampleNarration();
+            }
+        }));
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                if (document.getElementById("exerciseModal").classList.contains("open")) closeExerciseModal();
+                document.querySelectorAll(".content-backdrop.open").forEach(modal => modal.classList.remove("open"));
+                stopExampleNarration();
+            }
+        });
+        document.getElementById("studentNameSelect").addEventListener("change", syncSelectedStudent);
+        document.getElementById("studentNameManual").addEventListener("input", syncSelectedStudent);
+        ["studentGrade", "studentClass", "studentTrail", "studentNameSelect", "studentNameManual", "studentEmail", "schoolTerm", "finalConclusion", "criticismInput", "suggestionInput"].forEach(id => {
+            document.getElementById(id).addEventListener("input", saveExerciseState);
+            document.getElementById(id).addEventListener("change", saveExerciseState);
+        });
+        document.getElementById("sendResults").addEventListener("click", sendResultsToSheet);
+        window.addEventListener("resize", () => { drawParticle(); drawCapacitor(); drawRc(); });
+    });
+</script>
+<script>
+    window.SIMULATION_ENHANCER_CONFIG = {
+        simulationName: "Campo Elétrico, Capacitores e Circuitos RC",
+        storageKey: "campo-eletrico-capacitores-circuitos-rc",
+        enableEnemQuestions: true
+    };
+    window.AI_TUTOR_CONFIG = {
+        enabled: true,
+        simulationKey: "circuitos-dc",
+        apiUrl: "https://tutor-ia-fisica-vrcy.onrender.com/api/tutor"
+    };
+</script>
+<script src="../_shared/student-access-config.js"></script>
+<script src="../_shared/enem-question-bank.js"></script>
+<script src="../_shared/simulation-enhancer.js"></script>
+<script src="../_shared/ai-tutor.js"></script>
+</body>
+</html>
