@@ -92,6 +92,7 @@
             display: flex; flex-wrap: wrap; gap: 7px;
             pointer-events: none;
         }
+        #particleView .hud { position: static; margin: 10px; }
         .pill { padding: 4px 9px; border-radius: 30px; background: #07101dcc; color: var(--cyan); font-size: .83rem; }
         .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
         .button-row button { flex: 1; min-width: 120px; }
@@ -234,7 +235,8 @@
                     <button id="pauseParticle" class="secondary">Pausar</button>
                     <button id="resetParticle" class="secondary">Reiniciar</button>
                 </div>
-                <p class="note">A trajetória é qualitativa, com sentido definido por a = qE/m. Ocultar as setas não desliga o campo; para campo nulo, ajuste V para zero. Sem velocidade inicial, a partícula parte do repouso.</p>
+                <p class="note">A trajetória é qualitativa, com sentido definido por a = qE/m. O campo atua apenas entre as placas; após sair, a partícula segue em linha reta, ou para ao atingir uma placa. Ocultar as setas não desliga o campo; para campo nulo, ajuste V para zero. Sem velocidade inicial, a partícula parte do repouso no centro entre as placas.</p>
+                <p class="note">Placas em perspectiva ilustrativa: a separação acompanha o controle de distância. Os sinais representam qualitativamente a carga nas placas, não uma contagem de elétrons; sua quantidade aumenta com V e diminui com d.</p>
             </div>
             <div id="capacitorView" class="mode-content" hidden>
                 <div class="scene">
@@ -245,6 +247,7 @@
                     <p><strong>C = ε₀A/d</strong> &nbsp; | &nbsp; <strong>Q = CV</strong></p>
                     <p id="capacitorEnergy">Energia armazenada: 0 J</p>
                 </div>
+                <p class="note">A perspectiva e a separação são ilustrativas, sem escala métrica. Os sinais representam qualitativamente Q = CV: mais tensão ou área aumenta a carga; mais distância a reduz. Cada sinal não corresponde a um elétron.</p>
             </div>
             <div id="rcView" class="mode-content" hidden>
                 <h3>Carga de um capacitor em circuito RC</h3>
@@ -255,7 +258,7 @@
                     <button id="playRc">Iniciar carga</button>
                     <button id="resetRc" class="secondary">Reiniciar circuito</button>
                 </div>
-                <p class="note">A curva mostra q(t)/Qmáx = 1 − e<sup>−t/τ</sup>. O circuito é idealizado para visualizar a carga inicial do capacitor.</p>
+                <p class="note">A curva mostra q(t)/Qmáx = 1 − e<sup>−t/τ</sup>, em tempo real, com τ = RC. A animação acompanha a carga até 5τ (cerca de 99,3%). Alterar R, C ou V reinicia a carga; R e C definem sua rapidez, enquanto V define a carga final.</p>
                 <p class="note">Monte e investigue circuitos no laboratório virtual PhET. A simulação incorporada abre o kit de construção de circuitos em português.</p>
                 <iframe id="phETFrame"
                     src="https://phet.colorado.edu/sims/html/circuit-construction-kit-ac-virtual-lab/latest/circuit-construction-kit-ac-virtual-lab_pt_BR.html"
@@ -366,7 +369,7 @@
             <div class="measurement"><small>Constante de tempo τ</small><strong id="rcTauDisplay">1,00 s</strong></div>
             <div class="measurement"><small>Carga final Q<sub>máx</sub></small><strong id="rcMaxChargeDisplay">900 μC</strong></div>
             <div class="measurement"><small>Carga atual q(t)</small><strong id="rcCurrentChargeDisplay">0%</strong></div>
-            <div class="measurement"><small>Relação fundamental</small><strong>τ = RC</strong></div>
+            <div class="measurement"><small>Tempo decorrido t</small><strong id="rcElapsedDisplay">0 s</strong></div>
         </div>
     </section>
 
@@ -588,7 +591,7 @@
     let lastFrameTime = 0;
     let particlePosition = null;
     let particleAnimationId = 0;
-    let rcElapsedNormalized = 0;
+    let rcElapsedSeconds = 0;
     let rcAnimationRunning = false;
     let rcLastFrameTime = 0;
     let rcAnimationId = 0;
@@ -653,23 +656,88 @@
         context.fill();
     }
 
+    function particlePlateGeometry(w, h) {
+        const gap = Number(document.getElementById("particleGapInput").value);
+        const separation = h * (.26 + .36 * (gap - .05) / .15);
+        return { left: w * .23, right: w * .78, top: (h - separation) / 2, bottom: (h + separation) / 2 };
+    }
+
+    function plateChargeCount(relativeCharge) {
+        return relativeCharge <= 0 ? 0 : Math.max(1, Math.round(24 * relativeCharge / (1 + relativeCharge)));
+    }
+
+    function drawPerspectivePlate(context, x, y, ux, uy, vx, vy, color, sign, count) {
+        context.save();
+        context.beginPath();
+        context.moveTo(x, y);
+        context.lineTo(x + ux, y + uy);
+        context.lineTo(x + ux + vx, y + uy + vy);
+        context.lineTo(x + vx, y + vy);
+        context.closePath();
+        context.fillStyle = color;
+        context.fill();
+        context.strokeStyle = "#e0edff";
+        context.lineWidth = 1.5;
+        context.stroke();
+        context.fillStyle = "#07111d";
+        context.font = "bold 14px Segoe UI";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        const columns = Math.max(1, Math.ceil(count / 3));
+        const rows = Math.ceil(count / columns);
+        for (let i = 0; i < count; i++) {
+            const u = (i % columns + .5) / columns;
+            const v = (Math.floor(i / columns) + .5) / rows;
+            context.fillText(sign, x + u * ux + v * vx, y + u * uy + v * vy);
+        }
+        context.restore();
+    }
+
+    function particleStateAt(time, w, h) {
+        const { left, right, top, bottom } = particlePlateGeometry(w, h);
+        const speed = document.getElementById("useInitialVelocity").checked ? Number(document.getElementById("velocityInput").value) * 55 : 0;
+        const qSign = Number(document.getElementById("chargeSelect").value);
+        const field = Number(document.getElementById("particleVoltageInput").value) / Number(document.getElementById("particleGapInput").value);
+        const acceleration = qSign * field / 125;
+        const startX = speed > 0 ? left - 32 : (left + right) / 2;
+        const startY = (top + bottom) / 2;
+        const entryTime = speed > 0 ? (left - startX) / speed : 0;
+        const exitTime = speed > 0 ? (right - startX) / speed : Infinity;
+        const collisionTime = acceleration === 0 ? Infinity : entryTime + Math.sqrt(2 * (startY - top - 10) / Math.abs(acceleration));
+        const collided = collisionTime <= exitTime && time >= collisionTime;
+        const t = collided ? collisionTime : time;
+        const fieldTime = Math.max(0, Math.min(t, exitTime) - entryTime);
+        const coastTime = Math.max(0, t - exitTime);
+        const x = startX + speed * t;
+        const y = startY + .5 * acceleration * fieldTime * fieldTime + acceleration * fieldTime * coastTime;
+        return {
+            x, y, acceleration,
+            inField: t >= entryTime && t < exitTime && !collided,
+            stopped: collided || x > w + 10 || y < -10 || y > h + 10 || (speed === 0 && acceleration === 0)
+        };
+    }
+
     function drawParticle() {
         const box = particleCanvas.getBoundingClientRect();
         if (!box.width) return;
         if (particleCanvas.width !== Math.round(box.width * Math.max(1, window.devicePixelRatio || 1))) resizeCanvas(particleCanvas, particleContext);
         const w = box.width, h = box.height;
         particleContext.clearRect(0, 0, w, h);
-        const top = h * .19, bottom = h * .81, left = w * .23, right = w * .78;
-        particleContext.fillStyle = "#ff7685";
-        particleContext.fillRect(left, top, right - left, 12);
-        particleContext.fillStyle = "#66baff";
-        particleContext.fillRect(left, bottom - 12, right - left, 12);
+        const { top, bottom, left, right } = particlePlateGeometry(w, h);
+        const depthX = w * .09, depthY = h * .09;
+        const voltage = Number(document.getElementById("particleVoltageInput").value);
+        const gap = Number(document.getElementById("particleGapInput").value);
+        const chargeCount = plateChargeCount(voltage / gap / 1200);
+        drawPerspectivePlate(particleContext, left - depthX / 2, top + depthY / 2, right - left, 0, depthX, -depthY, "#ff7685", "+", chargeCount);
+        drawPerspectivePlate(particleContext, left - depthX / 2, bottom + depthY / 2, right - left, 0, depthX, -depthY, "#66baff", "−", chargeCount);
         particleContext.fillStyle = "#fff";
         particleContext.font = "bold 18px Segoe UI";
-        particleContext.fillText("+", left + 8, top - 5);
-        particleContext.fillText("−", left + 8, bottom + 16);
-        particleContext.fillText("placa positiva", left + 34, top + 10);
-        particleContext.fillText("placa negativa", left + 34, bottom + 7);
+        particleContext.font = "14px Segoe UI";
+        particleContext.fillText(voltage > 0 ? "placa positiva" : "placa sem carga", left, top - depthY / 2 - 9);
+        particleContext.fillText(voltage > 0 ? "placa negativa" : "placa sem carga", left, bottom + depthY / 2 + 20);
+        particleContext.textAlign = "right";
+        particleContext.fillText(`d = ${numberPt(gap, 2)} m`, w - 10, h / 2);
+        particleContext.textAlign = "left";
 
         if (document.getElementById("showField").checked && Number(document.getElementById("particleVoltageInput").value) > 0) {
             for (let i = 0; i < 6; i++) {
@@ -680,15 +748,8 @@
         const launchWithVelocity = document.getElementById("useInitialVelocity").checked;
         if (particlePosition) {
             const qSign = Number(document.getElementById("chargeSelect").value);
-            const speed = launchWithVelocity ? Number(document.getElementById("velocityInput").value) : 0;
-            const gap = Number(document.getElementById("particleGapInput").value);
-            const voltage = Number(document.getElementById("particleVoltageInput").value);
-            const field = document.getElementById("showField").checked ? voltage / gap : 0;
-            const acceleration = qSign * field / 3000;
-            const t = particleTime;
-            const x = left - 32 + Math.min(right - left - 8, speed * t * 55);
-            const startY = (top + bottom) / 2;
-            const y = startY + (qSign === 0 ? 0 : acceleration * t * t * 12);
+            const state = particleStateAt(particleTime, w, h);
+            const { x, y, acceleration } = state;
             particlePosition = { x, y };
             particleContext.beginPath();
             particleContext.arc(x, y, 10, 0, Math.PI * 2);
@@ -702,15 +763,13 @@
             particleContext.textAlign = "center";
             particleContext.fillText(qSign > 0 ? "+" : qSign < 0 ? "−" : "0", x, y + 4);
             particleContext.textAlign = "left";
-            if (document.getElementById("showForce").checked && qSign !== 0 && field > 0) {
+            if (document.getElementById("showForce").checked && acceleration !== 0 && state.inField) {
                 drawArrow(particleContext, x, y, x, y + Math.sign(acceleration) * 48, "#ffd166", 3);
                 particleContext.fillStyle = "#ffd166";
                 particleContext.fillText("Fₑ", x + 7, y + Math.sign(acceleration) * 46);
             }
-            if (x > right - 6 || y < top + 20 || y > bottom - 20) {
+            if (state.stopped) {
                 animationRunning = false;
-                particlePosition = null;
-                particleTime = 0;
             }
         } else {
             particleContext.beginPath();
@@ -722,7 +781,7 @@
             particleContext.setLineDash([]);
         }
         document.getElementById("particleChargeHud").textContent = Number(document.getElementById("chargeSelect").value) === 0 ? "partícula neutra" : Number(document.getElementById("chargeSelect").value) > 0 ? "carga positiva" : "carga negativa";
-        document.getElementById("particleFieldHud").textContent = document.getElementById("showField").checked ? "campo elétrico ligado" : "campo elétrico oculto";
+        document.getElementById("particleFieldHud").textContent = Number(document.getElementById("particleVoltageInput").value) === 0 ? "campo elétrico nulo" : document.getElementById("showField").checked ? "campo elétrico ligado" : "campo ligado (setas ocultas)";
         document.getElementById("particleMotionHud").textContent = launchWithVelocity ? "velocidade inicial ligada" : "sem velocidade inicial";
     }
 
@@ -731,7 +790,7 @@
         if (lastFrameTime) particleTime += Math.min((timestamp - lastFrameTime) / 1000, .04);
         lastFrameTime = timestamp;
         drawParticle();
-        particleAnimationId = window.requestAnimationFrame(animateParticle);
+        if (animationRunning) particleAnimationId = window.requestAnimationFrame(animateParticle);
     }
 
     function updateParticleMeasurements() {
@@ -775,24 +834,25 @@
         if (capacitorCanvas.width !== Math.round(box.width * Math.max(1, window.devicePixelRatio || 1))) resizeCanvas(capacitorCanvas, capacitorContext);
         const w = box.width, h = box.height;
         capacitorContext.clearRect(0, 0, w, h);
-        const x1 = w * .25, x2 = w * .75, top = h * .27, bottom = h * .73;
-        capacitorContext.fillStyle = "#ff7180";
-        capacitorContext.fillRect(x1, top, 15, bottom - top);
-        capacitorContext.fillStyle = "#67baff";
-        capacitorContext.fillRect(x2, top, 15, bottom - top);
-        capacitorContext.font = "bold 21px Segoe UI";
-        capacitorContext.fillStyle = "#fff";
-        capacitorContext.fillText("+ + +", x1 - 5, top - 13);
-        capacitorContext.fillText("− − −", x2 - 11, top - 13);
+        const gapMm = Number(document.getElementById("plateGap").value);
+        const separation = w * (.16 + .36 * (gapMm - .5) / 4.5);
+        const x1 = (w - separation) / 2, x2 = (w + separation) / 2;
+        const top = h * .3, bottom = h * .72, depthX = w * .12, depthY = -h * .12;
         const voltage = Number(document.getElementById("capacitorVoltage").value);
+        const area = Number(document.getElementById("plateArea").value);
+        const charge = EPSILON_0 * area / (gapMm / 1000) * voltage;
+        const chargeCount = plateChargeCount(charge / (EPSILON_0 * .02 / .001 * 12));
+        drawPerspectivePlate(capacitorContext, x1 - depthX / 2, top - depthY / 2, 0, bottom - top, depthX, depthY, "#ff7180", "+", chargeCount);
+        drawPerspectivePlate(capacitorContext, x2 - depthX / 2, top - depthY / 2, 0, bottom - top, depthX, depthY, "#67baff", "−", chargeCount);
         const fieldLines = Math.min(9, Math.max(2, Math.round(voltage / 12)));
         for (let i = 0; i < fieldLines; i++) {
             const y = top + 25 + i * (bottom - top - 50) / Math.max(1, fieldLines - 1);
-            drawArrow(capacitorContext, x1 + 28, y, x2 - 16, y, "#6bdfffcc", 1.6);
+            drawArrow(capacitorContext, x1 + depthX / 2 + 4, y, x2 - depthX / 2 - 4, y, "#6bdfffcc", 1.6);
         }
         capacitorContext.fillStyle = "#bdc9df";
         capacitorContext.font = "14px Segoe UI";
-        capacitorContext.fillText("campo elétrico E", w * .39, h * .86);
+        capacitorContext.fillText(`d = ${numberPt(gapMm, 1)} mm`, w * .35, h * .84);
+        capacitorContext.fillText("campo elétrico E", w * .35, h * .91);
     }
 
     function drawRc() {
@@ -803,6 +863,8 @@
         rcContext.clearRect(0, 0, w, h);
         const midY = h * .34, left = w * .12, right = w * .48;
         const sourceX = left + 24;
+        const returnY = h * .66, sourceY = (midY + returnY) / 2;
+        const capacitorX = (left + right) / 2;
         rcContext.strokeStyle = "#dce8f6";
         rcContext.lineWidth = 3;
         rcContext.beginPath();
@@ -814,29 +876,36 @@
         rcContext.lineTo(sourceX + 53, midY + 14);
         rcContext.lineTo(sourceX + 67, midY);
         rcContext.lineTo(right, midY);
-        rcContext.lineTo(right, h * .66);
-        rcContext.lineTo(left, h * .66);
-        rcContext.closePath();
+        rcContext.lineTo(right, returnY);
+        rcContext.lineTo(capacitorX + 11, returnY);
+        rcContext.moveTo(capacitorX - 11, returnY);
+        rcContext.lineTo(left, returnY);
+        rcContext.lineTo(left, sourceY + 6);
+        rcContext.moveTo(left, sourceY - 6);
+        rcContext.lineTo(left, midY);
         rcContext.stroke();
         rcContext.beginPath();
-        rcContext.moveTo(left, midY - 19);
-        rcContext.lineTo(left, midY + 19);
-        rcContext.moveTo(left + 10, midY - 10);
-        rcContext.lineTo(left + 10, midY + 10);
+        rcContext.moveTo(left - 19, sourceY - 6);
+        rcContext.lineTo(left + 19, sourceY - 6);
+        rcContext.moveTo(left - 10, sourceY + 6);
+        rcContext.lineTo(left + 10, sourceY + 6);
         rcContext.stroke();
         rcContext.beginPath();
-        rcContext.moveTo(right - 11, h * .66 - 22);
-        rcContext.lineTo(right - 11, h * .66 + 22);
-        rcContext.moveTo(right + 11, h * .66 - 22);
-        rcContext.lineTo(right + 11, h * .66 + 22);
+        rcContext.moveTo(capacitorX - 11, returnY - 22);
+        rcContext.lineTo(capacitorX - 11, returnY + 22);
+        rcContext.moveTo(capacitorX + 11, returnY - 22);
+        rcContext.lineTo(capacitorX + 11, returnY + 22);
         rcContext.stroke();
         rcContext.fillStyle = "#fff";
         rcContext.font = "14px Segoe UI";
-        rcContext.fillText("V", left - 4, midY - 28);
+        rcContext.fillText("V", left - 25, sourceY + 5);
+        rcContext.fillText("+", left + 23, sourceY - 7);
+        rcContext.fillText("−", left + 23, sourceY + 15);
         rcContext.fillText("R", sourceX + 31, midY - 23);
-        rcContext.fillText("+", right - 6, h * .66 - 29);
-        rcContext.fillText("C", right + 19, h * .66 + 5);
-        rcContext.fillText("Circuito RC em série", left, h * .83);
+        rcContext.fillText("+", capacitorX + 13, returnY - 29);
+        rcContext.fillText("−", capacitorX - 20, returnY - 29);
+        rcContext.fillText("C", capacitorX - 5, returnY + 42);
+        rcContext.fillText("RC em série", left, h * .83);
 
         const graphLeft = w * .60, graphTop = h * .16, graphWidth = w * .33, graphHeight = h * .58;
         rcContext.strokeStyle = "#aebdd4";
@@ -848,9 +917,13 @@
         rcContext.stroke();
         rcContext.fillStyle = "#c4d2e7";
         rcContext.fillText("q/Qmáx", graphLeft - 3, graphTop - 7);
-        rcContext.fillText("t / τ", graphLeft + graphWidth - 5, graphTop + graphHeight + 23);
+        const tauSeconds = getRcTauSeconds();
+        const rcElapsedNormalized = rcElapsedSeconds / tauSeconds;
+        rcContext.fillText("t (s)", graphLeft + graphWidth - 20, graphTop + graphHeight + 42);
+        rcContext.fillText(numberPt(5 * tauSeconds, 2), graphLeft + graphWidth - 15, graphTop + graphHeight + 23);
         rcContext.setLineDash([4, 5]);
         const oneTauX = graphLeft + graphWidth / 5;
+        rcContext.fillText(`τ=${numberPt(tauSeconds, 2)} s`, oneTauX - 15, graphTop + graphHeight + 23);
         rcContext.beginPath();
         rcContext.moveTo(oneTauX, graphTop);
         rcContext.lineTo(oneTauX, graphTop + graphHeight);
@@ -878,6 +951,19 @@
         rcContext.fillStyle = "#ffd166";
         rcContext.fill();
         document.getElementById("rcCurrentChargeDisplay").textContent = `${Math.round(fraction * 100)}%`;
+        document.getElementById("rcElapsedDisplay").textContent = `${numberPt(rcElapsedSeconds, 2)} s`;
+    }
+
+    function getRcTauSeconds() {
+        return Number(document.getElementById("rcResistance").value) * Number(document.getElementById("rcCapacitance").value) / 1000;
+    }
+
+    function resetRc() {
+        rcAnimationRunning = false;
+        rcElapsedSeconds = 0;
+        rcLastFrameTime = 0;
+        window.cancelAnimationFrame(rcAnimationId);
+        updateRc();
     }
 
     function updateRc() {
@@ -952,10 +1038,10 @@
 
     function animateRc(timestamp) {
         if (!rcAnimationRunning) return;
-        if (rcLastFrameTime) rcElapsedNormalized += Math.min((timestamp - rcLastFrameTime) / 1000, .05) * .65;
+        if (rcLastFrameTime) rcElapsedSeconds += Math.min((timestamp - rcLastFrameTime) / 1000, .05);
         rcLastFrameTime = timestamp;
-        if (rcElapsedNormalized >= 5) {
-            rcElapsedNormalized = 5;
+        if (rcElapsedSeconds >= 5 * getRcTauSeconds()) {
+            rcElapsedSeconds = 5 * getRcTauSeconds();
             rcAnimationRunning = false;
         }
         drawRc();
@@ -969,7 +1055,7 @@
             document.getElementById(id).addEventListener("change", updateParticleMeasurements);
         });
         ["capacitorVoltage", "plateArea", "plateGap"].forEach(id => document.getElementById(id).addEventListener("input", updateCapacitor));
-        ["rcResistance", "rcCapacitance", "rcVoltage"].forEach(id => document.getElementById(id).addEventListener("input", updateRc));
+        ["rcResistance", "rcCapacitance", "rcVoltage"].forEach(id => document.getElementById(id).addEventListener("input", resetRc));
         document.getElementById("simulationMode").addEventListener("change", updateMode);
         document.getElementById("launchParticle").addEventListener("click", () => {
             particleTime = 0;
@@ -992,18 +1078,13 @@
             drawParticle();
         });
         document.getElementById("playRc").addEventListener("click", () => {
-            if (rcElapsedNormalized >= 5) rcElapsedNormalized = 0;
+            if (rcElapsedSeconds >= 5 * getRcTauSeconds()) rcElapsedSeconds = 0;
             rcAnimationRunning = true;
             rcLastFrameTime = 0;
             window.cancelAnimationFrame(rcAnimationId);
             rcAnimationId = window.requestAnimationFrame(animateRc);
         });
-        document.getElementById("resetRc").addEventListener("click", () => {
-            rcAnimationRunning = false;
-            rcElapsedNormalized = 0;
-            window.cancelAnimationFrame(rcAnimationId);
-            updateRc();
-        });
+        document.getElementById("resetRc").addEventListener("click", resetRc);
     }
 
     function shuffle(items) {
