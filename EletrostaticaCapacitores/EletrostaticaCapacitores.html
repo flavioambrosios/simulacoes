@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Simulação interativa de campo elétrico, placas paralelas, capacitores e circuitos RC.">
+    <!-- Metadados de autoria -->
+    <meta name="citation_title" content="Simulação: Campo Elétrico, Capacitores e Circuitos RC">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/EletrostaticaCapacitores/EletrostaticaCapacitores.html">
+    <meta name="description" content="Simulação didática de campo elétrico, placas paralelas, capacitores e circuitos RC, com animações interativas, exercícios e laboratório virtual PhET (University of Colorado Boulder) incorporado em um contexto pedagógico desenvolvido por Flavio Ambrosio Campos.">
+    <!-- Nota sobre o desenvolvimento:
+         Concepção e planejamento pedagógico: Flavio Ambrosio Campos.
+         Código assistido por ferramentas de IA sob supervisão humana. -->
     <title>Campo Elétrico, Capacitores e Circuitos RC</title>
     <style>
         :root {
@@ -189,7 +199,8 @@
         .theory-section ul { padding-left: 22px; }
         .theory-section li { margin: 6px 0; }
         .theory-formula { margin: 10px 0; padding: 11px; border-radius: 8px; background: #0005; text-align: center; font: 1.1rem "Courier New", monospace; }
-        footer { padding: 18px 8px; margin-top: 16px; text-align: center; color: var(--muted); font-size: .9rem; }
+        footer { padding: 20px; margin-top: 20px; text-align: center; background: rgba(0, 0, 0, .5); border-radius: 10px; color: #ccc; font-size: .9rem; }
+        footer a { color: #ffcc00; overflow-wrap: anywhere; }
         .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
         @media (max-width: 850px) {
             body { padding: 12px; }
@@ -265,6 +276,12 @@
                     title="Laboratório virtual PhET: construção de circuitos elétricos"
                     allowfullscreen
                     loading="lazy"></iframe>
+                <p style="margin-top: 10px; font-size: 0.9rem; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px;">
+                    <strong>Simulação interativa:</strong>
+                    <a href="https://phet.colorado.edu" target="_blank" rel="noopener noreferrer" style="color: #ffcc00;">PhET Interactive Simulations</a>,
+                    University of Colorado Boulder – Licenciado sob
+                    <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" style="color: #ffcc00;">CC BY 4.0</a>.
+                </p>
                 <div class="equation">
                     <p><strong>Circuito RC:</strong> τ = RC</p>
                     <p>Durante a carga, q(t) = Q<sub>máx</sub>(1 − e<sup>−t/τ</sup>). Explore a constante de tempo no PhET usando resistor e capacitor.</p>
@@ -378,7 +395,9 @@
         <p>Altere uma variável por vez. Na experiência das placas, compare cargas positivas, negativas e neutras; observe o que muda ao ligar o campo, a força e a velocidade inicial. No capacitor, acompanhe como área, separação e voltagem afetam C e Q. No modo RC, construa o circuito no PhET e observe a carga e descarga do capacitor.</p>
     </section>
 
-    <footer>Simulação didática de Física | Prof. Flávio Ambrósio | Atividade com acompanhamento de exercícios e progresso salvo neste dispositivo.</footer>
+    <footer>
+        <p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer">10.5281/zenodo.20737876</a> | Licença MIT | Prof. Flavio Ambrosio - CEAN</p>
+    </footer>
 </main>
 
 <div class="modal-backdrop" id="exerciseModal" role="dialog" aria-modal="true" aria-labelledby="exerciseTitle">
