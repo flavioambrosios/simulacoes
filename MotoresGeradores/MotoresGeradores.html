@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="citation_title" content="Simulação: Motores Elétricos e Geradores">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/MotoresGeradores/MotoresGeradores.html">
+    <meta name="description" content="Simulação interativa de motores CC, motores CA de indução e síncrono com ímãs permanentes e geradores CC e CA, com espiras em perspectiva, campo girante, forças magnéticas, torque e potência.">
+    <!-- Concepção pedagógica: Prof. Flavio Ambrosio Campos. Código assistido por IA sob supervisão humana. -->
+    <title>Motores Elétricos e Geradores</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #101729;
+            --panel: #1b2740;
+            --panel-soft: #24324e;
+            --text: #f4f7ff;
+            --muted: #bdc9df;
+            --accent: #ffd166;
+            --cyan: #66e3ff;
+            --green: #74e3a2;
+            --red: #ff7d88;
+        }
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        body {
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+            background: radial-gradient(circle at 10% 0%, #253c65, transparent 32%), linear-gradient(145deg, #101729, #18233b 55%, #211b37);
+            font: 16px/1.5 "Segoe UI", Tahoma, sans-serif;
+        }
+        button, input, select, textarea { font: inherit; }
+        button, select, input[type="text"], input[type="email"], textarea { color: #101729; }
+        button {
+            border: 0; border-radius: 9px; padding: 10px 14px;
+            background: var(--accent); color: #172033; font-weight: 700; cursor: pointer;
+        }
+        button:hover { filter: brightness(1.08); }
+        button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+            outline: 3px solid var(--cyan); outline-offset: 2px;
+        }
+        button:disabled { opacity: .65; cursor: wait; }
+        .page { max-width: 1260px; margin: 0 auto; }
+        header, .panel, .measurements, .lesson, .exercise-modal {
+            border: 1px solid rgba(255,255,255,.1); border-radius: 16px;
+            background: rgba(10,17,31,.78); box-shadow: 0 16px 42px rgba(0,0,0,.2);
+        }
+        header { padding: 22px; margin-bottom: 18px; text-align: center; }
+        h1 { margin: 0 0 5px; font-size: clamp(1.55rem, 4vw, 2.45rem); }
+        .subtitle, .note { color: var(--muted); }
+        .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, .8fr); gap: 18px; }
+        .panel { min-width: 0; padding: 18px; }
+        h2, h3 { margin-top: 0; }
+        h2 { font-size: 1.25rem; color: var(--accent); }
+        label { display: block; font-weight: 650; margin: 9px 0 5px; }
+        select, input[type="range"] { width: 100%; }
+        select, input[type="text"], input[type="email"], textarea {
+            padding: 9px 10px; border: 1px solid #c8d3e4; border-radius: 8px; background: #f5f7fb;
+        }
+        input[type="range"] { accent-color: var(--cyan); }
+        .control { padding: 8px 0 11px; border-bottom: 1px solid rgba(255,255,255,.08); }
+        .machine-pickers { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+        .machine-pickers > div { min-width: 0; }
+        .machine-pickers .control { padding-top: 0; border: 0; }
+        @media (max-width: 600px) { .machine-pickers { grid-template-columns: 1fr; } }
+        .value { color: var(--accent); font-weight: 750; }
+        .checkline { display: flex; align-items: center; gap: 9px; margin: 10px 0; }
+        .checkline input { width: 18px; height: 18px; accent-color: var(--cyan); }
+        .checkline label { margin: 0; }
+        .scene {
+            min-height: 520px; position: relative; overflow: hidden; border-radius: 12px;
+            border: 1px solid #405474; background: radial-gradient(ellipse at 50% 35%, #203b5a, #08111e 76%);
+        }
+        #machineCanvas { display: block; width: 100%; height: 520px; }
+        .hud {
+            margin: 10px;
+            display: flex; flex-wrap: wrap; gap: 7px; pointer-events: none;
+        }
+        .pill { padding: 4px 9px; border-radius: 30px; background: #07101dcc; color: var(--cyan); font-size: .83rem; }
+        .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .button-row button { flex: 1; min-width: 115px; }
+        .secondary { background: #d9e6ff; }
+        .measurements { margin-top: 18px; padding: 18px; }
+        .measurement-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; }
+        .measurement { min-width: 0; padding: 12px; border-radius: 10px; background: var(--panel); text-align: center; }
+        .measurement small { display: block; color: var(--muted); }
+        .measurement strong { display: block; color: var(--accent); font-size: 1.05rem; overflow-wrap: anywhere; }
+        .equation { margin-top: 12px; padding: 12px; background: #ffffff12; border-radius: 10px; text-align: center; }
+        .equation p { margin: 4px 0; }
+        .note { font-size: .93rem; }
+        .mode-content[hidden] { display: none; }
+        .lesson { margin-top: 18px; padding: 18px; }
+        .lesson details { margin-top: 10px; padding: 11px 13px; border-radius: 9px; background: #ffffff10; }
+        .lesson summary { color: var(--cyan); font-weight: 700; cursor: pointer; }
+        .lesson li { margin: 6px 0 6px 20px; }
+        .exercise-launch { display: grid; gap: 8px; margin-top: 16px; }
+        .modal-backdrop, .content-backdrop {
+            display: none; position: fixed; inset: 0; z-index: 20;
+            align-items: center; justify-content: center; padding: 14px; background: rgba(0,0,0,.78);
+        }
+        .modal-backdrop.open, .content-backdrop.open { display: flex; }
+        .exercise-modal { width: min(880px, 100%); max-height: 94vh; overflow: auto; padding: 20px; background: #121b2d; }
+        .modal-header, .content-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .modal-header h2, .content-modal-header h2 { margin: 0; }
+        .progress-track { display: flex; gap: 5px; margin: 14px 0; }
+        .progress-item {
+            flex: 1; min-width: 20px; padding: 7px 3px; border-radius: 5px; background: rgba(255,255,255,.1);
+            color: var(--text); text-align: center; font-weight: 700;
+        }
+        .progress-item.active { background: rgba(255,209,102,.32); color: var(--accent); }
+        .progress-item.completed { background: rgba(116,227,162,.25); color: var(--green); }
+        .progress-item.skipped { background: rgba(255,125,136,.22); color: var(--red); }
+        .exercise-card, .stage-card { margin: 12px 0; padding: 14px; background: rgba(255,255,255,.08); border-radius: 10px; }
+        .exercise-card h3 { color: var(--accent); margin: 0 0 10px; text-align: center; }
+        .exercise-question { text-align: center; margin: 10px 0 14px; }
+        .options { display: grid; gap: 8px; margin: 14px 0; }
+        .option { width: 100%; text-align: center; color: var(--text); background: #293852; border: 1px solid #485c7b; }
+        .option.selected { border-color: var(--cyan); background: #1b5062; }
+        .option.correct { background: rgba(0,255,0,.16); border-color: var(--green); }
+        .feedback { min-height: 1.5em; margin: 10px 0; }
+        .feedback.good { color: var(--green); }
+        .feedback.bad { color: var(--red); }
+        .exercise-actions { justify-content: center; }
+        .exercise-actions button { flex: 1; }
+        .skip-question { background: #65738a; color: white; }
+        .try-again { background: #2d4774; color: white; }
+        .stage-card textarea { width: 100%; resize: vertical; }
+        .stage-card .results-summary { line-height: 1.8; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px 14px; }
+        .form-row { min-width: 0; }
+        .form-row.full { grid-column: 1 / -1; }
+        .form-row label { margin-top: 5px; }
+        .required::after { content: " *"; color: var(--red); }
+        .email-status { margin: 10px 0; min-height: 1.4em; }
+        .content-backdrop { z-index: 25; }
+        .content-modal {
+            width: min(900px,100%); max-height: 94vh; overflow: auto; padding: 20px;
+            border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: #121b2d;
+            box-shadow: 0 16px 42px rgba(0,0,0,.35);
+        }
+        .content-modal-header { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); }
+        .solved-exercise, .theory-section { margin: 14px 0; padding: 15px; border-radius: 10px; background: #ffffff12; }
+        .solved-exercise h3, .theory-section h3 { margin: 0 0 9px; color: var(--accent); }
+        .solution-step { margin: 7px 0; padding: 9px 11px; border-radius: 7px; background: #ffffff0b; }
+        .solution-answer { color: var(--green); font-weight: 750; }
+        .narration-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 11px; }
+        .narration-controls button { min-width: 132px; }
+        .narration-status { color: var(--muted); font-size: .9rem; }
+        .theory-formula { margin: 10px 0; padding: 11px; border-radius: 8px; background: #0005; text-align: center; font: 1.05rem "Courier New", monospace; overflow-wrap: anywhere; }
+        footer { padding: 20px; margin-top: 20px; text-align: center; background: rgba(0,0,0,.5); border-radius: 10px; color: #ccc; font-size: .9rem; }
+        footer a { color: #ffcc00; overflow-wrap: anywhere; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+        @media (max-width: 850px) {
+            body { padding: 12px; }
+            .layout { grid-template-columns: 1fr; }
+            .scene { min-height: 480px; }
+            #machineCanvas { height: 480px; }
+        }
+        @media (max-width: 560px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-row.full { grid-column: auto; }
+            .modal-header, .content-modal-header { align-items: flex-start; }
+            .exercise-modal, .content-modal { padding: 14px; }
+            .progress-item { padding: 6px 1px; font-size: .82rem; }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <header>
+        <h1>Motores Elétricos e Geradores</h1>
+        <p class="subtitle">Compare como a corrente produz rotação e como a rotação produz corrente.</p>
+    </header>
+
+    <div class="layout">
+        <section class="panel" aria-labelledby="visual-title">
+            <h2 id="visual-title">Máquina elétrica em perspectiva</h2>
+            <div class="machine-pickers">
+            <div>
+            <label for="simulationMode">Escolha o modelo</label>
+            <select id="simulationMode">
+                <option value="pmMotor">Motor CC — ímã permanente</option>
+                <option value="woundMotor">Motor CC — campo bobinado</option>
+                <option value="inductionMotor">Motor CA — indução (trifásico)</option>
+                <option value="synchronousMotor">Motor CA — síncrono com ímãs permanentes</option>
+                <option value="dcGenerator">Gerador CC — comutador</option>
+                <option value="acGenerator">Gerador CA — anéis coletores</option>
+            </select>
+            </div>
+            <div>
+                <div class="control" id="coilCountControl">
+                    <label for="coilCount">Bobinas comutadas igualmente espaçadas</label>
+                    <select id="coilCount">
+                        <option value="1">1 — maior ondulação</option>
+                        <option value="2">2</option>
+                        <option value="4">4 — saída mais uniforme</option>
+                    </select>
+                    <small id="coilCountNote" class="note">Cada bobina tem N espiras. Mais bobinas aumentam o total de espiras e reduzem a ondulação.</small>
+                </div>
+                <div class="control" id="acCoilCountControl" hidden>
+                    <label for="acCoilCount">Bobinas do estator trifásico (total)</label>
+                    <select id="acCoilCount">
+                        <option value="3">3 — uma por fase</option>
+                        <option value="6">6 — duas por fase</option>
+                        <option value="9">9 — três por fase</option>
+                    </select>
+                    <small class="note">Três fases A, B e C. Total N de espiras por fase redistribuído entre as bobinas, sem mudar o acoplamento ou os cálculos. Disposição explodida ilustrativa; mínimo de três espiras por fase.</small>
+                </div>
+                <div class="control" id="singleCoilControl" hidden>
+                    <label for="singleCoil">Bobina do gerador CA monofásico</label>
+                    <select id="singleCoil" disabled><option>1 — ligada a dois anéis coletores</option></select>
+                </div>
+            </div>
+            </div>
+            <div class="scene">
+                <canvas id="machineCanvas" aria-label="Vista em perspectiva da máquina elétrica, das forças magnéticas e dos gráficos sincronizados"></canvas>
+                <div class="hud">
+                    <span class="pill" id="modeHud">Motor CC — ímã permanente</span>
+                    <span class="pill" id="fieldHud">Campo ligado</span>
+                    <span class="pill" id="connectionHud">Comutador segmentado</span>
+                    <span class="pill" id="instantCurrentHud">Corrente instantânea</span>
+                    <span class="pill" id="timeHud">Tempo simulado: 0 s</span>
+                </div>
+            </div>
+            <div class="button-row">
+                <button id="runButton">Iniciar</button>
+                <button id="pauseButton" class="secondary">Pausar</button>
+                <button id="resetButton" class="secondary">Reiniciar</button>
+            </div>
+            <p class="note">O eixo vertical é fixo; o rotor gira ao seu redor em perspectiva. Cada contorno de cobre representa uma espira. Setas cianas mostram <strong>B</strong>, amarelas a corrente convencional e verdes a força magnética <strong>F</strong>. O vetor violeta <strong>τ</strong> fica ao longo do eixo, com sentido pela regra da mão direita: ele representa torque, não velocidade angular. Fios de cobre ligam bobinas aos contatos nos modelos com escovas. As setas indicam sentidos, sem escala de comprimento. Nos modelos CC e geradores, o gráfico indica o ângulo instantâneo; na indução, a velocidade do rotor; no síncrono, o ângulo de carga δ.</p>
+            <p class="note">Os pontos azuis com sinal − representam elétrons nos condutores, com deriva oposta à corrente convencional e oscilação em CA. Seu deslocamento é ilustrativo, não uma velocidade microscópica real; não se representa a força de Lorentz sobre cada elétron. O controle de câmera lenta reduz o avanço do tempo simulado, sem alterar os valores físicos de rpm, frequência, torque ou potência. Pausar congela também os elétrons.</p>
+            <p class="note" id="dynamicModelNote"><strong>Modelo didático:</strong> bobinas ideais e campo uniforme; no motor, integração da dinâmica de rotação com inércia fixa J = 0,025 kg·m² e perdas de atrito declaradas. A partida depende de o torque superar a carga: com poucas espiras, reduza o torque resistente. O gerador gira a rotação escolhida e alimenta carga resistiva. Valores representam um modelo simplificado, não especificações de uma máquina comercial.</p>
+            <p class="note" id="synchronousNote" hidden><strong>Exceção — motor síncrono:</strong> este modo representa apenas o regime permanente após uma partida controlada por inversor, não a partida direta na rede. Ao iniciar, o rotor já acompanha o campo. Aumentar a carga aumenta δ, não a rotação, enquanto houver margem de torque. Se a carga superar o limite, a proteção ideal desliga a alimentação e encerra a experiência; o transitório de perda de sincronismo não é simulado. Alterar parâmetros reinicia este modo.</p>
+        </section>
+
+        <aside class="panel" aria-labelledby="controls-title">
+            <h2 id="controls-title">Parâmetros e carga</h2>
+            <div class="control">
+                <label for="fieldStrength">Campo de referência B: <span class="value" id="fieldStrengthValue"></span> T</label>
+                <input id="fieldStrength" type="range" min="0.1" max="1.2" value="0.6" step="0.1">
+            </div>
+            <div id="fieldCurrentControl" class="control" hidden>
+                <label for="fieldExcitation">Excitação do campo bobinado: <span class="value" id="fieldExcitationValue"></span>%</label>
+                <input id="fieldExcitation" type="range" min="0" max="100" value="70" step="5">
+                <small class="note">Percentual do campo de referência; equivale ao ajuste da corrente de campo.</small>
+            </div>
+            <div class="control">
+                <label for="turnsInput"><span id="turnsLabel">Espiras por bobina N</span>: <span class="value" id="turnsValue"></span></label>
+                <input id="turnsInput" type="range" min="1" max="10" value="6" step="1">
+            </div>
+            <div class="control">
+                <label for="areaInput">Área da bobina A: <span class="value" id="areaValue"></span> cm²</label>
+                <input id="areaInput" type="range" min="10" max="200" value="80" step="5">
+            </div>
+            <div class="control">
+                <label for="timeScale">Velocidade da animação</label>
+                <select id="timeScale">
+                    <option value="1">1× — tempo real</option>
+                    <option value="0.1">0,1× — 10 vezes mais lenta</option>
+                    <option value="0.02" selected>0,02× — 50 vezes mais lenta</option>
+                    <option value="0.005">0,005× — 200 vezes mais lenta</option>
+                </select>
+                <small class="note">Câmera lenta aplicada ao tempo simulado, inclusive campo, elétrons e dinâmica. As leituras continuam em unidades físicas.</small>
+            </div>
+            <div id="motorControls" class="mode-content">
+                <div class="control">
+                    <label for="supplyVoltage">Tensão da fonte V: <span class="value" id="supplyVoltageValue"></span> V</label>
+                    <input id="supplyVoltage" type="range" min="0" max="24" value="12" step="1">
+                </div>
+                <div class="control">
+                    <label for="armatureResistance">Resistência da armadura R: <span class="value" id="armatureResistanceValue"></span> Ω</label>
+                    <input id="armatureResistance" type="range" min="1" max="20" value="4" step="0.5">
+                </div>
+                <div class="control">
+                    <label for="loadTorque">Torque resistente da carga: <span class="value" id="loadTorqueValue"></span> N·m</label>
+                    <input id="loadTorque" type="range" min="0" max="0.1" value="0.005" step="0.001">
+                </div>
+                <div id="inductionControls" hidden>
+                    <div class="control">
+                        <label for="supplyFrequency">Frequência trifásica: <span class="value" id="supplyFrequencyValue"></span> Hz</label>
+                        <input id="supplyFrequency" type="range" min="5" max="60" value="30" step="1">
+                    </div>
+                    <p class="note" id="acMotorNote">Estator de dois polos: n<sub>s</sub> = 120f/2. O campo gira mais rápido que o rotor durante a operação como motor. N representa o total efetivo de espiras por fase do estator; o rotor é uma gaiola, sem escovas. Campo B ajustado independentemente da frequência, como em uma alimentação controlada.</p>
+                </div>
+                <div id="synchronousControls" hidden>
+                    <div class="control">
+                        <label for="synchronousCurrent">Corrente eficaz por fase: <span class="value" id="synchronousCurrentValue"></span> A</label>
+                        <input id="synchronousCurrent" type="range" min="0.5" max="5" value="3" step="0.5">
+                    </div>
+                    <p class="note">B representa o campo de referência dos ímãs do rotor. N e A são o total de espiras e a área efetiva por fase do estator. O inversor ideal controla a corrente trifásica. Não há corrente de alimentação no rotor nem escovas.</p>
+                </div>
+            </div>
+            <div id="generatorControls" class="mode-content" hidden>
+                <div class="control">
+                    <label for="generatorSpeed">Rotação imposta pelo eixo: <span class="value" id="generatorSpeedValue"></span> rpm</label>
+                    <input id="generatorSpeed" type="range" min="0" max="1800" value="600" step="50">
+                </div>
+                <div class="control">
+                    <label for="generatorCoilResistance">Resistência interna da bobina: <span class="value" id="generatorCoilResistanceValue"></span> Ω</label>
+                    <input id="generatorCoilResistance" type="range" min="1" max="20" value="3" step="0.5">
+                </div>
+                <div class="control">
+                    <label for="loadResistance">Resistência da carga: <span class="value" id="loadResistanceValue"></span> Ω</label>
+                    <input id="loadResistance" type="range" min="5" max="100" value="20" step="1">
+                </div>
+            </div>
+            <div class="checkline">
+                <input id="fieldOn" type="checkbox" checked>
+                <label for="fieldOn" id="fieldOnLabel">Campo magnético ligado</label>
+            </div>
+            <div class="checkline"><input id="showField" type="checkbox" checked><label for="showField">Mostrar setas de campo</label></div>
+            <div class="checkline"><input id="showForces" type="checkbox" checked><label for="showForces">Mostrar forças magnéticas e torque</label></div>
+            <div class="checkline"><input id="showStructure" type="checkbox" checked><label for="showStructure">Mostrar ímãs, núcleos, espiras e contatos</label></div>
+            <div class="checkline"><input id="showElectrons" type="checkbox" checked><label for="showElectrons">Mostrar elétrons nos condutores</label></div>
+            <p class="note">Para destacar apenas campo e elétrons, oculte a estrutura e as forças. Os elétrons permanecem nos trajetos dos condutores, mesmo com os fios ocultos.</p>
+            <div class="equation" id="motorEquation">
+                <p><strong>Motor:</strong> ε<sub>b</sub> = k(θ)ω; I = (V − ε<sub>b</sub>)/R; τ = k(θ)I</p>
+                <p><strong>Conversão:</strong> ε<sub>b</sub>I = τω; τ<sub>líquido</sub> = Jα</p>
+                <p>n bobinas, cada uma com N espiras: k(θ) = nNBA·g(θ), com g sendo a média de |sen θ| das bobinas. F = NBIL em cada lado ativo da bobina quadrada (L = √A).</p>
+            </div>
+            <div class="equation" id="generatorEquation" hidden>
+                <p><strong>Indução:</strong> ε<sub>pico</sub> = NBAω; ω = 2π·rpm/60</p>
+                <p><strong>Carga resistiva:</strong> P<sub>carga</sub> = I<sub>rms</sub>²R<sub>carga</sub>; perdas de cobre = I<sub>rms</sub>²R<sub>bobina</sub>.</p>
+                <p>No gerador CC, as contribuições retificadas de n bobinas são somadas idealmente: ε(θ) = nNBAω·g(θ). A resistência escolhida é a resistência interna total.</p>
+            </div>
+            <div class="equation" id="inductionEquation" hidden>
+                <p><strong>Indução:</strong> ω<sub>s</sub> = 2πf (dois polos); s = (ω<sub>s</sub> − ω)/ω<sub>s</sub>.</p>
+                <p>P<sub>entreferro</sub> = τω<sub>s</sub>; P<sub>rotor</sub> = sP<sub>entreferro</sub>; P<sub>convertida</sub> = τω.</p>
+                <p>Modelo equivalente simplificado: R<sub>rotor</sub> = 4 Ω, X<sub>rotor</sub> = 1,5(f/30) Ω. Perdas e corrente de magnetização do estator desprezadas; a corrente mostrada é a induzida no rotor.</p>
+            </div>
+            <div class="equation" id="synchronousEquation" hidden>
+                <p><strong>Síncrono, dois polos:</strong> ω = ω<sub>s</sub> = 2πf; n = 60f rpm; s = 0.</p>
+                <p><strong>Modelo efetivo de torque:</strong> τ = τ<sub>máx</sub> sen δ; τ<sub>máx</sub> = 3NBAI<sub>fase</sub>. Em equilíbrio, τ = τ<sub>carga</sub> + τ<sub>atrito</sub>.</p>
+                <p>P<sub>entrada</sub> = τω + 3I<sub>fase</sub>²R<sub>fase</sub>; R<sub>fase</sub> = 1 Ω. O fator 3 e a área efetiva simplificam a distribuição trifásica; não se modelam saturação, perdas no ferro ou no inversor.</p>
+            </div>
+            <div class="exercise-launch">
+                <button id="openExercises">Praticar: exercícios</button>
+                <button id="openSolved" class="secondary">Ver exemplos resolvidos</button>
+                <button id="openTheory" class="secondary">Teoria essencial</button>
+            </div>
+        </aside>
+    </div>
+
+    <section class="measurements" aria-labelledby="measure-title">
+        <h2 id="measure-title">Leituras instantâneas e potências</h2>
+        <div class="measurement-grid" id="motorMeasurements">
+            <div class="measurement"><small>Rotação ω</small><strong id="motorSpeedDisplay">0 rad/s</strong></div>
+            <div class="measurement"><small id="motorCurrentLabel">Corrente I</small><strong id="motorCurrentDisplay">0 A</strong></div>
+            <div class="measurement" id="backEmfMeasurement"><small>Força contraeletromotriz ε<sub>b</sub></small><strong id="motorBackEmfDisplay">0 V</strong></div>
+            <div class="measurement"><small>Torque eletromagnético τ</small><strong id="motorTorqueDisplay">0 N·m</strong></div>
+            <div class="measurement" id="forceMeasurement"><small>Força por lado ativo (uma bobina)</small><strong id="motorForceDisplay">0 N</strong></div>
+            <div class="measurement"><small id="motorInputLabel">Potência elétrica da fonte VI</small><strong id="motorInputPowerDisplay">0 W</strong></div>
+            <div class="measurement"><small>Conversão eletromecânica τω</small><strong id="motorConvertedPowerDisplay">0 W</strong></div>
+            <div class="measurement"><small>Potência útil na carga τ<sub>carga</sub>ω</small><strong id="motorLoadPowerDisplay">0 W</strong></div>
+            <div class="measurement"><small id="motorCopperLabel">Perda no cobre I²R</small><strong id="motorCopperLossDisplay">0 W</strong></div>
+            <div class="measurement"><small>Energia cinética rotacional</small><strong id="motorKineticDisplay">0 J</strong></div>
+            <div class="measurement" id="accelerationMeasurement"><small>Aceleração angular</small><strong id="motorAccelerationDisplay">0 rad/s²</strong></div>
+            <div class="measurement" id="slipMeasurement" hidden><small>Escorregamento s</small><strong id="slipDisplay">100%</strong></div>
+            <div class="measurement" id="syncMeasurement" hidden><small>Rotação do campo</small><strong id="syncSpeedDisplay">0 rpm</strong></div>
+            <div class="measurement" id="synchronousStatusMeasurement" hidden><small>Estado do motor síncrono</small><strong id="synchronousStatusDisplay">Pronto</strong></div>
+            <div class="measurement" id="loadAngleMeasurement" hidden><small>Ângulo de carga δ</small><strong id="loadAngleDisplay">0°</strong></div>
+            <div class="measurement" id="maxTorqueMeasurement" hidden><small>Limite de torque síncrono</small><strong id="maxTorqueDisplay">0 N·m</strong></div>
+        </div>
+        <div class="measurement-grid" id="generatorMeasurements" hidden>
+            <div class="measurement"><small>Velocidade angular ω</small><strong id="generatorOmegaDisplay">0 rad/s</strong></div>
+            <div class="measurement"><small>Frequência f</small><strong id="generatorFrequencyDisplay">0 Hz</strong></div>
+            <div class="measurement"><small>Escala de fem nNBAω (pico no gerador CA)</small><strong id="generatorPeakDisplay">0 V</strong></div>
+            <div class="measurement"><small>Tensão nos terminais</small><strong id="generatorVoltageDisplay">0 V</strong></div>
+            <div class="measurement"><small>Corrente na carga</small><strong id="generatorCurrentDisplay">0 A</strong></div>
+            <div class="measurement"><small>Potência elétrica útil</small><strong id="generatorLoadPowerDisplay">0 W</strong></div>
+            <div class="measurement"><small>Perdas de cobre</small><strong id="generatorCopperLossDisplay">0 W</strong></div>
+            <div class="measurement"><small>Potência mecânica no eixo</small><strong id="generatorShaftPowerDisplay">0 W</strong></div>
+            <div class="measurement"><small>Torque resistente no eixo</small><strong id="generatorShaftTorqueDisplay">0 N·m</strong></div>
+            <div class="measurement"><small>Eficiência (modelo)</small><strong id="generatorEfficiencyDisplay">0%</strong></div>
+        </div>
+    </section>
+    <section class="lesson">
+        <h2>Como investigar</h2>
+        <p>Altere um parâmetro de cada vez. No motor, observe a corrente de partida, a força contraeletromotriz, o efeito da carga e o balanço de potência durante a aceleração. No gerador, compare rotação, fluxo magnético, resistência da carga e a forma de onda. Alterne entre uma e várias bobinas para observar a ondulação.</p>
+        <p>No motor CA de indução, compare a rotação do campo com a do rotor e observe o escorregamento. Aumente a carga e investigue como a velocidade se altera. A alimentação é trifásica: não é um motor monofásico ligado diretamente a uma tomada.</p>
+        <p>No motor síncrono com ímãs, altere a frequência e compare a rotação do campo e do rotor. Ajuste a carga e inicie novamente: a velocidade permanece síncrona e o ângulo δ aumenta até o limite de torque.</p>
+        <p class="note">Nos motores CC e de indução, a rotação é resultado da dinâmica. No síncrono, mostramos o equilíbrio após partida controlada; no gerador, a rotação é mantida pelo eixo externo. Os modelos usam balanços diferentes, explicitados nas equações.</p>
+    </section>
+    <footer>
+        <p>Simulação parte do repositório <strong>Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer">10.5281/zenodo.20737876</a> | Licença MIT | Prof. Flavio Ambrosio - CEAN</p>
+    </footer>
+</main>
+
+<div class="modal-backdrop" id="exerciseModal" role="dialog" aria-modal="true" aria-labelledby="exerciseTitle">
+    <section class="exercise-modal">
+        <div class="modal-header">
+            <h2 id="exerciseTitle">Atividade: motores e geradores</h2>
+            <div class="button-row"><button id="restartExercisesBtn" type="button" class="secondary">Reiniciar atividade</button><button id="closeExercises" type="button" class="secondary">Fechar</button></div>
+        </div>
+        <div class="progress-track" id="progressBar" aria-label="Progresso dos exercícios"></div>
+        <div id="exerciseContainer" aria-live="polite">
+            <div id="exerciseStage"></div>
+        </div>
+        <div id="conclusionStage" hidden>
+            <div class="stage-card">
+                <h3>Conclusão</h3>
+                <p>Compare o que acontece com a energia no motor e no gerador. Registre uma conclusão antes de ver o resultado.</p>
+                <label for="conclusionText">Conclusão sobre motores e geradores</label>
+                <textarea id="conclusionText" rows="4" placeholder="Explique a transformação de energia e o papel do campo magnético."></textarea>
+                <button id="submitConclusion" type="button">Finalizar exercícios</button>
+            </div>
+        </div>
+        <div id="resultStage" hidden></div>
+        <div id="submissionStage" hidden>
+            <div class="stage-card">
+                <h3>Identificação e envio</h3>
+                <p class="note">Os dados da atividade e sua conclusão serão enviados pelo serviço compartilhado.</p>
+                <div id="resultsContainer">
+                    <div class="email-form">
+                    <div class="form-grid">
+                        <div class="form-row"><label for="studentGrade" class="required">Série</label><select id="studentGrade" required><option value="">Selecione</option><option value="1o ano">1º ano</option><option value="2o ano">2º ano</option><option value="3o ano">3º ano</option></select></div>
+                        <div class="form-row"><label for="studentClass" class="required">Turma</label><select id="studentClass" required><option value="">Selecione</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I</option><option>J</option><option>K</option><option>L</option><option>M</option><option>N</option><option>O</option><option>P</option><option>Q</option><option>R</option><option>S</option></select></div>
+                        <div class="form-row full"><label for="studentTrail">Trilha</label><select id="studentTrail"><option value="Nenhuma (Turma de Física)">Nenhuma (Turma de Física)</option><option value="PCA - Educação Digital 3o ano E">PCA - Educação Digital 3o ano E</option><option value="PCA - Educação Digital 3o ano G">PCA - Educação Digital 3o ano G</option><option value="Sustentabilidade 2o ano C">Sustentabilidade 2o ano C</option><option value="Outra">Outra</option></select></div>
+                        <div class="form-row full"><label for="studentNameSelect" class="required">Nome na lista de alunos</label><select id="studentNameSelect" required><option value="">Selecione primeiro série e turma</option></select><input type="hidden" id="studentName"></div>
+                        <div class="form-row full" id="studentNameManualRow" hidden><label for="studentNameManual" class="required">Nome completo, se não estiver na lista</label><input type="text" id="studentNameManual"></div>
+                        <div class="form-row"><label for="schoolTerm" class="required">Bimestre</label><select id="schoolTerm" required><option value="">Selecione</option><option value="1o">1º bimestre</option><option value="2o">2º bimestre</option><option value="3o">3º bimestre</option><option value="4o">4º bimestre</option></select></div>
+                        <div class="form-row"><label for="studentEmail">E-mail para cópia (opcional)</label><input type="email" id="studentEmail" placeholder="seu@email.com"></div>
+                        <div class="form-row full"><label for="finalConclusion" class="required">Conclusão final</label><textarea id="finalConclusion" rows="4" required placeholder="O que você aprendeu sobre a conversão de energia?"></textarea></div>
+                        <div class="form-row"><label for="criticismInput">Críticas (opcional)</label><textarea id="criticismInput" rows="2"></textarea></div>
+                        <div class="form-row"><label for="suggestionInput">Sugestões (opcional)</label><textarea id="suggestionInput" rows="2"></textarea></div>
+                    </div>
+                    <div id="emailStatus" class="email-status" aria-live="polite"></div>
+                    <button id="sendResults" type="button">Enviar resultados</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="content-backdrop" id="solvedModal" role="dialog" aria-modal="true" aria-labelledby="solvedModalTitle">
+    <section class="content-modal">
+        <div class="content-modal-header"><h2 id="solvedModalTitle">Exercícios resolvidos</h2><button type="button" class="secondary" data-close-content>Fechar</button></div>
+        <p class="note">Acompanhe a resolução e use o áudio narrado pelo navegador.</p>
+        <article class="solved-exercise">
+            <h3>Exemplo 1 — torque de um motor</h3>
+            <p><strong>Problema:</strong> Uma bobina de 40 espiras, área 0,010 m² e campo 0,50 T conduz 2,0 A. Qual o torque máximo?</p>
+            <div class="solution-step"><strong>Relação:</strong> τ<sub>máx</sub> = N I A B</div>
+            <div class="solution-step"><strong>Substituição:</strong> τ = 40 × 2,0 × 0,010 × 0,50.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> τ<sub>máx</sub> = 0,40 N·m.</div>
+            <div class="narration-controls"><button type="button" data-example="1">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 2 — conversão de rpm</h3>
+            <p><strong>Problema:</strong> Um eixo gira a 600 rpm. Qual sua velocidade angular?</p>
+            <div class="solution-step"><strong>Relação:</strong> ω = 2π·rpm/60.</div>
+            <div class="solution-step"><strong>Substituição:</strong> ω = 2π × 600/60 = 20π rad/s.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> ω ≈ 62,8 rad/s.</div>
+            <div class="narration-controls"><button type="button" data-example="2">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 3 — potência mecânica</h3>
+            <p><strong>Problema:</strong> Um motor exerce 0,40 N·m a 50 rad/s. Qual a potência mecânica nesse eixo?</p>
+            <div class="solution-step"><strong>Relação:</strong> P = τω.</div>
+            <div class="solution-step"><strong>Substituição:</strong> P = 0,40 × 50.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> P = 20 W.</div>
+            <div class="narration-controls"><button type="button" data-example="3">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 4 — gerador e lei de Faraday</h3>
+            <p><strong>Problema:</strong> Uma bobina com 50 espiras, área 0,020 m² e B = 0,40 T gira a 30 rad/s. Determine a fem de pico.</p>
+            <div class="solution-step"><strong>Fluxo máximo enlaçado:</strong> NBA = 50 × 0,020 × 0,40 = 0,40 Wb.</div>
+            <div class="solution-step"><strong>Fem de pico:</strong> ε<sub>pico</sub> = NBAω = 0,40 × 30.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> ε<sub>pico</sub> = 12 V.</div>
+            <div class="narration-controls"><button type="button" data-example="4">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 5 — energia e perdas no motor</h3>
+            <p><strong>Problema:</strong> Um motor recebe 12 V e 2,0 A. A resistência da armadura é 1,0 Ω. Quanto da potência de entrada é convertido eletromecanicamente?</p>
+            <div class="solution-step"><strong>Entrada:</strong> P<sub>elétrica</sub> = VI = 12 × 2,0 = 24 W.</div>
+            <div class="solution-step"><strong>Perda de cobre:</strong> P<sub>cobre</sub> = I²R = 2,0² × 1,0 = 4 W.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> P<sub>convertida</sub> = 24 − 4 = 20 W = ε<sub>b</sub>I.</div>
+            <div class="narration-controls"><button type="button" data-example="5">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 6 — escorregamento do motor de indução</h3>
+            <p><strong>Problema:</strong> Um motor de dois polos recebe alimentação de 30 Hz e gira a 1710 rpm. Determine a velocidade síncrona e o escorregamento.</p>
+            <div class="solution-step"><strong>Campo girante:</strong> n<sub>s</sub> = 120f/p = 120 × 30/2 = 1800 rpm.</div>
+            <div class="solution-step"><strong>Escorregamento:</strong> s = (1800 − 1710)/1800 = 0,05.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> campo a 1800 rpm; s = 5%. A diferença de velocidade permite a indução de corrente no rotor.</div>
+            <div class="narration-controls"><button type="button" data-example="6">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+        <article class="solved-exercise">
+            <h3>Exemplo 7 — motor síncrono com ímãs permanentes</h3>
+            <p><strong>Problema:</strong> Um motor síncrono de dois polos opera a 30 Hz. Seu torque máximo é 0,40 N·m e a carga mais o atrito exigem 0,20 N·m. Determine a rotação, δ e a potência convertida.</p>
+            <div class="solution-step"><strong>Sincronismo:</strong> n = 60f = 1800 rpm; ω = 2πf ≈ 188,5 rad/s.</div>
+            <div class="solution-step"><strong>Ângulo:</strong> sen δ = 0,20/0,40 = 0,5; δ = 30°.</div>
+            <div class="solution-step solution-answer"><strong>Resposta:</strong> 1800 rpm, δ = 30° e P = τω ≈ 37,7 W. Aumentar a carga eleva δ, sem reduzir a velocidade enquanto o sincronismo for mantido.</div>
+            <div class="narration-controls"><button type="button" data-example="7">Ouvir explicação</button><span class="narration-status" aria-live="polite"></span></div>
+        </article>
+    </section>
+</div>
+
+<div class="content-backdrop" id="theoryModal" role="dialog" aria-modal="true" aria-labelledby="theoryModalTitle">
+    <section class="content-modal">
+        <div class="content-modal-header"><h2 id="theoryModalTitle">Teoria essencial: motores e geradores</h2><button type="button" class="secondary" data-close-content>Fechar</button></div>
+        <div class="theory-section"><h3>Força magnética e torque no motor CC</h3><p>Um fio com corrente em um campo magnético sofre força magnética. Nas duas laterais da bobina quadrada, as forças opostas F = NBIL, com L = √A, formam um torque. Para N espiras, o torque máximo é τ<sub>máx</sub> = N I A B; o sentido depende da corrente e do campo. A cada meia-volta, o comutador inverte a corrente na bobina para manter o torque no mesmo sentido médio. No modelo de comutação idealizada, n bobinas igualmente espaçadas somam contribuições: k(θ) = nNBA·g(θ), com g sendo a média dos módulos dos senos das posições das bobinas. Cada bobina possui N espiras desenhadas; aumentar n aumenta o total nN e reduz a ondulação relativa. A resistência de armadura escolhida é a resistência equivalente total.</p></div>
+        <div class="theory-section"><h3>Contraeletromotriz e energia no motor</h3><p>Ao girar, a bobina também induz uma tensão que se opõe à fonte. No modelo, ε<sub>b</sub> = k(θ)ω e I = (V − ε<sub>b</sub>)/R. A fonte entrega VI; parte aquece a armadura (I²R), e ε<sub>b</sub>I é convertida em potência mecânica. Durante aceleração, parte dessa conversão aumenta a energia cinética de rotação; a carga e o atrito recebem o restante.</p></div>
+        <div class="theory-section"><h3>Geradores e conexões</h3><p>A rotação muda o fluxo magnético através da bobina e induz fem (lei de Faraday): para uma bobina ideal, ε<sub>pico</sub> = NBAω. O comutador mecânico inverte as conexões a cada meia-volta e produz uma tensão unidirecional pulsante. Anéis coletores mantêm as conexões sem inversão e entregam tensão alternada. Mais bobinas comutadas e espaçadas reduzem a ondulação da saída CC.</p></div>
+        <div class="theory-section">
+            <h3>Como ler os vetores e os elétrons na animação</h3>
+            <p>O torque é um vetor axial: τ = r × F. Seu sentido é perpendicular ao plano das forças que formam o par e, nestes motores, coincide com o eixo vertical de rotação. A regra da mão direita define seu sentido. Não é a velocidade angular ω: pode haver torque com rotor parado, e o rotor pode continuar girando enquanto o torque eletromagnético é nulo ou contrário ao movimento. A seta violeta representa o torque eletromagnético, não o torque líquido após carga e atrito.</p>
+            <p>Elétrons de condução têm carga negativa e sua deriva é oposta à corrente convencional; em CA, oscilam, em vez de dar voltas contínuas em um único sentido. Os marcadores azuis seguem trajetos ilustrativos dos condutores. Na gaiola, as correntes fecham-se pelas barras e anéis em curto; no rotor de ímãs permanentes não há enrolamento alimentado. Não se calculam colisões microscópicas nem a trajetória individual de elétrons sob a força de Lorentz. O fluxo de energia e a força resultante na máquina não são uma reprodução ampliada desses pontos.</p>
+            <p>A estrutura começa visível. Para estudar campo e cargas, desmarque a estrutura e, se desejar, as forças. A opção de câmera lenta afeta o tempo simulado de toda a máquina: rotor, campo, corrente e gráficos continuam coerentes, mas um segundo físico simulado pode durar vários segundos na tela. As leituras de frequência, rotação e potência não são multiplicadas pelo fator visual.</p>
+        </div>
+        <div class="theory-section">
+            <h3>Sistemas monofásico e trifásico: o que muda?</h3>
+            <h4>Uma fase ou três fases</h4>
+            <p>No sistema <strong>monofásico</strong>, a carga recebe uma tensão alternada senoidal. Ela muda de valor e de polaridade periodicamente. Em 60 Hz, são 60 ciclos por segundo. No sistema <strong>trifásico equilibrado</strong>, existem três tensões senoidais de mesma frequência e mesmo valor eficaz, mas deslocadas entre si em <strong>120° elétricos</strong>, isto é, um terço do período. Não são três frequências diferentes: os máximos de cada fase acontecem em instantes diferentes.</p>
+            <div class="theory-formula">v<sub>A</sub> = V<sub>p</sub> sen(2πft)<br>v<sub>B</sub> = V<sub>p</sub> sen(2πft − 120°)<br>v<sub>C</sub> = V<sub>p</sub> sen(2πft − 240°)</div>
+            <p>V<sub>p</sub> é a tensão de pico; para uma senoide, V<sub>eficaz</sub> = V<sub>p</sub>/√2. A 60 Hz, o período é aproximadamente 16,7 ms, e o deslocamento de 120° corresponde a cerca de 5,56 ms. As três tensões de fase somam zero a cada instante no sistema ideal equilibrado.</p>
+            <h4>Por que o trifásico cria um campo girante?</h4>
+            <p>Os enrolamentos do estator também são distribuídos no espaço. Em uma máquina ideal de dois polos, seus eixos magnéticos estão separados por 120° mecânicos, correspondentes a 120° elétricos. Alimentados por correntes senoidais equilibradas com a mesma defasagem temporal, seus campos se somam e produzem um <strong>campo resultante de módulo constante que gira</strong>. Para máquinas com mais polos, os ângulos elétricos e mecânicos não são iguais: o ângulo elétrico é o mecânico multiplicado pelo número de pares de polos.</p>
+            <p>A velocidade desse campo é n<sub>s</sub> = 120f/p, em rpm, sendo p o número total de polos. A 60 Hz, uma máquina de dois polos tem campo a 3600 rpm; com quatro polos, a 1800 rpm. <strong>A sequência das fases determina o sentido de giro</strong>; inverter a sequência de duas fases inverte o campo girante. Essa é uma propriedade do modelo, não uma orientação para manipular uma instalação elétrica.</p>
+            <h4>E o motor monofásico?</h4>
+            <p>Um único enrolamento alimentado por uma corrente senoidal produz um <strong>campo pulsante</strong>: ele cresce, diminui e inverte o sentido ao longo de um eixo fixo. Esse campo pode ser interpretado como a soma de dois campos iguais que giram em sentidos opostos. Num motor de indução ideal com rotor parado, os torques desses dois campos se cancelam: o enrolamento principal sozinho não define um torque de partida resultante.</p>
+            <p>Por isso, muitos motores de indução monofásicos usam <strong>enrolamento auxiliar e capacitor</strong>, ou outro recurso, para criar uma defasagem e permitir a partida. O capacitor não transforma a rede em um sistema trifásico equilibrado; ele ajuda a produzir um campo resultante girante, em geral elíptico. Há também motores de polos sombreados e outras soluções. Um motor universal é outro tipo de máquina e pode funcionar em CA monofásica por um princípio diferente.</p>
+            <h4>Potência e regularidade do torque</h4>
+            <p>No circuito monofásico senoidal em regime permanente, a potência instantânea contém uma parcela oscilante de frequência 2f. No trifásico equilibrado, as parcelas oscilantes das três fases se cancelam e a <strong>potência elétrica ativa total instantânea é constante</strong>, nas condições ideais. Isso favorece uma conversão de energia e um torque mais uniformes. Máquinas reais ainda podem apresentar ondulações por ranhuras, harmônicas, comutação eletrônica e outros efeitos.</p>
+            <div class="theory-formula">Monofásico: P = V<sub>ef</sub>I<sub>ef</sub> cos φ<br>Trifásico equilibrado: P = 3V<sub>fase</sub>I<sub>fase</sub> cos φ = √3 V<sub>linha</sub>I<sub>linha</sub> cos φ<br>Potência mecânica útil: P<sub>útil</sub> = τ<sub>carga</sub>ω = ηP<sub>entrada</sub></div>
+            <p>As tensões e correntes dessas fórmulas são valores eficazes; φ é o ângulo entre tensão e corrente de uma mesma fase, não a defasagem de 120° entre as fases. η é o rendimento em regime permanente. A presença de três fases <strong>não torna automaticamente um motor três vezes mais potente</strong>: potência, torque e rendimento dependem do dimensionamento, da alimentação e das perdas. Em geral, motores trifásicos de indução são robustos e dispensam o circuito auxiliar de partida típico dos monofásicos.</p>
+            <h4>Fase, linha e neutro</h4>
+            <p>Em ligação <strong>estrela (Y)</strong>, V<sub>linha</sub> = √3 V<sub>fase</sub> e I<sub>linha</sub> = I<sub>fase</sub>. Em ligação <strong>triângulo (Δ)</strong>, V<sub>linha</sub> = V<sub>fase</sub> e I<sub>linha</sub> = √3 I<sub>fase</sub>, para cargas equilibradas. Por exemplo, um sistema estrela de 220 V entre fase e neutro tem aproximadamente 380 V entre fases. Esses valores são um exemplo, não uma regra para todas as redes.</p>
+            <p>Uma carga monofásica pode receber tensão entre fase e neutro ou entre duas fases, conforme a rede e o equipamento; ter dois condutores de alimentação não significa receber três fases. Um motor trifásico equilibrado normalmente recebe as três fases sem precisar de neutro. O condutor de proteção (terra) tem outra função e não substitui o neutro.</p>
+            <h4>Como isso aparece nesta simulação?</h4>
+            <p>Nos dois motores trifásicos, a escolha de 3, 6 ou 9 bobinas corresponde a uma, duas ou três bobinas por fase, respectivamente. As cores identificam A, B e C; cada bobina tem seu próprio número, como A1 e A2. Elas são afastadas ao redor do rotor em uma vista explodida ilustrativa: suas posições desenhadas não definem os eixos magnéticos reais. No síncrono, as bobinas e os elétrons traseiros são desenhados antes dos ímãs do rotor e podem ficar parcialmente encobertos; os dianteiros aparecem à frente. O total N de espiras por fase e a área efetiva A são mantidos nos cálculos. Assim, essa escolha redistribui as espiras sem aumentar o torque, a potência ou o número de polos; não representa um projeto de enrolamento de uma máquina comercial.</p>
+            <p>Os modos CA de <strong>indução</strong> e <strong>síncrono com ímãs permanentes</strong> representam alimentação trifásica ideal e estator de dois polos. No primeiro, o rotor precisa de escorregamento para induzir corrente; no segundo, acompanha o campo em sincronismo, mantendo um ângulo de carga. Ambos usam campo girante, mas o mecanismo do rotor é diferente. O gerador CA simples mostrado tem uma bobina e saída monofásica; um alternador trifásico exigiria três enrolamentos de saída defasados, que não estão representados nesse modo.</p>
+            <p class="note">Não há modo de motor monofásico nesta versão. As relações gerais de potência acima complementam a teoria; os cálculos simplificados de cada animação continuam seguindo as hipóteses declaradas em seu painel, sem simular uma instalação elétrica real.</p>
+        </div>
+        <div class="theory-section"><h3>Motor CA de indução</h3><p>Três correntes alternadas defasadas no estator produzem um campo girante. Neste modelo de dois polos, a velocidade síncrona é n<sub>s</sub> = 60f rpm. O movimento relativo entre campo e rotor induz correntes nas barras da gaiola, que são fechadas pelos anéis de curto-circuito. Esses anéis fazem parte do rotor: não são anéis coletores e não tocam escovas. O torque tende a aproximar a velocidade do rotor da velocidade do campo; em sincronismo, não há indução nem torque neste modelo. Define-se s = (ω<sub>s</sub> − ω)/ω<sub>s</sub>.</p><p>O equivalente trifásico simplificado usa E₀ = NBAω<sub>s</sub>/√2, I<sub>r</sub> = sE₀/√(R<sub>r</sub>² + (sX<sub>r</sub>)²) e τ = 3E₀²R<sub>r</sub>s/[ω<sub>s</sub>(R<sub>r</sub>² + (sX<sub>r</sub>)²)]. A entrada ideal de entreferro é τω<sub>s</sub>; as perdas do rotor são 3I<sub>r</sub>²R<sub>r</sub>; a potência convertida é τω. Não calculamos a corrente de alimentação do estator nem suas perdas. As forças desenhadas na gaiola são resultantes ilustrativas. O gráfico mostra torque e corrente em função da velocidade do rotor, com a frequência e B atuais, e não em função de seu ângulo.</p></div>
+        <div class="theory-section"><h3>Motor CA síncrono com ímãs permanentes</h3><p>O estator recebe correntes trifásicas que criam um campo girante. Os ímãs N/S do rotor acompanham esse campo em sincronismo: para dois polos, n = 60f rpm e s = 0. O rotor não recebe corrente por escovas. Diferentemente do motor de indução, não precisa de escorregamento para produzir torque: precisa de um ângulo de carga δ entre o campo girante e o eixo magnético do rotor.</p><p>Neste modelo efetivo, τ = τ<sub>máx</sub> sen δ, com τ<sub>máx</sub> = 3NBAI<sub>fase</sub>. A corrente é regulada por um inversor ideal; N e A representam a bobina efetiva de cada fase, e B o acoplamento com os ímãs. Para carga e atrito menores que τ<sub>máx</sub>, existe equilíbrio estável com 0 ≤ δ &lt; 90°. A potência de entrada é τω + 3I<sub>fase</sub>²R<sub>fase</sub>, com R<sub>fase</sub> = 1 Ω. Não inferimos a corrente usando VI nem modelamos fator de potência, tensão do inversor ou perdas no ferro.</p><p>Apenas o regime permanente é mostrado: a partida assistida pelo inversor, a energia para acelerar e o transitório de perda de sincronismo não são simulados. O botão Iniciar coloca a máquina no equilíbrio calculado; a velocidade permanece igual à do campo. Sem margem de torque, uma proteção ideal impede a operação, zera a corrente e informa sobrecarga. Desligar a alimentação não apaga o campo permanente do rotor; ele continua indicado na figura. As setas F no rotor são resultantes ilustrativas, não forças de corrente em seus ímãs.</p></div>
+        <div class="theory-section"><h3>Modelo, unidades e perdas</h3><ul><li>ω = 2π·rpm/60, em rad/s; 1 volta = 2π rad.</li><li>Potência mecânica: P = τω, em watts (W).</li><li>Potência elétrica na carga resistiva: P = I<sub>rms</sub>²R. Em CA, a tensão média em um ciclo é zero; exibimos seu valor eficaz (rms).</li><li>As bobinas são ideais, o campo é uniforme e a resistência interna é concentrada em R. Não se modelam saturação, aquecimento, indutância nem comutação real.</li><li>Os motores CC e de indução são dinâmicos, com inércia J = 0,025 kg·m² e torque de atrito τ<sub>atrito</sub> = 0,003 + 0,0006ω N·m enquanto giram. A aceleração depende do torque líquido: τ<sub>líquido</sub> = Jα. O síncrono usa esse mesmo atrito apenas para calcular o equilíbrio em regime permanente.</li><li>O gerador tem velocidade imposta por um eixo externo e perdas mecânicas modeladas por τ<sub>atrito</sub> = 0,0006ω N·m.</li></ul></div>
+    </section>
+</div>
+
+<script src="../AvaliacaoBimestralEducacaoDigital/alunos.js"></script>
+<script>
+"use strict";
+const SIM_NAME = "Motores Elétricos e Geradores";
+const STORAGE_KEY = "motoresGeradores:exercise-state:v1";
+const MOTOR_INERTIA = 0.025;
+const MOTOR_FRICTION_CONSTANT = 0.003;
+const MOTOR_FRICTION_VISCOUS = 0.0006;
+const GENERATOR_FRICTION_VISCOUS = 0.0006;
+let exercises = [];
+let currentExercise = 0;
+let exerciseResults = [];
+let skippedQuestions = 0;
+let currentExerciseAttempts = 0;
+let selectedAnswer = null;
+let activeNarrationButton = null;
+let animationRunning = true;
+let simulationAngle = 0.4;
+let fieldAngle = 0;
+let simulationTime = 0;
+let electronDrifts = [0,0,0,0];
+let motorOmega = 0;
+let motorAcceleration = 0;
+let lastFrameTime = 0;
+let animationId = 0;
+const canvas = document.getElementById("machineCanvas");
+const context = canvas.getContext("2d");
+
+const modeInfo = {
+    pmMotor: { label: "Motor CC — ímã permanente", type: "motor", connection: "Comutador segmentado" },
+    woundMotor: { label: "Motor CC — campo bobinado", type: "motor", connection: "Comutador + campo bobinado" },
+    inductionMotor: { label: "Motor CA — indução trifásica", type: "motor", connection: "Rotor em gaiola: sem escovas" },
+    synchronousMotor: { label: "Motor CA — síncrono com ímãs", type: "motor", connection: "Ímãs no rotor: sem escovas" },
+    dcGenerator: { label: "Gerador CC — comutador", type: "generator", connection: "Comutador: saída CC pulsante" },
+    acGenerator: { label: "Gerador CA — anéis coletores", type: "generator", connection: "Anéis: saída CA" }
+};
+const exampleNarrations = {
+    "1": "Exemplo 1. O torque máximo de uma bobina é o número de espiras vezes a corrente, a área e o campo magnético. Quarenta vezes dois ampères vezes zero vírgula zero um metro quadrado vezes zero vírgula cinco tesla dá zero vírgula quatro newton metro.",
+    "2": "Exemplo 2. Para passar de rotações por minuto para radianos por segundo, multiplicamos por dois pi e dividimos por sessenta. Seiscentas rotações por minuto correspondem a vinte pi radianos por segundo, aproximadamente sessenta e dois vírgula oito.",
+    "3": "Exemplo 3. A potência mecânica rotacional é o torque vezes a velocidade angular. Zero vírgula quatro newton metro vezes cinquenta radianos por segundo resulta em vinte watts.",
+    "4": "Exemplo 4. A fem máxima induzida é o número de espiras vezes o campo magnético, a área e a velocidade angular. O produto é zero vírgula quatro weber vezes trinta radianos por segundo, ou doze volts.",
+    "5": "Exemplo 5. A fonte entrega vinte e quatro watts. A perda de cobre é corrente ao quadrado vezes resistência: quatro watts. Restam vinte watts convertidos em potência eletromecânica.",
+    "6": "Exemplo 6. Para dois polos e trinta hertz, a velocidade do campo é cento e vinte vezes trinta dividido por dois: mil e oitocentas rotações por minuto. O rotor gira a mil setecentas e dez. A diferença, noventa, dividida por mil e oitocentos dá zero vírgula zero cinco, ou cinco por cento de escorregamento.",
+    "7": "Exemplo 7. No motor síncrono de dois polos, trinta hertz correspondem a mil e oitocentas rotações por minuto, ou cento e oitenta e oito vírgula cinco radianos por segundo. O torque exigido dividido pelo máximo é zero vírgula cinco. O ângulo cujo seno é zero vírgula cinco é trinta graus. Multiplicar zero vírgula dois newton metro pela velocidade angular resulta em aproximadamente trinta e sete vírgula sete watts de potência convertida."
+};
+
+function numberPt(value, digits = 2) {
+    return Number(value).toLocaleString("pt-BR", { maximumFractionDigits: digits, minimumFractionDigits: 0 });
+}
+function signed(value, digits = 2) {
+    return `${value < 0 ? "−" : ""}${numberPt(Math.abs(value), digits)}`;
+}
+function formatPower(value) { return `${signed(value, 2)} W`; }
+function readParameters() {
+    const mode = document.getElementById("simulationMode").value;
+    const coilCount = ["acGenerator", "inductionMotor", "synchronousMotor"].includes(mode) ? 1 : Number(document.getElementById("coilCount").value);
+    const area = Number(document.getElementById("areaInput").value) / 10000;
+    const turns = Number(document.getElementById("turnsInput").value);
+    const fieldMaximum = Number(document.getElementById("fieldStrength").value);
+    const fieldOn = document.getElementById("fieldOn").checked;
+    const excitation = Number(document.getElementById("fieldExcitation").value) / 100;
+    const B = fieldOn ? fieldMaximum * (mode === "woundMotor" ? excitation : 1) : 0;
+    return {
+        mode, type: modeInfo[mode].type, coilCount, area, turns, B,
+        voltage: Number(document.getElementById("supplyVoltage").value),
+        armatureResistance: Number(document.getElementById("armatureResistance").value),
+        loadTorque: Number(document.getElementById("loadTorque").value),
+        rpm: Number(document.getElementById("generatorSpeed").value),
+        generatorResistance: Number(document.getElementById("generatorCoilResistance").value),
+        loadResistance: Number(document.getElementById("loadResistance").value),
+        frequency: Number(document.getElementById("supplyFrequency").value),
+        phaseCurrent: Number(document.getElementById("synchronousCurrent").value),
+        acCoilCount: Number(document.getElementById("acCoilCount").value)
+    };
+}
+function rippleFactor(angle, coilCount) {
+    let sum = 0;
+    for (let index = 0; index < coilCount; index++) sum += Math.abs(Math.sin(angle + index * Math.PI / coilCount));
+    return sum / coilCount;
+}
+function generatorWave(angle, parameters) {
+    return parameters.mode === "dcGenerator" ? rippleFactor(angle, parameters.coilCount) : Math.sin(angle);
+}
+function generatorWaveStatistics(parameters) {
+    let sum = 0;
+    let squareSum = 0;
+    const samples = 720;
+    for (let index = 0; index < samples; index++) {
+        const value = generatorWave(index * Math.PI * 2 / samples, parameters);
+        sum += value;
+        squareSum += value * value;
+    }
+    return { mean: sum / samples, rms: Math.sqrt(squareSum / samples) };
+}
+function motorSnapshot(parameters, angle = simulationAngle, omega = motorOmega) {
+    if (parameters.mode === "inductionMotor") return inductionSnapshot(parameters, omega);
+    if (parameters.mode === "synchronousMotor") return synchronousSnapshot(parameters, omega);
+    const k = parameters.coilCount * parameters.turns * parameters.B * parameters.area * rippleFactor(angle, parameters.coilCount);
+    const backEmf = k * omega;
+    const current = (parameters.voltage - backEmf) / parameters.armatureResistance;
+    const torque = k * current;
+    const frictionTorque = omega > 0.001 ? MOTOR_FRICTION_CONSTANT + MOTOR_FRICTION_VISCOUS * omega : 0;
+    const netTorque = torque - parameters.loadTorque - frictionTorque;
+    return {
+        k, backEmf, current, torque, frictionTorque, netTorque,
+        electricalInput: parameters.voltage * current,
+        convertedPower: backEmf * current,
+        loadPower: parameters.loadTorque * omega,
+        copperLoss: current * current * parameters.armatureResistance,
+        frictionLoss: frictionTorque * omega,
+        kineticEnergy: 0.5 * MOTOR_INERTIA * omega * omega,
+        acceleration: motorAcceleration
+    };
+}
+function synchronousSnapshot(p, omega = motorOmega) {
+    const syncOmega = 2 * Math.PI * p.frequency;
+    const maxTorque = 3 * p.turns * p.B * p.area * p.phaseCurrent;
+    const frictionTorque = MOTOR_FRICTION_CONSTANT + MOTOR_FRICTION_VISCOUS * syncOmega;
+    const requiredTorque = p.loadTorque + frictionTorque;
+    const canSynchronize = maxTorque > 0 && requiredTorque < maxTorque;
+    const active = canSynchronize && omega > 0;
+    const torque = active ? requiredTorque : 0;
+    const current = active ? p.phaseCurrent : 0;
+    const copperLoss = 3 * current * current;
+    const convertedPower = torque * omega;
+    return {
+        syncOmega, maxTorque, requiredTorque, canSynchronize, active,
+        loadAngle: canSynchronize ? Math.asin(requiredTorque / maxTorque) : 0,
+        current, torque, backEmf: 0, slip: active ? 0 : 1,
+        electricalInput: convertedPower + copperLoss, convertedPower, copperLoss,
+        loadPower: active ? p.loadTorque * omega : 0,
+        frictionLoss: active ? frictionTorque * omega : 0,
+        netTorque: 0, kineticEnergy: .5 * MOTOR_INERTIA * omega * omega
+    };
+}
+function inductionSnapshot(p, omega = motorOmega) {
+    const syncOmega = 2 * Math.PI * p.frequency;
+    const slip = (syncOmega - omega) / syncOmega;
+    const rotorResistance = 4, rotorReactance = 1.5 * p.frequency / 30;
+    const rotorEmf = p.turns * p.B * p.area * syncOmega / Math.sqrt(2);
+    const current = Math.abs(slip) * rotorEmf / Math.hypot(rotorResistance, slip * rotorReactance);
+    const torque = 3 * rotorEmf * rotorEmf * rotorResistance * slip /
+        (syncOmega * (rotorResistance * rotorResistance + (slip * rotorReactance) ** 2));
+    const copperLoss = 3 * current * current * rotorResistance;
+    const convertedPower = torque * omega;
+    const frictionTorque = omega > .001 ? MOTOR_FRICTION_CONSTANT + MOTOR_FRICTION_VISCOUS * omega : 0;
+    return {
+        current, torque, syncOmega, slip, backEmf: 0,
+        electricalInput: torque * syncOmega, convertedPower, copperLoss,
+        loadPower: p.loadTorque * omega, frictionLoss: frictionTorque * omega,
+        netTorque: torque - p.loadTorque - frictionTorque,
+        kineticEnergy: .5 * MOTOR_INERTIA * omega * omega
+    };
+}
+function generatorSnapshot(parameters, angle = simulationAngle) {
+    const omega = parameters.rpm * Math.PI * 2 / 60;
+    const frequency = parameters.rpm / 60;
+    const peak = parameters.coilCount * parameters.turns * parameters.B * parameters.area * omega;
+    const stats = generatorWaveStatistics(parameters);
+    const totalResistance = parameters.generatorResistance + parameters.loadResistance;
+    const emfRms = peak * stats.rms;
+    const currentRms = totalResistance > 0 ? emfRms / totalResistance : 0;
+    const loadPower = currentRms * currentRms * parameters.loadResistance;
+    const copperLoss = currentRms * currentRms * parameters.generatorResistance;
+    const convertedPower = emfRms * currentRms;
+    const frictionTorque = GENERATOR_FRICTION_VISCOUS * omega;
+    const frictionLoss = frictionTorque * omega;
+    const wave = generatorWave(angle, parameters);
+    const currentInstantaneous = totalResistance > 0 ? peak * wave / totalResistance : 0;
+    const voltageInstantaneous = currentInstantaneous * parameters.loadResistance;
+    const voltageAverage = parameters.mode === "dcGenerator"
+        ? peak * stats.mean * parameters.loadResistance / totalResistance
+        : 0;
+    const voltageRms = currentRms * parameters.loadResistance;
+    const shaftPower = convertedPower + frictionLoss;
+    const shaftTorque = omega > 0 ? shaftPower / omega : 0;
+    return {
+        omega, frequency, peak, stats, currentRms, currentInstantaneous, voltageInstantaneous,
+        voltageAverage, voltageRms, loadPower, copperLoss, convertedPower, frictionLoss,
+        shaftPower, shaftTorque, efficiency: shaftPower > 0 ? loadPower / shaftPower * 100 : 0
+    };
+}
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const ratio = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    const width = Math.round(rect.width * ratio);
+    const height = Math.round(rect.height * ratio);
+    if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+    }
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    drawMachine();
+}
+function drawArrow(ctx, x1, y1, x2, y2, color, width = 2) {
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = width;
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 8 * Math.cos(angle - Math.PI / 6), y2 - 8 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(x2 - 8 * Math.cos(angle + Math.PI / 6), y2 - 8 * Math.sin(angle + Math.PI / 6));
+    ctx.closePath(); ctx.fill();
+}
+function drawMachine() {
+    const rect = canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const w = rect.width, h = rect.height;
+    context.clearRect(0, 0, w, h);
+    const p = readParameters();
+    const mode = modeInfo[p.mode];
+    const showStructure = document.getElementById("showStructure").checked;
+    const electronPaths = [];
+    const cx = w * .5, cy = h * .30;
+    const radius = Math.min(w * .19, h * .145, 78);
+    const fontSize = Math.max(10, Math.min(13, w / 38));
+    context.save();
+    context.font = `600 ${fontSize}px Segoe UI, sans-serif`;
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillStyle = "#eaf3ff";
+    context.fillText(mode.label, cx, 23);
+    // Projeção oblíqua comum a polos, rotor, eixo e conexões.
+    const project = (x, y, z) => [cx + x + .45 * z, cy - y + .25 * z];
+    const path = (points, color, width = 2, fill = null) => {
+        if (!showStructure) return;
+        context.beginPath();
+        points.forEach((point, i) => {
+            const [x, y] = project(...point);
+            if (i === 0) context.moveTo(x, y); else context.lineTo(x, y);
+        });
+        if (fill) { context.closePath(); context.fillStyle = fill; context.fill(); }
+        context.strokeStyle = color; context.lineWidth = width; context.stroke();
+    };
+    const arrow = (start, end, color, label = "") => {
+        const a = project(...start), b = project(...end);
+        drawArrow(context, ...a, ...b, color, 2.5);
+        if (label) { context.fillStyle = color; context.fillText(label, b[0] + 9, b[1] - 7); }
+    };
+    const box = (x, label, color) => {
+        if (!showStructure) return;
+        const a = x - radius * .23, b = x + radius * .23;
+        const y = radius * .83, z = radius * .34;
+        path([[a,y,-z],[b,y,-z],[b,-y,-z],[a,-y,-z]], "#dce8f6", 1, color);
+        path([[a,y,-z],[a,y,z],[b,y,z],[b,y,-z]], "#dce8f6", 1, color);
+        path([[b,y,-z],[b,y,z],[b,-y,z],[b,-y,-z]], "#dce8f6", 1, color);
+        path([[a,-y,-z],[a,-y,z],[b,-y,z]], "#dce8f6", 1, color);
+        path([[a,y,z],[a,-y,z]], "#dce8f6", 1);
+        const at = project(x, 0, -z);
+        context.fillStyle = "#fff"; context.fillText(label, ...at);
+    };
+    const induction = p.mode === "inductionMotor";
+    const synchronous = p.mode === "synchronousMotor";
+    const statorCoils = [];
+    const s = p.type === "motor" ? motorSnapshot(p) : generatorSnapshot(p);
+    if (!induction && !synchronous) {
+        box(-radius * 1.45, p.mode === "woundMotor" ? "núcleo" : "N", p.mode === "woundMotor" ? "#63758b" : "#bd4b56");
+        box(radius * 1.45, p.mode === "woundMotor" ? "núcleo" : "S", p.mode === "woundMotor" ? "#63758b" : "#486fbc");
+        if (p.mode === "woundMotor") {
+            for (const side of [-1, 1]) {
+                for (let n = 0; n < 6; n++) {
+                    const x = side * radius * (1.25 + n * .08);
+                    const points = [[x,radius*.88,-radius*.39],[x,-radius*.88,-radius*.39],
+                        [x,-radius*.88,radius*.39],[x,radius*.88,radius*.39],
+                        [x,radius*.88,-radius*.39]];
+                    path(points, "#ffc978", 2);
+                    if (n === 2) electronPaths.push({points,offset:simulationTime*p.B*.2*side});
+                }
+            }
+            if (showStructure) {
+                context.fillStyle="#ffc978";
+                context.fillText("Eletroímãs: bobinas + núcleos de ferro",cx,cy+radius+46);
+            }
+        }
+        if (p.B > 0 && document.getElementById("showField").checked) {
+            for (const y of [-radius*.55, 0, radius*.55]) arrow([-radius,y,0],[radius,y,0],"#66e3ff99", y === 0 ? "B" : "");
+        }
+    } else {
+        for (let phase = 0; phase < 3; phase++) {
+            const colors = ["#ff8591", "#ffd166", "#66e3ff"];
+            const groups = p.acCoilCount / 3;
+            for (let group = 0; group < groups; group++) {
+                const turns = Math.floor(p.turns/groups) + (group < p.turns%groups ? 1 : 0);
+                const angle = phase * 2*Math.PI/3 + (group-(groups-1)/2)*2*Math.PI/p.acCoilCount;
+                const r = radius * 1.65;
+                const x = r*Math.cos(angle), z = r*Math.sin(angle);
+                // Vista explodida do estator: afasta as bobinas do rotor para tornar a contagem legível.
+                const centerY = 0;
+                const halfHeight = radius*(synchronous ? .65 : .82);
+                const coil = { paths: [], color: colors[phase], label: `${["A","B","C"][phase]}${group+1}`,
+                    position: [x,centerY+halfHeight+12,z] };
+                for (let turn = 0; turn < turns; turn++) {
+                    const halfWidth = 5+turn*1.3;
+                    const height = halfHeight;
+                    coil.paths.push([[x-halfWidth,centerY+height,z],[x+halfWidth,centerY+height,z],
+                        [x+halfWidth,centerY-height,z],[x-halfWidth,centerY-height,z],
+                        [x-halfWidth,centerY+height,z]]);
+                }
+                const phaseCurrent = synchronous ? s.current : p.B>0 ? 1 : 0;
+                if (coil.paths.length) electronPaths.push({rear:synchronous && z < 0,points:coil.paths[0],
+                    offset:phaseCurrent*.18*Math.sin(fieldAngle-phase*2*Math.PI/3)});
+                statorCoils.push(coil);
+            }
+        }
+        if (p.B > 0 && (!synchronous || s.active) && document.getElementById("showField").checked) {
+            const dx = radius * Math.cos(fieldAngle), dz = -radius * Math.sin(fieldAngle);
+            const y = synchronous ? -radius*1.05 : 0;
+            arrow([-dx,y,-dz],[dx,y,dz],"#66e3ff","B girante");
+        }
+        if (showStructure && synchronous && s.active) {
+            for (let phase = 0; phase < 3; phase++) {
+                const a = phase * 2 * Math.PI / 3;
+                const current = Math.cos(fieldAngle-a);
+                const x = radius*1.25*Math.cos(a), z = radius*1.25*Math.sin(a);
+                const direction = Math.sign(current);
+                if (Math.abs(current) > .15) arrow([x,-direction*12,z],[x,direction*12,z],"#ffd166","I");
+            }
+        }
+    }
+    path([[0,radius*1.25,0],[0,-radius-76,0]], "#b8c6dc", 4);
+    if (showStructure) { context.fillStyle = "#dce8f6"; context.fillText("eixo vertical", cx, cy - radius * 1.4); }
+    const contactY = -radius - 33, contactRadius = 19;
+    const ringPoint = (angle, y) => [contactRadius * Math.sin(angle), y, contactRadius * Math.cos(angle)];
+    const arc = (y, start, end, color, width = 5) => {
+        path(Array.from({length: 41}, (_,i) => ringPoint(start+(end-start)*i/40,y)),color,width);
+    };
+    const drawStatorCoils = rear => {
+        for (const coil of statorCoils.filter(coil => synchronous ? (coil.position[2] < 0) === rear : !rear)
+            .sort((a,b) => a.position[2]-b.position[2])) {
+            coil.paths.forEach((points,index) => path(points,coil.color,1.5,index===0 ? "#101729" : null));
+            const at = project(...coil.position);
+            if (showStructure) { context.fillStyle=coil.color; context.fillText(coil.label,...at); }
+        }
+    };
+    const drawElectrons = rear => {
+        if (!document.getElementById("showElectrons").checked) return;
+        for (const trace of electronPaths.filter(trace => Boolean(trace.rear) === rear)) {
+            const points=trace.points.map(point=>project(...point));
+            const lengths=points.slice(1).map((point,i)=>Math.hypot(point[0]-points[i][0],point[1]-points[i][1]));
+            const total=lengths.reduce((a,b)=>a+b,0);
+            if (!total) continue;
+            for (let i=0;i<4;i++) {
+                let distance=((i/4+trace.offset)%1+1)%1*total;
+                let segment=0;
+                while (segment<lengths.length-1 && distance>lengths[segment]) distance-=lengths[segment++];
+                const fraction=lengths[segment] ? distance/lengths[segment] : 0;
+                const x=points[segment][0]+fraction*(points[segment+1][0]-points[segment][0]);
+                const y=points[segment][1]+fraction*(points[segment+1][1]-points[segment][1]);
+                context.fillStyle="#83caff";context.beginPath();context.arc(x,y,3.5,0,2*Math.PI);context.fill();
+                context.strokeStyle="#07111e";context.lineWidth=1;
+                context.beginPath();context.moveTo(x-2,y);context.lineTo(x+2,y);context.stroke();
+            }
+        }
+    };
+    drawStatorCoils(true);
+    drawElectrons(true);
+    if (synchronous) {
+        const rotate = (x,y,z) => [x*Math.cos(simulationAngle)+z*Math.sin(simulationAngle),y,
+            -x*Math.sin(simulationAngle)+z*Math.cos(simulationAngle)];
+        for (const side of [-1,1]) {
+            const inner = 0, outer = side*radius*.72, y = radius*.65, z = radius*.23;
+            const color = side === 1 ? "#bd4b56" : "#486fbc";
+            const face = points => path(points.map(point=>rotate(...point)),"#dce8f6",1,color);
+            face([[inner,y,-z],[outer,y,-z],[outer,-y,-z],[inner,-y,-z]]);
+            face([[inner,y,-z],[inner,y,z],[outer,y,z],[outer,y,-z]]);
+            face([[outer,y,-z],[outer,y,z],[outer,-y,z],[outer,-y,-z]]);
+            face([[inner,-y,-z],[inner,-y,z],[outer,-y,z],[outer,-y,-z]]);
+            path([[inner,y,z],[inner,-y,z]].map(point=>rotate(...point)),"#dce8f6",1);
+            const label = project(...rotate(side*radius*.43,0,-z));
+            if (showStructure) { context.fillStyle="#fff"; context.fillText(side===1 ? "N" : "S",...label); }
+        }
+        if (document.getElementById("showField").checked) {
+            const dx=radius*.9*Math.cos(simulationAngle), dz=-radius*.9*Math.sin(simulationAngle);
+            arrow([-dx,0,-dz],[dx,0,dz],"#ffb7c0","B ímã");
+        }
+        context.fillStyle="#dce8f6";
+        context.fillText("Rotor com ímãs permanentes",cx,cy+radius+39);
+        context.fillText("Sem escovas nem anéis coletores",cx,cy+radius+58);
+        context.fillText(`${p.acCoilCount} bobinas; N = ${p.turns} espiras/fase`,cx,cy+radius+78);
+        context.fillStyle=s.canSynchronize ? "#74e3a2" : "#ff7d88";
+        context.fillText(s.active ? `Sincronismo: δ = ${numberPt(s.loadAngle*180/Math.PI,1)}°` :
+            s.canSynchronize ? "Pronto: iniciar regime permanente" : p.B===0 ? "Campo desligado: alimentação cortada" : "Limite de torque excedido: desligado",cx,cy+radius+101);
+    } else if (induction) {
+        const cageRadius = radius*.61;
+        for (let bar = 0; bar < 10; bar++) {
+            const a = simulationAngle + bar * 2 * Math.PI / 10;
+            const x = cageRadius*Math.sin(a), z=cageRadius*Math.cos(a);
+            path([[x,radius*.82,z],[x,-radius*.82,z]],"#d0deed",3);
+            if (bar === 0) {
+                const points = [[x,-radius*.82,z],[x,radius*.82,z]];
+                for (let i=1;i<=16;i++) {
+                    const b = a+i*Math.PI/16;
+                    points.push([cageRadius*Math.sin(b),radius*.82,cageRadius*Math.cos(b)]);
+                }
+                points.push([-x,-radius*.82,-z]);
+                for (let i=1;i<=16;i++) {
+                    const b=a+Math.PI+i*Math.PI/16;
+                    points.push([cageRadius*Math.sin(b),-radius*.82,cageRadius*Math.cos(b)]);
+                }
+                electronPaths.push({points,offset:-s.current*.12*Math.cos(a-fieldAngle)});
+            }
+            if (showStructure && (bar === 0 || bar === 5) && s.current > 1e-9) {
+                const direction = Math.sign(Math.sin(a-fieldAngle))*Math.sign(s.slip);
+                if (direction) arrow([x,-direction*15,z],[x,direction*15,z],"#ffd166","I");
+            }
+        }
+        for (const y of [-radius*.82,radius*.82]) {
+            path(Array.from({length:49},(_,i)=>[cageRadius*Math.sin(i*Math.PI/24),y,cageRadius*Math.cos(i*Math.PI/24)]),"#d0deed",3);
+        }
+        context.fillStyle = "#dce8f6";
+        context.fillText("Gaiola: barras e anéis em curto",cx,cy+radius+48);
+        context.fillText(`${p.acCoilCount} bobinas; N = ${p.turns} espiras/fase`,cx,cy+radius+70);
+    } else {
+        const ends = [];
+        for (let index = p.coilCount - 1; index >= 0; index--) {
+            const angle = simulationAngle + index * Math.PI / p.coilCount;
+            const onCoil = (x,y) => [x*Math.sin(angle),y,x*Math.cos(angle)];
+            const color = ["#ffd166","#ffa65c","#f4de9d","#edb6ff"][index];
+            let previous = null, first = null, last = null;
+            for (let turn = 0; turn < p.turns; turn++) {
+                const inset = turn * Math.min(2.3, radius*.035);
+                const half = radius*.66-inset, height=radius-inset;
+                const points = [onCoil(-half,-height),onCoil(-half,height),onCoil(half,height),onCoil(half,-height)];
+                if (!first) first = points[0];
+                if (previous) path([previous,points[0]],color,1.5);
+                path(points,color,1.5); previous=points[3]; last=points[3];
+                if (turn === 0) {
+                    const closedPoints = [...points,points[0]];
+                    electronPaths.push({points:closedPoints,offset:electronDrifts[index]});
+                }
+            }
+            ends.push({first,last,angle});
+            if (index === 0) {
+                const current = p.type === "motor" ? s.current : s.currentInstantaneous;
+                const direction = Math.sign(current) * (p.type === "motor" ? 1 : -1) *
+                    (p.mode === "acGenerator" ? 1 : Math.sign(Math.sin(angle)));
+                if (direction !== 0) {
+                    if (showStructure) {
+                        arrow(onCoil(radius*.66,-direction*18),onCoil(radius*.66,direction*18),"#ffd166","I");
+                        arrow(onCoil(-radius*.66,direction*18),onCoil(-radius*.66,-direction*18),"#ffd166");
+                    }
+                    if (p.B > 0 && document.getElementById("showForces").checked) {
+                        for (const side of [-1,1]) {
+                            const start = onCoil(side*radius*.66,0);
+                            arrow(start,[start[0],start[1],start[2]-side*direction*45],"#74e3a2","F");
+                        }
+                    }
+                }
+            }
+        }
+        for (const end of ends) {
+            const a = p.mode === "acGenerator" ? simulationAngle : end.angle;
+            const firstTarget = ringPoint(a,contactY);
+            const lastTarget = ringPoint(a+Math.PI,contactY-(p.mode === "acGenerator" ? 21 : 0));
+            path([end.first,[end.first[0]*.3,-radius-13,end.first[2]*.3],firstTarget],"#ffa65c",2);
+            path([end.last,[end.last[0]*.3,-radius-19,end.last[2]*.3],lastTarget],"#ffd166",2);
+        }
+        if (p.mode === "acGenerator") {
+            arc(contactY,0,2*Math.PI,"#ffa65c");
+            arc(contactY-21,0,2*Math.PI,"#ffd166");
+        } else {
+            const segments = 2*p.coilCount;
+            for (let i=0;i<segments;i++) {
+                const a = simulationAngle+i*2*Math.PI/segments;
+                arc(contactY,a-Math.PI/segments+.09,a+Math.PI/segments-.09,i%2 ? "#ffd166" : "#ffa65c",8);
+            }
+        }
+        for (const side of [-1,1]) {
+            const y = contactY-(p.mode === "acGenerator" && side===1 ? 21 : 0);
+            path([[side*contactRadius,y,0],[side*(contactRadius+12),y,0]],"#94a4ba",8);
+            path([[side*(contactRadius+12),y,0],[side*(contactRadius+28),y,0],
+                [side*(contactRadius+28),contactY-43,0]],"#dce8f6",1.5);
+        }
+        const externalY = contactY-43;
+        path([[-contactRadius-28,externalY,0],[-10,externalY,0]],"#dce8f6",1.5);
+        path([[10,externalY,0],[contactRadius+28,externalY,0]],"#dce8f6",1.5);
+        if (p.type === "motor") {
+            path([[-10,externalY+9,0],[-10,externalY-9,0]],"#dce8f6",2);
+            path([[10,externalY+5,0],[10,externalY-5,0]],"#dce8f6",2);
+            if (showStructure) { context.fillStyle="#dce8f6"; context.fillText("+",cx-17,cy-externalY-12); }
+        } else {
+            path([[-10,externalY+6,0],[10,externalY+6,0],[10,externalY-6,0],[-10,externalY-6,0],[-10,externalY+6,0]],"#dce8f6",1.5);
+            if (showStructure) { context.fillStyle="#dce8f6"; context.fillText("R",cx,cy-externalY); }
+        }
+        context.fillStyle="#eaf3ff";
+        context.fillText(p.mode==="acGenerator" ? "2 anéis contínuos + escovas" : "comutador segmentado + escovas",cx,cy+radius+100);
+        context.fillText(`${p.turns} espira(s) por bobina × ${p.coilCount} bobina(s)`,cx,cy+radius+119);
+    }
+    if (p.type === "motor" && Math.abs(s.torque)>1e-9 && document.getElementById("showForces").checked) {
+        const direction=Math.sign(s.torque);
+        if (induction) {
+            const barAngle=fieldAngle;
+            const start=[radius*.61*Math.sin(barAngle),0,radius*.61*Math.cos(barAngle)];
+            arrow(start,[start[0]+direction*25*Math.cos(barAngle),0,start[2]-direction*25*Math.sin(barAngle)],"#74e3a2","F");
+        } else if (synchronous) {
+            for (const side of [-1,1]) {
+                const a=simulationAngle;
+                const start=[side*radius*.72*Math.cos(a),0,-side*radius*.72*Math.sin(a)];
+                arrow(start,[start[0]-side*direction*25*Math.sin(a),0,
+                    start[2]-side*direction*25*Math.cos(a)],"#74e3a2","F");
+            }
+        }
+    }
+    drawStatorCoils(false);
+    drawElectrons(false);
+    if (p.type === "motor" && Math.abs(s.torque)>1e-9 && document.getElementById("showForces").checked) {
+        arrow([0,0,0],[0,Math.sign(s.torque)*radius*1.2,0],"#d9a0ff","τ");
+    }
+    context.restore();
+
+    drawSynchronizedGraph(w, h, p);
+    updateHud(p);
+    updateMeasurements(p);
+}
+function drawSynchronizedGraph(w, h, p) {
+    const left = Math.max(38, w * 0.12), right = w - Math.max(18, w * 0.08);
+    const top = h * 0.77, bottom = h - 32;
+    const graphWidth = Math.max(30, right - left), graphHeight = Math.max(28, bottom - top);
+    const mid = top + graphHeight / 2;
+    context.save();
+    context.strokeStyle = "#aebdd4"; context.lineWidth = 1;
+    context.beginPath(); context.moveTo(left, top); context.lineTo(left, bottom); context.lineTo(right, bottom); context.stroke();
+    context.setLineDash([4, 4]); context.beginPath(); context.moveTo(left, mid); context.lineTo(right, mid); context.stroke(); context.setLineDash([]);
+    context.font = `${Math.max(9, Math.min(12, w / 40))}px Segoe UI, sans-serif`;
+    context.fillStyle = "#dce8f6"; context.textAlign = "left"; context.textBaseline = "bottom";
+    const motor = p.type === "motor";
+    const firstLabel = motor ? "Torque (escala)" : (p.mode === "dcGenerator" ? "Tensão CC (escala)" : "Tensão CA (escala)");
+    context.fillStyle = "#ffd166"; context.fillText(firstLabel, left, top - 4);
+    context.fillStyle = "#66e3ff"; context.fillText(p.mode === "synchronousMotor" ? "Carga + atrito" : "Corrente (escala)", left + Math.min(graphWidth * .48, 135), top - 4);
+    function curve(fn, color, normalize = true) {
+        const values = Array.from({ length: 181 }, (_, index) => fn(index * Math.PI * 2 / 180));
+        const maxAbs = Math.max(0.001, ...values.map(value => Math.abs(value)));
+        context.beginPath();
+        values.forEach((value, index) => {
+            const normalized = normalize ? value / maxAbs : value;
+            const x = left + index / (values.length - 1) * graphWidth;
+            const y = mid - normalized * graphHeight * .39;
+            if (index === 0) context.moveTo(x, y); else context.lineTo(x, y);
+        });
+        context.setLineDash(color === "#66e3ff" ? [5,4] : []);
+        context.strokeStyle = color; context.lineWidth = 2; context.stroke();
+        context.setLineDash([]);
+        return maxAbs;
+    }
+    if (p.mode === "synchronousMotor") {
+        const s = synchronousSnapshot(p);
+        const scale = Math.max(.001, s.maxTorque, s.requiredTorque);
+        curve(phi => s.maxTorque * Math.sin(phi/4)/scale, "#ffd166", false);
+        curve(() => s.requiredTorque/scale, "#66e3ff", false);
+    } else if (p.mode === "inductionMotor") {
+        const syncOmega = inductionSnapshot(p).syncOmega;
+        curve(phi => inductionSnapshot(p,phi/(2*Math.PI)*syncOmega).torque,"#ffd166");
+        curve(phi => inductionSnapshot(p,phi/(2*Math.PI)*syncOmega).current,"#66e3ff");
+    } else if (motor) {
+        curve(phi => motorSnapshot(p,phi).torque, "#ffd166");
+        curve(phi => motorSnapshot(p,phi).current, "#66e3ff");
+    } else {
+        const peak = p.coilCount*p.turns*p.B*p.area*p.rpm*2*Math.PI/60;
+        curve(phi => peak*generatorWave(phi,p), "#ffd166");
+        curve(phi => peak*generatorWave(phi,p)/(p.generatorResistance+p.loadResistance), "#66e3ff");
+    }
+    const progress = p.mode === "synchronousMotor" ? synchronousSnapshot(p).loadAngle/(Math.PI/2) :
+        p.mode === "inductionMotor" ? Math.min(1,motorOmega/inductionSnapshot(p).syncOmega) :
+        (simulationAngle % (2*Math.PI))/(2*Math.PI);
+    const pointerX = left + progress * graphWidth;
+    context.strokeStyle = "#ff7d88"; context.lineWidth = 1.5;
+    context.beginPath(); context.moveTo(pointerX, top); context.lineTo(pointerX, bottom); context.stroke();
+    const sync = p.mode === "synchronousMotor" ? synchronousSnapshot(p) : null;
+    const pointerY = sync ? mid - sync.maxTorque*Math.sin(sync.loadAngle) /
+        Math.max(.001,sync.maxTorque,sync.requiredTorque)*graphHeight*.39 : mid;
+    context.fillStyle = "#ff7d88"; context.beginPath(); context.arc(pointerX, pointerY, 4, 0, Math.PI * 2); context.fill();
+    context.fillStyle = "#bdc9df"; context.textAlign = "center"; context.textBaseline = "top";
+    context.fillText(p.mode === "synchronousMotor" ? "ângulo de carga δ: 0° → 90°" :
+        p.mode === "inductionMotor" ? "velocidade: 0 → síncrona" : "ângulo do rotor (um ciclo)", (left + right) / 2, bottom + 5);
+    context.restore();
+}
+function updateHud(parameters) {
+    document.getElementById("timeHud").textContent = `Tempo simulado: ${numberPt(simulationTime,3)} s · ${numberPt(document.getElementById("timeScale").value,3)}×`;
+    document.getElementById("modeHud").textContent = modeInfo[parameters.mode].label;
+    document.getElementById("fieldHud").textContent = parameters.mode === "synchronousMotor"
+        ? parameters.B > 0 ? `Acoplamento com ímãs: ${numberPt(parameters.B,2)} T` : "Alimentação desligada; ímãs presentes"
+        : parameters.B > 0 ? `Campo: ${numberPt(parameters.B, 2)} T` : "Campo desligado";
+    document.getElementById("connectionHud").textContent = modeInfo[parameters.mode].connection;
+    const current = parameters.type === "motor"
+        ? motorSnapshot(parameters).current
+        : generatorSnapshot(parameters).currentInstantaneous;
+    document.getElementById("instantCurrentHud").textContent = `${parameters.mode === "synchronousMotor" ? "I fase eficaz" :
+        parameters.mode === "inductionMotor" ? "I rotor eficaz" : "I instantânea"}: ${signed(current, 3)} A`;
+}
+function updateMeasurements(p) {
+    const motor = p.type === "motor";
+    document.getElementById("motorMeasurements").hidden = !motor;
+    document.getElementById("generatorMeasurements").hidden = motor;
+    if (motor) {
+        const s = motorSnapshot(p);
+        document.getElementById("motorSpeedDisplay").textContent = `${numberPt(motorOmega, 2)} rad/s (${numberPt(motorOmega * 60 / (2 * Math.PI), 0)} rpm)`;
+        document.getElementById("motorCurrentDisplay").textContent = `${signed(s.current, 3)} A`;
+        document.getElementById("motorBackEmfDisplay").textContent = `${numberPt(s.backEmf, 3)} V`;
+        document.getElementById("motorTorqueDisplay").textContent = `${signed(s.torque, 3)} N·m`;
+        document.getElementById("motorForceDisplay").textContent = `${numberPt(p.turns*p.B*Math.abs(s.current)*Math.sqrt(p.area),3)} N`;
+        document.getElementById("motorInputPowerDisplay").textContent = formatPower(s.electricalInput);
+        document.getElementById("motorConvertedPowerDisplay").textContent = formatPower(s.convertedPower);
+        document.getElementById("motorLoadPowerDisplay").textContent = formatPower(s.loadPower);
+        document.getElementById("motorCopperLossDisplay").textContent = formatPower(s.copperLoss);
+        document.getElementById("motorKineticDisplay").textContent = `${numberPt(s.kineticEnergy, 3)} J`;
+        document.getElementById("motorAccelerationDisplay").textContent = `${signed(motorAcceleration, 2)} rad/s²`;
+        if (p.mode === "inductionMotor" || p.mode === "synchronousMotor") {
+            document.getElementById("slipDisplay").textContent = p.mode === "synchronousMotor" && !s.active ? "—" : `${numberPt(s.slip*100,2)}%`;
+            document.getElementById("syncSpeedDisplay").textContent = `${numberPt(s.syncOmega*60/(2*Math.PI),0)} rpm (referência)`;
+        }
+        if (p.mode === "synchronousMotor") {
+            document.getElementById("synchronousStatusDisplay").textContent = s.active ? "Em sincronismo" :
+                s.canSynchronize ? "Pronto para iniciar" : p.B === 0 ? "Alimentação desligada" : "Sobrecarga: proteção desligada";
+            document.getElementById("loadAngleDisplay").textContent = s.canSynchronize ? `${numberPt(s.loadAngle*180/Math.PI,2)}° (equilíbrio)` : "Sem equilíbrio estável";
+            document.getElementById("maxTorqueDisplay").textContent = `${numberPt(s.maxTorque,3)} N·m`;
+        }
+    } else {
+        const s = generatorSnapshot(p);
+        document.getElementById("generatorOmegaDisplay").textContent = `${numberPt(s.omega, 2)} rad/s`;
+        document.getElementById("generatorFrequencyDisplay").textContent = `${numberPt(s.frequency, 2)} Hz`;
+        document.getElementById("generatorPeakDisplay").textContent = `${numberPt(s.peak, 3)} V`;
+        document.getElementById("generatorVoltageDisplay").textContent = p.mode === "dcGenerator"
+            ? `${numberPt(s.voltageAverage, 3)} V média (${numberPt(s.voltageRms, 3)} V rms)`
+            : `${numberPt(s.voltageRms, 3)} V rms (média = 0 V)`;
+        document.getElementById("generatorCurrentDisplay").textContent = `${numberPt(s.currentRms, 3)} A rms`;
+        document.getElementById("generatorLoadPowerDisplay").textContent = formatPower(s.loadPower);
+        document.getElementById("generatorCopperLossDisplay").textContent = formatPower(s.copperLoss);
+        document.getElementById("generatorShaftPowerDisplay").textContent = formatPower(s.shaftPower);
+        document.getElementById("generatorShaftTorqueDisplay").textContent = `${numberPt(s.shaftTorque, 3)} N·m`;
+        document.getElementById("generatorEfficiencyDisplay").textContent = `${numberPt(s.efficiency, 1)}%`;
+    }
+}
+function updateMode() {
+    const p = readParameters();
+    const motor = p.type === "motor";
+    const induction = p.mode === "inductionMotor";
+    const synchronous = p.mode === "synchronousMotor";
+    const acMotor = induction || synchronous;
+    const turnsInput = document.getElementById("turnsInput");
+    turnsInput.min = acMotor ? "3" : "1";
+    if (acMotor && Number(turnsInput.value)<3) turnsInput.value = "3";
+    document.getElementById("turnsLabel").textContent = acMotor ? "Total de espiras por fase N" : "Espiras por bobina N";
+    document.getElementById("acCoilCountControl").hidden = !acMotor;
+    updateLabels();
+    document.getElementById("motorControls").hidden = !motor;
+    document.getElementById("generatorControls").hidden = motor;
+    document.getElementById("fieldCurrentControl").hidden = p.mode !== "woundMotor";
+    document.getElementById("coilCountControl").hidden = p.mode === "acGenerator" || acMotor;
+    document.getElementById("singleCoilControl").hidden = p.mode !== "acGenerator";
+    document.getElementById("coilCountNote").textContent = "Cada bobina tem N espiras. Mais bobinas aumentam o total de espiras e reduzem a ondulação. Comutação idealizada.";
+    document.getElementById("motorEquation").hidden = !motor || acMotor;
+    document.getElementById("generatorEquation").hidden = motor;
+    document.getElementById("inductionControls").hidden = !acMotor;
+    document.getElementById("acMotorNote").hidden = synchronous;
+    document.getElementById("synchronousControls").hidden = !synchronous;
+    document.getElementById("synchronousEquation").hidden = !synchronous;
+    document.getElementById("synchronousNote").hidden = !synchronous;
+    document.getElementById("fieldOnLabel").textContent = synchronous ? "Alimentação trifásica ligada" : "Campo magnético ligado";
+    document.getElementById("dynamicModelNote").hidden = synchronous;
+    document.getElementById("inductionEquation").hidden = !induction;
+    document.getElementById("supplyVoltage").closest(".control").hidden = acMotor;
+    document.getElementById("armatureResistance").closest(".control").hidden = acMotor;
+    document.getElementById("backEmfMeasurement").hidden = acMotor;
+    document.getElementById("forceMeasurement").hidden = acMotor;
+    document.getElementById("accelerationMeasurement").hidden = synchronous;
+    document.getElementById("slipMeasurement").hidden = !acMotor;
+    document.getElementById("syncMeasurement").hidden = !acMotor;
+    ["synchronousStatusMeasurement","loadAngleMeasurement","maxTorqueMeasurement"].forEach(id => {
+        document.getElementById(id).hidden = !synchronous;
+    });
+    document.getElementById("motorCurrentLabel").textContent = synchronous ? "Corrente eficaz por fase do estator" : induction ? "Corrente eficaz induzida no rotor" : "Corrente I";
+    document.getElementById("motorInputLabel").textContent = synchronous ? "Potência elétrica ativa total (modelo)" : induction ? "Potência de entreferro (entrada ideal)" : "Potência elétrica da fonte VI";
+    document.getElementById("motorCopperLabel").textContent = synchronous ? "Perdas no estator 3Ifase²Rfase" : induction ? "Perdas no rotor 3Ir²Rr" : "Perda no cobre I²R";
+    resetSimulation();
+    if (p.mode === "woundMotor" && !document.getElementById("fieldOn").checked) {
+        document.getElementById("fieldHud").textContent = "Campo desligado";
+    }
+    drawMachine();
+}
+function updateLabels() {
+    document.getElementById("fieldStrengthValue").textContent = numberPt(document.getElementById("fieldStrength").value, 1);
+    document.getElementById("fieldExcitationValue").textContent = document.getElementById("fieldExcitation").value;
+    document.getElementById("turnsValue").textContent = document.getElementById("turnsInput").value;
+    document.getElementById("areaValue").textContent = document.getElementById("areaInput").value;
+    document.getElementById("supplyVoltageValue").textContent = document.getElementById("supplyVoltage").value;
+    document.getElementById("armatureResistanceValue").textContent = numberPt(document.getElementById("armatureResistance").value, 1);
+    document.getElementById("loadTorqueValue").textContent = numberPt(document.getElementById("loadTorque").value, 3);
+    document.getElementById("generatorSpeedValue").textContent = document.getElementById("generatorSpeed").value;
+    document.getElementById("generatorCoilResistanceValue").textContent = numberPt(document.getElementById("generatorCoilResistance").value, 1);
+    document.getElementById("loadResistanceValue").textContent = document.getElementById("loadResistance").value;
+    document.getElementById("supplyFrequencyValue").textContent = document.getElementById("supplyFrequency").value;
+    document.getElementById("synchronousCurrentValue").textContent = numberPt(document.getElementById("synchronousCurrent").value,1);
+}
+function animate(timestamp) {
+    if (lastFrameTime === 0) lastFrameTime = timestamp;
+    const dt = Math.min(0.04, Math.max(0, (timestamp - lastFrameTime) / 1000)) *
+        Number(document.getElementById("timeScale").value);
+    lastFrameTime = timestamp;
+    const p = readParameters();
+    if (animationRunning && dt > 0) {
+        const steps = Math.max(1, Math.ceil(dt / 0.005));
+        const step = dt / steps;
+        for (let index = 0; index < steps; index++) {
+            const electric = p.type === "motor" ? motorSnapshot(p) : generatorSnapshot(p);
+            for (let coil=0;coil<p.coilCount;coil++) {
+                const angle=simulationAngle+coil*Math.PI/p.coilCount;
+                const current=p.type === "motor" ? electric.current : electric.currentInstantaneous;
+                const direction=(p.type === "motor" ? 1 : -1) *
+                    (p.mode === "acGenerator" ? 1 : Math.sign(Math.sin(angle)));
+                electronDrifts[coil]=(electronDrifts[coil]+current*direction*step*.15)%1;
+            }
+            simulationTime += step;
+            if (p.mode === "synchronousMotor") {
+                const s = synchronousSnapshot(p);
+                if (!s.canSynchronize) {
+                    animationRunning = false;
+                    motorOmega = 0;
+                    break;
+                }
+                motorOmega = s.syncOmega;
+                motorAcceleration = 0;
+                simulationAngle += motorOmega * step;
+                fieldAngle = simulationAngle + s.loadAngle;
+            } else if (p.type === "motor") {
+                const s = motorSnapshot(p);
+                const alpha = s.netTorque / MOTOR_INERTIA;
+                motorOmega = Math.max(0, Math.min(500, motorOmega + alpha * step));
+                motorAcceleration = motorOmega > 0 || alpha > 0 ? alpha : 0;
+                simulationAngle += motorOmega * step;
+                if (p.mode === "inductionMotor") fieldAngle += inductionSnapshot(p).syncOmega * step;
+            } else {
+                const omega = p.rpm * 2 * Math.PI / 60;
+                simulationAngle += omega * step;
+                motorOmega = omega;
+            }
+        }
+        simulationAngle %= Math.PI * 2;
+        fieldAngle %= Math.PI * 2;
+    }
+    drawMachine();
+    animationId = window.requestAnimationFrame(animate);
+}
+function setRunState(running) {
+    animationRunning = running;
+    const p = readParameters();
+    if (p.mode === "synchronousMotor" && running) {
+        const s = synchronousSnapshot(p);
+        animationRunning = s.canSynchronize;
+        motorOmega = s.canSynchronize ? s.syncOmega : 0;
+        fieldAngle = simulationAngle + s.loadAngle;
+    }
+    lastFrameTime = 0;
+    if (running && !animationId) animationId = window.requestAnimationFrame(animate);
+    drawMachine();
+}
+function resetSimulation() {
+    animationRunning = false;
+    simulationAngle = 0.4;
+    fieldAngle = 0;
+    simulationTime = 0;
+    electronDrifts = [0,0,0,0];
+    motorOmega = 0;
+    motorAcceleration = 0;
+    lastFrameTime = 0;
+    drawMachine();
+}
+
+function shuffle(items) {
+    const array = [...items];
+    for (let index = array.length - 1; index > 0; index--) {
+        const target = Math.floor(Math.random() * (index + 1));
+        [array[index], array[target]] = [array[target], array[index]];
+    }
+    return array;
+}
+function makeExercise(question, answer, distractors, explanation) {
+    const options = [];
+    [answer, ...distractors].forEach(option => {
+        if (!options.includes(option) && options.length < 5) options.push(option);
+    });
+    const fallbacks = ["Não há dados suficientes para calcular.", "As grandezas informadas não se relacionam.", "A unidade não corresponde à grandeza."];
+    fallbacks.forEach(option => { if (!options.includes(option) && options.length < 5) options.push(option); });
+    if (options.length !== 5) throw new Error("Cada exercício precisa ter cinco alternativas distintas.");
+    return { question, answer, options: shuffle(options), explanation };
+}
+function numericExercise(question, value, unit, explanation) {
+    const rounded = Number(value.toPrecision(3));
+    const format = candidate => `${numberPt(candidate, 3)} ${unit}`;
+    const answer = format(rounded);
+    const factors = [0.5, 2, 0.1, 10, 1.5, 0.25, 4];
+    const distractors = [];
+    for (const factor of factors) {
+        const option = format(Number((rounded * factor).toPrecision(3)));
+        if (option !== answer && !distractors.includes(option)) distractors.push(option);
+        if (distractors.length === 4) break;
+    }
+    while (distractors.length < 4) distractors.push(format(rounded + distractors.length + 1));
+    return makeExercise(question, answer, distractors, explanation);
+}
+function generateExercises() {
+    const turns = 20 + Math.floor(Math.random() * 7) * 10;
+    const B = Number((0.2 + Math.floor(Math.random() * 7) * 0.1).toFixed(1));
+    const areaCm2 = 30 + Math.floor(Math.random() * 8) * 10;
+    const area = areaCm2 / 10000;
+    const current = Number((0.5 + Math.floor(Math.random() * 6) * 0.25).toFixed(2));
+    const rpm = 300 + Math.floor(Math.random() * 9) * 100;
+    const omega = rpm * 2 * Math.PI / 60;
+    const torque = turns * B * area * current;
+    const kAverage = (2 / Math.PI) * turns * B * area;
+    const seconds = Math.round(10 + Math.random() * 50);
+    const exercisesForSet = [
+        numericExercise(
+            `Uma bobina de ${turns} espiras e área ${numberPt(areaCm2, 0)} cm² conduz ${numberPt(current, 2)} A num campo de ${numberPt(B, 1)} T. Qual o torque máximo?`,
+            torque, "N·m", "No torque máximo, τ = N I A B; converta a área de cm² para m² antes de substituir."
+        ),
+        numericExercise(
+            `Um eixo gira a ${rpm} rpm. Qual é aproximadamente sua velocidade angular?`,
+            omega, "rad/s", "Uma volta equivale a 2π rad e um minuto tem 60 s: ω = 2π·rpm/60."
+        ),
+        numericExercise(
+            `Um motor CC ideal tem k médio = (2/π)NBA. Com N = ${turns}, B = ${numberPt(B, 1)} T, A = ${numberPt(areaCm2, 0)} cm² e ω = ${numberPt(omega, 1)} rad/s, estime εb.`,
+            kAverage * omega, "V", "No modelo de comutação ideal, k médio = (2/π)NBA e εb = k médio·ω."
+        ),
+        numericExercise(
+            `Uma bobina de gerador tem N = ${turns}, B = ${numberPt(B, 1)} T, A = ${numberPt(areaCm2, 0)} cm² e gira a ${numberPt(omega, 1)} rad/s. Qual é a fem de pico?`,
+            turns * B * area * omega, "V", "A fem de pico é εpico = NBAω; lembre-se de usar a área em m²."
+        ),
+        numericExercise(
+            `Um eixo fornece torque de ${numberPt(torque, 3)} N·m a ${numberPt(omega, 1)} rad/s. Qual a potência mecânica?`,
+            torque * omega, "W", "Para rotação, P = τω. N·m multiplicado por rad/s resulta em watt."
+        ),
+        numericExercise(
+            `Um eixo entrega ${numberPt(torque * omega, 2)} W durante ${seconds} s. Qual energia mecânica é transferida nesse intervalo?`,
+            torque * omega * seconds, "J", "Multiplique a potência mecânica pelo intervalo: E = P·t."
+        ),
+        makeExercise(
+            "Em um motor CC, qual é o papel do comutador dividido em segmentos?",
+            "Inverter a corrente da bobina a cada meia-volta para manter o torque no mesmo sentido médio",
+            ["Manter a corrente da bobina sempre nula", "Transformar a corrente contínua em campo magnético permanente", "Aumentar a resistência da carga externa", "Impedir que a bobina gire"],
+            "O comutador troca as conexões da bobina a cada meia-volta; assim, as forças nos lados mantêm o torque médio no mesmo sentido."
+        ),
+        makeExercise(
+            "Qual conexão é característica do gerador de corrente alternada simples mostrado na simulação?",
+            "Anéis coletores, que mantêm cada extremidade ligada ao mesmo terminal externo",
+            ["Comutador dividido, que retifica mecanicamente a saída", "Uma bateria ligada em paralelo à bobina", "A bobina sem qualquer conexão elétrica", "Um resistor que inverte o campo magnético"],
+            "Os anéis coletores giram com a bobina e mantêm o contato com as escovas sem inverter as ligações; a tensão muda de sinal a cada meia-volta."
+        ),
+        makeExercise(
+            "Por que aparece uma força contraeletromotriz num motor que já está girando?",
+            "A variação do fluxo magnético na bobina em movimento induz uma tensão que se opõe à fonte",
+            ["O atrito cria uma tensão que se soma sempre à fonte", "O comutador transforma toda a energia em calor", "A resistência da armadura aumenta a carga magnética", "A tensão só existe quando o motor está parado"],
+            "O movimento da bobina no campo induz uma fem; no motor, sua polaridade se opõe à tensão aplicada."
+        ),
+        makeExercise(
+            "No modelo CC, o que ocorre com a potência elétrica VI de entrada do motor?",
+            "Ela se divide entre perda de cobre I²R e conversão eletromecânica εbI",
+            ["É toda convertida em potência mecânica sem perdas", "É toda dissipada no campo magnético", "É sempre igual à potência da carga, mesmo durante a aceleração", "É independente da corrente"],
+            "Pela equação do circuito V = εb + IR, multiplicar por I dá VI = εbI + I²R."
+        ),
+        makeExercise(
+            "Qual alteração tende a aumentar a fem induzida de pico num gerador, mantendo os demais fatores?",
+            "Aumentar a velocidade angular da bobina",
+            ["Reduzir a velocidade angular a zero", "Desligar o campo magnético", "Diminuir o número de espiras", "Reduzir a área da bobina"],
+            "εpico = NBAω; aumentando ω, a taxa de variação do fluxo aumenta."
+        ),
+        makeExercise(
+            "No gerador com comutador, como várias bobinas igualmente espaçadas afetam a tensão de saída?",
+            "Reduzem a ondulação e deixam a saída unidirecional mais uniforme",
+            ["Transformam a saída em tensão alternada senoidal sem comutador", "Eliminam a fem induzida", "Aumentam a resistência interna a zero", "Fazem o eixo parar automaticamente"],
+            "As contribuições retificadas das bobinas se sobrepõem; com mais bobinas, a tensão CC fica menos pulsante."
+        ),
+        makeExercise(
+            "Por que o rotor de um motor de indução precisa girar abaixo da velocidade do campo para produzir torque motor?",
+            "A diferença de velocidades permite induzir correntes na gaiola e produzir torque",
+            ["As escovas precisam inverter a corrente a cada meia-volta", "A gaiola recebe corrente contínua diretamente da fonte", "O rotor deve girar sempre exatamente à velocidade do campo para induzir corrente", "O rotor funciona sem qualquer campo magnético"],
+            "O escorregamento permite a indução. No sincronismo ideal, o fluxo relativo não varia e o torque de indução é nulo. A gaiola não tem escovas."
+        ),
+        makeExercise(
+            "Como um motor síncrono de ímãs permanentes responde ao aumento da carga dentro de seu limite de torque, mantendo a frequência?",
+            "Mantém a rotação síncrona e aumenta o ângulo de carga entre o rotor e o campo",
+            ["Precisa de escorregamento contínuo para induzir corrente na gaiola", "Inverte a corrente do rotor usando escovas", "Diminui necessariamente a rotação na mesma proporção da carga", "Apaga o campo de seus ímãs permanentes"],
+            "Em sincronismo, a rotação depende de f e do número de polos. O torque cresce com sen δ; o rotor mantém a velocidade do campo enquanto houver equilíbrio estável."
+        ),
+        makeExercise(
+            "No gerador CA ligado a um resistor, por que a leitura eficaz (rms) é usada para a potência?",
+            "Porque P média num resistor é Irms²R; a tensão média de uma senoide completa é zero",
+            ["Porque o valor de pico é sempre zero", "Porque a tensão rms ignora a resistência", "Porque a corrente alternada não transporta energia", "Porque a média aritmética da tensão é igual ao pico"],
+            "Para uma carga resistiva, o valor eficaz relaciona a tensão/corrente alternada à potência média dissipada."
+        )
+    ];
+    exercises = exercisesForSet;
+    window.exercises = exercises;
+    currentExercise = 0;
+    exerciseResults = [];
+    skippedQuestions = 0;
+    currentExerciseAttempts = 0;
+    selectedAnswer = null;
+    window.saveExerciseState?.();
+}
+function formValues() {
+    const ids = ["studentGrade", "studentClass", "studentTrail", "studentNameSelect", "studentNameManual", "studentEmail", "schoolTerm", "finalConclusion", "conclusionText", "criticismInput", "suggestionInput"];
+    return Object.fromEntries(ids.map(id => [id, document.getElementById(id)?.value || ""]));
+}
+function currentSavedView() {
+    if (!document.getElementById("conclusionStage").hidden) return "conclusion";
+    if (!document.getElementById("resultStage").hidden) return "results";
+    if (!document.getElementById("submissionStage").hidden) return "submission";
+    return "exercise";
+}
+function saveExerciseState() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            exercises, currentExercise, exerciseResults, skippedQuestions, currentExerciseAttempts,
+            selectedAnswer, form: formValues(), view: currentSavedView()
+        }));
+        const launcher = document.getElementById("openExercises");
+        if (launcher) launcher.textContent = "Continuar exercícios";
+    } catch (error) {
+        console.warn("Não foi possível salvar o progresso desta atividade.", error);
+    }
+}
+function restoreExerciseState() {
+    try {
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!state || !Array.isArray(state.exercises) || state.exercises.length !== 15) return false;
+        exercises = state.exercises;
+        window.exercises = exercises;
+        currentExercise = Math.max(0, Math.min(Number(state.currentExercise) || 0, exercises.length));
+        exerciseResults = Array.isArray(state.exerciseResults) ? state.exerciseResults : [];
+        skippedQuestions = Number(state.skippedQuestions) || 0;
+        currentExerciseAttempts = Number(state.currentExerciseAttempts) || 0;
+        selectedAnswer = state.selectedAnswer || null;
+        Object.entries(state.form || {}).forEach(([id, value]) => {
+            const field = document.getElementById(id);
+            if (field) field.value = value;
+        });
+        syncSelectedStudent();
+        return true;
+    } catch (error) {
+        console.warn("Não foi possível recuperar o progresso salvo.", error);
+        return false;
+    }
+}
+function updateExerciseProgress() {
+    const bar = document.getElementById("progressBar");
+    if (bar.children.length !== exercises.length) {
+        bar.innerHTML = exercises.map((_, index) => `<div class="progress-item" id="progress${index + 1}">${index + 1}</div>`).join("");
+    }
+    exercises.forEach((_, index) => {
+        const item = document.getElementById(`progress${index + 1}`);
+        const result = exerciseResults.find(entry => entry.exercise === index);
+        item.classList.toggle("active", index === currentExercise && currentExercise < exercises.length);
+        item.classList.toggle("completed", Boolean(result && result.correct));
+        item.classList.toggle("skipped", Boolean(result && result.skipped));
+    });
+}
+function showExercise() {
+    const exercise = exercises[currentExercise];
+    if (!exercise) return showConclusion();
+    document.getElementById("conclusionStage").hidden = true;
+    document.getElementById("resultStage").hidden = true;
+    document.getElementById("submissionStage").hidden = true;
+    const stage = document.getElementById("exerciseStage");
+    stage.hidden = false;
+    stage.innerHTML = `<article class="exercise-card"><h3>Exercício ${currentExercise + 1} de ${exercises.length}</h3><p class="exercise-question">${exercise.question}</p><div class="options">${exercise.options.map((option, index) => `<button type="button" class="option${selectedAnswer === option ? " selected" : ""}" data-index="${index}">${option}</button>`).join("")}</div><p class="feedback" id="answerFeedback" aria-live="polite"></p><div class="button-row exercise-actions"><button id="checkAnswer" type="button">Verificar resposta</button><button id="skipQuestion" type="button" class="skip-question">Pular exercício</button></div></article>`;
+    stage.querySelectorAll(".option").forEach(button => button.addEventListener("click", () => {
+        selectedAnswer = exercise.options[Number(button.dataset.index)];
+        stage.querySelectorAll(".option").forEach(option => option.classList.toggle("selected", option === button));
+        saveExerciseState();
+    }));
+    document.getElementById("checkAnswer").addEventListener("click", checkAnswer);
+    document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+    updateExerciseProgress();
+    saveExerciseState();
+}
+function checkAnswer() {
+    if (!selectedAnswer) {
+        const feedback = document.getElementById("answerFeedback");
+        feedback.textContent = "Selecione uma alternativa antes de verificar.";
+        feedback.className = "feedback bad";
+        return;
+    }
+    const exercise = exercises[currentExercise];
+    currentExerciseAttempts++;
+    const feedback = document.getElementById("answerFeedback");
+    const buttons = document.querySelectorAll("#exerciseStage .option");
+    if (selectedAnswer !== exercise.answer) {
+        feedback.className = "feedback bad";
+        feedback.textContent = "Incorreto. Tente novamente.";
+        buttons.forEach(button => button.classList.remove("selected"));
+        selectedAnswer = null;
+        document.querySelector(".exercise-actions").innerHTML = '<button id="skipQuestion" type="button" class="skip-question">Pular exercício</button><button id="tryAgain" type="button" class="try-again">Tentar novamente</button>';
+        document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+        document.getElementById("tryAgain").addEventListener("click", () => {
+            feedback.textContent = "";
+            document.querySelector(".exercise-actions").innerHTML = '<button id="checkAnswer" type="button">Verificar resposta</button><button id="skipQuestion" type="button" class="skip-question">Pular exercício</button>';
+            document.getElementById("checkAnswer").addEventListener("click", checkAnswer);
+            document.getElementById("skipQuestion").addEventListener("click", skipQuestion);
+        });
+        saveExerciseState();
+        return;
+    }
+    exerciseResults.push({ exercise: currentExercise, correct: true, skipped: false, answer: selectedAnswer, expected: exercise.answer, question: exercise.question, attempts: currentExerciseAttempts });
+    currentExerciseAttempts = 0;
+    feedback.className = "feedback good";
+    feedback.textContent = `Correto! ${exercise.explanation}`;
+    buttons.forEach(button => {
+        button.disabled = true;
+        if (exercise.options[Number(button.dataset.index)] === exercise.answer) button.classList.add("correct");
+    });
+    currentExercise++;
+    selectedAnswer = null;
+    updateExerciseProgress();
+    saveExerciseState();
+    document.querySelector(".exercise-actions").replaceChildren();
+    window.setTimeout(() => {
+        if (!document.getElementById("exerciseModal").classList.contains("open")) return;
+        if (currentExercise >= exercises.length) showConclusion(); else showExercise();
+    }, 1200);
+}
+function skipQuestion() {
+    if (!window.confirm("Deseja pular este exercício? A questão será registrada como incorreta.")) return;
+    const exercise = exercises[currentExercise];
+    exerciseResults.push({ exercise: currentExercise, correct: false, skipped: true, answer: selectedAnswer, expected: exercise.answer, question: exercise.question, attempts: currentExerciseAttempts });
+    skippedQuestions++;
+    currentExercise++;
+    currentExerciseAttempts = 0;
+    selectedAnswer = null;
+    updateExerciseProgress();
+    saveExerciseState();
+    if (currentExercise >= exercises.length) showConclusion(); else showExercise();
+}
+function showConclusion() {
+    document.getElementById("exerciseStage").hidden = true;
+    document.getElementById("resultStage").hidden = true;
+    document.getElementById("submissionStage").hidden = true;
+    document.getElementById("conclusionStage").hidden = false;
+    document.getElementById("conclusionText").value ||= document.getElementById("finalConclusion").value;
+    updateExerciseProgress();
+    saveExerciseState();
+}
+function showResults() {
+    const conclusion = document.getElementById("conclusionText").value.trim();
+    if (!conclusion) {
+        document.getElementById("conclusionText").focus();
+        document.getElementById("conclusionText").setCustomValidity("Escreva sua conclusão antes de finalizar.");
+        document.getElementById("conclusionText").reportValidity();
+        document.getElementById("conclusionText").setCustomValidity("");
+        return;
+    }
+    document.getElementById("finalConclusion").value = conclusion;
+    document.getElementById("conclusionStage").hidden = true;
+    document.getElementById("exerciseStage").hidden = true;
+    const correct = exerciseResults.filter(result => result.correct).length;
+    const percentage = exercises.length ? Math.round(correct / exercises.length * 100) : 0;
+    const stage = document.getElementById("resultStage");
+    stage.hidden = false;
+    stage.innerHTML = `<div class="stage-card results-summary"><h3>Resultados dos exercícios</h3><p>Exercícios registrados: <strong>${exerciseResults.length} de ${exercises.length}</strong></p><p>Respostas corretas: <strong>${correct}</strong></p><p>Exercícios pulados: <strong>${skippedQuestions}</strong></p><p>Nota: <strong>${percentage}%</strong></p><button id="continueToSubmission" type="button">Identificar e enviar resultados</button></div>`;
+    document.getElementById("submissionStage").hidden = true;
+    document.getElementById("continueToSubmission").addEventListener("click", () => {
+        document.getElementById("submissionStage").hidden = false;
+        document.getElementById("resultsContainer").style.display = "block";
+        saveExerciseState();
+    });
+    saveExerciseState();
+    stage.scrollIntoView({ block: "nearest" });
+}
+function restoreSavedView(view) {
+    if (view === "conclusion") return showConclusion();
+    if (view === "results" || view === "submission") {
+        document.getElementById("conclusionText").value ||= document.getElementById("finalConclusion").value;
+        showResults();
+        if (view === "submission") {
+            document.getElementById("continueToSubmission").hidden = true;
+            document.getElementById("submissionStage").hidden = false;
+            document.getElementById("resultsContainer").style.display = "block";
+        }
+        return;
+    }
+    showExercise();
+}
+function getSavedExerciseView() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null")?.view || "exercise"; }
+    catch (error) { console.warn("Não foi possível identificar a etapa salva.", error); return "exercise"; }
+}
+function openExercisesModal() {
+    document.getElementById("exerciseModal").classList.add("open");
+    const restored = restoreExerciseState();
+    if (!restored) generateExercises();
+    if (currentExercise >= exercises.length && exercises.length) showConclusion();
+    else restoreSavedView(restored ? getSavedExerciseView() : "exercise");
+}
+function restartExercises() {
+    if (!window.confirm("Gerar novos dados e apagar o progresso atual dos exercícios?")) return;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (error) { console.warn("Não foi possível apagar o progresso.", error); }
+    document.getElementById("conclusionText").value = "";
+    document.getElementById("finalConclusion").value = "";
+    document.getElementById("submissionStage").hidden = true;
+    document.getElementById("resultStage").hidden = true;
+    document.getElementById("conclusionStage").hidden = true;
+    document.getElementById("exerciseStage").hidden = false;
+    document.getElementById("emailStatus").textContent = "";
+    generateExercises();
+    showExercise();
+}
+function syncSelectedStudent() {
+    const select = document.getElementById("studentNameSelect");
+    const manual = document.getElementById("studentNameManual");
+    const isOther = select.value === "__OTHER__";
+    document.getElementById("studentNameManualRow").hidden = !isOther;
+    manual.required = isOther;
+    document.getElementById("studentName").value = isOther ? manual.value.trim() : select.value;
+}
+function validateSubmission() {
+    syncSelectedStudent();
+    const required = ["studentGrade", "studentClass", "schoolTerm", "finalConclusion", "studentName"];
+    if (required.some(id => !document.getElementById(id).value.trim()) ||
+        (document.getElementById("studentNameSelect").value === "__OTHER__" && !document.getElementById("studentNameManual").value.trim())) {
+        const status = document.getElementById("emailStatus");
+        status.textContent = "Preencha os campos obrigatórios: série, turma, nome, bimestre e conclusão.";
+        status.className = "email-status feedback bad";
+        return false;
+    }
+    return true;
+}
+function sendResultsToSheet() {
+    if (!validateSubmission()) return;
+    if (typeof window.__simulationEnhancerSendResults !== "function") {
+        const status = document.getElementById("emailStatus");
+        status.textContent = "O serviço compartilhado de envio não está disponível. Verifique a conexão e tente novamente.";
+        status.className = "email-status feedback bad";
+        console.error("Integração de envio do simulation-enhancer.js indisponível.");
+        return;
+    }
+    saveExerciseState();
+    return window.__simulationEnhancerSendResults();
+}
+function resetExerciseState() {
+    exercises = []; window.exercises = exercises; currentExercise = 0; exerciseResults = [];
+    skippedQuestions = 0; currentExerciseAttempts = 0; selectedAnswer = null;
+    try { localStorage.removeItem(STORAGE_KEY); } catch (error) { console.warn("Não foi possível apagar o progresso salvo.", error); }
+    document.getElementById("openExercises").textContent = "Praticar: exercícios";
+}
+function stopExampleNarration() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (activeNarrationButton) { activeNarrationButton.textContent = "Ouvir explicação"; activeNarrationButton = null; }
+    document.querySelectorAll(".narration-status").forEach(status => { status.textContent = ""; });
+}
+function playExampleNarration(button) {
+    const text = exampleNarrations[button.dataset.example];
+    const status = button.closest(".narration-controls").querySelector(".narration-status");
+    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+        status.textContent = "A leitura em voz alta não está disponível neste navegador.";
+        return;
+    }
+    if (activeNarrationButton === button && window.speechSynthesis.speaking) { stopExampleNarration(); return; }
+    stopExampleNarration();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = window.speechSynthesis.getVoices().find(candidate => candidate.lang.toLowerCase().startsWith("pt"));
+    if (voice) utterance.voice = voice;
+    utterance.lang = voice?.lang || "pt-BR"; utterance.rate = 0.95;
+    activeNarrationButton = button;
+    button.textContent = "Parar áudio"; status.textContent = "Reproduzindo explicação…";
+    utterance.onend = () => {
+        if (activeNarrationButton === button) { button.textContent = "Ouvir explicação"; activeNarrationButton = null; status.textContent = ""; }
+    };
+    utterance.onerror = () => {
+        if (activeNarrationButton === button) { button.textContent = "Ouvir explicação"; activeNarrationButton = null; status.textContent = "Não foi possível reproduzir o áudio."; }
+    };
+    window.speechSynthesis.speak(utterance);
+}
+function closeExerciseModal() {
+    document.getElementById("exerciseModal").classList.remove("open");
+    const tutor = document.querySelector(".ai-tutor-panel");
+    if (tutor) tutor.hidden = true;
+}
+function initializeSimulation() {
+    updateLabels();
+    const adjustable = ["fieldStrength", "fieldExcitation", "turnsInput", "areaInput", "coilCount", "acCoilCount", "supplyVoltage", "armatureResistance", "loadTorque", "generatorSpeed", "generatorCoilResistance", "loadResistance", "fieldOn", "supplyFrequency", "synchronousCurrent", "showField", "showForces", "showStructure", "showElectrons", "timeScale"];
+    adjustable.forEach(id => {
+        const update = () => {
+            updateLabels();
+            if (readParameters().mode === "synchronousMotor" &&
+                !["showField","showForces","showStructure","showElectrons","timeScale"].includes(id)) resetSimulation();
+            else drawMachine();
+        };
+        document.getElementById(id).addEventListener("input", update);
+        document.getElementById(id).addEventListener("change", update);
+    });
+    document.getElementById("simulationMode").addEventListener("change", updateMode);
+    document.getElementById("runButton").addEventListener("click", () => setRunState(true));
+    document.getElementById("pauseButton").addEventListener("click", () => setRunState(false));
+    document.getElementById("resetButton").addEventListener("click", resetSimulation);
+    document.getElementById("openExercises").addEventListener("click", openExercisesModal);
+    document.getElementById("closeExercises").addEventListener("click", closeExerciseModal);
+    document.getElementById("restartExercisesBtn").addEventListener("click", restartExercises);
+    document.getElementById("submitConclusion").addEventListener("click", showResults);
+    document.getElementById("sendResults").addEventListener("click", sendResultsToSheet);
+    document.getElementById("studentNameSelect").addEventListener("change", syncSelectedStudent);
+    document.getElementById("studentNameManual").addEventListener("input", syncSelectedStudent);
+    ["studentGrade", "studentClass", "studentTrail", "studentNameSelect", "studentNameManual", "studentEmail", "schoolTerm", "finalConclusion", "conclusionText", "criticismInput", "suggestionInput"].forEach(id => {
+        const field = document.getElementById(id);
+        field.addEventListener("input", saveExerciseState);
+        field.addEventListener("change", saveExerciseState);
+    });
+    document.getElementById("conclusionText").addEventListener("input", () => {
+        document.getElementById("finalConclusion").value = document.getElementById("conclusionText").value;
+    });
+    document.getElementById("exerciseModal").addEventListener("click", event => {
+        if (event.target.id === "exerciseModal") closeExerciseModal();
+    });
+    document.getElementById("openSolved").addEventListener("click", () => document.getElementById("solvedModal").classList.add("open"));
+    document.getElementById("openTheory").addEventListener("click", () => document.getElementById("theoryModal").classList.add("open"));
+    document.querySelectorAll("[data-close-content]").forEach(button => button.addEventListener("click", () => {
+        button.closest(".content-backdrop").classList.remove("open"); stopExampleNarration();
+    }));
+    document.querySelectorAll("[data-example]").forEach(button => button.addEventListener("click", () => playExampleNarration(button)));
+    document.querySelectorAll(".content-backdrop").forEach(modal => modal.addEventListener("click", event => {
+        if (event.target === modal) { modal.classList.remove("open"); stopExampleNarration(); }
+    }));
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            if (document.getElementById("exerciseModal").classList.contains("open")) closeExerciseModal();
+            document.querySelectorAll(".content-backdrop.open").forEach(modal => modal.classList.remove("open"));
+            stopExampleNarration();
+        }
+    });
+    updateMode();
+    if ("ResizeObserver" in window) new ResizeObserver(resizeCanvas).observe(canvas);
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    animationId = window.requestAnimationFrame(animate);
+}
+window.generateExercises = generateExercises;
+window.saveExerciseState = saveExerciseState;
+window.resetExerciseState = resetExerciseState;
+window.resetAndRestartExercises = restartExercises;
+window.openExercisesModal = openExercisesModal;
+window.sendResultsToSheet = sendResultsToSheet;
+window.exercises = exercises;
+window.addEventListener("DOMContentLoaded", initializeSimulation);
+</script>
+<script>
+window.SIMULATION_ENHANCER_CONFIG = {
+    simulationName: "Motores Elétricos e Geradores",
+    storageKey: "motores-geradores",
+    enableEnemQuestions: true
+};
+window.AI_TUTOR_CONFIG = {
+    enabled: true,
+    simulationKey: "forca-magnetica",
+    apiUrl: "https://tutor-ia-fisica-vrcy.onrender.com/api/tutor"
+};
+</script>
+<script src="../_shared/student-access-config.js"></script>
+<script src="../_shared/enem-question-bank.js"></script>
+<script src="../_shared/simulation-enhancer.js"></script>
+<script src="../_shared/ai-tutor.js"></script>
+</body>
+</html>
