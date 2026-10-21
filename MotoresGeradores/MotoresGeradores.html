@@ -1352,86 +1352,89 @@ function generateExercises() {
     const rpm = 300 + Math.floor(Math.random() * 9) * 100;
     const omega = rpm * 2 * Math.PI / 60;
     const torque = turns * B * area * current;
+    const givenOmega = Number(omega.toFixed(1));
+    const givenTorque = Number(torque.toFixed(3));
+    const givenPower = Number((torque * omega).toFixed(2));
     const kAverage = (2 / Math.PI) * turns * B * area;
     const seconds = Math.round(10 + Math.random() * 50);
     const exercisesForSet = [
         numericExercise(
-            `Uma bobina de ${turns} espiras e área ${numberPt(areaCm2, 0)} cm² conduz ${numberPt(current, 2)} A num campo de ${numberPt(B, 1)} T. Qual o torque máximo?`,
-            torque, "N·m", "No torque máximo, τ = N I A B; converta a área de cm² para m² antes de substituir."
+            `Em um pequeno motor de laboratório, uma bobina plana possui ${turns} espiras, cada uma delimitando uma área de ${numberPt(areaCm2, 0)} cm². A bobina conduz uma corrente de ${numberPt(current, 2)} A e está inteiramente imersa em um campo magnético uniforme de ${numberPt(B, 1)} T. Considere o instante em que a direção perpendicular ao plano da bobina forma 90° com o campo, situação de torque máximo. Qual é o módulo desse torque? Use τ = N I A B sen θ, em que N é o número de espiras, A é a área de cada espira e θ é o ângulo entre a perpendicular à bobina e o campo. Lembre-se: 1 cm² = 10⁻⁴ m².`,
+            torque, "N·m", "Como θ = 90°, sen θ = 1. Converta a área de cada espira para m², multiplicando o valor em cm² por 10⁻⁴, e calcule τmáx = N I A B. Não é necessário multiplicar a área por N antes de usar a fórmula, pois N já aparece nela."
         ),
         numericExercise(
-            `Um eixo gira a ${rpm} rpm. Qual é aproximadamente sua velocidade angular?`,
-            omega, "rad/s", "Uma volta equivale a 2π rad e um minuto tem 60 s: ω = 2π·rpm/60."
+            `Um técnico mede a rotação constante do eixo de um motor e encontra ${rpm} rpm, isto é, ${rpm} voltas por minuto. Para calcular a potência mecânica, ele precisa expressar essa rotação como velocidade angular em radianos por segundo. Sabendo que uma volta corresponde a 2π radianos e que um minuto tem 60 segundos, qual é aproximadamente a velocidade angular do eixo?`,
+            omega, "rad/s", "Multiplique as voltas por minuto por 2π radianos por volta e divida por 60 segundos por minuto: ω = 2π·rpm/60. A velocidade angular não tem o mesmo valor numérico da rotação em rpm."
         ),
         numericExercise(
-            `Um motor CC ideal tem k médio = (2/π)NBA. Com N = ${turns}, B = ${numberPt(B, 1)} T, A = ${numberPt(areaCm2, 0)} cm² e ω = ${numberPt(omega, 1)} rad/s, estime εb.`,
-            kAverage * omega, "V", "No modelo de comutação ideal, k médio = (2/π)NBA e εb = k médio·ω."
+            `Um motor de corrente contínua tem uma única bobina de armadura, com ${turns} espiras de área ${numberPt(areaCm2, 0)} cm² cada, girando em um campo uniforme de ${numberPt(B, 1)} T. Um comutador ideal inverte as conexões a cada meia-volta. Para esse modelo, a força contraeletromotriz média, tensão induzida que se opõe à fonte, é dada por εb = kmédio·ω, com kmédio = (2/π) N B A. Se a velocidade angular é ${numberPt(givenOmega, 1)} rad/s, qual é aproximadamente εb? Use a área A de cada espira em m²; 1 cm² = 10⁻⁴ m². Despreze quedas de tensão nas escovas.`,
+            kAverage * givenOmega, "V", "Converta a área para m², calcule kmédio = (2/π) N B A e multiplique pela velocidade angular informada. O fator 2/π representa a média, ao longo de uma volta, da tensão senoidal retificada pelo comutador ideal; o resultado pedido não é o valor de pico."
         ),
         numericExercise(
-            `Uma bobina de gerador tem N = ${turns}, B = ${numberPt(B, 1)} T, A = ${numberPt(areaCm2, 0)} cm² e gira a ${numberPt(omega, 1)} rad/s. Qual é a fem de pico?`,
-            turns * B * area * omega, "V", "A fem de pico é εpico = NBAω; lembre-se de usar a área em m²."
+            `Em um gerador de corrente alternada de laboratório, uma bobina plana de ${turns} espiras gira com velocidade angular constante de ${numberPt(givenOmega, 1)} rad/s. Cada espira tem área de ${numberPt(areaCm2, 0)} cm² e está imersa em um campo magnético uniforme de ${numberPt(B, 1)} T. O eixo de rotação está no plano da bobina e é perpendicular ao campo, de modo que o fluxo magnético varia senoidalmente a cada volta. Qual é o valor de pico, ou seja, o maior módulo da força eletromotriz induzida? Use εpico = N B A ω, com A em m² e 1 cm² = 10⁻⁴ m².`,
+            turns * B * area * givenOmega, "V", "Na expressão εpico = N B A ω, N é o número de espiras e A é a área de uma espira em m². Substitua o campo e a velocidade angular fornecidos. O valor de pico é diferente do valor eficaz, que para uma senoide é εpico/√2."
         ),
         numericExercise(
-            `Um eixo fornece torque de ${numberPt(torque, 3)} N·m a ${numberPt(omega, 1)} rad/s. Qual a potência mecânica?`,
-            torque * omega, "W", "Para rotação, P = τω. N·m multiplicado por rad/s resulta em watt."
+            `O eixo de um motor aciona uma pequena esteira transportadora. Durante um trecho de funcionamento uniforme, o torque efetivamente entregue à esteira é constante e vale ${numberPt(givenTorque, 3)} N·m, no mesmo sentido da rotação. A velocidade angular do eixo é ${numberPt(givenOmega, 1)} rad/s. Qual é aproximadamente a potência mecânica útil recebida pela esteira? Use P = τω. Como o torque informado já é o entregue à carga, não desconte novamente as perdas internas do motor.`,
+            givenTorque * givenOmega, "W", "A potência mecânica útil é o produto do torque entregue à carga pela velocidade angular: P = τω. Use os dois valores informados neste enunciado; o resultado é expresso em watts."
         ),
         numericExercise(
-            `Um eixo entrega ${numberPt(torque * omega, 2)} W durante ${seconds} s. Qual energia mecânica é transferida nesse intervalo?`,
-            torque * omega * seconds, "J", "Multiplique a potência mecânica pelo intervalo: E = P·t."
+            `Durante um ensaio, um motor transfere energia a uma máquina por meio de seu eixo, fornecendo potência mecânica útil constante de ${numberPt(givenPower, 2)} W durante ${seconds} s. Qual é a energia mecânica total recebida pela máquina nesse intervalo? Use E = P·Δt e lembre-se de que 1 W = 1 J/s. A potência informada já considera as perdas internas do motor.`,
+            givenPower * seconds, "J", "Para potência constante, E = P·Δt. Multiplique a potência útil fornecida, em watts, pelo tempo, em segundos. O resultado é a energia transferida à máquina, em joules, e não a energia elétrica total consumida pelo motor."
         ),
         makeExercise(
-            "Em um motor CC, qual é o papel do comutador dividido em segmentos?",
+            "Um motor simples é alimentado por uma bateria e possui uma bobina que gira entre os polos de ímãs fixos. As extremidades da bobina estão ligadas a duas metades metálicas isoladas entre si, que giram com o eixo e recebem corrente por escovas fixas: esse conjunto é o comutador. Qual é a função da troca de contatos realizada pelo comutador a cada meia-volta?",
             "Inverter a corrente da bobina a cada meia-volta para manter o torque no mesmo sentido médio",
             ["Manter a corrente da bobina sempre nula", "Transformar a corrente contínua em campo magnético permanente", "Aumentar a resistência da carga externa", "Impedir que a bobina gire"],
-            "O comutador troca as conexões da bobina a cada meia-volta; assim, as forças nos lados mantêm o torque médio no mesmo sentido."
+            "Após meia-volta, os lados da bobina trocam de posição no campo. A inversão da corrente nos condutores faz com que o torque continue favorecendo o mesmo sentido de rotação. A bateria mantém sua polaridade; quem troca as conexões com as extremidades da bobina é o comutador."
         ),
         makeExercise(
-            "Qual conexão é característica do gerador de corrente alternada simples mostrado na simulação?",
+            "Uma turma constrói um gerador monofásico com uma bobina que gira entre polos magnéticos fixos. O fluxo através da bobina varia senoidalmente e a tensão induzida nela muda de sinal a cada meia-volta. Para alimentar um circuito externo com essa tensão alternada, sem retificá-la mecanicamente, que conexão deve ser usada entre as extremidades da bobina girante e as escovas fixas?",
             "Anéis coletores, que mantêm cada extremidade ligada ao mesmo terminal externo",
             ["Comutador dividido, que retifica mecanicamente a saída", "Uma bateria ligada em paralelo à bobina", "A bobina sem qualquer conexão elétrica", "Um resistor que inverte o campo magnético"],
-            "Os anéis coletores giram com a bobina e mantêm o contato com as escovas sem inverter as ligações; a tensão muda de sinal a cada meia-volta."
+            "Cada extremidade da bobina liga-se a um anel coletor contínuo, isolado do outro anel, em contato com sua própria escova. Como as conexões não se invertem durante a rotação, a mudança de sinal da tensão induzida também aparece nos terminais externos. Um comutador dividido produziria uma saída retificada."
         ),
         makeExercise(
-            "Por que aparece uma força contraeletromotriz num motor que já está girando?",
+            "Um motor de corrente contínua recebe tensão de uma bateria. Quando sua armadura começa a girar no campo magnético dos polos, aparece nos terminais da armadura uma tensão induzida, chamada força contraeletromotriz. Mantendo-se a tensão da bateria e a resistência do enrolamento, essa tensão induzida reduz a corrente em comparação com a situação de rotor parado. Qual fenômeno explica seu aparecimento e sua polaridade?",
             "A variação do fluxo magnético na bobina em movimento induz uma tensão que se opõe à fonte",
             ["O atrito cria uma tensão que se soma sempre à fonte", "O comutador transforma toda a energia em calor", "A resistência da armadura aumenta a carga magnética", "A tensão só existe quando o motor está parado"],
-            "O movimento da bobina no campo induz uma fem; no motor, sua polaridade se opõe à tensão aplicada."
+            "A rotação faz variar o fluxo magnético através das espiras e induz uma tensão pela lei de Faraday. No funcionamento como motor, a lei de Lenz determina uma polaridade contrária à tensão aplicada. Assim, I = (V − εb)/R; com o rotor parado, εb é nula nesse modelo."
         ),
         makeExercise(
-            "No modelo CC, o que ocorre com a potência elétrica VI de entrada do motor?",
+            "Considere o circuito da armadura de um motor de corrente contínua com ímãs permanentes. A tensão aplicada é V, a corrente é I, a resistência do enrolamento é R e a força contraeletromotriz é εb. Despreze a indutância e as quedas nas escovas, de modo que V = εb + IR. Como a potência elétrica VI recebida pela armadura se distribui nesse modelo? Considere separadamente as eventuais perdas mecânicas posteriores à conversão de energia.",
             "Ela se divide entre perda de cobre I²R e conversão eletromecânica εbI",
             ["É toda convertida em potência mecânica sem perdas", "É toda dissipada no campo magnético", "É sempre igual à potência da carga, mesmo durante a aceleração", "É independente da corrente"],
-            "Pela equação do circuito V = εb + IR, multiplicar por I dá VI = εbI + I²R."
+            "Multiplicando V = εb + IR pela corrente, obtém-se VI = εbI + I²R. A parcela I²R aquece o enrolamento; εbI é a potência convertida em mecânica. Essa potência convertida ainda pode vencer atrito, acelerar o rotor e acionar a carga, portanto não é necessariamente igual à potência útil da carga."
         ),
         makeExercise(
-            "Qual alteração tende a aumentar a fem induzida de pico num gerador, mantendo os demais fatores?",
+            "Um gerador possui uma bobina plana que gira em campo magnético uniforme, com o eixo no plano da bobina e perpendicular ao campo. O valor de pico da tensão induzida obedece a εpico = N B A ω, em que N é o número de espiras, B é o campo, A é a área de cada espira e ω é a velocidade angular. Um técnico deseja aumentar esse valor de pico, modificando apenas um desses fatores. Qual das alterações abaixo atende ao objetivo?",
             "Aumentar a velocidade angular da bobina",
             ["Reduzir a velocidade angular a zero", "Desligar o campo magnético", "Diminuir o número de espiras", "Reduzir a área da bobina"],
-            "εpico = NBAω; aumentando ω, a taxa de variação do fluxo aumenta."
+            "Mantendo N, B e A constantes, εpico é diretamente proporcional a ω. Girar mais rapidamente aumenta a taxa de variação do fluxo magnético. As demais alterações propostas diminuem ou anulam a tensão induzida."
         ),
         makeExercise(
-            "No gerador com comutador, como várias bobinas igualmente espaçadas afetam a tensão de saída?",
+            "Um gerador de corrente contínua usa bobinas distribuídas ao redor do rotor e um comutador com vários segmentos. As bobinas passam pelos máximos de tensão em instantes diferentes, e o comutador combina suas contribuições retificadas na saída. Mantendo o campo, a rotação e o total de espiras do rotor, qual é o principal efeito esperado sobre a forma da tensão de saída ao repartir as espiras entre mais bobinas igualmente espaçadas e adequadamente conectadas?",
             "Reduzem a ondulação e deixam a saída unidirecional mais uniforme",
-            ["Transformam a saída em tensão alternada senoidal sem comutador", "Eliminam a fem induzida", "Aumentam a resistência interna a zero", "Fazem o eixo parar automaticamente"],
-            "As contribuições retificadas das bobinas se sobrepõem; com mais bobinas, a tensão CC fica menos pulsante."
+            ["Transformam a saída em tensão alternada senoidal sem comutador", "Eliminam a fem induzida", "Reduzem necessariamente a resistência interna a zero", "Fazem o eixo parar automaticamente"],
+            "As tensões retificadas das bobinas estão defasadas: quando a contribuição de uma diminui, outras podem estar maiores. Sua combinação reduz a ondulação da saída, sem transformá-la em tensão alternada. Redistribuir um mesmo total de espiras não significa aumentar automaticamente a tensão média ou a potência."
         ),
         makeExercise(
-            "Por que o rotor de um motor de indução precisa girar abaixo da velocidade do campo para produzir torque motor?",
+            "Um motor de indução trifásico possui um rotor em gaiola: barras condutoras fechadas por anéis, sem ligação elétrica direta com a fonte. O estator produz um campo magnético girante. Em funcionamento como motor, com carga no eixo e no mesmo sentido de rotação do campo, por que o rotor precisa girar um pouco mais devagar que esse campo? Considere o modelo ideal em que as correntes da gaiola são produzidas apenas por indução.",
             "A diferença de velocidades permite induzir correntes na gaiola e produzir torque",
             ["As escovas precisam inverter a corrente a cada meia-volta", "A gaiola recebe corrente contínua diretamente da fonte", "O rotor deve girar sempre exatamente à velocidade do campo para induzir corrente", "O rotor funciona sem qualquer campo magnético"],
-            "O escorregamento permite a indução. No sincronismo ideal, o fluxo relativo não varia e o torque de indução é nulo. A gaiola não tem escovas."
+            "A diferença entre a velocidade do campo e a do rotor, expressa pelo escorregamento, produz movimento relativo do campo em relação às barras e induz correntes. Essas correntes interagem com o campo e geram torque. Se o rotor alcançasse exatamente a velocidade do campo, não haveria indução nem torque nesse modelo ideal."
         ),
         makeExercise(
-            "Como um motor síncrono de ímãs permanentes responde ao aumento da carga dentro de seu limite de torque, mantendo a frequência?",
+            "Um motor síncrono trifásico tem ímãs permanentes no rotor e já opera de forma estável, acompanhando o campo girante do estator. A frequência da alimentação, o número de polos e a intensidade do campo girante permanecem constantes. A carga mecânica aumenta lentamente, mas continua abaixo do limite de torque estável do motor. Depois de um breve ajuste, como ficam a velocidade de rotação e o ângulo de carga, isto é, o atraso angular do rotor em relação ao campo girante?",
             "Mantém a rotação síncrona e aumenta o ângulo de carga entre o rotor e o campo",
             ["Precisa de escorregamento contínuo para induzir corrente na gaiola", "Inverte a corrente do rotor usando escovas", "Diminui necessariamente a rotação na mesma proporção da carga", "Apaga o campo de seus ímãs permanentes"],
-            "Em sincronismo, a rotação depende de f e do número de polos. O torque cresce com sen δ; o rotor mantém a velocidade do campo enquanto houver equilíbrio estável."
+            "Em regime síncrono, a velocidade depende da frequência e do número de polos, que não mudaram. Na região estável do modelo τ = τmáx sen δ, o aumento do torque exigido faz crescer o ângulo de carga δ. O rotor volta a acompanhar o campo com a mesma velocidade, mas com maior atraso angular; não há escorregamento permanente."
         ),
         makeExercise(
-            "No gerador CA ligado a um resistor, por que a leitura eficaz (rms) é usada para a potência?",
+            "Um gerador de corrente alternada alimenta apenas um resistor de resistência R constante. A tensão e a corrente são senoidais, estão em fase e têm médias aritméticas nulas quando calculadas ao longo de um período completo, mas o resistor aquece. Para determinar a potência média dissipada, por que se usam os valores eficazes de tensão e corrente, também chamados rms?",
             "Porque P média num resistor é Irms²R; a tensão média de uma senoide completa é zero",
             ["Porque o valor de pico é sempre zero", "Porque a tensão rms ignora a resistência", "Porque a corrente alternada não transporta energia", "Porque a média aritmética da tensão é igual ao pico"],
-            "Para uma carga resistiva, o valor eficaz relaciona a tensão/corrente alternada à potência média dissipada."
+            "A potência instantânea é p = i²R e não muda de sinal com a corrente. O valor eficaz é definido por Irms² = média de i², logo Pmédia = Irms²R = Vrms²/R. Ele corresponde ao valor contínuo que produziria o mesmo aquecimento. Para uma senoide, Vrms = Vpico/√2; a média aritmética nula da tensão não significa potência média nula."
         )
     ];
     exercises = exercisesForSet;
