@@ -92,6 +92,14 @@
         .measurement strong { display: block; color: var(--accent); font-size: 1.05rem; overflow-wrap: anywhere; }
         .equation { margin-top: 12px; padding: 12px; background: #ffffff12; border-radius: 10px; text-align: center; }
         .equation p { margin: 4px 0; }
+        .equation .equation-label { margin-top: 16px; color: var(--cyan); }
+        .equation .equation-explanation { text-align: left; margin: 8px 0 12px; line-height: 1.6; }
+        .equation { overflow-wrap: anywhere; }
+        .equation-definitions { text-align: left; margin: 12px 0; font-size: .9rem; line-height: 1.5; }
+        .equation-definitions dt { display: inline; font-weight: 700; color: var(--cyan); }
+        .equation-definitions dd { display: inline; margin: 0; }
+        .equation-definitions dd::after { content: ""; display: block; margin-bottom: 6px; }
+        .equation-definitions dt::after { content: ": "; }
         .note { font-size: .93rem; }
         .mode-content[hidden] { display: none; }
         .lesson { margin-top: 18px; padding: 18px; }
@@ -151,7 +159,16 @@
         .narration-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 11px; }
         .narration-controls button { min-width: 132px; }
         .narration-status { color: var(--muted); font-size: .9rem; }
-        .theory-formula { margin: 10px 0; padding: 11px; border-radius: 8px; background: #0005; text-align: center; font: 1.05rem "Courier New", monospace; overflow-wrap: anywhere; }
+        .theory-formula { margin: 14px 0 10px; padding: 16px 12px; border: 1px solid var(--accent); border-left: 4px solid var(--accent); border-radius: 8px; background: #0005; color: #fff; text-align: center; font: 700 1.15rem/1.7 "Courier New", monospace; overflow-wrap: anywhere; }
+        .theory-section { line-height: 1.65; }
+        .theory-section h4 { margin: 18px 0 8px; color: var(--cyan); }
+        .theory-section p { margin: 10px 0; }
+        .theory-section li { margin-bottom: 7px; }
+        .theory-variables { margin: 0 0 16px; padding: 10px 14px; border-radius: 8px; background: #ffffff08; }
+        .theory-variables dt { font-weight: 700; color: var(--cyan); overflow-wrap: anywhere; }
+        .theory-variables dd { margin: 0 0 8px 14px; }
+        .theory-example { padding: 10px 14px; border-left: 3px solid var(--green); background: #ffffff08; border-radius: 6px; }
+        .theory-section summary { cursor: pointer; color: var(--cyan); font-weight: 700; }
         footer { padding: 20px; margin-top: 20px; text-align: center; background: rgba(0,0,0,.5); border-radius: 10px; color: #ccc; font-size: .9rem; }
         footer a { color: #ffcc00; overflow-wrap: anywhere; }
         .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
@@ -319,24 +336,129 @@
             <div class="checkline"><input id="showElectrons" type="checkbox" checked><label for="showElectrons">Mostrar elétrons nos condutores</label></div>
             <p class="note">Para destacar apenas campo e elétrons, oculte a estrutura e as forças. Os elétrons permanecem nos trajetos dos condutores, mesmo com os fios ocultos.</p>
             <div class="equation" id="motorEquation">
-                <p><strong>Motor:</strong> ε<sub>b</sub> = k(θ)ω; I = (V − ε<sub>b</sub>)/R; τ = k(θ)I</p>
-                <p><strong>Conversão:</strong> ε<sub>b</sub>I = τω; τ<sub>líquido</sub> = Jα</p>
-                <p>n bobinas, cada uma com N espiras: k(θ) = nNBA·g(θ), com g sendo a média de |sen θ| das bobinas. F = NBIL em cada lado ativo da bobina quadrada (L = √A).</p>
+                <p><strong>Motor CC</strong></p>
+                <p class="equation-label"><strong>Força contraeletromotriz</strong></p>
+                <p>ε<sub>b</sub> = k(θ) · ω</p>
+                <p class="equation-label"><strong>Corrente elétrica na armadura</strong></p>
+                <p>I = (V − ε<sub>b</sub>) / R</p>
+                <p class="equation-label"><strong>Torque eletromagnético</strong></p>
+                <p>τ = k(θ) · I</p>
+                <p class="equation-label"><strong>Conversão de potência elétrica em mecânica</strong></p>
+                <p>ε<sub>b</sub> · I = τ · ω</p>
+                <p class="equation-explanation">Os dois lados representam a mesma potência convertida, em watts: à esquerda, tensão induzida vezes corrente; à direita, torque eletromagnético vezes velocidade angular. Não é toda a potência recebida da fonte: uma parte aquece o enrolamento. A potência convertida ainda pode vencer atrito, acionar a carga e acelerar o rotor.</p>
+                <p class="equation-label"><strong>Torque resultante e aceleração do rotor</strong></p>
+                <p>τ<sub>líquido</sub> = τ − τ<sub>carga</sub> − τ<sub>atrito</sub></p>
+                <p>τ<sub>líquido</sub> = J · α</p>
+                <p class="equation-explanation">Esta é uma equação de movimento, não de potência. O torque que sobra após vencer carga e atrito modifica a velocidade do rotor. Para o giro positivo mostrado: resultado positivo acelera, zero mantém a velocidade e negativo desacelera. Quanto maior o momento de inércia J, menor a aceleração produzida pelo mesmo torque resultante.</p>
+                <p class="equation-label"><strong>Acoplamento e posição das bobinas</strong></p>
+                <p>k(θ) = n<sub>b</sub> · N · B · A · g(θ)</p>
+                <p>São n<sub>b</sub> bobinas, cada uma com N espiras. O fator g é a média de |sen θ| das posições das bobinas: considera que elas não produzem seu torque máximo em todas as posições.</p>
+                <p class="equation-label"><strong>Força em cada lado ativo da bobina quadrada</strong></p>
+                <p>F = N · B · I · L</p>
+                <p>L = √A</p>
+                <p>Estas expressões valem para os lados ativos perpendiculares ao campo; L é o comprimento de cada lado da espira quadrada.</p>
+                <dl class="equation-definitions">
+                    <dt>ε<sub>b</sub></dt><dd>Contraeletromotriz (V).</dd>
+                    <dt>k(θ)</dt><dd>Acoplamento na posição θ (V·s/rad), numericamente igual ao coeficiente de torque (N·m/A) no SI.</dd>
+                    <dt>θ</dt><dd>Posição angular da bobina (rad).</dd>
+                    <dt>ω</dt><dd>Velocidade angular do rotor (rad/s).</dd>
+                    <dt>I</dt><dd>Corrente da armadura (A).</dd>
+                    <dt>V</dt><dd>Tensão aplicada (V).</dd>
+                    <dt>R</dt><dd>Resistência equivalente total da armadura (Ω).</dd>
+                    <dt>τ</dt><dd>Torque eletromagnético (N·m).</dd>
+                    <dt>τ<sub>líquido</sub></dt><dd>Torque após descontar carga e atrito (N·m).</dd>
+                    <dt>τ<sub>carga</sub></dt><dd>Torque resistente da carga (N·m).</dd>
+                    <dt>τ<sub>atrito</sub></dt><dd>Torque resistente do atrito (N·m).</dd>
+                    <dt>J</dt><dd>Momento de inércia do rotor (kg·m²).</dd>
+                    <dt>α</dt><dd>Aceleração angular (rad/s²).</dd>
+                    <dt>n<sub>b</sub></dt><dd>Número de bobinas comutadas (sem unidade).</dd>
+                    <dt>N</dt><dd>Espiras por bobina (sem unidade).</dd>
+                    <dt>B</dt><dd>Campo magnético (T).</dd>
+                    <dt>A</dt><dd>Área de cada espira (m²).</dd>
+                    <dt>g(θ)</dt><dd>Média dos módulos dos senos das posições das bobinas (sem unidade).</dd>
+                    <dt>F</dt><dd>Força total em cada lado ativo perpendicular ao campo (N).</dd>
+                    <dt>L</dt><dd>Comprimento do lado da bobina quadrada (m).</dd>
+                </dl>
             </div>
             <div class="equation" id="generatorEquation" hidden>
-                <p><strong>Indução:</strong> ε<sub>pico</sub> = NBAω; ω = 2π·rpm/60</p>
-                <p><strong>Carga resistiva:</strong> P<sub>carga</sub> = I<sub>rms</sub>²R<sub>carga</sub>; perdas de cobre = I<sub>rms</sub>²R<sub>bobina</sub>.</p>
-                <p>No gerador CC, as contribuições retificadas de n bobinas são somadas idealmente: ε(θ) = nNBAω·g(θ). A resistência escolhida é a resistência interna total.</p>
+                <p><strong>Gerador</strong></p>
+                <p>ε<sub>pico</sub> = N · B · A · ω</p>
+                <p>ω = 2π · n / 60</p>
+                <p>P<sub>carga</sub> = I<sub>rms</sub>² · R<sub>carga</sub></p>
+                <p>P<sub>cobre</sub> = I<sub>rms</sub>² · R<sub>bobina</sub></p>
+                <p><strong>Saída CC com várias bobinas:</strong></p>
+                <p>ε(θ) = n<sub>b</sub> · N · B · A · ω · g(θ)</p>
+                <dl class="equation-definitions">
+                    <dt>ε<sub>pico</sub></dt><dd>Tensão induzida de pico de uma bobina (V).</dd>
+                    <dt>N</dt><dd>Espiras por bobina (sem unidade).</dd>
+                    <dt>B</dt><dd>Campo magnético (T).</dd>
+                    <dt>A</dt><dd>Área de cada espira (m²).</dd>
+                    <dt>ω</dt><dd>Velocidade angular (rad/s).</dd>
+                    <dt>n</dt><dd>Rotação do eixo (rpm).</dd>
+                    <dt>P<sub>carga</sub></dt><dd>Potência média na carga resistiva (W).</dd>
+                    <dt>I<sub>rms</sub></dt><dd>Corrente eficaz no circuito (A).</dd>
+                    <dt>R<sub>carga</sub></dt><dd>Resistência da carga (Ω).</dd>
+                    <dt>P<sub>cobre</sub></dt><dd>Potência perdida por aquecimento no gerador (W).</dd>
+                    <dt>R<sub>bobina</sub></dt><dd>Resistência interna equivalente total (Ω).</dd>
+                    <dt>ε(θ)</dt><dd>Tensão instantânea induzida na saída CC ideal (V).</dd>
+                    <dt>θ</dt><dd>Posição angular do rotor (rad).</dd>
+                    <dt>n<sub>b</sub></dt><dd>Número de bobinas comutadas (sem unidade).</dd>
+                    <dt>g(θ)</dt><dd>Média dos módulos dos senos das posições das bobinas (sem unidade).</dd>
+                </dl>
             </div>
             <div class="equation" id="inductionEquation" hidden>
-                <p><strong>Indução:</strong> ω<sub>s</sub> = 2πf (dois polos); s = (ω<sub>s</sub> − ω)/ω<sub>s</sub>.</p>
-                <p>P<sub>entreferro</sub> = τω<sub>s</sub>; P<sub>rotor</sub> = sP<sub>entreferro</sub>; P<sub>convertida</sub> = τω.</p>
-                <p>Modelo equivalente simplificado: R<sub>rotor</sub> = 4 Ω, X<sub>rotor</sub> = 1,5(f/30) Ω. Perdas e corrente de magnetização do estator desprezadas; a corrente mostrada é a induzida no rotor.</p>
+                <p><strong>Indução, dois polos</strong></p>
+                <p>ω<sub>s</sub> = 2π · f</p>
+                <p>s = (ω<sub>s</sub> − ω) / ω<sub>s</sub></p>
+                <p>P<sub>entreferro</sub> = τ · ω<sub>s</sub></p>
+                <p>P<sub>cobre, rotor</sub> = s · P<sub>entreferro</sub></p>
+                <p>P<sub>convertida</sub> = τ · ω</p>
+                <p>R<sub>rotor</sub> = 4 Ω</p>
+                <p>X<sub>rotor</sub> = 1,5 Ω · (f / 30 Hz)</p>
+                <dl class="equation-definitions">
+                    <dt>ω<sub>s</sub></dt><dd>Velocidade angular do campo girante (rad/s).</dd>
+                    <dt>f</dt><dd>Frequência da alimentação (Hz).</dd>
+                    <dt>s</dt><dd>Escorregamento (sem unidade).</dd>
+                    <dt>ω</dt><dd>Velocidade angular do rotor (rad/s).</dd>
+                    <dt>τ</dt><dd>Torque eletromagnético (N·m).</dd>
+                    <dt>P<sub>entreferro</sub></dt><dd>Potência transmitida magneticamente ao rotor (W).</dd>
+                    <dt>P<sub>cobre, rotor</sub></dt><dd>Perda por aquecimento no rotor (W).</dd>
+                    <dt>P<sub>convertida</sub></dt><dd>Potência convertida em mecânica antes do atrito (W).</dd>
+                    <dt>R<sub>rotor</sub></dt><dd>Resistência equivalente do rotor por fase (Ω).</dd>
+                    <dt>X<sub>rotor</sub></dt><dd>Reatância equivalente de rotor parado por fase (Ω).</dd>
+                </dl>
+                <p>Modelo simplificado: perdas e corrente de magnetização do estator desprezadas. A corrente mostrada é a induzida no rotor, não a corrente da rede.</p>
             </div>
             <div class="equation" id="synchronousEquation" hidden>
-                <p><strong>Síncrono, dois polos:</strong> ω = ω<sub>s</sub> = 2πf; n = 60f rpm; s = 0.</p>
-                <p><strong>Modelo efetivo de torque:</strong> τ = τ<sub>máx</sub> sen δ; τ<sub>máx</sub> = 3NBAI<sub>fase</sub>. Em equilíbrio, τ = τ<sub>carga</sub> + τ<sub>atrito</sub>.</p>
-                <p>P<sub>entrada</sub> = τω + 3I<sub>fase</sub>²R<sub>fase</sub>; R<sub>fase</sub> = 1 Ω. O fator 3 e a área efetiva simplificam a distribuição trifásica; não se modelam saturação, perdas no ferro ou no inversor.</p>
+                <p><strong>Síncrono, dois polos</strong></p>
+                <p>ω = ω<sub>s</sub> = 2π · f</p>
+                <p>n = 60 · f</p>
+                <p>s = 0</p>
+                <p>τ = τ<sub>máx</sub> · sen δ</p>
+                <p>τ<sub>máx</sub> = 3 · N · B · A · I<sub>fase</sub></p>
+                <p>τ = τ<sub>carga</sub> + τ<sub>atrito</sub></p>
+                <p>P<sub>entrada</sub> = τ · ω + 3 · I<sub>fase</sub>² · R<sub>fase</sub></p>
+                <p>R<sub>fase</sub> = 1 Ω</p>
+                <dl class="equation-definitions">
+                    <dt>ω</dt><dd>Velocidade angular do rotor (rad/s).</dd>
+                    <dt>ω<sub>s</sub></dt><dd>Velocidade angular do campo girante (rad/s).</dd>
+                    <dt>f</dt><dd>Frequência da alimentação (Hz).</dd>
+                    <dt>n</dt><dd>Rotação do rotor (rpm), calculada com f em Hz.</dd>
+                    <dt>s</dt><dd>Escorregamento, nulo em sincronismo (sem unidade).</dd>
+                    <dt>τ</dt><dd>Torque eletromagnético em equilíbrio (N·m).</dd>
+                    <dt>τ<sub>máx</sub></dt><dd>Torque máximo do modelo efetivo (N·m).</dd>
+                    <dt>δ</dt><dd>Ângulo de carga entre o campo e o eixo magnético do rotor.</dd>
+                    <dt>N</dt><dd>Espiras efetivas por fase (sem unidade).</dd>
+                    <dt>B</dt><dd>Campo de acoplamento com os ímãs (T).</dd>
+                    <dt>A</dt><dd>Área efetiva por fase (m²).</dd>
+                    <dt>I<sub>fase</sub></dt><dd>Corrente eficaz por fase (A).</dd>
+                    <dt>τ<sub>carga</sub></dt><dd>Torque resistente da carga (N·m).</dd>
+                    <dt>τ<sub>atrito</sub></dt><dd>Torque resistente do atrito (N·m).</dd>
+                    <dt>P<sub>entrada</sub></dt><dd>Potência elétrica de entrada simplificada (W).</dd>
+                    <dt>R<sub>fase</sub></dt><dd>Resistência de cada fase (Ω).</dd>
+                    <dt>3</dt><dd>Número de fases.</dd>
+                </dl>
+                <p>O fator 3 e a área efetiva simplificam a distribuição trifásica. Não se modelam saturação, perdas no ferro ou no inversor.</p>
             </div>
             <div class="exercise-launch">
                 <button id="openExercises">Praticar: exercícios</button>
@@ -504,42 +626,254 @@
 <div class="content-backdrop" id="theoryModal" role="dialog" aria-modal="true" aria-labelledby="theoryModalTitle">
     <section class="content-modal">
         <div class="content-modal-header"><h2 id="theoryModalTitle">Teoria essencial: motores e geradores</h2><button type="button" class="secondary" data-close-content>Fechar</button></div>
-        <div class="theory-section"><h3>Força magnética e torque no motor CC</h3><p>Um fio com corrente em um campo magnético sofre força magnética. Nas duas laterais da bobina quadrada, as forças opostas F = NBIL, com L = √A, formam um torque. Para N espiras, o torque máximo é τ<sub>máx</sub> = N I A B; o sentido depende da corrente e do campo. A cada meia-volta, o comutador inverte a corrente na bobina para manter o torque no mesmo sentido médio. No modelo de comutação idealizada, n bobinas igualmente espaçadas somam contribuições: k(θ) = nNBA·g(θ), com g sendo a média dos módulos dos senos das posições das bobinas. Cada bobina possui N espiras desenhadas; aumentar n aumenta o total nN e reduz a ondulação relativa. A resistência de armadura escolhida é a resistência equivalente total.</p></div>
-        <div class="theory-section"><h3>Contraeletromotriz e energia no motor</h3><p>Ao girar, a bobina também induz uma tensão que se opõe à fonte. No modelo, ε<sub>b</sub> = k(θ)ω e I = (V − ε<sub>b</sub>)/R. A fonte entrega VI; parte aquece a armadura (I²R), e ε<sub>b</sub>I é convertida em potência mecânica. Durante aceleração, parte dessa conversão aumenta a energia cinética de rotação; a carga e o atrito recebem o restante.</p></div>
-        <div class="theory-section"><h3>Geradores e conexões</h3><p>A rotação muda o fluxo magnético através da bobina e induz fem (lei de Faraday): para uma bobina ideal, ε<sub>pico</sub> = NBAω. O comutador mecânico inverte as conexões a cada meia-volta e produz uma tensão unidirecional pulsante. Anéis coletores mantêm as conexões sem inversão e entregam tensão alternada. Mais bobinas comutadas e espaçadas reduzem a ondulação da saída CC.</p></div>
+        <p>Como uma corrente elétrica consegue girar um eixo? E como um eixo em movimento consegue alimentar uma lâmpada? Vamos partir dessas perguntas, sem exigir que você já conheça as fórmulas. Primeiro entenda a ideia; depois use as equações para quantificar o que acontece.</p>
+        <nav class="theory-nav" aria-label="Roteiro de estudo">
+            <p><strong>Roteiro:</strong> comece por energia e rotação; avance para motores CC, geradores e corrente alternada; por fim, compare indução e sincronismo. As partes “Aprofundamento” são opcionais na primeira leitura.</p>
+            <p>O ponto entre símbolos significa multiplicação; “sen” e “cos” são seno e cosseno. Cada equação vem acompanhada das grandezas e unidades. O mesmo símbolo pode ter significados diferentes: consulte a legenda logo abaixo da equação.</p>
+        </nav>
         <div class="theory-section">
-            <h3>Como ler os vetores e os elétrons na animação</h3>
-            <p>O torque é um vetor axial: τ = r × F. Seu sentido é perpendicular ao plano das forças que formam o par e, nestes motores, coincide com o eixo vertical de rotação. A regra da mão direita define seu sentido. Não é a velocidade angular ω: pode haver torque com rotor parado, e o rotor pode continuar girando enquanto o torque eletromagnético é nulo ou contrário ao movimento. A seta violeta representa o torque eletromagnético, não o torque líquido após carga e atrito.</p>
-            <p>Elétrons de condução têm carga negativa e sua deriva é oposta à corrente convencional; em CA, oscilam, em vez de dar voltas contínuas em um único sentido. Os marcadores azuis seguem trajetos ilustrativos dos condutores. Na gaiola, as correntes fecham-se pelas barras e anéis em curto; no rotor de ímãs permanentes não há enrolamento alimentado. Não se calculam colisões microscópicas nem a trajetória individual de elétrons sob a força de Lorentz. O fluxo de energia e a força resultante na máquina não são uma reprodução ampliada desses pontos.</p>
-            <p>A estrutura começa visível. Para estudar campo e cargas, desmarque a estrutura e, se desejar, as forças. A opção de câmera lenta afeta o tempo simulado de toda a máquina: rotor, campo, corrente e gráficos continuam coerentes, mas um segundo físico simulado pode durar vários segundos na tela. As leituras de frequência, rotação e potência não são multiplicadas pelo fator visual.</p>
+            <h3>1. Motor e gerador: transformar, não criar energia</h3>
+            <p>Um <strong>motor</strong> recebe energia elétrica e a transforma em mecânica, como no ventilador. Um <strong>gerador</strong> recebe energia mecânica e a transforma em elétrica, como em uma usina onde uma turbina gira seu eixo. Parte da energia recebida também vira calor, som e outras formas: não existe conversão perfeita em uma máquina real.</p>
+            <p>O <strong>estator</strong> é a parte fixa; o <strong>rotor</strong> é a parte que gira. Uma <strong>espira</strong> é uma volta de fio; várias formam uma <strong>bobina</strong>. A área de uma espira é a região delimitada pela volta de fio, não a área da seção do fio.</p>
+            <ul>
+                <li><strong>Tensão:</strong> está relacionada à energia transferida por unidade de carga. Mede-se em volts (V): 12 V correspondem a 12 joules por coulomb.</li>
+                <li><strong>Corrente:</strong> carga que atravessa uma seção do condutor por unidade de tempo. Mede-se em amperes (A): um ampere é um coulomb por segundo.</li>
+                <li><strong>Resistência:</strong> relaciona tensão e corrente e está associada ao aquecimento por efeito Joule. Mede-se em ohms (Ω).</li>
+                <li><strong>Campo magnético:</strong> descreve a ação magnética numa região. Sua intensidade B é medida em teslas (T). Pode ser produzido por ímãs ou correntes em bobinas.</li>
+            </ul>
+            <p>Na <strong>corrente contínua (CC)</strong>, o sentido é mantido, embora a intensidade possa variar. Na <strong>corrente alternada (CA)</strong>, o sentido se inverte periodicamente. Uma saída CC pode ser pulsante: “contínua” não significa necessariamente “constante”.</p>
+            <h4>Energia e potência não são a mesma coisa</h4>
+            <p>Energia é a quantidade transferida; potência indica a rapidez da transferência. Uma máquina mais potente transfere mais energia no mesmo tempo, mas não é necessariamente mais eficiente.</p>
+            <div class="theory-formula">E = P · Δt</div>
+            <dl class="theory-variables"><dt>E</dt><dd>Energia transferida, em joules (J).</dd><dt>P</dt><dd>Potência constante, em watts (W). Um watt é um joule por segundo.</dd><dt>Δt (delta t)</dt><dd>Intervalo de tempo, em segundos (s). Se a potência variar, use a potência média do intervalo.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> um eixo que entrega 20 W durante 5 s transfere 100 J.</p>
         </div>
         <div class="theory-section">
-            <h3>Sistemas monofásico e trifásico: o que muda?</h3>
-            <h4>Uma fase ou três fases</h4>
-            <p>No sistema <strong>monofásico</strong>, a carga recebe uma tensão alternada senoidal. Ela muda de valor e de polaridade periodicamente. Em 60 Hz, são 60 ciclos por segundo. No sistema <strong>trifásico equilibrado</strong>, existem três tensões senoidais de mesma frequência e mesmo valor eficaz, mas deslocadas entre si em <strong>120° elétricos</strong>, isto é, um terço do período. Não são três frequências diferentes: os máximos de cada fase acontecem em instantes diferentes.</p>
-            <div class="theory-formula">v<sub>A</sub> = V<sub>p</sub> sen(2πft)<br>v<sub>B</sub> = V<sub>p</sub> sen(2πft − 120°)<br>v<sub>C</sub> = V<sub>p</sub> sen(2πft − 240°)</div>
-            <p>V<sub>p</sub> é a tensão de pico; para uma senoide, V<sub>eficaz</sub> = V<sub>p</sub>/√2. A 60 Hz, o período é aproximadamente 16,7 ms, e o deslocamento de 120° corresponde a cerca de 5,56 ms. As três tensões de fase somam zero a cada instante no sistema ideal equilibrado.</p>
-            <h4>Por que o trifásico cria um campo girante?</h4>
-            <p>Os enrolamentos do estator também são distribuídos no espaço. Em uma máquina ideal de dois polos, seus eixos magnéticos estão separados por 120° mecânicos, correspondentes a 120° elétricos. Alimentados por correntes senoidais equilibradas com a mesma defasagem temporal, seus campos se somam e produzem um <strong>campo resultante de módulo constante que gira</strong>. Para máquinas com mais polos, os ângulos elétricos e mecânicos não são iguais: o ângulo elétrico é o mecânico multiplicado pelo número de pares de polos.</p>
-            <p>A velocidade desse campo é n<sub>s</sub> = 120f/p, em rpm, sendo p o número total de polos. A 60 Hz, uma máquina de dois polos tem campo a 3600 rpm; com quatro polos, a 1800 rpm. <strong>A sequência das fases determina o sentido de giro</strong>; inverter a sequência de duas fases inverte o campo girante. Essa é uma propriedade do modelo, não uma orientação para manipular uma instalação elétrica.</p>
+            <h3>2. Rotação, torque e potência mecânica</h3>
+            <p>A rotação em <strong>rpm</strong> conta voltas por minuto. A <strong>velocidade angular</strong> informa o ângulo percorrido por segundo. Uma volta completa corresponde a 2π radianos; π vale aproximadamente 3,14.</p>
+            <div class="theory-formula">ω = 2π · n / 60</div>
+            <dl class="theory-variables"><dt>ω (ômega)</dt><dd>Velocidade angular, em radianos por segundo (rad/s).</dd><dt>n</dt><dd>Rotação em voltas por minuto (rpm), não número de bobinas nesta equação.</dd><dt>2π e 60</dt><dd>Conversões: 2π radianos por volta e 60 segundos por minuto.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> 600 rpm são 10 voltas por segundo, aproximadamente 62,8 rad/s.</p>
+            <p><strong>Torque</strong> mede a ação que tende a fazer um corpo girar. Ao abrir uma porta, é mais fácil empurrar longe da dobradiça: além da força, importa sua distância ao eixo. Mais torque não significa automaticamente mais velocidade.</p>
+            <div class="theory-formula">τ = r · F · sen β</div>
+            <dl class="theory-variables"><dt>τ (tau)</dt><dd>Módulo do torque de uma força, em newton-metro (N·m).</dd><dt>r</dt><dd>Distância do eixo ao ponto de aplicação, em metros (m).</dd><dt>F</dt><dd>Módulo da força, em newtons (N).</dd><dt>β (beta)</dt><dd>Ângulo entre a direção do eixo ao ponto de aplicação e a força. Se forem perpendiculares, o seno vale 1; se a força apontar diretamente para o eixo, vale 0.</dd></dl>
+            <div class="theory-formula">P<sub>mec</sub> = τ · ω</div>
+            <dl class="theory-variables"><dt>P<sub>mec</sub></dt><dd>Potência mecânica, em W.</dd><dt>τ</dt><dd>Torque transmitido, em N·m.</dd><dt>ω</dt><dd>Velocidade angular, em rad/s. A expressão dá a potência entregue quando torque e giro têm o mesmo sentido; um torque contrário retira energia do movimento.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> 0,5 N·m a 20 rad/s correspondem a 10 W. Com eixo parado, a potência mecânica é zero mesmo com torque. O consumo elétrico pode continuar: um motor travado pode aquecer bastante.</p>
+            <p>Nenhum tipo de motor tem sempre “mais potência” ou “mais torque” que outro. Isso depende de dimensões, corrente, campo, rotação, refrigeração e projeto.</p>
+        </div>
+        <div class="theory-section">
+            <h3>3. Por que uma bobina com corrente pode girar?</h3>
+            <p>Um fio com corrente, colocado em um campo magnético, pode sofrer uma força. O efeito é maior quando fio e campo são perpendiculares. Um fio paralelo ao campo não sofre essa força no modelo ideal.</p>
+            <div class="theory-formula">F = B · I · L · sen α</div>
+            <dl class="theory-variables"><dt>F</dt><dd>Força sobre um trecho retilíneo de um fio, em N.</dd><dt>B</dt><dd>Campo magnético uniforme, em T.</dd><dt>I</dt><dd>Corrente, em A.</dd><dt>L</dt><dd>Comprimento do trecho dentro do campo, em m.</dd><dt>α (alfa)</dt><dd>Ângulo entre a corrente no trecho e o campo. Se vários trechos equivalentes sofrem forças no mesmo sentido, essas forças se somam.</dd></dl>
+            <p>Nos lados opostos da bobina, as correntes têm sentidos opostos. As forças podem ser opostas, mas atuam em lugares diferentes. Formam um <strong>par de forças</strong>: em vez de simplesmente deslocar o centro, tendem a girar a bobina.</p>
+            <div class="theory-formula">τ = N · I · A · B · sen θ</div>
+            <dl class="theory-variables"><dt>τ</dt><dd>Módulo do torque magnético sobre uma bobina plana, em N·m.</dd><dt>N</dt><dd>Número de espiras, sem unidade.</dd><dt>I</dt><dd>Corrente, em A.</dd><dt>A</dt><dd>Área de cada espira, em m².</dd><dt>B</dt><dd>Campo uniforme, em T.</dd><dt>θ (teta)</dt><dd>Ângulo entre a perpendicular ao plano da bobina e o campo, não entre o plano e o campo. Imagine uma linha saindo “de frente” da espira.</dd></dl>
+            <div class="theory-formula">τ<sub>máx</sub> = N · I · A · B</div>
+            <dl class="theory-variables"><dt>τ<sub>máx</sub></dt><dd>Torque máximo, em N·m, quando θ vale 90° e seu seno vale 1.</dd><dt>N, I, A e B</dt><dd>Espiras (sem unidade), corrente (A), área de uma espira (m²) e campo (T).</dd></dl>
+            <div class="theory-formula">1 cm² = 10<sup>−4</sup> m² = 0,0001 m²</div>
+            <dl class="theory-variables"><dt>cm² e m²</dt><dd>Centímetro quadrado e metro quadrado, unidades de área. Como um centímetro é um centésimo de metro, a conversão de área usa o quadrado desse fator.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> 50 espiras de 20 cm² cada, com 1 A em campo de 0,2 T, têm torque máximo de 0,02 N·m. Cada espira tem 0,002 m². Não multiplique a área por N duas vezes.</p>
+        </div>
+        <div class="theory-section">
+            <h3>4. Motor CC: ímãs, campo bobinado e comutador</h3>
+            <p>No motor com <strong>ímãs permanentes</strong>, os ímãs fixos fornecem o campo. No de <strong>campo bobinado</strong>, bobinas no estator produzem o campo ao conduzir corrente; os núcleos ajudam a conduzir o fluxo magnético. Em ambos, a bobina do rotor recebe corrente e sofre torque.</p>
+            <p>Sem trocar as conexões, o torque de uma bobina alimentada por bateria mudaria de sentido durante a volta. O <strong>comutador</strong> tem segmentos metálicos que giram com o eixo, em contato com <strong>escovas</strong> fixas. A cada meia-volta, ele inverte a corrente na bobina. O torque passa a favorecer o mesmo sentido médio. A bateria não precisa inverter sua polaridade.</p>
+            <p>Mais bobinas comutadas em posições diferentes reduzem a ondulação relativa do torque. Nos modos CC desta página, cada bobina tem o número de espiras escolhido; acrescentar bobinas também acrescenta espiras totais. A resistência informada é a equivalente da armadura inteira.</p>
+            <h4>A bobina que gira também se comporta como gerador</h4>
+            <p>A rotação induz uma tensão contrária à fonte: a <strong>força contraeletromotriz</strong>. Apesar do nome “força”, é uma tensão, em volts, não uma força em newtons.</p>
+            <div class="theory-formula">ε<sub>b</sub> = k · ω</div>
+            <dl class="theory-variables"><dt>ε<sub>b</sub> (épsilon b)</dt><dd>Contraeletromotriz, em V.</dd><dt>k</dt><dd>Acoplamento eletromecânico, em V·s/rad. Depende de espiras, campo, área e posição.</dd><dt>ω</dt><dd>Velocidade angular, em rad/s.</dd></dl>
+            <div class="theory-formula">I = (V − ε<sub>b</sub>) / R</div>
+            <dl class="theory-variables"><dt>I</dt><dd>Corrente da armadura, em A.</dd><dt>V</dt><dd>Tensão aplicada, em V. Aqui V é símbolo de grandeza; depois de um número, é a unidade volt.</dd><dt>ε<sub>b</sub></dt><dd>Contraeletromotriz, em V.</dd><dt>R</dt><dd>Resistência equivalente da armadura, em Ω. Desprezam-se indutância e quedas nas escovas.</dd></dl>
+            <div class="theory-formula">τ = k · I</div>
+            <dl class="theory-variables"><dt>τ</dt><dd>Torque eletromagnético, em N·m, antes de descontar carga e atrito.</dd><dt>k</dt><dd>Coeficiente de torque, em N·m/A, numericamente igual ao k da contraeletromotriz no Sistema Internacional.</dd><dt>I</dt><dd>Corrente da armadura, em A.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> fonte de 12 V, contraeletromotriz de 8 V e resistência de 2 Ω resultam em 2 A. Na partida, parado e sem contraeletromotriz, o rotor receberia 6 A nesse modelo. Por isso, a corrente de partida pode precisar de limitação.</p>
+            <details><summary>Aprofundamento: posição das bobinas e valores médios</summary>
+                <div class="theory-formula">k(θ) = n<sub>b</sub> · N · B · A · g(θ)</div>
+                <dl class="theory-variables"><dt>k(θ)</dt><dd>Acoplamento na posição considerada, em V·s/rad ou, numericamente, N·m/A no SI.</dd><dt>n<sub>b</sub></dt><dd>Número de bobinas comutadas, sem unidade, não rotação em rpm.</dd><dt>N, B e A</dt><dd>Espiras por bobina (sem unidade), campo (T) e área de cada espira (m²).</dd><dt>θ e g(θ)</dt><dd>Posição angular e média dos módulos dos senos das posições das bobinas. g é um fator sem unidade, entre 0 e 1.</dd></dl>
+                <div class="theory-formula">k<sub>médio</sub> = (2/π) · N · B · A</div>
+                <dl class="theory-variables"><dt>k<sub>médio</sub></dt><dd>Acoplamento médio de uma única bobina com comutação ideal, em V·s/rad. Para várias bobinas idênticas neste modelo, multiplique pelo número de bobinas.</dd><dt>N, B e A</dt><dd>Espiras da bobina (sem unidade), campo (T) e área por espira (m²).</dd><dt>2/π</dt><dd>Fator sem unidade, aproximadamente 0,637: média do módulo de uma senoide de pico 1.</dd></dl>
+                <p>Com velocidade constante, esse acoplamento permite calcular a contraeletromotriz média. Média e pico são valores diferentes.</p>
+                <h4>Por que não usar sempre g(θ) = 1?</h4>
+                <p>O torque depende da orientação, não apenas da força. Ao girar, a bobina muda a geometria do par de forças. Para uma bobina, o fator é o módulo do seno: vale zero a 0°, aproximadamente 0,707 a 45° e 1 a 90°, considerando o ângulo entre a perpendicular à espira e o campo. O comutador mantém o sentido favorável do torque, mas não elimina essa variação de intensidade.</p>
+                <p>Com várias bobinas, g é a média desses fatores em posições diferentes. Os máximos não acontecem todos ao mesmo tempo. Para duas bobinas igualmente espaçadas neste modelo, por exemplo, quando uma tem fator 1, a outra tem fator zero: a média é 0,5, não 1. Mais bobinas suavizam a ondulação relativa; não tornam essa média igual a 1. A média ao longo de uma volta é 2/π, aproximadamente 0,637, para essa distribuição idealizada.</p>
+                <p><strong>Podemos adotar 1 em outro contexto:</strong> para calcular o torque máximo de uma única bobina na orientação favorável, ou para definir explicitamente um modelo ideal de acoplamento constante. Neste segundo caso, é preciso substituir coerentemente o acoplamento nas equações de torque e de contraeletromotriz. Com os mesmos valores de espiras, campo e área do modelo atual, impor 1 durante toda a volta superestimaria o acoplamento e apagaria a ondulação que queremos estudar. Para uma aproximação média com velocidade constante, o fator adequado aqui é 2/π, não 1.</p>
+            </details>
+        </div>
+        <div class="theory-section">
+            <h3>5. Para onde vai a energia no motor?</h3>
+            <p>O enrolamento aquece; há atrito e, durante a aceleração, o rotor armazena energia de movimento. Nem toda potência recebida chega à carga.</p>
+            <div class="theory-formula">P<sub>entrada</sub> = V · I</div>
+            <dl class="theory-variables"><dt>P<sub>entrada</sub></dt><dd>Potência elétrica recebida pela armadura CC, em W.</dd><dt>V e I</dt><dd>Tensão aplicada (V) e corrente da armadura (A). Esta não é a fórmula geral de potência média em CA.</dd></dl>
+            <div class="theory-formula">P<sub>cobre</sub> = I² · R</div>
+            <dl class="theory-variables"><dt>P<sub>cobre</sub></dt><dd>Potência perdida por aquecimento no enrolamento, em W.</dd><dt>I</dt><dd>Corrente em A; em CA, use o valor eficaz.</dd><dt>R</dt><dd>Resistência, em Ω. Dobrar a corrente quadruplica essa perda se a resistência ficar constante.</dd></dl>
+            <div class="theory-formula">P<sub>convertida</sub> = ε<sub>b</sub> · I = τ · ω</div>
+            <dl class="theory-variables"><dt>P<sub>convertida</sub></dt><dd>Potência transformada em mecânica na armadura, em W, antes das perdas mecânicas.</dd><dt>ε<sub>b</sub>, I, τ e ω</dt><dd>Contraeletromotriz (V), corrente (A), torque eletromagnético (N·m) e velocidade angular (rad/s).</dd></dl>
+            <div class="theory-formula">P<sub>entrada</sub> = P<sub>cobre</sub> + P<sub>convertida</sub></div>
+            <dl class="theory-variables"><dt>P<sub>entrada</sub>, P<sub>cobre</sub> e P<sub>convertida</sub></dt><dd>Potências em W: entrada na armadura CC, aquecimento e conversão eletromecânica. O balanço vale sem armazenamento indutivo.</dd></dl>
+            <p>Em rotação constante, a potência convertida atende à carga e ao atrito. Durante a aceleração, também aumenta a energia cinética. Em um motor real de campo bobinado há ainda consumo da alimentação de campo, não calculado separadamente nesta página.</p>
+            <div class="theory-formula">η = P<sub>útil</sub> / P<sub>entrada total</sub></div>
+            <dl class="theory-variables"><dt>η (eta)</dt><dd>Rendimento, sem unidade. Multiplique por 100 para obter porcentagem.</dd><dt>P<sub>útil</sub></dt><dd>Potência entregue à carga, em W.</dd><dt>P<sub>entrada total</sub></dt><dd>Toda a potência recebida, em W, incluindo alimentações auxiliares quando existirem. Compare em regime permanente, sem variação da energia armazenada.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> receber 100 W e entregar 80 W à carga corresponde a rendimento de 80%. Os outros 20 W são perdas, não energia que “desapareceu”.</p>
+        </div>
+        <div class="theory-section">
+            <h3>6. Gerador: mover a bobina para produzir tensão</h3>
+            <p>Imagine a espira como uma “janela” para o campo. O <strong>fluxo magnético</strong> mede quanto campo atravessa essa janela, considerando área e orientação. Não é um líquido: é uma grandeza útil para descrever a indução.</p>
+            <div class="theory-formula">Φ = B · A · cos θ</div>
+            <dl class="theory-variables"><dt>Φ (fi maiúsculo)</dt><dd>Fluxo magnético por espira, em webers (Wb).</dd><dt>B e A</dt><dd>Campo uniforme (T) e área de uma espira (m²).</dd><dt>θ</dt><dd>Ângulo entre a perpendicular à espira e o campo. Com a perpendicular alinhada ao campo, o fluxo é máximo; a 90°, é nulo.</dd></dl>
+            <p>A <strong>lei de Faraday</strong> diz que a variação do fluxo induz tensão. Um campo intenso, mas constante em relação a uma bobina parada, não basta: o fluxo precisa variar. A <strong>lei de Lenz</strong> determina o sentido do efeito induzido: ele se opõe à variação que o produz.</p>
+            <div class="theory-formula">ε<sub>média</sub> = −N · ΔΦ / Δt</div>
+            <dl class="theory-variables"><dt>ε<sub>média</sub></dt><dd>Tensão induzida média no intervalo, em V. “Fem” significa força eletromotriz, que também é uma tensão.</dd><dt>N</dt><dd>Número de espiras atravessadas pelo mesmo fluxo, sem unidade.</dd><dt>ΔΦ e Δt</dt><dd>Variação do fluxo por espira, final menos inicial (Wb), e intervalo de tempo (s).</dd><dt>Sinal negativo</dt><dd>Representa a lei de Lenz para as orientações escolhidas; não significa tensão sempre negativa. Esta equação fornece uma média no intervalo, não o pico de uma senoide.</dd></dl>
+            <p>Ao girar uniformemente em campo uniforme, com eixo no plano da bobina e perpendicular ao campo, a tensão varia como uma senoide: uma oscilação suave e periódica entre valores positivos e negativos.</p>
+            <div class="theory-formula">ε<sub>pico</sub> = N · B · A · ω</div>
+            <dl class="theory-variables"><dt>ε<sub>pico</sub></dt><dd>Maior módulo da tensão induzida, em V.</dd><dt>N</dt><dd>Número de espiras, sem unidade.</dd><dt>B</dt><dd>Campo magnético, em T.</dd><dt>A</dt><dd>Área de uma espira, em m².</dd><dt>ω</dt><dd>Velocidade angular constante, em rad/s.</dd></dl>
+            <p>No <strong>gerador CA</strong>, cada extremidade da bobina se conecta a um anel coletor contínuo e a uma escova. As ligações não se invertem e a tensão externa muda de polaridade a cada meia-volta. No <strong>gerador CC</strong>, o comutador inverte as conexões e retifica mecanicamente a saída: ela se torna unidirecional, mas pulsante. Mais bobinas comutadas e espaçadas suavizam a ondulação.</p>
+            <p>Produzir tensão não significa fornecer corrente: é preciso fechar o circuito. Quando uma carga recebe energia elétrica, exige torque do eixo que aciona o gerador. A turbina ou outro acionamento precisa fornecer essa energia.</p>
+            <div class="theory-formula">I<sub>ef</sub> = ε<sub>ef</sub> / (R<sub>interna</sub> + R<sub>carga</sub>)</div>
+            <dl class="theory-variables"><dt>I<sub>ef</sub></dt><dd>Corrente eficaz no circuito, em A.</dd><dt>ε<sub>ef</sub></dt><dd>Tensão induzida eficaz antes da queda interna, em V.</dd><dt>R<sub>interna</sub> e R<sub>carga</sub></dt><dd>Resistências do gerador e da carga, em Ω, em série. O circuito é puramente resistivo; despreza-se indutância.</dd></dl>
+        </div>
+        <div class="theory-section">
+            <h3>7. Pico, média e valor eficaz: três coisas diferentes</h3>
+            <p>Em uma senoide completa, a tensão tem média aritmética zero: valores positivos e negativos se compensam. Mesmo assim, aquece um resistor. O aquecimento não se desfaz quando a corrente inverte.</p>
+            <p>O <strong>valor eficaz</strong>, também chamado <strong>rms</strong>, é o valor contínuo que produziria a mesma potência média em um mesmo resistor. O <strong>pico</strong> é o maior módulo instantâneo.</p>
+            <div class="theory-formula">V<sub>ef</sub> = V<sub>pico</sub> / √2</div>
+            <dl class="theory-variables"><dt>V<sub>ef</sub> e V<sub>pico</sub></dt><dd>Tensão eficaz e de pico, ambas em V.</dd><dt>√2</dt><dd>Raiz de 2, aproximadamente 1,414. Esta conversão vale para senoide, não para qualquer onda.</dd></dl>
+            <div class="theory-formula">I<sub>ef</sub> = I<sub>pico</sub> / √2</div>
+            <dl class="theory-variables"><dt>I<sub>ef</sub> e I<sub>pico</sub></dt><dd>Corrente eficaz e de pico, em A, para uma corrente senoidal.</dd></dl>
+            <div class="theory-formula">P<sub>carga</sub> = I<sub>ef</sub>² · R<sub>carga</sub> = V<sub>carga, ef</sub>² / R<sub>carga</sub></div>
+            <dl class="theory-variables"><dt>P<sub>carga</sub></dt><dd>Potência média dissipada na carga resistiva, em W.</dd><dt>I<sub>ef</sub></dt><dd>Corrente eficaz na carga, em A.</dd><dt>R<sub>carga</sub></dt><dd>Resistência da carga, em Ω.</dd><dt>V<sub>carga, ef</sub></dt><dd>Tensão eficaz nos terminais da carga, em V; pode ser menor que a tensão induzida devido à queda interna.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> 10 V eficazes senoidais têm pico de aproximadamente 14,1 V. Em 5 Ω, produzem 2 A eficazes e potência média de 20 W, apesar de a tensão média em um ciclo ser zero.</p>
+            <p>A simulação calcula o valor eficaz da forma de onda de cada gerador. Não divida automaticamente o pico por raiz de dois para a saída CC com várias bobinas: ela não é uma senoide simples.</p>
+        </div>
+        <div class="theory-section">
+            <h3>8. Monofásico e trifásico: uma oscilação ou três coordenadas</h3>
+            <p>No sistema <strong>monofásico</strong>, a carga recebe uma tensão alternada. No <strong>trifásico equilibrado</strong>, há três tensões de mesma frequência e mesmo valor eficaz, deslocadas em um terço de ciclo, ou <strong>120° elétricos</strong>. Não são frequências diferentes: os máximos acontecem em instantes diferentes, como três pessoas fazendo o mesmo movimento em momentos espaçados.</p>
+            <div class="theory-formula">T = 1 / f</div>
+            <dl class="theory-variables"><dt>T</dt><dd>Período: tempo de um ciclo, em s. Aqui T é uma grandeza; ao lado de um valor de campo, T é a unidade tesla.</dd><dt>f</dt><dd>Frequência, em hertz (Hz): ciclos por segundo.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> em 60 Hz ocorrem 60 ciclos por segundo. Um ciclo dura aproximadamente 16,7 milissegundos; um terço de ciclo, cerca de 5,56 milissegundos.</p>
+            <details><summary>Aprofundamento: equações das tensões de fase</summary>
+                <p>Os ângulos abaixo estão em radianos. O instante inicial é escolhido para que a tensão da fase A comece em zero e esteja aumentando.</p>
+                <div class="theory-formula">v<sub>A</sub>(t) = V<sub>p</sub> · sen(2πft)</div>
+                <dl class="theory-variables"><dt>v<sub>A</sub>(t)</dt><dd>Tensão instantânea da fase A em relação ao ponto neutro ideal, em V.</dd><dt>V<sub>p</sub>, f e t</dt><dd>Pico da tensão de fase (V), frequência (Hz) e tempo (s). O argumento do seno é um ângulo em radianos.</dd></dl>
+                <div class="theory-formula">v<sub>B</sub>(t) = V<sub>p</sub> · sen(2πft − 2π/3)</div>
+                <dl class="theory-variables"><dt>v<sub>B</sub>(t)</dt><dd>Tensão instantânea da fase B em relação ao neutro ideal, em V.</dd><dt>V<sub>p</sub>, f e t</dt><dd>Mesmo pico (V), frequência (Hz) e tempo (s) da fase A.</dd><dt>2π/3</dt><dd>120° em radianos: defasagem de um terço de ciclo.</dd></dl>
+                <div class="theory-formula">v<sub>C</sub>(t) = V<sub>p</sub> · sen(2πft − 4π/3)</div>
+                <dl class="theory-variables"><dt>v<sub>C</sub>(t)</dt><dd>Tensão instantânea da fase C em relação ao neutro ideal, em V.</dd><dt>V<sub>p</sub>, f e t</dt><dd>Mesmo pico (V), frequência (Hz) e tempo (s) das demais fases.</dd><dt>4π/3</dt><dd>240° em radianos em relação à fase A. A separação entre fases sucessivas é de 120°.</dd></dl>
+                <p>As três tensões de fase somam zero a cada instante nesse sistema ideal.</p>
+            </details>
+            <h4>Como as três fases fazem um campo girar?</h4>
+            <p>Com bobinas distribuídas adequadamente no espaço e correntes trifásicas equilibradas, os campos se somam: a direção do campo resultante gira e, idealmente, sua intensidade fica constante. É como empurrões coordenados em direções diferentes para produzir um movimento contínuo.</p>
+            <p>Em uma máquina ideal de dois polos, os eixos magnéticos das fases estão separados por 120° mecânicos. Com mais polos, ângulo elétrico e mecânico são diferentes: o elétrico é o mecânico multiplicado pelo número de pares de polos. A sequência das fases determina o sentido do campo girante.</p>
+            <div class="theory-formula">n<sub>s</sub> = 120 · f / p</div>
+            <dl class="theory-variables"><dt>n<sub>s</sub></dt><dd>Velocidade síncrona: rotação do campo girante, em rpm.</dd><dt>f</dt><dd>Frequência da alimentação, em Hz.</dd><dt>p</dt><dd>Número total de polos, sem unidade, não número de pares. O fator 120 reúne a conversão para minutos e a relação entre ciclos e pares de polos.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> a 60 Hz, dois polos produzem campo a 3600 rpm; quatro polos, a 1800 rpm. Os motores CA desta página têm dois polos. Aumentar as bobinas desenhadas não aumenta os polos.</p>
             <h4>E o motor monofásico?</h4>
-            <p>Um único enrolamento alimentado por uma corrente senoidal produz um <strong>campo pulsante</strong>: ele cresce, diminui e inverte o sentido ao longo de um eixo fixo. Esse campo pode ser interpretado como a soma de dois campos iguais que giram em sentidos opostos. Num motor de indução ideal com rotor parado, os torques desses dois campos se cancelam: o enrolamento principal sozinho não define um torque de partida resultante.</p>
-            <p>Por isso, muitos motores de indução monofásicos usam <strong>enrolamento auxiliar e capacitor</strong>, ou outro recurso, para criar uma defasagem e permitir a partida. O capacitor não transforma a rede em um sistema trifásico equilibrado; ele ajuda a produzir um campo resultante girante, em geral elíptico. Há também motores de polos sombreados e outras soluções. Um motor universal é outro tipo de máquina e pode funcionar em CA monofásica por um princípio diferente.</p>
-            <h4>Potência e regularidade do torque</h4>
-            <p>No circuito monofásico senoidal em regime permanente, a potência instantânea contém uma parcela oscilante de frequência 2f. No trifásico equilibrado, as parcelas oscilantes das três fases se cancelam e a <strong>potência elétrica ativa total instantânea é constante</strong>, nas condições ideais. Isso favorece uma conversão de energia e um torque mais uniformes. Máquinas reais ainda podem apresentar ondulações por ranhuras, harmônicas, comutação eletrônica e outros efeitos.</p>
-            <div class="theory-formula">Monofásico: P = V<sub>ef</sub>I<sub>ef</sub> cos φ<br>Trifásico equilibrado: P = 3V<sub>fase</sub>I<sub>fase</sub> cos φ = √3 V<sub>linha</sub>I<sub>linha</sub> cos φ<br>Potência mecânica útil: P<sub>útil</sub> = τ<sub>carga</sub>ω = ηP<sub>entrada</sub></div>
-            <p>As tensões e correntes dessas fórmulas são valores eficazes; φ é o ângulo entre tensão e corrente de uma mesma fase, não a defasagem de 120° entre as fases. η é o rendimento em regime permanente. A presença de três fases <strong>não torna automaticamente um motor três vezes mais potente</strong>: potência, torque e rendimento dependem do dimensionamento, da alimentação e das perdas. Em geral, motores trifásicos de indução são robustos e dispensam o circuito auxiliar de partida típico dos monofásicos.</p>
-            <h4>Fase, linha e neutro</h4>
-            <p>Em ligação <strong>estrela (Y)</strong>, V<sub>linha</sub> = √3 V<sub>fase</sub> e I<sub>linha</sub> = I<sub>fase</sub>. Em ligação <strong>triângulo (Δ)</strong>, V<sub>linha</sub> = V<sub>fase</sub> e I<sub>linha</sub> = √3 I<sub>fase</sub>, para cargas equilibradas. Por exemplo, um sistema estrela de 220 V entre fase e neutro tem aproximadamente 380 V entre fases. Esses valores são um exemplo, não uma regra para todas as redes.</p>
-            <p>Uma carga monofásica pode receber tensão entre fase e neutro ou entre duas fases, conforme a rede e o equipamento; ter dois condutores de alimentação não significa receber três fases. Um motor trifásico equilibrado normalmente recebe as três fases sem precisar de neutro. O condutor de proteção (terra) tem outra função e não substitui o neutro.</p>
-            <h4>Como isso aparece nesta simulação?</h4>
-            <p>Nos dois motores trifásicos, a escolha de 3, 6 ou 9 bobinas corresponde a uma, duas ou três bobinas por fase, respectivamente. As cores identificam A, B e C; cada bobina tem seu próprio número, como A1 e A2. Elas são afastadas ao redor do rotor em uma vista explodida ilustrativa: suas posições desenhadas não definem os eixos magnéticos reais. No síncrono, as bobinas e os elétrons traseiros são desenhados antes dos ímãs do rotor e podem ficar parcialmente encobertos; os dianteiros aparecem à frente. O total N de espiras por fase e a área efetiva A são mantidos nos cálculos. Assim, essa escolha redistribui as espiras sem aumentar o torque, a potência ou o número de polos; não representa um projeto de enrolamento de uma máquina comercial.</p>
-            <p>Os modos CA de <strong>indução</strong> e <strong>síncrono com ímãs permanentes</strong> representam alimentação trifásica ideal e estator de dois polos. No primeiro, o rotor precisa de escorregamento para induzir corrente; no segundo, acompanha o campo em sincronismo, mantendo um ângulo de carga. Ambos usam campo girante, mas o mecanismo do rotor é diferente. O gerador CA simples mostrado tem uma bobina e saída monofásica; um alternador trifásico exigiria três enrolamentos de saída defasados, que não estão representados nesse modo.</p>
-            <p class="note">Não há modo de motor monofásico nesta versão. As relações gerais de potência acima complementam a teoria; os cálculos simplificados de cada animação continuam seguindo as hipóteses declaradas em seu painel, sem simular uma instalação elétrica real.</p>
+            <p>Um único enrolamento senoidal produz <strong>campo pulsante</strong>: cresce, diminui e inverte numa direção fixa. Pode ser interpretado como dois campos iguais girando em sentidos opostos. No rotor de indução parado, os torques se cancelam idealmente: não há sentido preferencial de partida.</p>
+            <p>Muitos motores monofásicos usam <strong>enrolamento auxiliar e capacitor</strong> para criar uma diferença temporal entre correntes e ajudar a partir. O campo resultante geralmente é elíptico. O capacitor não transforma a rede em trifásica equilibrada. Há outras soluções, como polos sombreados; o motor universal é outro tipo e funciona por princípio diferente. Não há animação de motor monofásico nesta versão.</p>
         </div>
-        <div class="theory-section"><h3>Motor CA de indução</h3><p>Três correntes alternadas defasadas no estator produzem um campo girante. Neste modelo de dois polos, a velocidade síncrona é n<sub>s</sub> = 60f rpm. O movimento relativo entre campo e rotor induz correntes nas barras da gaiola, que são fechadas pelos anéis de curto-circuito. Esses anéis fazem parte do rotor: não são anéis coletores e não tocam escovas. O torque tende a aproximar a velocidade do rotor da velocidade do campo; em sincronismo, não há indução nem torque neste modelo. Define-se s = (ω<sub>s</sub> − ω)/ω<sub>s</sub>.</p><p>O equivalente trifásico simplificado usa E₀ = NBAω<sub>s</sub>/√2, I<sub>r</sub> = sE₀/√(R<sub>r</sub>² + (sX<sub>r</sub>)²) e τ = 3E₀²R<sub>r</sub>s/[ω<sub>s</sub>(R<sub>r</sub>² + (sX<sub>r</sub>)²)]. A entrada ideal de entreferro é τω<sub>s</sub>; as perdas do rotor são 3I<sub>r</sub>²R<sub>r</sub>; a potência convertida é τω. Não calculamos a corrente de alimentação do estator nem suas perdas. As forças desenhadas na gaiola são resultantes ilustrativas. O gráfico mostra torque e corrente em função da velocidade do rotor, com a frequência e B atuais, e não em função de seu ângulo.</p></div>
-        <div class="theory-section"><h3>Motor CA síncrono com ímãs permanentes</h3><p>O estator recebe correntes trifásicas que criam um campo girante. Os ímãs N/S do rotor acompanham esse campo em sincronismo: para dois polos, n = 60f rpm e s = 0. O rotor não recebe corrente por escovas. Diferentemente do motor de indução, não precisa de escorregamento para produzir torque: precisa de um ângulo de carga δ entre o campo girante e o eixo magnético do rotor.</p><p>Neste modelo efetivo, τ = τ<sub>máx</sub> sen δ, com τ<sub>máx</sub> = 3NBAI<sub>fase</sub>. A corrente é regulada por um inversor ideal; N e A representam a bobina efetiva de cada fase, e B o acoplamento com os ímãs. Para carga e atrito menores que τ<sub>máx</sub>, existe equilíbrio estável com 0 ≤ δ &lt; 90°. A potência de entrada é τω + 3I<sub>fase</sub>²R<sub>fase</sub>, com R<sub>fase</sub> = 1 Ω. Não inferimos a corrente usando VI nem modelamos fator de potência, tensão do inversor ou perdas no ferro.</p><p>Apenas o regime permanente é mostrado: a partida assistida pelo inversor, a energia para acelerar e o transitório de perda de sincronismo não são simulados. O botão Iniciar coloca a máquina no equilíbrio calculado; a velocidade permanece igual à do campo. Sem margem de torque, uma proteção ideal impede a operação, zera a corrente e informa sobrecarga. Desligar a alimentação não apaga o campo permanente do rotor; ele continua indicado na figura. As setas F no rotor são resultantes ilustrativas, não forças de corrente em seus ímãs.</p></div>
-        <div class="theory-section"><h3>Modelo, unidades e perdas</h3><ul><li>ω = 2π·rpm/60, em rad/s; 1 volta = 2π rad.</li><li>Potência mecânica: P = τω, em watts (W).</li><li>Potência elétrica na carga resistiva: P = I<sub>rms</sub>²R. Em CA, a tensão média em um ciclo é zero; exibimos seu valor eficaz (rms).</li><li>As bobinas são ideais, o campo é uniforme e a resistência interna é concentrada em R. Não se modelam saturação, aquecimento, indutância nem comutação real.</li><li>Os motores CC e de indução são dinâmicos, com inércia J = 0,025 kg·m² e torque de atrito τ<sub>atrito</sub> = 0,003 + 0,0006ω N·m enquanto giram. A aceleração depende do torque líquido: τ<sub>líquido</sub> = Jα. O síncrono usa esse mesmo atrito apenas para calcular o equilíbrio em regime permanente.</li><li>O gerador tem velocidade imposta por um eixo externo e perdas mecânicas modeladas por τ<sub>atrito</sub> = 0,0006ω N·m.</li></ul></div>
+        <div class="theory-section">
+            <h3>9. Potência em CA e ligações trifásicas</h3>
+            <p>Tensão e corrente nem sempre atingem os máximos juntas. A <strong>defasagem</strong> entre elas influencia a potência ativa: potência média transferida para conversão ou dissipação. Não confunda essa diferença com os 120° entre as fases.</p>
+            <div class="theory-formula">P = V<sub>ef</sub> · I<sub>ef</sub> · cos φ</div>
+            <dl class="theory-variables"><dt>P</dt><dd>Potência ativa monofásica, em W, em regime senoidal permanente.</dd><dt>V<sub>ef</sub> e I<sub>ef</sub></dt><dd>Tensão eficaz aplicada (V) e corrente eficaz (A).</dd><dt>φ (fi minúsculo)</dt><dd>Defasagem entre tensão e corrente da mesma carga; não é Φ, o fluxo magnético.</dd><dt>cos φ</dt><dd>Fator de potência para senoides, sem unidade. Em resistor ideal, vale 1.</dd></dl>
+            <div class="theory-formula">P<sub>3φ</sub> = 3 · V<sub>fase</sub> · I<sub>fase</sub> · cos φ</div>
+            <dl class="theory-variables"><dt>P<sub>3φ</sub></dt><dd>Potência ativa total das três fases equilibradas, em W.</dd><dt>V<sub>fase</sub> e I<sub>fase</sub></dt><dd>Tensão eficaz em um enrolamento (V) e corrente eficaz nele (A).</dd><dt>φ e 3</dt><dd>Defasagem entre tensão e corrente de cada enrolamento e número de fases. Pressupõe tensões e correntes senoidais equilibradas.</dd></dl>
+            <div class="theory-formula">P<sub>3φ</sub> = √3 · V<sub>linha</sub> · I<sub>linha</sub> · cos φ</div>
+            <dl class="theory-variables"><dt>P<sub>3φ</sub></dt><dd>Mesma potência trifásica total, em W.</dd><dt>V<sub>linha</sub></dt><dd>Tensão eficaz entre dois condutores de fase, em V.</dd><dt>I<sub>linha</sub></dt><dd>Corrente eficaz num condutor de fase, em A.</dd><dt>φ e √3</dt><dd>Defasagem da tensão e corrente de um enrolamento e raiz de 3, aproximadamente 1,732. Vale para sistema senoidal equilibrado.</dd></dl>
+            <p>No monofásico senoidal, a potência instantânea tem uma parcela que oscila ao dobro da frequência da alimentação. No trifásico equilibrado ideal, essas oscilações se cancelam: a potência ativa total instantânea é constante. Isso favorece torque regular, mas não torna automaticamente o motor “três vezes mais potente”. Máquinas reais ainda apresentam ondulações.</p>
+            <details><summary>Aprofundamento: fase, linha, estrela e triângulo</summary>
+                <p>Na <strong>estrela (Y)</strong>, uma extremidade de cada enrolamento se une a um ponto comum. No <strong>triângulo (Δ)</strong>, os enrolamentos formam um circuito fechado. As relações abaixo usam valores eficazes e cargas equilibradas.</p>
+                <div class="theory-formula">Estrela: V<sub>linha</sub> = √3 · V<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>V<sub>linha</sub> e V<sub>fase</sub></dt><dd>Tensões entre fases e em cada enrolamento, em V. Na estrela, a segunda é também a tensão entre a fase e o ponto comum.</dd></dl>
+                <div class="theory-formula">Estrela: I<sub>linha</sub> = I<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>I<sub>linha</sub> e I<sub>fase</sub></dt><dd>Correntes no condutor de fase e no respectivo enrolamento, em A; são iguais na estrela.</dd></dl>
+                <div class="theory-formula">Triângulo: V<sub>linha</sub> = V<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>V<sub>linha</sub> e V<sub>fase</sub></dt><dd>Tensões entre fases e em cada enrolamento, em V; são iguais no triângulo.</dd></dl>
+                <div class="theory-formula">Triângulo: I<sub>linha</sub> = √3 · I<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>I<sub>linha</sub></dt><dd>Corrente num condutor de fase, em A.</dd><dt>I<sub>fase</sub></dt><dd>Corrente em um enrolamento, em A, menor que a corrente de linha nessa ligação equilibrada.</dd></dl>
+                <p class="theory-example"><strong>Exemplo:</strong> uma estrela com 220 V entre fase e ponto comum tem aproximadamente 380 V entre fases. É só um exemplo, não uma regra para todas as redes.</p>
+                <p>Uma carga monofásica pode ser alimentada entre fase e neutro ou entre duas fases. Dois condutores não significam três fases. Um motor trifásico equilibrado geralmente não precisa de neutro. O <strong>terra de proteção</strong> tem função de segurança e não substitui o neutro.</p>
+            </details>
+            <p class="note">Essas relações complementam a teoria; a animação não calcula todos os detalhes de uma instalação. Não altere conexões elétricas para testar essas ideias: use apenas os controles virtuais.</p>
+        </div>
+        <div class="theory-section">
+            <h3>10. Motor de indução: o rotor “persegue” o campo</h3>
+            <p>O estator produz campo girante. O rotor em <strong>gaiola</strong> tem barras condutoras unidas por anéis de curto-circuito. Não recebe alimentação por escovas: o movimento relativo do campo em relação às barras induz correntes nelas. Essas correntes interagem com o campo e produzem torque.</p>
+            <p>Os anéis da gaiola fecham os circuitos do próprio rotor. <strong>Não são anéis coletores</strong>, pois não fazem contato com escovas ou fonte externa.</p>
+            <div class="theory-formula">s = (ω<sub>s</sub> − ω) / ω<sub>s</sub></div>
+            <dl class="theory-variables"><dt>s</dt><dd>Escorregamento, sem unidade. Multiplique por 100 para obter porcentagem.</dd><dt>ω<sub>s</sub></dt><dd>Velocidade angular do campo, em rad/s.</dd><dt>ω</dt><dd>Velocidade angular do rotor, em rad/s. Também é possível usar rpm nas duas velocidades da razão, desde que ambas estejam na mesma unidade.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> campo a 1800 rpm e rotor a 1710 rpm dão escorregamento de 0,05, ou 5%. Com rotor parado, o escorregamento é 100%; se rotor e campo girassem juntos, seria zero.</p>
+            <p>Para produzir torque motor sob carga, o rotor fica abaixo da velocidade do campo. No sincronismo exato, não há variação relativa do fluxo nas barras, nem corrente induzida ou torque nesse modelo. O rotor não fica continuamente “ganhando velocidade até ultrapassar” o campo.</p>
+            <details><summary>Aprofundamento: equações do modelo simplificado de indução</summary>
+                <p>Este equivalente mostra tendências, não dimensiona motores comerciais. Nos dois modos trifásicos da página, o estator tem dois polos.</p>
+                <div class="theory-formula">ω<sub>s</sub> = 2π · f</div>
+                <dl class="theory-variables"><dt>ω<sub>s</sub></dt><dd>Velocidade angular do campo de dois polos, em rad/s.</dd><dt>f</dt><dd>Frequência da alimentação, em Hz. Para outro número de polos, use a velocidade síncrona geral e depois converta rpm para rad/s.</dd></dl>
+                <div class="theory-formula">E<sub>0</sub> = N · B · A · ω<sub>s</sub> / √2</div>
+                <dl class="theory-variables"><dt>E<sub>0</sub></dt><dd>Tensão eficaz equivalente por fase no rotor parado, em V, não energia.</dd><dt>N, B e A</dt><dd>Espiras efetivas por fase (sem unidade), campo de acoplamento (T) e área efetiva (m²).</dd><dt>ω<sub>s</sub></dt><dd>Velocidade do campo, em rad/s. A raiz de dois converte pico senoidal em valor eficaz.</dd></dl>
+                <div class="theory-formula">I<sub>r</sub> = |s| · E<sub>0</sub> / √(R<sub>r</sub>² + (s · X<sub>r</sub>)²)</div>
+                <dl class="theory-variables"><dt>I<sub>r</sub></dt><dd>Corrente eficaz equivalente do rotor por fase, em A.</dd><dt>s e |s|</dt><dd>Escorregamento e seu módulo, sem unidade.</dd><dt>E<sub>0</sub></dt><dd>Tensão equivalente no rotor parado, em V.</dd><dt>R<sub>r</sub></dt><dd>Resistência equivalente por fase, fixada em 4 Ω.</dd><dt>X<sub>r</sub></dt><dd>Reatância de rotor parado, em Ω: representa oposição indutiva à corrente alternada. Vale 1,5 Ω a 30 Hz e cresce proporcionalmente à frequência da alimentação.</dd></dl>
+                <div class="theory-formula">τ = 3 · E<sub>0</sub>² · R<sub>r</sub> · s / [ω<sub>s</sub> · (R<sub>r</sub>² + (s · X<sub>r</sub>)²)]</div>
+                <dl class="theory-variables"><dt>τ</dt><dd>Torque eletromagnético equivalente, em N·m.</dd><dt>E<sub>0</sub>, R<sub>r</sub> e X<sub>r</sub></dt><dd>Tensão de rotor parado (V), resistência por fase (Ω) e reatância de rotor parado (Ω).</dd><dt>s, ω<sub>s</sub> e 3</dt><dd>Escorregamento (sem unidade), velocidade do campo (rad/s) e número de fases.</dd></dl>
+                <div class="theory-formula">P<sub>entreferro</sub> = τ · ω<sub>s</sub></div>
+                <dl class="theory-variables"><dt>P<sub>entreferro</sub></dt><dd>Potência transmitida magneticamente ao rotor, em W. O entreferro é o pequeno espaço entre estator e rotor.</dd><dt>τ e ω<sub>s</sub></dt><dd>Torque eletromagnético (N·m) e velocidade angular do campo (rad/s).</dd></dl>
+                <div class="theory-formula">P<sub>cobre, rotor</sub> = 3 · I<sub>r</sub>² · R<sub>r</sub></div>
+                <dl class="theory-variables"><dt>P<sub>cobre, rotor</sub></dt><dd>Perda elétrica total no rotor, em W.</dd><dt>I<sub>r</sub>, R<sub>r</sub> e 3</dt><dd>Corrente eficaz por fase (A), resistência por fase (Ω) e número de fases.</dd></dl>
+                <div class="theory-formula">P<sub>entreferro</sub> = P<sub>cobre, rotor</sub> + P<sub>convertida</sub></div>
+                <dl class="theory-variables"><dt>P<sub>entreferro</sub>, P<sub>cobre, rotor</sub> e P<sub>convertida</sub></dt><dd>Potências em W: recebida pelo rotor, perdida em aquecimento e convertida em mecânica. A convertida é o produto do torque eletromagnético pela velocidade do rotor, antes de descontar atrito.</dd></dl>
+                <p>A leitura de entrada é a potência de entreferro. Não inclui corrente nem perdas de alimentação do estator: não é o consumo total de um motor real. O gráfico relaciona torque e corrente com a velocidade do rotor, para frequência e campo escolhidos; não é um gráfico em função do ângulo.</p>
+            </details>
+        </div>
+        <div class="theory-section">
+            <h3>11. Motor síncrono: ímãs acompanhando o campo</h3>
+            <p>O estator também cria campo girante, mas o rotor possui ímãs permanentes. Seus polos tendem a acompanhar os do campo. Em funcionamento estável, rotor e campo giram à mesma velocidade: não há escorregamento permanente.</p>
+            <p>Para produzir torque, o eixo magnético do rotor fica um pouco atrás do campo. Esse atraso é o <strong>ângulo de carga</strong>. Se a carga aumenta dentro do limite estável, o atraso aumenta; depois do ajuste, a rotação continua síncrona. Na indução, por outro lado, é necessária uma diferença contínua de velocidades para induzir correntes.</p>
+            <div class="theory-formula">τ = τ<sub>máx</sub> · sen δ</div>
+            <dl class="theory-variables"><dt>τ</dt><dd>Torque eletromagnético, em N·m.</dd><dt>τ<sub>máx</sub></dt><dd>Limite de torque do modelo, em N·m.</dd><dt>δ (delta)</dt><dd>Ângulo de carga entre o campo girante e o eixo magnético do rotor. O equilíbrio estável considerado vai de 0° até menos de 90°.</dd></dl>
+            <p class="theory-example"><strong>Exemplo:</strong> com limite de 0,2 N·m e ângulo de 30°, o torque é 0,1 N·m. O ângulo pode ficar constante enquanto rotor e campo giram, porque é medido entre eles, não em relação à sala.</p>
+            <details><summary>Aprofundamento: corrente regulada e potência no síncrono</summary>
+                <div class="theory-formula">τ<sub>máx</sub> = 3 · N · B · A · I<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>τ<sub>máx</sub></dt><dd>Torque máximo efetivo, em N·m, deste modelo didático, não uma fórmula universal de projeto.</dd><dt>N e A</dt><dd>Espiras efetivas por fase (sem unidade) e área efetiva (m²).</dd><dt>B</dt><dd>Campo de acoplamento com os ímãs, em T.</dd><dt>I<sub>fase</sub></dt><dd>Corrente eficaz por fase regulada pelo inversor ideal, em A.</dd><dt>3</dt><dd>Número de fases.</dd></dl>
+                <div class="theory-formula">P<sub>entrada</sub> = τ · ω + 3 · I<sub>fase</sub>² · R<sub>fase</sub></div>
+                <dl class="theory-variables"><dt>P<sub>entrada</sub></dt><dd>Potência de entrada simplificada, em W.</dd><dt>τ e ω</dt><dd>Torque eletromagnético (N·m) e velocidade do rotor (rad/s); seu produto é a potência convertida antes do atrito.</dd><dt>I<sub>fase</sub> e R<sub>fase</sub></dt><dd>Corrente eficaz por fase (A) e resistência por fase, fixada em 1 Ω. O termo multiplicado por três é a perda dos três enrolamentos.</dd></dl>
+                <p>O inversor é um dispositivo eletrônico que controla a alimentação. Aqui regula idealmente a corrente; não se calculam tensão do inversor, fator de potência ou perdas no ferro.</p>
+            </details>
+            <p><strong>Limite importante:</strong> só se mostra o regime permanente após partida assistida. Iniciar coloca o rotor no equilíbrio; não simula aceleração inicial ou perda transitória de sincronismo. O torque deve vencer carga e atrito com margem abaixo do máximo. Sem margem, uma proteção ideal impede operar, zera a corrente e informa sobrecarga. Desligar a fonte não apaga o campo dos ímãs.</p>
+        </div>
+        <div class="theory-section">
+            <h3>12. Acelerar, manter a velocidade ou frear?</h3>
+            <p>O torque do motor não age sozinho: carga e atrito se opõem ao movimento. O que muda a velocidade é o <strong>torque líquido</strong>, soma dos torques com seus sentidos considerados.</p>
+            <div class="theory-formula">τ<sub>líquido</sub> = τ<sub>motor</sub> − τ<sub>carga</sub> − τ<sub>atrito</sub></div>
+            <dl class="theory-variables"><dt>τ<sub>líquido</sub></dt><dd>Torque resultante no eixo, em N·m.</dd><dt>τ<sub>motor</sub></dt><dd>Torque eletromagnético, em N·m, considerado no sentido de giro.</dd><dt>τ<sub>carga</sub> e τ<sub>atrito</sub></dt><dd>Módulos dos torques resistentes, em N·m, para a rotação positiva da animação.</dd></dl>
+            <div class="theory-formula">τ<sub>líquido</sub> = J · α</div>
+            <dl class="theory-variables"><dt>τ<sub>líquido</sub></dt><dd>Torque resultante, em N·m.</dd><dt>J</dt><dd>Momento de inércia, em kg·m²: dificuldade de alterar a rotação, dependente da massa e de sua distribuição.</dd><dt>α</dt><dd>Aceleração angular, em rad/s²; aqui não é o ângulo entre fio e campo da seção 3.</dd></dl>
+            <p>Torque líquido positivo acelera o giro positivo; nulo mantém a velocidade; negativo reduz essa velocidade. Um motor pode fornecer torque e girar a velocidade constante quando equilibra a carga e o atrito.</p>
+            <div class="theory-formula">E<sub>cin, rot</sub> = J · ω² / 2</div>
+            <dl class="theory-variables"><dt>E<sub>cin, rot</sub></dt><dd>Energia cinética de rotação, em J (joules); não confunda a unidade J com o símbolo de momento de inércia.</dd><dt>J e ω</dt><dd>Momento de inércia (kg·m²) e velocidade angular (rad/s).</dd></dl>
+            <details><summary>Aprofundamento: atrito adotado pela simulação</summary>
+                <p>Nos motores CC e de indução, o momento de inércia é 0,025 kg·m². Em movimento, o atrito combina uma parte constante e outra proporcional à velocidade. No síncrono, é usado apenas no cálculo do equilíbrio.</p>
+                <div class="theory-formula">τ<sub>atrito</sub> = τ<sub>0</sub> + b · ω</div>
+                <dl class="theory-variables"><dt>τ<sub>atrito</sub></dt><dd>Módulo do torque de atrito em movimento, em N·m.</dd><dt>τ<sub>0</sub></dt><dd>Parcela constante, fixada em 0,003 N·m nos motores.</dd><dt>b</dt><dd>Coeficiente viscoso, fixado em 0,0006 N·m·s/rad.</dd><dt>ω</dt><dd>Velocidade angular positiva, em rad/s. No gerador, a parcela constante é zero e usa-se o mesmo coeficiente viscoso.</dd></dl>
+                <p>O gerador tem velocidade imposta por acionamento externo. Os motores CC e de indução evoluem conforme o torque líquido; o síncrono mostra diretamente o equilíbrio estável.</p>
+            </details>
+        </div>
+        <div class="theory-section">
+            <h3>13. Ler a animação sem confundir desenho e realidade</h3>
+            <h4>Força, torque e velocidade são diferentes</h4>
+            <p>As setas de força mostram ações locais. A seta violeta mostra o <strong>torque eletromagnético</strong>, não o torque líquido após carga e atrito. O torque é um vetor axial: aponta ao longo do eixo do giro que a força tende a produzir. Pela regra da mão direita, curve os dedos nesse sentido; o polegar indica o sentido do vetor. Não é uma seta indicando a trajetória de um ponto da bobina.</p>
+            <p>A velocidade angular também pode ser representada ao longo do eixo, mas não é torque. Pode haver torque com rotor parado e rotação com torque eletromagnético nulo ou contrário ao movimento.</p>
+            <h4>Os pontos azuis não são uma filmagem de elétrons</h4>
+            <p>Elétrons têm carga negativa, por isso sua deriva é contrária à corrente convencional. Em CA, a deriva oscila; os elétrons não precisam viajar da usina até o aparelho para que a energia chegue a ele. Os pontos apenas ilustram caminhos nos condutores. Não calculamos colisões microscópicas nem trajetórias individuais sob forças elétricas e magnéticas.</p>
+            <p>Na gaiola, as correntes se fecham por barras e anéis. No rotor de ímãs permanentes, não há enrolamento alimentado: as forças desenhadas ali são resultantes ilustrativas da interação magnética, não forças de corrente passando pelos ímãs.</p>
+            <h4>Quantidade de bobinas e perspectiva</h4>
+            <p>Nos motores trifásicos, 3, 6 e 9 bobinas significam uma, duas e três por fase. As cores A, B e C identificam fases; cada bobina tem seu próprio número. O total de espiras por fase e a área efetiva ficam constantes nos cálculos: essa escolha redistribui espiras e não aumenta torque, potência ou polos.</p>
+            <p>As bobinas estão afastadas numa vista explodida ilustrativa. Suas posições desenhadas não definem os eixos magnéticos de um projeto real. No síncrono, bobinas traseiras e elétrons podem ficar encobertos pelos ímãs. O gerador CA tem uma bobina e saída monofásica; um alternador trifásico exigiria três enrolamentos de saída defasados.</p>
+            <h4>Câmera lenta e hipóteses</h4>
+            <p>Ocultar a estrutura facilita observar campo e cargas, sem mudar a física. A câmera lenta reduz o avanço do tempo simulado de toda a máquina: rotor, campo, corrente e gráficos continuam coerentes. Um segundo físico pode demorar vários segundos na tela; as leituras de frequência, rotação e potência continuam sendo valores físicos.</p>
+            <p>Usamos campos uniformes, bobinas ideais e resistências concentradas. Não reproduzimos saturação magnética, evolução de temperatura, comutação real, indutância transitória nem todas as perdas. Na indução, há reatância equivalente para representar o efeito indutivo em regime, não um circuito completo. Os resultados servem para aprender relações físicas, não para projetar, ligar ou proteger instalações elétricas.</p>
+            <p class="theory-example"><strong>Para investigar:</strong> compare motor e gerador e identifique de onde vem a energia. Depois altere um parâmetro por vez: campo, espiras, carga ou frequência. Antes de observar, faça uma previsão e explique por quê. Se surgir dúvida sobre uma equação, leve a pergunta ao tutor.</p>
+        </div>
     </section>
 </div>
 
