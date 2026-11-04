@@ -809,12 +809,16 @@
                 <div class="fórmula-box">
                     <h3>Equação Principal</h3>
                     <p>T ≈ 1 / (1 + [U² sinh²(κa)] / [4E(U-E)])</p>
+                    <p>κ = √[2m(U − E)] / ℏ</p>
                     <p>Onde:</p>
                     <p>E = energia da partícula</p>
-                    <p>U = altura da barreira</p>
+                    <p>U = altura da barreira (efetiva)</p>
                     <p>a = largura da barreira</p>
-                    <p>κ = fator de atenuação da onda</p>
-                    <p>T = probabilidade de transmissão</p>
+                    <p>κ = fator de atenuação da onda (em m⁻¹ ou nm⁻¹)</p>
+                    <p>m = massa da partícula (elétron: 9,11×10⁻³¹ kg; par de Cooper: 2mₑ)</p>
+                    <p>ℏ = h/2π ≈ 1,055×10⁻³⁴ J·s</p>
+                    <p>T = probabilidade de transmissão; R = 1 − T</p>
+                    <p>Atalho para o elétron: κ ≈ 5,12 · √(U − E) nm⁻¹ (U − E em eV)</p>
                     <p>Leitura física: quando a barreira fica mais alta ou mais larga, a onda decai mais dentro dela e T tende a diminuir. Quando a energia da partícula aumenta, T tende a crescer.</p>
                 </div>
                 
@@ -1053,6 +1057,27 @@
                 </div>
 
                 <div class="theory-section">
+                    <h3>Fator de Atenuação κ</h3>
+                    <p>O fator de atenuação (também chamado de constante de decaimento) é calculado, para E &lt; U, por:</p>
+                    <div class="theory-fórmula">κ = √[2m(U − E)] / ℏ</div>
+                    <ul>
+                        <li><span class="highlight">m:</span> massa da partícula que tunela. Elétron: mₑ = 9,11×10⁻³¹ kg. Par de Cooper (junção Josephson): m = 2mₑ.</li>
+                        <li><span class="highlight">U − E:</span> quanto falta de energia para "passar por cima" da barreira, convertido para joules (1 eV = 1,602×10⁻¹⁹ J).</li>
+                        <li><span class="highlight">ℏ = h/2π:</span> constante de Planck reduzida, ℏ ≈ 1,055×10⁻³⁴ J·s.</li>
+                        <li><span class="highlight">Unidade de κ:</span> inverso de comprimento (m⁻¹). Por isso o produto κa é adimensional e pode entrar no sinh.</li>
+                    </ul>
+                    <p>Para um elétron, com U − E em eV, a conta fica bem mais simples:</p>
+                    <div class="theory-fórmula">κ ≈ 5,12 · √(U − E) nm⁻¹</div>
+                    <p>Para outra massa, basta multiplicar por √(m/mₑ). Para o par de Cooper: κ ≈ 5,12 · √2 · √(U − E) ≈ 7,25 · √(U − E) nm⁻¹.</p>
+                    <p>Leituras importantes da fórmula:</p>
+                    <ul>
+                        <li>κ aumenta quando U − E aumenta: barreira mais alta ou partícula menos energética ⇒ decaimento mais rápido ⇒ menor T.</li>
+                        <li>κ aumenta com a massa: partículas mais massivas tunelam com mais dificuldade. É por isso que, com os mesmos E, U e a, a transmissão do elétron (STM) é maior que a do par de Cooper.</li>
+                        <li>1/κ é a <span class="highlight">profundidade de penetração</span>: a distância em que a amplitude da onda cai para cerca de 37% (fator 1/e).</li>
+                    </ul>
+                </div>
+
+                <div class="theory-section">
                     <h3>O que é uma Barreira de Potencial?</h3>
                     <p>Uma barreira de potencial não precisa ser imaginada como uma parede sólida. Em física, ela representa uma região do espaço em que a energia potencial é maior. Para atravessar essa região pela visão clássica, a partícula precisaria ter energia suficiente para "subir" esse obstáculo energético.</p>
                     <p>Uma analogia útil é pensar em uma bola tentando passar por um morro. Se a bola não tiver energia bastante, ela sobe um pouco e volta. Na física clássica, isso corresponderia à reflexão. Na física quântica, porém, a partícula não é tratada apenas como um ponto: ela também tem descrição ondulatória. Por isso, mesmo quando E &lt; U, ainda pode existir uma chance de aparecer do outro lado da barreira.</p>
@@ -1067,6 +1092,21 @@
                     <div class="theory-fórmula">T ≈ 1 / (1 + [U² sinh²(κa)] / [4E(U-E)])</div>
                     <p>Essa expressão resume a ideia central da simulação: a transmissão depende de como a onda se comporta dentro da barreira. O termo sinh²(κa) mostra que a largura da barreira a e o fator de decaimento κ aparecem juntos. Por isso, pequenas variações em a podem produzir mudanças muito grandes em T.</p>
                     <p>Também é importante notar que E aparece no denominador do termo corretivo. Quando a energia da partícula se aproxima da barreira, a transmissão tende a aumentar. Quando a diferença entre U e E cresce, a travessia fica menos provável.</p>
+                    <p>Como a fração U²/[4E(U − E)] é uma razão entre energias, ela não tem unidade: E e U podem ser usados diretamente em eV nesse termo. Já κ precisa estar na unidade inversa de a (por exemplo, κ em nm⁻¹ e a em nm).</p>
+                    <p>Quando a barreira é "grossa" (κa maior que cerca de 2, o caso típico da simulação), sinh(κa) ≈ e<sup>κa</sup>/2 e a transmissão fica aproximadamente:</p>
+                    <div class="theory-fórmula">T ≈ [16E(U − E) / U²] · e<sup>−2κa</sup></div>
+                    <p>Essa forma deixa claro por que a largura é tão sensível: T cai exponencialmente com a. Se a dobra, o expoente −2κa dobra, e a transmissão cai muito mais do que pela metade.</p>
+                    <p>Como a partícula só pode ser transmitida ou refletida, as probabilidades se completam:</p>
+                    <div class="theory-fórmula">R = 1 − T</div>
+                    <p>Observação: se E &gt; U, não há decaimento; κ dá lugar ao número de onda k = √[2m(E − U)]/ℏ e o sinh² é trocado por sin² na fórmula de T. Os exercícios trabalham com E &lt; U.</p>
+                    
+                    <h4>Barreira efetiva e campo elétrico externo</h4>
+                    <p>Na simulação, o campo elétrico externo inclina e rebaixa a barreira. O modelo didático usado na tela é:</p>
+                    <div class="theory-fórmula">U<sub>ef</sub> = U<sub>nominal</sub> − 0,18 · (campo em MV/m)  [em eV]</div>
+                    <p>É essa <span class="highlight">barreira efetiva</span> que entra no cálculo de κ e de T. Por isso, aumentar o campo reduz U<sub>ef</sub>, reduz κ e aumenta a transmissão.</p>
+
+                    <h4>Corrente relativa no detector</h4>
+                    <p>O detector conta as partículas que atravessam. A corrente relativa é proporcional à transmissão (multiplicada por um ganho que depende do contexto e do campo): I ∝ T. Se T aumenta, a leitura do detector aumenta.</p>
                     
                     <p>As grandezas mais importantes são:</p>
                     <ul>
@@ -1082,6 +1122,27 @@
                         <li>se a aumenta, a onda passa mais tempo decaindo dentro da barreira;</li>
                         <li>se o campo externo reduz a barreira efetiva, a transmissão tende a crescer.</li>
                     </ul>
+                </div>
+
+                <div class="theory-section">
+                    <h3>Roteiro de Cálculo da Transmissão (exemplo resolvido)</h3>
+                    <p><strong>Situação:</strong> elétron (STM), E = 2,0 eV, barreira nominal U = 4,36 eV, campo externo 2,0 MV/m, largura a = 0,6 nm.</p>
+                    <ol>
+                        <li><span class="highlight">Barreira efetiva:</span> U<sub>ef</sub> = 4,36 − 0,18 · 2,0 = 4,00 eV.</li>
+                        <li><span class="highlight">Diferença de energia:</span> U<sub>ef</sub> − E = 4,00 − 2,00 = 2,00 eV = 3,20×10⁻¹⁹ J.</li>
+                        <li><span class="highlight">Fator de atenuação:</span> κ = √(2 · 9,11×10⁻³¹ · 3,20×10⁻¹⁹) / 1,055×10⁻³⁴ ≈ 7,25×10⁹ m⁻¹ = 7,25 nm⁻¹ (pelo atalho: 5,12 · √2 ≈ 7,25 nm⁻¹).</li>
+                        <li><span class="highlight">Produto κa:</span> κa = 7,25 · 0,6 ≈ 4,35 ⇒ sinh(4,35) ≈ 38,6 ⇒ sinh² ≈ 1,49×10³.</li>
+                        <li><span class="highlight">Termo de energia:</span> U²/[4E(U − E)] = 4,00² / (4 · 2,00 · 2,00) = 1,00.</li>
+                        <li><span class="highlight">Transmissão:</span> T = 1 / (1 + 1,00 · 1,49×10³) ≈ 6,7×10⁻⁴ ≈ 0,067%.</li>
+                        <li><span class="highlight">Reflexão:</span> R = 1 − T ≈ 99,93%.</li>
+                    </ol>
+                    <p><strong>Conferência pela aproximação exponencial:</strong> T ≈ (16 · 2 · 2 / 16) · e<sup>−8,69</sup> ≈ 4 · 1,68×10⁻⁴ ≈ 6,7×10⁻⁴. Mesmo resultado.</p>
+                    <p><strong>Comparações rápidas (mesmos E e U<sub>ef</sub>):</strong></p>
+                    <ul>
+                        <li>Largura dobrada (a = 1,2 nm): T ≈ 1,1×10⁻⁷ — cerca de 6 000 vezes menor.</li>
+                        <li>Par de Cooper (m = 2mₑ, a = 0,6 nm): κ ≈ 10,2 nm⁻¹ e T ≈ 1,8×10⁻⁵ — cerca de 37 vezes menor que a do elétron.</li>
+                    </ul>
+                    <p><strong>Dica para comparar cenários:</strong> o fator que mais pesa é o expoente 2κa. O cenário com menor κa costuma ter a maior transmissão.</p>
                 </div>
 
                 <div class="theory-section">
@@ -1103,12 +1164,6 @@
                         <li>Sensores de alta precisão</li>
                     </ul>
                 </div>
-            </div>
-            
-            <div class="buttons-container">
-                <button id="closeTheory" class="check-btn">Fechar</button>
-            </div>
-        
 
             <div class="theory-section">
                 <h3>Contextos de Aplicação do Tunelamento</h3>
@@ -1166,6 +1221,11 @@
                     <li>Maior <span class="highlight">barreira</span> tende a reduzir a transmissão</li>
                     <li>O <span class="highlight">detector</span> registra estatísticas, não trajetórias clássicas individuais</li>
                 </ul>
+            </div>
+            </div>
+
+            <div class="buttons-container">
+                <button id="closeTheory" class="check-btn">Fechar</button>
             </div>
         </div>    
 
@@ -2891,17 +2951,25 @@
 
         // ========== SISTEMA DE EXERCÍCIOS ==========
 
-        function generatePercentOptions(correctPercent) {
+        function generatePercentOptions(correctPercent, distractorCandidates = []) {
             const options = [`${formatNumber(correctPercent)} %`];
 
-            while (options.length < 5) {
-                const variation = correctPercent + (Math.random() * 36 - 18);
-                const clampedVariation = clamp(variation, 0, 100);
-                const formatted = `${formatNumber(clampedVariation)} %`;
-                if (!options.includes(formatted)) {
-                    options.push(formatted);
-                }
-            }
+            // Distratores multiplicativos: T varia em ordens de grandeza, então somar/subtrair pontos percentuais gera alternativas sem sentido (ex.: "0.00 %").
+            const isFarEnough = function(value) {
+                if (!isFinite(value) || value <= 0 || value > 100) return false;
+                const ratio = value / correctPercent;
+                return ratio > 1.6 || ratio < 1 / 1.6;
+            };
+            const tryAdd = function(value) {
+                if (options.length >= 5 || !isFarEnough(value)) return;
+                const formatted = `${formatNumber(value)} %`;
+                if (!options.includes(formatted)) options.push(formatted);
+            };
+
+            shuffleArray(distractorCandidates.slice()).forEach(tryAdd);
+            shuffleArray([10, 0.1, 100, 0.01, 3.5, 1 / 3.5, 30, 1 / 30]).forEach(function(factor) {
+                tryAdd(correctPercent * factor);
+            });
 
             return shuffleArray(options);
         }
@@ -2912,7 +2980,8 @@
             const localBarrier = Number((localEnergy + Math.random() * 3 + 0.5).toFixed(2));
             const localWidth = Number((Math.random() * 1.1 + 0.35).toFixed(2));
             const localField = Number((Math.random() * 4.5).toFixed(2));
-            const localEffectiveBarrier = Math.max(0.02, localBarrier - 0.18 * localField);
+            // Arredondado para coincidir com o valor exibido no enunciado.
+            const localEffectiveBarrier = Number(Math.max(0.02, localBarrier - 0.18 * localField).toFixed(2));
             const localTransmission = calculateTransmissionProbability(localEnergy, localEffectiveBarrier, localWidth, selectedContext.mass) * 100;
 
             return {
@@ -2946,12 +3015,20 @@
                 const contextKeys = Object.keys(contexts);
                 const selectedContextKey = contextKeys[Math.floor(Math.random() * contextKeys.length)];
                 const scenario = buildRandomScenario(selectedContextKey);
+                const isCooperPair = scenario.context.mass > ELECTRON_MASS * 1.5;
+                const otherMass = isCooperPair ? ELECTRON_MASS : 2 * ELECTRON_MASS;
+                const massText = isCooperPair ? 'par de Cooper, m = 2mₑ' : 'elétron, m = mₑ';
+                // Distratores que correspondem a erros típicos de cálculo.
+                const commonMistakes = [
+                    calculateTransmissionProbability(scenario.energy, scenario.barrier, scenario.width, scenario.context.mass) * 100,
+                    calculateTransmissionProbability(scenario.energy, scenario.effectiveBarrier, scenario.width, otherMass) * 100
+                ];
 
                 return {
                     type,
-                    question: `No contexto ${scenario.context.label}, uma partícula tem energia E=${formatNumber(scenario.energy)} eV, a barreira nominal vale ${formatNumber(scenario.barrier)} eV, a largura é ${formatNumber(scenario.width)} nm e o campo externo é ${formatNumber(scenario.field)} MV/m. A barreira efetiva fica em aproximadamente ${formatNumber(scenario.effectiveBarrier)} eV. Qual é a melhor estimativa para a probabilidade de transmissão?`,
+                    question: `No contexto ${scenario.context.label} (${massText}), uma partícula tem energia E=${formatNumber(scenario.energy)} eV, a barreira nominal vale ${formatNumber(scenario.barrier)} eV, a largura é ${formatNumber(scenario.width)} nm e o campo externo é ${formatNumber(scenario.field)} MV/m. A barreira efetiva fica em ${scenario.effectiveBarrier.toFixed(2)} eV. Qual é a melhor estimativa para a probabilidade de transmissão?`,
                     answer: `${formatNumber(scenario.transmission)} %`,
-                    options: generatePercentOptions(scenario.transmission)
+                    options: generatePercentOptions(scenario.transmission, commonMistakes)
                 };
             }
 
@@ -3624,7 +3701,8 @@
                     <p><strong>Problema:</strong> No contexto STM, considere E=2,0 eV, barreira efetiva U=4,0 eV e largura a=0,6 nm. Qual leitura física devemos esperar?</p>
                     <div class="solution-step"><strong>Ideia:</strong> Como E &lt; U, a física clássica diria bloqueio total, mas a mecânica quântica permite uma transmissão diferente de zero.</div>
                     <div class="solution-step"><strong>Análise:</strong> A barreira não é muito estreita nem muito larga, então a transmissão não tende a ser total e também não precisa ser exatamente zero.</div>
-                    <div class="solution-step"><strong>Resposta:</strong> Esperamos uma transmissão pequena, mas mensurável, e uma reflexão predominante.</div>
+                    <div class="solution-step"><strong>Cálculo:</strong> κ = √[2m(U − E)]/ℏ ≈ 5,12 · √2,0 ≈ 7,25 nm⁻¹; κa ≈ 4,35; sinh²(κa) ≈ 1,49×10³; U²/[4E(U − E)] = 1,00. Logo T ≈ 1/(1 + 1,49×10³) ≈ 6,7×10⁻⁴ ≈ 0,067% e R ≈ 99,93%.</div>
+                    <div class="solution-step"><strong>Resposta:</strong> Esperamos uma transmissão pequena (≈ 0,07%), mas mensurável, e uma reflexão predominante.</div>
                     <button class="audio-example-btn" data-example="1">🔊 Ouvir resolução</button>
                 </div>
                 
