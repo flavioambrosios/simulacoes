@@ -304,11 +304,14 @@ SIMULATION_CONTEXTS = {
     'optica-geometrica': {
         'title': 'Óptica Geométrica',
         'guidance': (
-            'Oriente sobre formação de imagens por lentes convergentes e espelhos côncavos, conforme os exercícios. '
-            'Use a equação de Gauss, 1/f = 1/p + 1/p\', e a ampliação A = -p\'/p, ajudando a manter consistentes '
-            'as convenções de sinais adotadas no enunciado. Relacione sinal da posição da imagem à natureza real ou '
-            'virtual, sinal da ampliação à orientação direita ou invertida, e módulo da ampliação ao tamanho relativo. '
-            'Peça que identifique os dados e as convenções antes de substituir; não forneça resultados finais.'
+            'Adapte as orientações ao fenômeno do enunciado. Para formação de imagens por lentes convergentes e '
+            'espelhos côncavos, use a equação de Gauss, 1/f = 1/p + 1/p\', e a ampliação A = -p\'/p; relacione '
+            'os sinais à natureza e à orientação da imagem, respeitando as convenções do exercício. Para refração, '
+            'meça os ângulos em relação à normal e use n = c/v e n1 sen θ1 = n2 sen θ2. Relacione índice e '
+            'velocidade, a frequência constante e a mudança de comprimento de onda. Discuta reflexão interna '
+            'total apenas quando a luz passa de maior para menor índice e o ângulo supera o crítico; considere '
+            'a dispersão quando o índice variar com o comprimento de onda. Peça que identifique os dados antes '
+            'de substituir e não forneça resultados finais.'
         ),
     },
     'led-e-oled': {

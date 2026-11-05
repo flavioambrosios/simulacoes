@@ -101,10 +101,13 @@
     let studentAccessConfigLoadPromise = null;
     let sheetOptionsRequestToken = 0;
     let studentOptionsRequestToken = 0;
+    let studentSelectionVersion = 0;
     let rosterApiCache = {};
     let rosterSheetsCache = null;
     let saveIndicatorHideTimer = null;
     let lastSaveIndicatorAt = 0;
+    let restoringExerciseState = false;
+    let pendingRosterRestore = null;
 
     injectStyles();
     ensureSaveIndicator();
@@ -211,6 +214,8 @@
             '.enhancer-save-indicator { position: fixed; right: 18px; bottom: 18px; z-index: 3000; max-width: 260px; padding: 10px 14px; border-radius: 12px; background: rgba(12, 22, 32, 0.92); border: 1px solid rgba(120, 255, 190, 0.5); color: #d9ffee; font-size: 0.92rem; font-weight: 700; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28); opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; }',
             '.enhancer-save-indicator.is-visible { opacity: 1; transform: translateY(0); }',
             '.enhancer-save-indicator strong { color: #7fffc0; }',
+            '.enhancer-save-indicator.is-error { border-color: #ff9f9f; color: #ffe0e0; }',
+            '.enhancer-save-indicator.is-error strong { color: #ff9f9f; }',
             '.enhancer-study-notes-card { margin: 12px 0 14px; padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 221, 136, 0.28); }',
             '.enhancer-study-notes-card h3 { margin: 0 0 8px; color: #ffdd88; text-align: center; font-size: 1.06rem; }',
             '.enhancer-study-notes-hint { margin: 0 0 10px; color: #f5f5f5; font-size: 0.92rem; text-align: center; }',
@@ -340,6 +345,8 @@
             return;
         }
 
+        indicator.classList.remove('is-error');
+        indicator.innerHTML = '<strong>Progresso salvo</strong><div>O ponto atual dos exercícios foi guardado.</div>';
         if (now - lastSaveIndicatorAt < 900 && indicator.classList.contains('is-visible')) {
             window.clearTimeout(saveIndicatorHideTimer);
             saveIndicatorHideTimer = window.setTimeout(function () {
@@ -354,6 +361,16 @@
         saveIndicatorHideTimer = window.setTimeout(function () {
             indicator.classList.remove('is-visible');
         }, 1400);
+    }
+
+    function reportStorageError(error) {
+        console.error('Não foi possível acessar o armazenamento do progresso.', error);
+        const indicator = document.getElementById('enhancerSaveIndicator');
+        if (indicator) {
+            window.clearTimeout(saveIndicatorHideTimer);
+            indicator.innerHTML = '<strong>Não foi possível salvar o progresso</strong><div>Verifique o armazenamento do navegador antes de sair da página.</div>';
+            indicator.classList.add('is-error', 'is-visible');
+        }
     }
 
     function ensureEnhancedFormFields() {
@@ -737,6 +754,7 @@
             }
 
             field.addEventListener('change', function () {
+                pendingRosterRestore = null;
                 syncSelectedSheetMetadata();
                 populateSimulationStudentOptions();
                 syncResolvedStudentName();
@@ -748,6 +766,8 @@
         const studentNameSelect = document.getElementById('studentNameSelect');
         if (studentNameSelect && studentNameSelect.dataset.enhancerRosterBound !== 'true') {
             studentNameSelect.addEventListener('change', function () {
+                pendingRosterRestore = null;
+                studentSelectionVersion++;
                 const manualMode = studentNameSelect.value === '__OTHER__';
                 const manualRow = document.getElementById('studentNameManualRow');
                 const manualInput = document.getElementById('studentNameManual');
@@ -769,6 +789,7 @@
         const studentNameManual = document.getElementById('studentNameManual');
         if (studentNameManual && studentNameManual.dataset.enhancerRosterBound !== 'true') {
             studentNameManual.addEventListener('input', function () {
+                pendingRosterRestore = null;
                 syncResolvedStudentName();
                 saveExerciseState();
             });
@@ -1076,6 +1097,7 @@
             return Promise.resolve([]);
         }
 
+        const requestedSheet = preservedValue || (pendingRosterRestore && pendingRosterRestore.studentSheet) || '';
         const requestToken = ++sheetOptionsRequestToken;
 
         if (!isStudentAccessAuthenticated()) {
@@ -1098,8 +1120,8 @@
                     return '<option value="' + escapeHtml(sheetName) + '">' + escapeHtml(sheetName) + '</option>';
                 }).join('');
 
-            if (preservedValue && sheetNames.indexOf(preservedValue) !== -1) {
-                studentSheetSelect.value = preservedValue;
+            if (requestedSheet && sheetNames.indexOf(requestedSheet) !== -1) {
+                studentSheetSelect.value = requestedSheet;
             } else {
                 studentSheetSelect.value = '';
             }
@@ -1281,6 +1303,11 @@
         }
 
         const sheetName = normalizeSheetLabel(getFieldValue('studentSheet'));
+        const pendingName = pendingRosterRestore && pendingRosterRestore.studentSheet === sheetName
+            ? pendingRosterRestore.studentNameSelect
+            : '';
+        const requestedName = preservedValue || pendingName || '';
+        const selectionVersion = studentSelectionVersion;
         const serie = getFieldValue('studentGrade');
         const turma = getFieldValue('studentClass');
         const trilha = getFieldValue('studentTrail');
@@ -1301,6 +1328,7 @@
             const emptyMessage = shouldUseProtectedRosterApi()
                 ? 'Nenhum nome encontrado para este recorte'
                 : 'Libere o modo estudante para carregar os nomes da turma';
+            const selectedName = selectionVersion === studentSelectionVersion ? requestedName : studentNameSelect.value;
 
             studentNameSelect.innerHTML = (names.length
                 ? '<option value="">Selecione o nome</option>'
@@ -1310,8 +1338,8 @@
                 }).join('')
                 + '<option value="__OTHER__">Meu nome não está na lista</option>';
 
-            if (preservedValue && (preservedValue === '__OTHER__' || names.indexOf(preservedValue) !== -1)) {
-                studentNameSelect.value = preservedValue;
+            if (selectedName && (selectedName === '__OTHER__' || names.indexOf(selectedName) !== -1)) {
+                studentNameSelect.value = selectedName;
             } else {
                 studentNameSelect.value = '';
             }
@@ -1326,6 +1354,10 @@
                 manualInput.required = manualMode;
             }
             syncResolvedStudentName();
+            if (pendingRosterRestore && pendingRosterRestore.studentSheet === sheetName
+                && (!pendingRosterRestore.studentNameSelect || studentNameSelect.value === pendingRosterRestore.studentNameSelect)) {
+                pendingRosterRestore = null;
+            }
         });
     }
 
@@ -1424,6 +1456,8 @@
     }
 
     function resetLegacyExerciseState() {
+        pendingRosterRestore = null;
+        studentSelectionVersion++;
         writeGlobalBinding('currentExercise', 0);
         writeGlobalBinding('exerciseResults', []);
         writeGlobalBinding('skippedQuestions', 0);
@@ -1437,6 +1471,7 @@
         const studentName = document.getElementById('studentName');
         const studentNameSelect = document.getElementById('studentNameSelect');
         const studentNameManual = document.getElementById('studentNameManual');
+        const studentNameManualRow = document.getElementById('studentNameManualRow');
         const studyNotes = document.getElementById('enhancerNotesInput');
 
         if (conclusionText) {
@@ -1461,6 +1496,10 @@
         }
         if (studentNameManual) {
             studentNameManual.value = '';
+            studentNameManual.required = false;
+        }
+        if (studentNameManualRow) {
+            studentNameManualRow.classList.add('enhancer-hidden');
         }
         if (studyNotes) {
             studyNotes.value = '';
@@ -1815,7 +1854,12 @@
             voiceSelect.appendChild(option);
         });
 
-        const savedVoiceKey = localStorage.getItem(AUDIO_STORAGE_KEY);
+        let savedVoiceKey = '';
+        try {
+            savedVoiceKey = localStorage.getItem(AUDIO_STORAGE_KEY) || '';
+        } catch (error) {
+            reportStorageError(error);
+        }
         selectedVoice = preferredVoices.find(function (voice) {
             return getVoiceKey(voice) === savedVoiceKey;
         }) || preferredVoices[0];
@@ -1840,7 +1884,11 @@
                 return getVoiceKey(voice) === voiceSelect.value;
             }) || null;
             if (selectedVoice) {
-                localStorage.setItem(AUDIO_STORAGE_KEY, getVoiceKey(selectedVoice));
+                try {
+                    localStorage.setItem(AUDIO_STORAGE_KEY, getVoiceKey(selectedVoice));
+                } catch (error) {
+                    reportStorageError(error);
+                }
             }
         });
 
@@ -2022,6 +2070,10 @@
         });
 
         wrapFunction('checkAnswer', function () {
+            const result = document.querySelector('#exerciseContainer .result');
+            if (result && (result.querySelector('.error') || /incorreto/i.test(result.textContent || ''))) {
+                saveExerciseState();
+            }
             window.setTimeout(appendCorrectAnswerFeedback, 0);
             window.setTimeout(saveExerciseState, 1650);
         });
@@ -2318,6 +2370,7 @@
         const selectedOption = document.querySelector('#exerciseContainer .option.selected');
         const conclusionText = document.getElementById('conclusionText');
         const finalConclusion = document.getElementById('finalConclusion');
+        const pendingRoster = pendingRosterRestore || {};
 
         return {
             exercises: Array.isArray(readGlobalBinding('exercises')) ? readGlobalBinding('exercises') : [],
@@ -2329,13 +2382,13 @@
             selectedOption: selectedOption ? selectedOption.dataset.value : '',
             view: getCurrentView(),
             formState: {
-                            studentSheet: getFieldValue('studentSheet'),
-                            studentTrail: getFieldValue('studentTrail'),
-                            studentName: getFieldValue('studentName'),
-                            studentNameSelect: getFieldValue('studentNameSelect'),
-                            studentNameManual: getFieldValue('studentNameManual'),
-                            studentGrade: getFieldValue('studentGrade'),
-                            studentClass: getFieldValue('studentClass'),
+                            studentSheet: getFieldValue('studentSheet') || pendingRoster.studentSheet || '',
+                            studentTrail: getFieldValue('studentTrail') || pendingRoster.studentTrail || '',
+                            studentName: getFieldValue('studentName') || pendingRoster.studentName || '',
+                            studentNameSelect: getFieldValue('studentNameSelect') || pendingRoster.studentNameSelect || '',
+                            studentNameManual: getFieldValue('studentNameManual') || pendingRoster.studentNameManual || '',
+                            studentGrade: getFieldValue('studentGrade') || pendingRoster.studentGrade || '',
+                            studentClass: getFieldValue('studentClass') || pendingRoster.studentClass || '',
                             schoolTerm: getFieldValue('schoolTerm'),
                             studentEmail: getFieldValue('studentEmail'),
                             criticismInput: getFieldValue('criticismInput'),
@@ -2359,11 +2412,15 @@
             }
             return parsed;
         } catch (error) {
+            reportStorageError(error);
             return null;
         }
     }
 
     function saveExerciseState() {
+        if (restoringExerciseState) {
+            return;
+        }
         const exercises = readGlobalBinding('exercises');
         if (!Array.isArray(exercises) || !exercises.length) {
             clearExerciseState();
@@ -2404,6 +2461,7 @@
                 localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(state.aiAnalysis));
             }
         } catch (error) {
+            reportStorageError(error);
             return;
         }
 
@@ -2449,9 +2507,15 @@
     }
 
     function clearExerciseState() {
-        localStorage.removeItem(EXERCISE_STORAGE_KEY);
-        localStorage.removeItem(AI_STORAGE_KEY);
+        try {
+            localStorage.removeItem(EXERCISE_STORAGE_KEY);
+            localStorage.removeItem(AI_STORAGE_KEY);
+        } catch (error) {
+            reportStorageError(error);
+            return;
+        }
         lastAiAnalysis = null;
+        pendingRosterRestore = null;
         updateExerciseLauncherState();
         updateResumeBadge(false);
     }
@@ -2462,43 +2526,48 @@
             return;
         }
 
-        writeGlobalBinding('exercises', Array.isArray(savedState.exercises) ? savedState.exercises : []);
-        writeGlobalBinding('currentExercise', typeof savedState.currentExercise === 'number' ? savedState.currentExercise : 0);
-        writeGlobalBinding('exerciseResults', Array.isArray(savedState.exerciseResults) ? savedState.exerciseResults : []);
-        writeGlobalBinding('skippedQuestions', typeof savedState.skippedQuestions === 'number' ? savedState.skippedQuestions : 0);
-        writeGlobalBinding('currentExerciseAttempts', typeof savedState.currentExerciseAttempts === 'number' ? savedState.currentExerciseAttempts : 0);
-        writeGlobalBinding('conclusionTextSaved', savedState.conclusionTextSaved || '');
-        lastAiAnalysis = savedState.aiAnalysis || restoreAiAnalysis();
+        restoringExerciseState = true;
+        try {
+            writeGlobalBinding('exercises', Array.isArray(savedState.exercises) ? savedState.exercises : []);
+            writeGlobalBinding('currentExercise', typeof savedState.currentExercise === 'number' ? savedState.currentExercise : 0);
+            writeGlobalBinding('exerciseResults', Array.isArray(savedState.exerciseResults) ? savedState.exerciseResults : []);
+            writeGlobalBinding('skippedQuestions', typeof savedState.skippedQuestions === 'number' ? savedState.skippedQuestions : 0);
+            writeGlobalBinding('currentExerciseAttempts', typeof savedState.currentExerciseAttempts === 'number' ? savedState.currentExerciseAttempts : 0);
+            writeGlobalBinding('conclusionTextSaved', savedState.conclusionTextSaved || '');
+            lastAiAnalysis = savedState.aiAnalysis || restoreAiAnalysis();
 
-        const exerciseContainer = document.getElementById('exerciseContainer');
-        const conclusionContainer = document.getElementById('conclusionContainer');
-        const resultsContainer = document.getElementById('resultsContainer');
-        if (savedState.view === 'results') {
-            if (exerciseContainer) exerciseContainer.style.display = 'none';
-            if (conclusionContainer) conclusionContainer.style.display = 'none';
-            if (resultsContainer) resultsContainer.style.display = 'none';
-            if (typeof window.showResults === 'function') {
-                window.showResults(savedState.formState.finalConclusion || savedState.conclusionTextSaved || '');
+            const exerciseContainer = document.getElementById('exerciseContainer');
+            const conclusionContainer = document.getElementById('conclusionContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            if (savedState.view === 'results') {
+                if (exerciseContainer) exerciseContainer.style.display = 'none';
+                if (conclusionContainer) conclusionContainer.style.display = 'none';
+                if (resultsContainer) resultsContainer.style.display = 'none';
+                if (typeof window.showResults === 'function') {
+                    window.showResults((savedState.formState && savedState.formState.finalConclusion) || savedState.conclusionTextSaved || '');
+                }
+            } else if (savedState.view === 'conclusion') {
+                if (exerciseContainer) exerciseContainer.style.display = 'none';
+                if (conclusionContainer) conclusionContainer.style.display = 'none';
+                if (resultsContainer) resultsContainer.style.display = 'none';
+                if (typeof window.showConclusion === 'function') {
+                    window.showConclusion();
+                }
+            } else if (typeof window.showCurrentExercise === 'function') {
+                if (exerciseContainer) exerciseContainer.style.display = 'block';
+                if (conclusionContainer) conclusionContainer.style.display = 'none';
+                if (resultsContainer) resultsContainer.style.display = 'none';
+                window.showCurrentExercise();
             }
-        } else if (savedState.view === 'conclusion') {
-            if (exerciseContainer) exerciseContainer.style.display = 'none';
-            if (conclusionContainer) conclusionContainer.style.display = 'none';
-            if (resultsContainer) resultsContainer.style.display = 'none';
-            if (typeof window.showConclusion === 'function') {
-                window.showConclusion();
-            }
-        } else if (typeof window.showCurrentExercise === 'function') {
-            if (exerciseContainer) exerciseContainer.style.display = 'block';
-            if (conclusionContainer) conclusionContainer.style.display = 'none';
-            if (resultsContainer) resultsContainer.style.display = 'none';
-            window.showCurrentExercise();
+
+            restoreFormState(savedState.formState || {});
+            updateStudyNotesCounter();
+            renderAiPreview(getFieldValue('finalConclusion') || savedState.conclusionTextSaved || '');
+            updateExerciseLauncherState();
+            updateResumeBadge(true);
+        } finally {
+            restoringExerciseState = false;
         }
-
-        restoreFormState(savedState.formState || {});
-        updateStudyNotesCounter();
-        renderAiPreview(getFieldValue('finalConclusion') || savedState.conclusionTextSaved || '');
-        updateExerciseLauncherState();
-        updateResumeBadge(true);
     }
 
     function restoreAiAnalysis() {
@@ -2514,8 +2583,19 @@
         ensureStudyNotesPanel();
         bindStudyNotesEvents();
 
+        if (formState && formState.studentSheet) {
+            pendingRosterRestore = {
+                studentSheet: normalizeSheetLabel(formState.studentSheet),
+                studentTrail: formState.studentTrail || '',
+                studentName: formState.studentName || '',
+                studentNameSelect: formState.studentNameSelect || '',
+                studentNameManual: formState.studentNameManual || '',
+                studentGrade: formState.studentGrade || '',
+                studentClass: formState.studentClass || ''
+            };
+        }
         Object.keys(formState || {}).forEach(function (fieldId) {
-            const field = document.getElementById(fieldId);
+            const field = document.getElementById(fieldId === 'studyNotes' ? 'enhancerNotesInput' : fieldId);
             if (!field) {
                 return;
             }
@@ -2529,8 +2609,6 @@
         syncSelectedSheetMetadata();
         loadStudentDatabase().then(function () {
             populateSimulationSheetOptions(getFieldValue('studentSheet'));
-            populateSimulationStudentOptions(getFieldValue('studentNameSelect'));
-            syncResolvedStudentName();
         });
     }
 
@@ -2644,7 +2722,11 @@
         }
 
         lastAiAnalysis = analyzeConclusionWithLocalAi(trimmedText);
-        localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(lastAiAnalysis));
+        try {
+            localStorage.setItem(AI_STORAGE_KEY, JSON.stringify(lastAiAnalysis));
+        } catch (error) {
+            reportStorageError(error);
+        }
         const exercises = Array.isArray(readGlobalBinding('exercises')) ? readGlobalBinding('exercises') : [];
         const exerciseResults = Array.isArray(readGlobalBinding('exerciseResults')) ? readGlobalBinding('exerciseResults') : [];
         const total = exercises.length;
@@ -3565,5 +3647,3 @@
             .replace(/'/g, '&#39;');
     }
 })();
-
-

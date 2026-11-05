@@ -1,6 +1,10 @@
 # Tutor Socrático de Física
 
-Backend independente para o tutor de IA nas simulações piloto da Lei de Coulomb, Molas, Lançamento de Projéteis, Energia na Pista de Skate, Laboratório de Colisões, Circuitos Elétricos DC, Lei de Ohm, Resistência Elétrica, Lei de Ampère, Lei de Faraday, Solenoide, Transformadores, Termologia, Dilatação Térmica, Escalas Termométricas, Calorimetria, Fluxo de Calor, Comportamento dos Gases, Experiência de Joule, Ciclo de Carnot, Força Magnética, Ondas 1D, Ondas 2D, Radiação de Corpo Negro, Fotossíntese Solar, Óptica Geométrica, LED/OLED, Átomo de Hidrogênio, Efeito Fotoelétrico, Espectrômetro de Massa, Tunelamento Quântico, Relatividade Especial e Relatório de Laboratório. A chave da DeepSeek fica no servidor, nunca no HTML ou no JavaScript.
+Backend independente para o tutor de IA nas simulações piloto da Lei de Coulomb, Molas, Lançamento de Projéteis, Energia na Pista de Skate, Laboratório de Colisões, Circuitos Elétricos DC, Lei de Ohm, Resistência Elétrica, Lei de Ampère, Lei de Faraday, Solenoide, Transformadores, Termologia, Dilatação Térmica, Escalas Termométricas, Calorimetria, Fluxo de Calor, Comportamento dos Gases, Experiência de Joule, Ciclo de Carnot, Força Magnética, Ondas 1D, Ondas 2D, Radiação de Corpo Negro, Fotossíntese Solar, Óptica Geométrica, Refração da Luz, LED/OLED, Átomo de Hidrogênio, Efeito Fotoelétrico, Espectrômetro de Massa, Tunelamento Quântico, Relatividade Especial e Relatório de Laboratório. A chave da DeepSeek fica no servidor, nunca no HTML ou no JavaScript.
+
+Refração da Luz reutiliza a chave `optica-geometrica`, aceita pelo serviço existente. Para disponibilizar a orientação específica de refração, publique novamente o backend com a versão atualizada de `main.py`.
+
+Para validar o contexto do tutor sem chamar o provedor de IA, execute `.\.venv\Scripts\python.exe -m unittest test_refraction_tutor` nesta pasta.
 
 ## Executar localmente
 

@@ -82,6 +82,7 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Momento Magnético | Espira em campo magnético | Three.js | [Abrir](MomentoMagnetico/) |
 | Ondas 2D | Ondas mecânicas, frentes de onda | Canvas | [Abrir](Ondas/Ondas2D/Ondas2D.html) |
 | Óptica Geométrica | Reflexão, refração, lentes | Canvas | [Abrir](OpticaGeometrica/) |
+| Refração da Luz | Lei de Snell, reflexão interna total, dispersão | PhET | [Abrir](RefracaoDaLuz/RefracaoDaLuz.html) |
 | Radiação de Corpo Negro | Espectro, Planck, Stefan-Boltzmann | PhET + Canvas | [Abrir](RadiacaodeCorpoNegro/) |
 | Relatividade Especial | Dilatação do tempo, contração | Canvas | [Abrir](RelatividadeEspecial/) |
 | Resistência Elétrica | Resistividade, geometria | Canvas | [Abrir](Resistencia/) |
@@ -91,6 +92,9 @@ As simulações combinam Canvas/Three.js, exercícios formativos, síntese de vo
 | Termologia | Calor sensível/latente, mudanças de estado | Canvas | [Abrir](Termologia/Termologia.html) |
 | Transformadores | Indução mútua, relação de espiras | Canvas | [Abrir](Transformadores/) |
 | Tunelamento Quântico | Mecânica quântica, barreira de potencial | Canvas | [Abrir](TunelamentoQuantico/) |
+
+Os exercícios de Refração da Luz podem ser verificados com `node --test .\RefracaoDaLuz\refracao-exercicios.test.js`, usando Node.js 18 ou superior.
+O PhET incorporado nessa atividade possui licença própria [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), distinta da licença MIT do código do repositório. Consulte também as [condições de uso do PhET](https://phet.colorado.edu/en/licensing).
 
 ---
 
@@ -346,4 +350,3 @@ AMBRÓSIO, Flávio. Simulações interativas de Física para o Ensino Médio. Ze
 2. Publicar protocolo de governança de dados e retenção.
 3. Estruturar rubrica pública para avaliação das respostas escritas.
 4. Consolidar desenho metodológico para submissão em programa de doutorado.
-
