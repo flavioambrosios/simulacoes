@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="citation_title" content="Simulação: Refração da Luz">
+    <meta name="citation_author" content="Flavio Ambrosio Campos">
+    <meta name="citation_publication_date" content="2026">
+    <meta name="citation_doi" content="10.5281/zenodo.20737876">
+    <meta name="citation_publisher" content="GitHub Pages - CEAN">
+    <meta name="citation_url" content="https://flavioambrosios.github.io/simulacoes/RefracaoDaLuz/RefracaoDaLuz.html">
+    <meta name="description" content="Atividade didática sobre refração da luz para o 2º ano do ensino médio, com simulação PhET e exercícios. Concepção pedagógica de Flavio Ambrosio Campos.">
+    <!-- Concepção pedagógica: Flavio Ambrosio Campos. Código desenvolvido com apoio de IA, sob supervisão humana. -->
+    <title>Refração da Luz — Simulação e Exercícios</title>
+    <link rel="stylesheet" href="refracao.css">
+</head>
+<body>
+    <main class="container">
+        <header>
+            <h1>Refração da Luz</h1>
+            <p class="subtitle">Simulação e exercícios para o 2º ano do ensino médio</p>
+            <p>Prof. Flavio Ambrosio</p>
+        </header>
+
+        <div class="content">
+            <section class="simulation-panel" aria-labelledby="simulationTitle">
+                <h2 class="panel-title" id="simulationTitle">Laboratório Virtual — PhET</h2>
+                <div class="simulation-container">
+                    <iframe
+                        src="https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_pt_BR.html"
+                        title="Simulação PhET sobre refração da luz"
+                        width="800" height="600" loading="lazy" allowfullscreen>
+                    </iframe>
+                </div>
+                <p class="phet-credit">
+                    Simulação por PhET Interactive Simulations, University of Colorado Boulder, licenciada sob
+                    <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer">CC BY-NC 4.0</a>
+                    (<a href="https://phet.colorado.edu" target="_blank" rel="noopener noreferrer">https://phet.colorado.edu</a>).
+                    <a href="https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_pt_BR.html" target="_blank" rel="noopener noreferrer">Abrir o PhET em outra aba</a>.
+                </p>
+                <button type="button" id="helpBtn">Ajuda para usar a simulação</button>
+                <div class="legend">
+                    <p><strong>Roteiro rápido:</strong> na tela de introdução do PhET, escolha os materiais e ligue o laser. Use o transferidor para medir os ângulos em relação à normal. Preveja o desvio, mude os meios e compare a previsão com o raio observado. Experimente também a tela de prismas.</p>
+                    <p>O PhET precisa de conexão com a internet; os controles dentro dele são independentes dos exemplos desta página.</p>
+                </div>
+            </section>
+
+            <aside class="controls-panel" aria-labelledby="conceptTitle">
+                <h2 class="panel-title" id="conceptTitle">Conceitos Fundamentais</h2>
+                <div class="control-group">
+                    <label for="scenarioSelect">Cenário de estudo:</label>
+                    <select id="scenarioSelect">
+                        <option value="air-water">Do ar para a água</option>
+                        <option value="water-air">Da água para o ar</option>
+                        <option value="total-reflection">Reflexão interna total</option>
+                        <option value="normal-incidence">Incidência normal</option>
+                    </select>
+                </div>
+                <p class="scenario-note" id="scenarioDescription"></p>
+                <div class="formula-box fórmula-box">
+                    <h3>Índice de refração</h3>
+                    <p>n = c / v</p>
+                    <p>c ≈ 3,0 × 10<sup>8</sup> m/s no vácuo</p>
+                </div>
+                <div class="formula-box fórmula-box">
+                    <h3>Lei de Snell-Descartes</h3>
+                    <p>n<sub>1</sub> sen θ<sub>1</sub> = n<sub>2</sub> sen θ<sub>2</sub></p>
+                    <p>Os ângulos são medidos em relação à normal.</p>
+                </div>
+                <div class="formula-box fórmula-box">
+                    <h3>Velocidade e onda</h3>
+                    <p>v = λf</p>
+                    <p>Na mudança de meio, a frequência permanece constante.</p>
+                </div>
+                <div class="exercise-buttons">
+                    <button class="exercise-btn pulse" id="mainExerciseBtn" type="button">Iniciar 10 Exercícios</button>
+                    <button class="exercise-btn" id="solvedExercisesBtn" type="button">Ver Exercícios Resolvidos</button>
+                    <button class="exercise-btn" id="theoryBtn" type="button">Teoria</button>
+                </div>
+                <p class="storage-note">Seu progresso e suas anotações ficam neste navegador e dispositivo. Em computadores compartilhados, outros usuários do mesmo perfil podem vê-los.</p>
+            </aside>
+        </div>
+
+        <section class="measurement-panel" aria-labelledby="measurementTitle">
+            <h2 class="panel-title" id="measurementTitle">Valores esperados no cenário</h2>
+            <p class="measurement-caption">Referência teórica aproximada: ajuste esses valores manualmente no PhET; o painel não lê as medições da simulação.</p>
+            <div class="measurement-grid">
+                <div class="measurement-item">
+                    <div class="measurement-label">Meio 1 / índice</div>
+                    <div class="measurement-value" id="medium1Display"></div>
+                </div>
+                <div class="measurement-item">
+                    <div class="measurement-label">Meio 2 / índice</div>
+                    <div class="measurement-value" id="medium2Display"></div>
+                </div>
+                <div class="measurement-item">
+                    <div class="measurement-label">Ângulo de incidência</div>
+                    <div class="measurement-value" id="incidentDisplay"></div>
+                </div>
+                <div class="measurement-item">
+                    <div class="measurement-label">Ângulo de refração</div>
+                    <div class="measurement-value" id="refractedDisplay"></div>
+                </div>
+                <div class="measurement-item">
+                    <div class="measurement-label">Observação</div>
+                    <div class="measurement-value" id="observationDisplay"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="exercisesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="exercisesTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="exercisesTitle">Exercícios — Refração da Luz</h2>
+                <button class="close" type="button" aria-label="Fechar exercícios">&times;</button>
+            </div>
+            <p class="exercise-instructions">São 10 questões. Você pode pular qualquer uma. Se errar, veja a resposta e refaça a questão com dados diferentes. Um acerto após refazer conta como questão correta.</p>
+            <ol class="progress" id="progressBar" aria-label="Progresso dos exercícios">
+                <li class="progress-item" id="progress1">1</li>
+                <li class="progress-item" id="progress2">2</li>
+                <li class="progress-item" id="progress3">3</li>
+                <li class="progress-item" id="progress4">4</li>
+                <li class="progress-item" id="progress5">5</li>
+                <li class="progress-item" id="progress6">6</li>
+                <li class="progress-item" id="progress7">7</li>
+                <li class="progress-item" id="progress8">8</li>
+                <li class="progress-item" id="progress9">9</li>
+                <li class="progress-item" id="progress10">10</li>
+            </ol>
+            <div id="exerciseContainer"></div>
+            <div id="conclusionContainer" style="display: none;">
+                <h3>Conclusão de estudo</h3>
+                <label for="conclusionText">Explique o que você observou sobre índice de refração, velocidade e direção da luz. Cite uma situação da simulação ou do cotidiano.</label>
+                <textarea id="conclusionText" rows="6" placeholder="Escreva suas observações e conclusões..."></textarea>
+                <button id="submitConclusion" class="check-btn" type="button">Continuar para os resultados</button>
+            </div>
+            <div id="resultsContainer" style="display: none;">
+                <h3>Resultados dos exercícios</h3>
+                <div id="resultsSummary"></div>
+                <h3>Enviar resultados</h3>
+                <p>Para enviar à planilha, libere o modo estudante com a senha fornecida pelo professor e preencha os dados solicitados.</p>
+                <div class="email-form"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="solvedExercisesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="solvedTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="solvedTitle">Exercícios Resolvidos</h2>
+                <button class="close" type="button" aria-label="Fechar exercícios resolvidos">&times;</button>
+            </div>
+            <div class="solved-exercise">
+                <h4>Exemplo 1: velocidade da luz no vidro</h4>
+                <p>Para um vidro com n = 1,5, determine a velocidade da luz. Use c = 3,0 × 10<sup>8</sup> m/s.</p>
+                <div class="solution-step">De n = c/v, isolamos v = c/n.</div>
+                <div class="solution-step">v = (3,0 × 10<sup>8</sup>)/1,5 = 2,0 × 10<sup>8</sup> m/s.</div>
+                <div class="solution-step"><strong>Resposta:</strong> a luz se propaga a 2,0 × 10<sup>8</sup> m/s nesse vidro.</div>
+            </div>
+            <div class="solved-exercise">
+                <h4>Exemplo 2: Lei de Snell</h4>
+                <p>Um raio passa do ar (n₁ = 1,0) para um vidro (n₂ = 1,5) com incidência de 30° em relação à normal. Determine o ângulo de refração.</p>
+                <div class="solution-step">n₁ sen θ₁ = n₂ sen θ₂ e sen 30° = 0,5.</div>
+                <div class="solution-step">sen θ₂ = (1,0 × 0,5)/1,5 ≈ 0,333.</div>
+                <div class="solution-step"><strong>Resposta:</strong> θ₂ ≈ 19,5°. O raio se aproxima da normal.</div>
+            </div>
+            <div class="solved-exercise">
+                <h4>Exemplo 3: reflexão interna total</h4>
+                <p>Um raio vai do vidro (n₁ = 1,5) para o ar (n₂ = 1,0) com incidência de 50°. O ângulo crítico é aproximadamente 41,8°.</p>
+                <div class="solution-step">O raio parte do meio de maior índice para o de menor índice.</div>
+                <div class="solution-step">Como 50° é maior que 41,8°, ocorre reflexão interna total.</div>
+                <div class="solution-step"><strong>Resposta:</strong> não há raio refratado propagante no ar.</div>
+            </div>
+            <button id="closeSolvedExercises" class="check-btn" type="button">Fechar</button>
+        </div>
+    </div>
+
+    <div id="theoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="theoryTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="theoryTitle">Teoria — Refração da Luz</h2>
+                <button class="close" type="button" aria-label="Fechar teoria">&times;</button>
+            </div>
+            <div class="theory-content">
+                <section class="theory-section">
+                    <h3>O que é refração?</h3>
+                    <p>Refração é a passagem da luz entre meios em que sua velocidade de propagação é diferente. Nessa passagem, a direção do raio pode mudar. Uma parte da luz também pode ser refletida na interface.</p>
+                    <p>A normal é uma linha imaginária perpendicular à superfície no ponto de incidência. Os ângulos de incidência e de refração são medidos em relação a ela, não em relação à superfície.</p>
+                </section>
+                <section class="theory-section">
+                    <h3>Índice de refração e Lei de Snell</h3>
+                    <p>O índice de refração absoluto relaciona a velocidade da luz no vácuo, c, à velocidade v no meio: <strong>n = c/v</strong>. Quanto maior o índice, menor a velocidade no meio.</p>
+                    <p>A Lei de Snell-Descartes é <strong>n₁ sen θ₁ = n₂ sen θ₂</strong>. Ao entrar obliquamente em um meio de maior índice, o raio se aproxima da normal; ao passar para um meio de menor índice, afasta-se dela, quando há raio refratado.</p>
+                    <p>Na incidência normal (θ₁ = 0°), o raio transmitido não muda de direção, embora sua velocidade possa mudar.</p>
+                </section>
+                <section class="theory-section">
+                    <h3>Frequência e comprimento de onda</h3>
+                    <p>Na interface, a frequência da luz permanece constante. Como <strong>v = λf</strong>, uma mudança na velocidade altera o comprimento de onda. Se λ₀ é o comprimento de onda no vácuo, no meio vale λ = λ₀/n.</p>
+                </section>
+                <section class="theory-section">
+                    <h3>Reflexão interna total e dispersão</h3>
+                    <p>A reflexão interna total pode ocorrer quando a luz passa de um meio de maior índice para outro de menor índice e o ângulo de incidência é maior que o ângulo crítico. Nesse caso, não há raio refratado propagante no segundo meio. Esse princípio é usado em fibras ópticas.</p>
+                    <p>Na dispersão normal de um prisma, o índice depende do comprimento de onda: cores diferentes podem sofrer desvios diferentes. A frequência de cada cor permanece a mesma durante a passagem entre meios.</p>
+                </section>
+                <section class="theory-section">
+                    <h3>O que observar no PhET?</h3>
+                    <ul>
+                        <li>Compare a passagem do ar para a água e da água para o ar.</li>
+                        <li>Use o transferidor para medir os ângulos em relação à normal.</li>
+                        <li>Aumente o ângulo ao passar do vidro para o ar e observe a reflexão interna total.</li>
+                        <li>Na tela de prismas, observe a separação da luz branca em cores.</li>
+                    </ul>
+                </section>
+            </div>
+            <button id="closeTheory" class="check-btn" type="button">Fechar</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>Simulação integrante do repositório <strong>Simulações Interativas de Física</strong> |
+            DOI do repositório: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" rel="noopener noreferrer">10.5281/zenodo.20737876</a> |
+            Código do repositório: licença MIT; PhET: licença própria | Prof. Flavio Ambrosio — CEAN</p>
+    </footer>
+    <noscript>Ative o JavaScript para usar os exercícios, a narração e as demais ferramentas desta página.</noscript>
+    <script src="refracao-exercicios.js"></script>
+    <script src="refracao.js"></script>
+    <script>
+        window.SIMULATION_ENHANCER_CONFIG = {
+            simulationName: 'Refração da Luz',
+            storageKey: 'refracao-da-luz'
+        };
+        window.AI_TUTOR_CONFIG = {
+            enabled: true,
+            simulationKey: 'optica-geometrica',
+            apiUrl: 'https://tutor-ia-fisica-vrcy.onrender.com/api/tutor'
+        };
+    </script>
+    <script src="../_shared/simulation-enhancer.js"></script>
+    <script src="../_shared/ai-tutor.js"></script>
+</body>
+</html>

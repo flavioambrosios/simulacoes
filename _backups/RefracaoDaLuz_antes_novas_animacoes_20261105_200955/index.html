@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Índice das Simulações de Física</title>
+    <style>
+        :root {
+            --ink: #17324d;
+            --deep: #10202f;
+            --gold: #d18a2f;
+            --mist: rgba(255, 255, 255, 0.8);
+            --line: rgba(23, 50, 77, 0.12);
+            --shadow: 0 20px 48px rgba(16, 32, 47, 0.14);
+            --muted: #5f7080;
+            --hero: linear-gradient(140deg, rgba(16, 32, 47, 0.96), rgba(31, 83, 117, 0.94));
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--deep);
+            background:
+                radial-gradient(circle at top left, rgba(209, 138, 47, 0.23), transparent 26%),
+                radial-gradient(circle at bottom right, rgba(23, 50, 77, 0.18), transparent 24%),
+                linear-gradient(135deg, #f8f3e8, #e7edf4 52%, #f2ece2);
+            font-family: "Trebuchet MS", Verdana, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(16, 32, 47, 0.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 32, 47, 0.028) 1px, transparent 1px);
+            background-size: 30px 30px;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.46), transparent 84%);
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 28px 18px 56px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 22px 24px;
+            border-radius: 24px;
+            background: var(--hero);
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: auto -40px -80px auto;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 209, 102, 0.36), transparent 68%);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255, 209, 102, 0.14);
+            color: #ffd166;
+            font-size: 0.78rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            max-width: 720px;
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.75rem);
+            line-height: 1.08;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            max-width: 860px;
+            font-size: 0.98rem;
+            line-height: 1.62;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .hero-inline {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .hero-note {
+            position: relative;
+            z-index: 1;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(8px);
+            line-height: 1.56;
+        }
+
+        .hero-note strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #ffd166;
+            font-size: 0.9rem;
+        }
+
+        .hero-note p {
+            font-size: 0.92rem;
+            max-width: none;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1.4fr 0.9fr 0.9fr;
+            gap: 14px;
+            margin: 24px 0 18px;
+        }
+
+        .field {
+            background: var(--mist);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 12px 14px;
+            box-shadow: var(--shadow);
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+            font-weight: bold;
+            color: var(--ink);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(23, 50, 77, 0.18);
+            background: white;
+            color: var(--deep);
+            font-size: 1rem;
+        }
+
+        .summary-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .summary {
+            color: var(--muted);
+            font-size: 0.98rem;
+        }
+
+        .mode-pill {
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: rgba(23, 50, 77, 0.08);
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-top: 34px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .section h2 {
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: clamp(1.45rem, 3vw, 2rem);
+            color: var(--ink);
+        }
+
+        .section-note {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 18px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.84);
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 24px 52px rgba(16, 32, 47, 0.2);
+        }
+
+        .card-media {
+            position: relative;
+            min-height: 252px;
+            padding: 16px;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            background:
+                radial-gradient(circle at top right, rgba(255, 255, 255, 0.34), transparent 28%),
+                linear-gradient(135deg, color-mix(in srgb, var(--accent, #d18a2f) 88%, #ffffff 12%), color-mix(in srgb, var(--accent, #d18a2f) 46%, #0f2230 54%));
+            color: white;
+        }
+
+        .card-media::after {
+            content: "";
+            position: absolute;
+            width: 92px;
+            height: 92px;
+            right: -18px;
+            top: -16px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .media-mark {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .thumb-shot {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(10, 18, 28, 0.22);
+            box-shadow: 0 12px 20px rgba(10, 18, 28, 0.22);
+        }
+
+        .thumb-shot img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            height: auto;
+            object-fit: cover;
+            object-position: center top;
+            filter: saturate(1.04) contrast(1.03);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover .thumb-shot img {
+            transform: scale(1.02);
+        }
+
+        .thumb-badge-mini {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 7px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            background: rgba(10, 18, 28, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.26);
+        }
+
+        .thumb-fallback {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 16 / 10;
+            min-height: 206px;
+            padding: 12px;
+            text-align: center;
+            font-family: "Palatino Linotype", Georgia, serif;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 18px;
+            flex: 1;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            line-height: 1.3;
+            color: var(--deep);
+        }
+
+        .card p {
+            color: var(--muted);
+            line-height: 1.58;
+            font-size: 0.95rem;
+        }
+
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(23, 50, 77, 0.08);
+            color: var(--ink);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .card-actions a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 11px 14px;
+            border-radius: 12px;
+            background: var(--deep);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .card-actions a:hover {
+            transform: translateY(-2px);
+            background: var(--ink);
+        }
+
+        .card-actions a.secondary-link {
+            background: rgba(23, 50, 77, 0.12);
+            color: var(--ink);
+            border: 1px solid rgba(23, 50, 77, 0.14);
+            font-size: 0.88rem;
+            padding: 9px 12px;
+        }
+
+        .card-actions a.secondary-link:hover {
+            background: rgba(23, 50, 77, 0.18);
+        }
+
+        .empty-state {
+            display: none;
+            padding: 28px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px dashed rgba(23, 50, 77, 0.18);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .support-texts {
+            margin-top: 32px;
+            padding: 22px 24px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(23, 50, 77, 0.1);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .support-texts h2 {
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            color: var(--deep);
+        }
+
+        .support-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .support-links a {
+            color: var(--ink);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .support-links a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 42px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(23, 50, 77, 0.12);
+            color: var(--muted);
+            line-height: 1.72;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-inline {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .toolbar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 18px 12px 42px;
+            }
+
+            .hero {
+                padding: 22px;
+                border-radius: 24px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card-media {
+                min-height: 220px;
+                padding: 12px;
+            }
+
+            .section-header,
+            .summary-bar,
+            .card-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <span class="eyebrow">Acervo didático</span>
+            <h1>Repositório de simulações de Física</h1>
+            <h3>Prof. Flávio Ambrósio</h3>
+            <p>Acervo de simulações de Física para aula, estudo orientado e atividades guiadas. Use a busca e os filtros para localizar rapidamente a simulação indicada.</p>
+            <div class="hero-inline">
+                <div class="hero-note">
+                    <strong>Comunicado aos estudantes</strong>
+                    <p>Abra apenas a atividade solicitada, leia as instruções da própria página e registre suas observações com cuidado antes de responder aos exercícios.</p>
+                </div>
+                <div class="hero-note">
+                    <strong>Acesso ao portal</strong>
+                    <p>As simulações podem ser abertas diretamente daqui. Por enquanto, o índice funciona apenas como catálogo de acesso rápido, sem opções de download ou incorporação.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="toolbar">
+            <div class="field">
+                <label for="searchInput">Buscar simulação</label>
+                <input id="searchInput" type="search" placeholder="Ex.: corpo negro, coulomb, espectrômetro, ondas">
+            </div>
+            <div class="field">
+                <label for="categorySelect">Filtrar por área</label>
+                <select id="categorySelect">
+                    <option value="all">Todas as áreas</option>
+                    <option value="destaques">Destaques</option>
+                    <option value="eletricidade">Eletricidade e magnetismo</option>
+                    <option value="termologia">Termologia e radiação</option>
+                    <option value="ondas">Ondas, cor e óptica</option>
+                    <option value="mecanica">Mecânica</option>
+                    <option value="moderna">Física moderna</option>
+                    <option value="laboratorio">Relatórios de laboratório</option>
+                    <option value="colecoes">Coleções e apoio</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="levelSelect">Modo do menu</label>
+                <select id="levelSelect">
+                    <option value="principal" selected>Somente páginas principais</option>
+                    <option value="all">Mostrar tudo</option>
+                    <option value="colecao">Somente coleções</option>
+                    <option value="apoio">Somente apoio</option>
+                </select>
+            </div>
+        </section>
+
+        <div class="summary-bar">
+            <p id="summaryText" class="summary">Carregando simulações...</p>
+            <span id="modePill" class="mode-pill">Modo atual: páginas principais</span>
+        </div>
+
+        <div id="sectionsRoot"></div>
+        <div id="emptyState" class="empty-state">Nenhuma simulação corresponde ao filtro atual.</div>
+
+        <section class="support-texts" aria-labelledby="supportTextsTitle">
+            <h2 id="supportTextsTitle">Textos de apoio</h2>
+            <div class="support-links">
+                
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p><strong>Arquivo de entrada:</strong> este index.html na raiz de simulações.</p>
+            <p><strong>Material do projeto:</strong> <a href="README.md" target="_blank" rel="noreferrer">Abrir README.md</a></p>
+            <p><strong>Repositório de Simulações Interativas de Física</strong> | DOI: <a href="https://doi.org/10.5281/zenodo.20737876" target="_blank" style="color: #0400ff;">10.5281/zenodo.20737876</a> | Licença MIT | Prof. Flávio Ambrósio </p>
+            <p>SEEDF - Secretaria de Estado de Educação do Distrito Federal - CEAN - Centro de Ensino Médio Asa Norte</p>
+
+        
+        </footer>
+    </main>
+
+    <script>
+        const onlineBaseUrl = 'https://flavioambrosios.github.io/simulacoes/';
+        const isLocalRuntime = location.protocol === 'file:';
+
+        const simulations = [
+            { title: 'Motores e Geradores Elétricos', description: 'Explore motores CC e CA, geradores, campos magnéticos, torque e potência em animações interativas, com teoria, exercícios e tutor de Física online.', href: 'MotoresGeradores/MotoresGeradores.html', section: 'eletricidade', type: 'principal', accent: '#087f8c', badge: 'Eletromagnetismo', isNew: true, createdAt: '2026-10-20' },
+            { title: 'Campo Elétrico, Capacitores e Circuitos RC', description: 'Simulação interativa de cargas entre placas, capacitores e circuitos RC, com exercícios, teoria e tutor de Física online.', href: 'EletrostaticaCapacitores/EletrostaticaCapacitores.html', section: 'eletricidade', type: 'principal', accent: '#087f8c', badge: 'Eletricidade', isNew: true, createdAt: '2026-10-04' },
+            { title: 'Circuitos Elétricos DC', description: 'Simulação com iframe do PhET para montar circuitos, comparar série e paralelo e praticar Lei de Ohm.', href: 'CircuitosEletricosDC/CircuitosEletricosDC.html', section: 'eletricidade', type: 'principal', accent: '#2a9d8f', badge: 'Eletricidade', isNew: true, createdAt: '2026-07-20', altLinks: [{ label: 'Atividade adaptada', href: 'CircuitosEletricosDC/CircuitosEletricosDC_AdaptadaN2.html' }] },
+            { title: 'Lei de Coulomb', description: 'Exploração da força elétrica entre cargas com simulação PhET, cenários guiados e exercícios.', href: 'LeiDeCoulomb/LeiDeCoulomb.html', section: 'eletricidade', type: 'principal', accent: '#e76f51', badge: 'Eletricidade', isNew: true, createdAt: '2026-07-18', altLinks: [{ label: 'Versão adaptada', href: 'LeiDeCoulomb/LeiDeCoulomb_AdaptadaN2.html' }] },
+            { title: 'Lei de Ohm', description: 'Página dedicada ao estudo da relação entre tensão, corrente e resistência.', href: 'LeideOhm/LeideOhm.html', section: 'eletricidade', type: 'principal', accent: '#1d3557', badge: 'Eletricidade', altLinks: [{ label: 'Atividade adaptada', href: 'LeideOhm/LeideOhm_AdaptadaN2.html' }] },
+            { title: 'Resistência Elétrica', description: 'Atividade focada em resistência, variação de parâmetros e interpretação de resultados.', href: 'Resistencia/Resistencia.html', section: 'eletricidade', type: 'principal', accent: '#457b9d', badge: 'Eletricidade', altLinks: [{ label: 'Atividade adaptada', href: 'Resistencia/Resistencia_AdaptadaN2.html' }] },
+            { title: 'Força Magnética', description: 'Estudo da força magnética com página principal do tema.', href: 'ForcaMagnetica/ForcaMagnetica.html', section: 'eletricidade', type: 'principal', accent: '#355070', badge: 'Magnetismo', isFeatured: true, featuredOrder: 4, altLinks: [{ label: 'Versão adaptada', href: 'ForcaMagnetica/ForcaMagnetica_AdaptadaN2.html' }] },
+            { title: 'Lei de Ampère', description: 'Exploração do campo magnético associado a correntes elétricas.', href: 'LeideAmpere/LeideAmpere.html', section: 'eletricidade', type: 'principal', accent: '#264653', badge: 'Magnetismo', altLinks: [{ label: 'Versão adaptada', href: 'LeideAmpere/LeideAmpere_AdaptadaN2.html' }] },
+            { title: 'Lei de Faraday', description: 'Simulação para indução eletromagnética e interpretação da variação de fluxo.', href: 'LeideFaraday/LeideFaraday.html', section: 'eletricidade', type: 'principal', accent: '#3a5a40', badge: 'Indução', altLinks: [{ label: 'Versão adaptada', href: 'LeideFaraday/LeideFaraday_AdaptadaN2.html' }] },
+            { title: 'Solenoide', description: 'Página para explorar campo magnético em solenoides e relações associadas.', href: 'Solenoide/Solenoide.html', section: 'eletricidade', type: 'principal', accent: '#588157', badge: 'Magnetismo', altLinks: [{ label: 'Versão adaptada', href: 'Solenoide/Solenoide_AdaptadaN2.html' }] },
+            { title: 'Transformadores', description: 'Atividade sobre transformadores e variação entre tensões e espiras.', href: 'Transformadores/Transformadores.html', section: 'eletricidade', type: 'principal', accent: '#bc6c25', badge: 'Aplicação' },
+            { title: 'Radiação de Corpo Negro', description: 'Outra versão disponível do tema radiação de corpo negro.', href: 'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html', section: 'termologia', type: 'principal', accent: '#ae2012', badge: 'Radiação' },
+            { title: 'Comportamento dos Gases', description: 'Simulação com o PhET para investigar as leis de Boyle, Charles e Gay-Lussac, com apoio de teoria, exercícios e leitura cinética.', href: 'ComportamentoDosGases/ComportamentoDosGases.html', section: 'termologia', type: 'principal', accent: '#f9844a', badge: 'Gases', altLinks: [{ label: 'Versão adaptada', href: 'ComportamentoDosGases/ComportamentoDosGases_AdaptadaN2.html' }] },
+            { title: 'Calorimetria', description: 'Página principal para misturas térmicas, trocas de calor e exercícios.', href: 'Calorimetria/Calorimetria.html', section: 'termologia', type: 'principal', accent: '#ee9b00', badge: 'Termologia', altLinks: [{ label: 'Versão adaptada', href: 'Calorimetria/Calorimetria_AdaptadaN2.html' }] },
+            { title: 'Fluxo de Calor e Lei de Fourier', description: 'Simulação própria em canvas para estudar condução térmica em uma barra, gradiente de temperatura e Lei de Fourier.', href: 'FluxoDeCalor/FluxoDeCalor.html', section: 'termologia', type: 'principal', accent: '#f77f00', badge: 'Fourier', altLinks: [{ label: 'Versão adaptada', href: 'FluxoDeCalor/FluxoDeCalor_AdaptadaN2.html' }] },
+            { title: 'Calor, Temperatura e Mudanças de Estado', description: 'Simulação interativa com gráficos, animação por partículas, teoria e exercícios sobre calor sensível, calor latente e mudanças de fase.', href: 'Termologia/Termologia.html', section: 'termologia', type: 'principal', accent: '#ff8c42', badge: 'Termologia', isNew: true, createdAt: '2026-07-12', altLinks: [{ label: 'Versão adaptada', href: 'Termologia/Termologia_AdaptadaN2.html' }] },
+            { title: 'Experiência de Joule', description: 'Simulação da experiência de Joule para estudar o equivalente mecânico do calor e a relação 1 cal = 4,18 J.', href: 'Joule/Joule.html', section: 'termologia', type: 'principal', accent: '#f4a261', badge: 'Termologia', isFeatured: true, featuredOrder: 2, createdAt: '2026-07-11', altLinks: [{ label: 'Versão adaptada', href: 'Joule/Joule_AdaptadaN2.html' }] },
+            { title: 'Dilatação Térmica', description: 'Estudo da variação dimensional com mudança de temperatura.', href: 'DilatacaoTermica/DilatacaoTermica.html', section: 'termologia', type: 'principal', accent: '#ca6702', badge: 'Termologia', altLinks: [{ label: 'Versão adaptada', href: 'DilatacaoTermica/DilatacaoTermica_AdaptadaN2.html' }] },
+            { title: 'Escalas Termométricas', description: 'Conversões entre escalas e interpretação de medidas de temperatura.', href: 'EscalasTermom%C3%A9tricas/EscalasTermometricas.html', section: 'termologia', type: 'principal', accent: '#bb3e03', badge: 'Temperatura', altLinks: [{ label: 'Versão adaptada', href: 'EscalasTermométricas/EscalasTermometricas_AdaptadaN2.html' }] },
+            { title: 'Máquina de Carnot', description: 'Página sobre ciclo de Carnot, rendimento e máquinas térmicas.', href: 'MaquinadeCarnot/CiclodeCarnot.html', section: 'termologia', type: 'principal', accent: '#b08968', badge: 'Termodinâmica', isFeatured: true, featuredOrder: 1, createdAt: '2026-07-22', altLinks: [{ label: 'Versão adaptada', href: 'MaquinadeCarnot/CiclodeCarnot_AdaptadaN2.html' }] },
+            { title: 'Ondas 1D', description: 'Simulação para propagação unidimensional de ondas.', href: 'Ondas/Ondas1D/Ondas1D.html', section: 'ondas', type: 'principal', accent: '#006d77', badge: 'Ondas', altLinks: [{ label: 'Versão adaptada', href: 'Ondas/Ondas1D/Ondas1D_AdaptadaN2.html' }] },
+            { title: 'Ondas 2D', description: 'Visualização bidimensional de frentes de onda e propagação.', href: 'Ondas/Ondas2D/Ondas2D.html', section: 'ondas', type: 'principal', accent: '#118ab2', badge: 'Ondas', altLinks: [{ label: 'Versão adaptada', href: 'Ondas/Ondas2D/Ondas2D_AdaptadaN2.html' }] },
+            { title: 'Ondas e Cores', description: 'Versão web publicada do simulador em Python para misturas de cores, ondas, Fourier e envelopes de Hilbert.', href: 'https://ondasecores.onrender.com', section: 'ondas', type: 'principal', accent: '#5c7cfa', badge: 'Ondas', isNew: true, createdAt: '2026-07-13' },
+            { title: 'Física da Fotossíntese', description: 'Atividade interativa sobre radiação solar, espectro visível, absorção da luz pelas plantas e armazenamento de energia na glicose.', href: 'FotossinteseSolar/Fotossintese.html', section: 'ondas', type: 'principal', accent: '#588157', badge: 'Ondas', isFeatured: true, featuredOrder: 3, createdAt: '2026-07-14', altLinks: [{ label: 'Versão adaptada', href: 'FotossinteseSolar/FotossinteseSolar_AdaptadaN2.html' }] },
+            { title: 'Refração da Luz', description: 'Explore a Lei de Snell, reflexão interna total e dispersão com o PhET, teoria e 10 exercícios para o 2º ano.', href: 'RefracaoDaLuz/RefracaoDaLuz.html', section: 'ondas', type: 'principal', accent: '#007f9e', badge: 'Óptica', isNew: true, createdAt: '2026-11-05' },
+            { title: 'Óptica Geométrica', description: 'Atividade de óptica com conceitos de reflexão, refração e formação de imagens.', href: 'OpticaGeometrica/OpticaGeometrica.html', section: 'ondas', type: 'principal', accent: '#8338ec', badge: 'Óptica', altLinks: [{ label: 'Versão adaptada', href: 'OpticaGeometrica/OpticaGeometrica_AdaptadaN2.html' }] },
+            { title: 'LED e OLED', description: 'Simulação própria para comparar LED e OLED, com salto quântico, gap interativo, cor emitida, energia do fóton, brilho e área emissora.', href: 'LEDeOLED/LEDeOLED.html', section: 'moderna', type: 'principal', accent: '#6a4c93', badge: 'Física moderna', isNew: true, createdAt: '2026-07-15' },
+            { title: 'Átomo de Hidrogênio', description: 'Simulação sobre estrutura atômica e níveis de energia.', href: 'AtomodeHidrogenio/AtomodeHidrogenio.html', section: 'moderna', type: 'principal', accent: '#3d5a80', badge: 'Modelo atômico' },
+            { title: 'Efeito Fotoelétrico', description: 'Estudo do efeito fotoelétrico e relação entre frequência e emissão de elétrons.', href: 'EfeitoFotoEletrico/EfeitoFotoEletrico.html', section: 'moderna', type: 'principal', accent: '#7b2cbf', badge: 'Física moderna', altLinks: [{ label: 'Versão adaptada', href: 'EfeitoFotoEletrico/EfeitoFotoEletrico_AdaptadaN2.html' }] },
+            { title: 'Espectrômetro de Massa', description: 'Simulação para interpretar trajetórias e razão carga-massa.', href: 'EspectrometrodeMassa/EspectrometrodeMassa.html', section: 'moderna', type: 'principal', accent: '#5a189a', badge: 'Física moderna' },
+            { title: 'Tunelamento Quântico', description: 'Simulação para interpretar barreira de potencial, probabilidade de tunelamento e aplicações qualitativas do fenômeno.', href: 'TunelamentoQuantico/TunelamentoQuantico.html', section: 'moderna', type: 'principal', accent: '#6d597a', badge: 'Física moderna' },
+            { title: 'Relatividade Especial', description: 'Página principal para dilatação temporal, contração e referenciais.', href: 'RelatividadeEspecial/RelatividadeEspecial.html', section: 'moderna', type: 'principal', accent: '#4a4e69', badge: 'Relatividade' },
+            { title: 'Energia na Pista de Skate', description: 'Atividade interativa sobre energia mecânica, energia potencial gravitacional, conservação de energia e trabalho em uma pista de skate.', href: 'EnergiaNaPistaDeSkate/EnergiaNaPistaDeSkate.html', section: 'mecanica', type: 'principal', accent: '#f25f5c', badge: 'Mecânica', isNew: true, createdAt: '2026-08-16', altLinks: [{ label: 'Versão adaptada', href: 'EnergiaNaPistaDeSkate/EnergiaNaPistaDeSkate_Adaptada.html' }] },
+            { title: 'Laboratório de Colisões', description: 'Simulação sobre colisões elásticas e inelásticas, conservação da quantidade de movimento e energia cinética em diferentes cenários.', href: 'LaboratorioDeColisoes/LaboratorioDeColisoes.html', section: 'mecanica', type: 'principal', accent: '#f4a261', badge: 'Mecânica', isNew: true, createdAt: '2026-08-16', altLinks: [{ label: 'Versão adaptada', href: 'LaboratorioDeColisoes/LaboratorioDeColisoes_Adaptada.html' }] },
+            { title: 'Lançamento de Projéteis', description: 'Simulação PhET para investigar componentes da velocidade, altura máxima, alcance e tempo de voo.', href: 'LancamentoDeProjeteis/LancamentoDeProjeteis.html', section: 'mecanica', type: 'principal', accent: '#e76f51', badge: 'Mecânica', isNew: true, createdAt: '2026-08-18', altLinks: [{ label: 'Versão adaptada', href: 'LancamentoDeProjeteis/LancamentoDeProjeteis_AdaptadaN2.html' }] },
+            { title: 'Molas e Lei de Hooke', description: 'Duas animações PhET para explorar força elástica, deformação, energia e associação de molas.', href: 'Molas/Molas.html', section: 'mecanica', type: 'principal', accent: '#577590', badge: 'Mecânica', isNew: true, createdAt: '2026-08-18', altLinks: [{ label: 'Versão adaptada', href: 'Molas/Molas_AdaptadaN2.html' }] },
+            { title: 'Relatório com envio direto', description: 'Ferramenta para registrar uma experiência real, enviar o vídeo diretamente da galeria e preencher o relatório escrito do grupo.', href: 'RelatorioLaboratorio/RelatorioLaboratorio_1_envio_direto.html', section: 'laboratorio', type: 'principal', accent: '#176b87', badge: 'Laboratório', isNew: true, createdAt: '2026-09-24' },
+            { title: 'Relatório de Laboratório 3', description: 'Ferramenta para registrar uma experiência real, enviar o vídeo compartilhado e preencher o relatório escrito do grupo.', href: 'RelatorioLaboratorio/RelatorioLaboratorio_3.html', section: 'laboratorio', type: 'principal', accent: '#176b87', badge: 'Laboratório', isNew: true, createdAt: '2026-09-02' },
+        ];
+
+        const sectionLabels = {
+            destaques: { title: 'Destaques', note: 'Mostra os 4 itens selecionados para destaque pelo professor.' },
+            eletricidade: { title: 'Eletricidade e Magnetismo', note: 'Cargas, circuitos, corrente, indução e campo magnético.' },
+            termologia: { title: 'Termologia e Radiação', note: 'Temperatura, calor, radiação térmica e termodinâmica.' },
+            ondas: { title: 'Ondas, Cor e Óptica', note: 'Propagação, cor, imagens e fenômenos ondulatórios.' },
+            mecanica: { title: 'Mecânica', note: 'Movimento, força, energia, trabalho e colisões.' },
+            moderna: { title: 'Física Moderna', note: 'Modelos atômicos, relatividade, espectrometria e tópicos especiais.' },
+            laboratorio: { title: 'Relatórios de Laboratório', note: 'Registro de experiências reais, evidências em vídeo e relatórios escritos.' },
+            colecoes: { title: 'Coleções e Apoio', note: 'Coleções maiores, avaliações e versões alternativas.' }
+        };
+
+        const thumbnailMap = {
+            'EletrostaticaCapacitores/EletrostaticaCapacitores.html': '_shared/index-thumbs/Eletrostatica-Capacitores.png',
+            'CircuitosEletricosDC/CircuitosEletricosDC.html': '_shared/index-thumbs/circuitos-eletricos-dc.png',
+            'LeiDeCoulomb/LeiDeCoulomb.html': '_shared/index-thumbs/lei-de-coulomb.png',
+            'LEDeOLED/LEDeOLED.html': '_shared/index-thumbs/led-e-oled.png',
+            'FotossinteseSolar/Fotossintese.html': '_shared/index-thumbs/fotossintese.png',
+            'https://ondasecores.onrender.com': '_shared/index-thumbs/simulacoes-python.png',
+            'LeideOhm/LeideOhm.html': '_shared/index-thumbs/lei-de-ohm.png',
+            'Resistencia/Resistencia.html': '_shared/index-thumbs/resistencia-eletrica.png',
+            'ForcaMagnetica/ForcaMagnetica.html': '_shared/index-thumbs/forca-magnetica.png',
+            'LeideAmpere/LeideAmpere.html': '_shared/index-thumbs/lei-de-ampere.png',
+            'LeideFaraday/LeideFaraday.html': '_shared/index-thumbs/lei-de-faraday.png',
+            'MotoresGeradores/MotoresGeradores.html': '_shared/index-thumbs/motores-e-geradores.png',
+            'Solenoide/Solenoide.html': '_shared/index-thumbs/solenoide.png',
+            'Transformadores/Transformadores.html': '_shared/index-thumbs/transformadores.png',
+            'RadiacaodeCorpoNegro/RadiacaodeCorpoNegro.html': '_shared/index-thumbs/radiacao-de-corpo-negro.png',
+            'ComportamentoDosGases/ComportamentoDosGases.html': '_shared/index-thumbs/comportamento-dos-gases.png',
+            'Calorimetria/Calorimetria.html': '_shared/index-thumbs/calorimetria.png',
+            'FluxoDeCalor/FluxoDeCalor.html': '_shared/index-thumbs/fluxo-de-calor.png',
+            'Termologia/Termologia.html': '_shared/index-thumbs/termologia.png',
+            'Joule/Joule.html': '_shared/index-thumbs/joule.png',
+            'DilatacaoTermica/DilatacaoTermica.html': '_shared/index-thumbs/dilatacao-termica.png',
+            'EscalasTermom%C3%A9tricas/EscalasTermometricas.html': '_shared/index-thumbs/escalas-termometricas.png',
+            'MaquinadeCarnot/CiclodeCarnot.html': '_shared/index-thumbs/maquina-de-carnot.png',
+            'Ondas/Ondas1D/Ondas1D.html': '_shared/index-thumbs/ondas-1d.png',
+            'Ondas/Ondas2D/Ondas2D.html': '_shared/index-thumbs/ondas-2d.png',
+            'OpticaGeometrica/OpticaGeometrica.html': '_shared/index-thumbs/optica-geometrica.png',
+            'AtomodeHidrogenio/AtomodeHidrogenio.html': '_shared/index-thumbs/atomo-de-hidrogenio.png',
+            'EfeitoFotoEletrico/EfeitoFotoEletrico.html': '_shared/index-thumbs/efeito-fotoeletrico.png',
+            'EspectrometrodeMassa/EspectrometrodeMassa.html': '_shared/index-thumbs/espectrometro-de-massa.png',
+            'TunelamentoQuantico/TunelamentoQuantico.html': '_shared/index-thumbs/tunelamento-quantico.png',
+            'RelatividadeEspecial/RelatividadeEspecial.html': '_shared/index-thumbs/relatividade-especial.png',
+            'EnergiaNaPistaDeSkate/EnergiaNaPistaDeSkate.html': '_shared/index-thumbs/energia-na-pista-de-skate.png',
+            'LaboratorioDeColisoes/LaboratorioDeColisoes.html': '_shared/index-thumbs/laboratorio-de-colisoes.png',
+            'LancamentoDeProjeteis/LancamentoDeProjeteis.html': '_shared/index-thumbs/laboratorio-de-projeteis.png',
+            'Molas/Molas.html': '_shared/index-thumbs/molas.png',
+            'RelatorioLaboratorio/RelatorioLaboratorio_3.html': '_shared/index-thumbs/relatorio_de_experiencia_1.png',
+            'RelatorioLaboratorio/RelatorioLaboratorio_1_envio_direto.html': '_shared/index-thumbs/relatorio_de_experiencia_1.png',
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const levelSelect = document.getElementById('levelSelect');
+        const sectionsRoot = document.getElementById('sectionsRoot');
+        const summaryText = document.getElementById('summaryText');
+        const modePill = document.getElementById('modePill');
+        const emptyState = document.getElementById('emptyState');
+
+        function isAbsoluteUrl(path) {
+            return /^https?:\/\//i.test(path);
+        }
+
+        function buildOnlineUrl(path) {
+            return isAbsoluteUrl(path) ? path : onlineBaseUrl + path;
+        }
+
+        function buildPrimaryUrl(path) {
+            if (isAbsoluteUrl(path)) {
+                return path;
+            }
+            return isLocalRuntime ? path : buildOnlineUrl(path);
+        }
+
+        function getInitials(title) {
+            const words = title.split(/\s+/).filter(function(word) {
+                return word.length > 2;
+            });
+            const picked = words.slice(0, 2);
+            return picked.map(function(word) {
+                return word.charAt(0).toUpperCase();
+            }).join('');
+        }
+
+        function renderThumbnail(item) {
+            const thumbPath = thumbnailMap[item.href];
+            return `
+                <div class="thumb-shot">
+                    ${thumbPath ? `<img src="${thumbPath}" alt="Miniatura da simulação ${item.title}" loading="lazy">` : `<div class="thumb-fallback">${getInitials(item.title)}</div>`}
+                    <span class="thumb-badge-mini">${item.badge}</span>
+                </div>
+            `;
+        }
+
+        function formatDateBadge(value) {
+            if (!value) {
+                return '';
+            }
+            const date = new Date(value + 'T00:00:00');
+            if (Number.isNaN(date.getTime())) {
+                return '';
+            }
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            return `${day}/${month}`;
+        }
+
+        function getNewsDate(item) {
+            return item.updatedAt || item.createdAt || '';
+        }
+
+        function matchesFilters(item) {
+            const term = searchInput.value.trim().toLowerCase();
+            const category = categorySelect.value;
+            const level = levelSelect.value;
+            const searchable = `${item.title} ${item.description} ${item.badge} ${item.type}`.toLowerCase();
+            const matchesText = !term || searchable.includes(term);
+            const matchesCategory = category === 'all' || (category === 'destaques' ? !!item.isFeatured : item.section === category);
+            const matchesLevel = level === 'all' || item.type === level;
+            return matchesText && matchesCategory && matchesLevel;
+        }
+
+        function groupBySection(items) {
+            return items.reduce(function(map, item) {
+                if (!map[item.section]) {
+                    map[item.section] = [];
+                }
+                map[item.section].push(item);
+                return map;
+            }, {});
+        }
+
+        function updateModePill() {
+            if (levelSelect.value === 'principal') {
+                modePill.textContent = 'Modo atual: páginas principais';
+                return;
+            }
+            if (levelSelect.value === 'all') {
+                modePill.textContent = 'Modo atual: acervo completo';
+                return;
+            }
+            if (levelSelect.value === 'colecao') {
+                modePill.textContent = 'Modo atual: coleções';
+                return;
+            }
+            modePill.textContent = 'Modo atual: apoio';
+        }
+
+        function render() {
+            const filtered = simulations.filter(matchesFilters);
+            const destaquesItems = filtered
+                .filter(function(item) {
+                    return item.type === 'principal' && item.isFeatured;
+                })
+                .sort(function(a, b) {
+                    return (a.featuredOrder || 999) - (b.featuredOrder || 999);
+                })
+                .slice(0, 4);
+
+            const grouped = groupBySection(filtered.filter(function(item) {
+                return categorySelect.value !== 'destaques';
+            }));
+            sectionsRoot.innerHTML = '';
+            emptyState.style.display = (filtered.length || destaquesItems.length) ? 'none' : 'block';
+            updateModePill();
+
+            const visibleCount = filtered.length;
+            const totalCount = simulations.length;
+            summaryText.textContent = `${visibleCount} de ${totalCount} páginas exibidas. A seção Destaques mostra os 4 itens selecionados.`;
+
+            Object.keys(sectionLabels).forEach(function(sectionKey) {
+                const sectionItems = grouped[sectionKey] || [];
+                const items = sectionKey === 'destaques' ? destaquesItems : sectionItems;
+                if (!items.length) {
+                    return;
+                }
+
+                const section = document.createElement('section');
+                section.className = 'section';
+                section.innerHTML = `
+                    <div class="section-header">
+                        <div>
+                            <h2>${sectionLabels[sectionKey].title}</h2>
+                            <p class="section-note">${sectionLabels[sectionKey].note}</p>
+                        </div>
+                        <div class="section-note">${items.length} página(s)</div>
+                    </div>
+                    <div class="cards"></div>
+                `;
+
+                const cards = section.querySelector('.cards');
+                items.forEach(function(item) {
+                    const openUrl = buildPrimaryUrl(item.href);
+                    const externalLink = isAbsoluteUrl(item.href);
+                    const dateBadge = formatDateBadge(getNewsDate(item));
+                    const altLinksMarkup = (item.altLinks || []).map(function(link) {
+                        const altUrl = buildPrimaryUrl(link.href);
+                        return `<a class="secondary-link" href="${altUrl}" target="_blank" rel="noreferrer">${link.label}</a>`;
+                    }).join('');
+                    const card = document.createElement('article');
+                    card.className = 'card';
+                    card.style.setProperty('--accent', item.accent);
+                    card.innerHTML = `
+                        <div class="card-media">
+                            <div class="media-mark">
+                                ${renderThumbnail(item)}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3>${item.title}</h3>
+                            <div class="meta-row">
+                                <span class="meta-chip">${sectionLabels[item.section].title}</span>
+                                ${dateBadge ? `<span class="meta-chip">Atualizada em ${dateBadge}</span>` : ''}
+                            </div>
+                            <p>${item.description}</p>
+                            <div class="card-actions">
+                                <a href="${openUrl}" target="_blank" rel="noreferrer">${externalLink ? 'Abrir site' : (isLocalRuntime ? 'Abrir simulação' : 'Abrir online')}</a>
+                                ${altLinksMarkup}
+                            </div>
+                        </div>
+                    `;
+                    cards.appendChild(card);
+                });
+
+                sectionsRoot.appendChild(section);
+            });
+        }
+
+        searchInput.addEventListener('input', render);
+        categorySelect.addEventListener('change', render);
+        levelSelect.addEventListener('change', render);
+
+        render();
+    </script>
+
+</body>
+</html>
